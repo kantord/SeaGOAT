@@ -41,3 +41,7 @@ jobs:
       run: |
         poetry run pylint tests --rcfile .tests.pylintrc
 
+    - name: run black for python files
+      run: |
+        poetry run black codector tests
+
