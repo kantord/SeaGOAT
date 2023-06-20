@@ -4,6 +4,7 @@
 
 from collections import defaultdict
 from typing import DefaultDict
+import time
 
 from git.repo import Repo
 
@@ -45,12 +46,12 @@ class Codector:
         found_files: DefaultDict[str, float] = defaultdict(int)
 
         for commit in all_commits.values():
-            files_in_commit = set()
-            for item in commit.diff():
-                for path in tuple(set((item.a_path, item.b_path))):
-                    if path:
-                        files_in_commit.add(path)
-            for files in files_in_commit:
-                found_files[files] += 1
+            for file in commit.stats.files:
+                current_time = int(time.time())
+                age_of_commit_in_seconds = (
+                    current_time - commit.committed_date
+                )  # age in seconds
+                age_of_commit_in_days = int(age_of_commit_in_seconds / 86400)
+                found_files[file] += 100 / (age_of_commit_in_days**2)
 
         return sorted(found_files.keys(), key=lambda x: found_files[x], reverse=True)
