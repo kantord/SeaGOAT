@@ -13,7 +13,7 @@ from git.util import Actor
 class MockRepo(Repo):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fake_commit_date = datetime.now(timezone.utc) - timedelta(days=40)
+        self.fake_commit_date = datetime.now(timezone.utc) - timedelta(days=400)
         self.actors = {
             "John Doe": Actor("John Doe", "jdoe@example.com"),
             "Alice Smith": Actor("Alice Smith", "asmith@example.com"),
