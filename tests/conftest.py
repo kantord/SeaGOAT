@@ -12,6 +12,11 @@ class MockRepo(Repo):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fake_commit_date = datetime.now(timezone.utc) - timedelta(days=4)
+        self.actors = {
+            "John Doe": Actor("John Doe", "jdoe@example.com"),
+            "Alice Smith": Actor("Alice Smith", "asmith@example.com"),
+            "Charlie Brown": Actor("Charlie Brown", "cbrown@example.com"),
+        }
 
     def tick_fake_date(self, days=0, hours=0):
         delta = timedelta(days=days, hours=hours)
@@ -26,8 +31,8 @@ class MockRepo(Repo):
                     "# Markdown file\nThis is an example Markdown file. Updated.",
                 ],
                 "authors": [
-                    Actor("John Doe", "jdoe@example.com"),
-                    Actor("Alice Smith", "asmith@example.com"),
+                    self.actors["John Doe"],
+                    self.actors["Alice Smith"],
                 ],
                 "commit_messages": [
                     "Initial commit for Markdown file",
@@ -41,8 +46,8 @@ class MockRepo(Repo):
                     "# This is an updated example Python file",
                 ],
                 "authors": [
-                    Actor("Alice Smith", "asmith@example.com"),
-                    Actor("Charlie Brown", "cbrown@example.com"),
+                    self.actors["Alice Smith"],
+                    self.actors["Charlie Brown"],
                 ],
                 "commit_messages": [
                     "Initial commit for Python file",
@@ -52,7 +57,7 @@ class MockRepo(Repo):
             {
                 "name": "file3.py",
                 "contents": ["# This is another example Python file"],
-                "authors": [Actor("Charlie Brown", "cbrown@example.com")],
+                "authors": [self.actors["Charlie Brown"]],
                 "commit_messages": ["Initial commit for another Python file"],
             },
             {
@@ -63,9 +68,9 @@ class MockRepo(Repo):
                     "// This is a second updated example JavaScript file",
                 ],
                 "authors": [
-                    Actor("John Doe", "jdoe@example.com"),
-                    Actor("Alice Smith", "asmith@example.com"),
-                    Actor("Charlie Brown", "cbrown@example.com"),
+                    self.actors["John Doe"],
+                    self.actors["Alice Smith"],
+                    self.actors["Charlie Brown"],
                 ],
                 "commit_messages": [
                     "Initial commit for JavaScript file",
