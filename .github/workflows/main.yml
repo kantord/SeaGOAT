@@ -33,3 +33,11 @@ jobs:
       run: |
         poetry run pytest
 
+    - name: run pylint for code files
+      run: |
+        poetry run pylint codector
+
+    - name: run pylint for test files
+      run: |
+        poetry run pylint tests --rcfile .tests.pylintrc
+
