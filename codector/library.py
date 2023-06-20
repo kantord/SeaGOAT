@@ -34,4 +34,18 @@ class Codector:
         """
         Returns a set of all the tracked files in the repository
         """
-        return {item.path for item in self.repo.tree()}
+        all_commits = {}
+
+        for branch in self.repo.branches:
+            for commit in self.repo.iter_commits(branch):
+                all_commits[commit.hexsha] = commit
+
+        found_files = set()
+
+        for commit in all_commits.values():
+            for item in commit.diff():
+                for path in (item.a_path, item.b_path):
+                    if path:
+                        found_files.add(path)
+
+        return found_files
