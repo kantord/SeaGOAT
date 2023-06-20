@@ -3,6 +3,9 @@
 """
 
 
+from git.repo import Repo
+
+
 class Codector:
     """
     A search engine for a code repository
@@ -13,6 +16,7 @@ class Codector:
         Initializes the library
         """
         self.path = path
+        self.repo = Repo(path)
 
     def version(self):
         """
@@ -27,4 +31,7 @@ class Codector:
         return False
 
     def files(self):
-        return {"file1.md", "file2.py", "file3.py", "file4.js"}
+        """
+        Returns a set of all the tracked files in the repository
+        """
+        return {item.path for item in self.repo.tree()}

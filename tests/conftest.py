@@ -4,8 +4,10 @@ import os
 import tempfile
 import shutil
 from datetime import datetime, timedelta, timezone
+from typing import cast
 import pytest
-from git import Repo, Actor
+from git.repo import Repo
+from git.util import Actor
 
 
 class MockRepo(Repo):
@@ -110,7 +112,7 @@ class MockRepo(Repo):
 @pytest.fixture
 def repo():
     new_directory = tempfile.mkdtemp()
-    repo = MockRepo.init(new_directory)
+    repo = cast(MockRepo, MockRepo.init(new_directory))
     repo.add_fake_data()
     yield repo
     shutil.rmtree(new_directory)

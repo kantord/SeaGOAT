@@ -27,5 +27,6 @@ repos:
         always_run: true
 -   repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.314
+    exclude: ^typings/
     hooks:
       - id: pyright
