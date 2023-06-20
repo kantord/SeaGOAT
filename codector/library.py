@@ -8,6 +8,12 @@ class Codector:
     A search engine for a code repository
     """
 
+    def __init__(self, path):
+        """
+        Initializes the library
+        """
+        self.path = path
+
     def version(self):
         """
         Returns the version of the library
