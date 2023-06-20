@@ -1,11 +1,6 @@
 from codector.library import Codector
 
 
-def test_version_method_returns_poetry_package_version(repo):
+def test_returns_file_list_1(repo):
     codector = Codector(repo.working_dir)
-    assert codector.version() == "0.1.0"
-
-
-# def test_has_an_is_ready_method_that_returns_false(repo):
-#     codector = Codector(repo.worinir)
-#     assert not codector.is_ready()
+    assert set(codector.files()) == {"file1.md", "file2.py", "file3.py", "file4.js"}

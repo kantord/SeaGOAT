@@ -34,6 +34,7 @@ reportMissingTypeStubs = true
 
 pythonVersion = "3.11"
 pythonPlatform = "Linux"
+strict = ["codector"]
 
 executionEnvironments = [
   { root = "src" }
