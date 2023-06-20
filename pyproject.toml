@@ -16,7 +16,25 @@ pytest = "^7.3.2"
 pylint = "^2.17.4"
 black = "^23.3.0"
 pre-commit = "^3.3.3"
+pyright = "^1.1.314"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = ["codector"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+]
+ignore = []
+
+reportMissingImports = false
+reportMissingTypeStubs = true
+
+pythonVersion = "3.11"
+pythonPlatform = "Linux"
+
+executionEnvironments = [
+  { root = "src" }
+]
