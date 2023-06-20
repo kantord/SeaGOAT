@@ -2,6 +2,8 @@
     This module allows you to use Codector as a library
 """
 
+from collections import defaultdict
+from typing import DefaultDict
 
 from git.repo import Repo
 
@@ -40,12 +42,15 @@ class Codector:
             for commit in self.repo.iter_commits(branch):
                 all_commits[commit.hexsha] = commit
 
-        found_files = set()
+        found_files: DefaultDict[str, float] = defaultdict(int)
 
         for commit in all_commits.values():
+            files_in_commit = set()
             for item in commit.diff():
-                for path in (item.a_path, item.b_path):
+                for path in tuple(set((item.a_path, item.b_path))):
                     if path:
-                        found_files.add(path)
+                        files_in_commit.add(path)
+            for files in files_in_commit:
+                found_files[files] += 1
 
-        return found_files
+        return sorted(found_files.keys(), key=lambda x: found_files[x], reverse=True)
