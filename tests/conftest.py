@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+
 import os
 import tempfile
 import shutil
@@ -76,7 +78,9 @@ def repo(tmp):
 
     for file_change in file_changes:
         for i in range(len(file_change["contents"])):
-            with open(os.path.join(tmp, file_change["name"]), "w", encoding="utf-8") as output_file:
+            with open(
+                os.path.join(tmp, file_change["name"]), "w", encoding="utf-8"
+            ) as output_file:
                 output_file.write(file_change["contents"][i])
 
             git_repo.index.add([file_change["name"]])
