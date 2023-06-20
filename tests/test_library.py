@@ -37,3 +37,16 @@ def test_gets_files_from_all_branches(repo):
     main.checkout()
 
     assert "file_on_other_branch.cpp" in codector.files()
+
+
+def test_file_change_many_times_is_first_result(repo):
+    codector = Codector(repo.working_dir)
+    for i in range(10):
+        repo.add_file_change_commit(
+            file_name="new_file.txt",
+            contents=f"{i}",
+            author=repo.actors["John Doe"],
+            commit_message="add my file",
+        )
+
+    assert codector.files()[0] == "new_file.txt"
