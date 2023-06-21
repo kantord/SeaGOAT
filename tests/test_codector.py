@@ -1,4 +1,4 @@
-from codector.library import Codector
+from codector.codector import Codector
 
 
 def test_returns_file_list_1(repo):
