@@ -3,7 +3,6 @@
 """
 
 from typing import Dict, List
-import time
 
 from git.repo import Repo
 from tqdm import tqdm
@@ -55,13 +54,7 @@ class Codector:
             for path in commit.stats.files:
                 if path not in self._file_data:
                     self._file_data[path] = File(path)
-                self._file_data[path].add_commit_message(commit.message)
-                current_time = int(time.time())
-                age_of_commit_in_seconds = current_time - commit.committed_date
-                age_of_commit_in_days = int(age_of_commit_in_seconds / 86400)
-                self._file_data[path].increment_score(
-                    100 / (age_of_commit_in_days**2)
-                )
+                self._file_data[path].add_commit(commit)
 
         self._sort_files()
 
