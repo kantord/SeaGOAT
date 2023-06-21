@@ -17,8 +17,8 @@ def test_returns_file_list_1(repo):
         "file4.js",
     }
     assert codector.get_file("file1.md").commit_messages == [
-        "Update to Markdown file",
         "Initial commit for Markdown file",
+        "Update to Markdown file",
     ]
 
 

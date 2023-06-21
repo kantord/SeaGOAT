@@ -14,8 +14,12 @@ class File:
         self.score += 100 / max((age_of_commit_in_days**2), 1)
 
     def _add_commit_message(self, message: str):
-        if message not in self.commit_messages:
-            self.commit_messages.append(message)
+        self.commit_messages = sorted(
+            set(self.commit_messages)
+            | {
+                message,
+            }
+        )
 
     def add_commit(self, commit):
         self._add_commit_message(commit.message)
