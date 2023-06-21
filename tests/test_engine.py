@@ -195,3 +195,26 @@ def test_damaged_cache_doesnt_crash_app_2(repo):
         "file3.py",
         "file4.js",
     }
+
+
+def test_only_returns_supported_file_types(repo):
+    codector = Engine(repo.working_dir)
+    for i in range(10):
+        repo.add_file_change_commit(
+            file_name=f"new_file.txt.extension{i}",
+            contents=f"{i}",
+            author=repo.actors["John Doe"],
+            commit_message="add my file",
+        )
+    codector.analyze_files()
+
+    assert set(file.path for file in codector.top_files()) == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+    }
+    assert codector.get_file("file1.md").commit_messages == [
+        "Initial commit for Markdown file",
+        "Update to Markdown file",
+    ]
