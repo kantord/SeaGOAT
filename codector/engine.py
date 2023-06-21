@@ -16,7 +16,7 @@ from codector.file import File
 
 
 IGNORED_BRANCHES = {"gh-pages"}
-CACHE_FORMAT_VERSION = 1
+CACHE_FORMAT_VERSION = 2
 
 
 class Engine:
@@ -33,6 +33,7 @@ class Engine:
         self._sorted_files: List[str] = []
         self._file_data: Dict[str, File] = {}
         self._commits_already_analyzed = set()
+        self._last_analyzed_version_of_branch = {}
         cache_root = self._get_cache_root()
         self.cache_folder = cache_root / self._get_project_hash()
         self.cache_folder.mkdir(parents=True, exist_ok=True)
@@ -47,22 +48,24 @@ class Engine:
 
     def _load_cache(self):
         try:
-            with open(self.cache_folder / "commits", "rb") as commits_file:
-                self._commits_already_analyzed = pickle.load(commits_file)
-            with open(self.cache_folder / "file_data", "rb") as file_data_file:
-                self._file_data = pickle.load(file_data_file)
-            with open(self.cache_folder / "sorted_files", "rb") as sorted_files_file:
-                self._sorted_files = pickle.load(sorted_files_file)
+            with open(self.cache_folder / "cache", "rb") as cache_file:
+                cache_tuple = pickle.load(cache_file)
+                (
+                    self._commits_already_analyzed,
+                    self._file_data,
+                    self._sorted_files,
+                ) = cache_tuple
         except FileNotFoundError:
             print("Cache not found, need to analyze files")
 
     def _write_cache(self):
-        with open(self.cache_folder / "commits", "wb") as commits_file:
-            pickle.dump(self._commits_already_analyzed, commits_file)
-        with open(self.cache_folder / "file_data", "wb") as file_data_file:
-            pickle.dump(self._file_data, file_data_file)
-        with open(self.cache_folder / "sorted_files", "wb") as sorted_files_file:
-            pickle.dump(self._sorted_files, sorted_files_file)
+        with open(self.cache_folder / "cache", "wb") as cache_file:
+            cache_tuple = (
+                self._commits_already_analyzed,
+                self._file_data,
+                self._sorted_files,
+            )
+            pickle.dump(cache_tuple, cache_file)
 
     def _get_project_hash(self):
         normalized_path = Path(self.path).expanduser().resolve()
