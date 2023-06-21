@@ -16,7 +16,7 @@ from codector.file import File
 
 
 IGNORED_BRANCHES = {"gh-pages"}
-CACHE_FORMAT_VERSION = 2
+CACHE_FORMAT_VERSION = 3
 
 
 class Engine:
@@ -33,11 +33,15 @@ class Engine:
         self._sorted_files: List[str] = []
         self._file_data: Dict[str, File] = {}
         self._commits_already_analyzed = set()
+        self._commits = {}
         self._last_analyzed_version_of_branch = {}
-        cache_root = self._get_cache_root()
-        self.cache_folder = cache_root / self._get_project_hash()
-        self.cache_folder.mkdir(parents=True, exist_ok=True)
         self._load_cache()
+
+    def _get_cache_folder(self):
+        cache_folder = self._get_cache_root() / self._get_project_hash()
+        cache_folder.mkdir(parents=True, exist_ok=True)
+
+        return cache_folder
 
     def _get_cache_root(self):
         return Path(
@@ -48,22 +52,26 @@ class Engine:
 
     def _load_cache(self):
         try:
-            with open(self.cache_folder / "cache", "rb") as cache_file:
+            with open(self._get_cache_folder() / "cache", "rb") as cache_file:
                 cache_tuple = pickle.load(cache_file)
                 (
                     self._commits_already_analyzed,
                     self._file_data,
                     self._sorted_files,
+                    self._commits,
+                    self._last_analyzed_version_of_branch,
                 ) = cache_tuple
-        except FileNotFoundError:
+        except (FileNotFoundError, pickle.UnpicklingError, EOFError):
             print("Cache not found, need to analyze files")
 
     def _write_cache(self):
-        with open(self.cache_folder / "cache", "wb") as cache_file:
+        with open(self._get_cache_folder() / "cache", "wb") as cache_file:
             cache_tuple = (
                 self._commits_already_analyzed,
                 self._file_data,
                 self._sorted_files,
+                self._commits,
+                self._last_analyzed_version_of_branch,
             )
             pickle.dump(cache_tuple, cache_file)
 
@@ -77,15 +85,16 @@ class Engine:
         return hashlib.sha256(text.encode()).hexdigest()
 
     def _get_all_commits(self):
-        all_commits = {}
-
         for branch in tqdm(self.repo.branches, desc="Analyzing branches"):
             if branch.name in IGNORED_BRANCHES:
                 continue
+            if self._last_analyzed_version_of_branch.get(branch.name) == branch.commit:
+                continue
             for commit in self.repo.iter_commits(branch):
-                all_commits[commit.hexsha] = commit
+                self._commits[commit.hexsha] = commit
+            self._last_analyzed_version_of_branch[branch.name] = branch.commit
 
-        return all_commits.values()
+        return self._commits.values()
 
     def _sort_files(self):
         self._sorted_files = list(
