@@ -35,4 +35,4 @@ jobs:
 
     - name: run pytest
       run: |
-        poetry run run pytest .
+        poetry run pytest .
