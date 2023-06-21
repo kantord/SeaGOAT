@@ -72,3 +72,8 @@ class Codector:
 
     def top_files(self):
         return [self._file_data[path] for path in self._sorted_files]
+
+    def get_file(self, path: str):
+        if path not in self._file_data:
+            raise RuntimeError("File not found or not analyzed yet")
+        return self._file_data[path]
