@@ -1,3 +1,5 @@
+# pylint: disable=protected-access
+
 from unittest.mock import patch
 
 from codector.engine import Engine
@@ -142,6 +144,51 @@ def test_analysis_results_are_persisted_between_runs(repo):
         call_count = mock_add_commit.call_count
 
     assert call_count == 0
+    assert set(file.path for file in codector2.top_files()) == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+    }
+
+
+def test_damaged_cache_doesnt_crash_app_1(repo):
+    codector1 = Engine(repo.working_dir)
+    codector1.analyze_files()
+    cache_folder = codector1._get_cache_folder()
+    with open(cache_folder / "cache", "rb") as input_file:
+        data = input_file.read()
+    damaged_data = data[:-1]
+    with open(cache_folder / "cache", "wb") as output_file:
+        output_file.write(damaged_data)
+    del codector1
+    codector2 = Engine(repo.working_dir)
+    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
+        codector2.analyze_files()
+        call_count = mock_add_commit.call_count
+
+    assert call_count != 0
+    assert set(file.path for file in codector2.top_files()) == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+    }
+
+
+def test_damaged_cache_doesnt_crash_app_2(repo):
+    codector1 = Engine(repo.working_dir)
+    codector1.analyze_files()
+    cache_folder = codector1._get_cache_folder()
+    with open(cache_folder / "cache", "wb"):
+        pass
+    del codector1
+    codector2 = Engine(repo.working_dir)
+    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
+        codector2.analyze_files()
+        call_count = mock_add_commit.call_count
+
+    assert call_count != 0
     assert set(file.path for file in codector2.top_files()) == {
         "file1.md",
         "file2.py",
