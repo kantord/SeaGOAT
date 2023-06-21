@@ -1,7 +1,7 @@
 import sys
 
-from .codector import Codector
+from .engine import Engine
 
 
-my_codector = Codector(sys.argv[1])
+my_codector = Engine(sys.argv[1])
 my_codector.analyze_files()
