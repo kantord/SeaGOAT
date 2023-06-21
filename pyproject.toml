@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 chromadb = "^0.3.26"
 gitpython = "^3.1.31"
+tqdm = "^4.65.0"
 
 [virtualenvs]
 in-project = true
