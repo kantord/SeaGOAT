@@ -89,3 +89,22 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
     codector.analyze_files()
 
     assert codector.top_files()[0].path == "new_file.txt"
+
+
+def test_ignores_certain_branches(repo):
+    codector = Codector(repo.working_dir)
+    main = repo.active_branch
+    new_branch = repo.create_head("gh-pages")
+    new_branch.checkout()
+    repo.add_file_change_commit(
+        file_name="file_on_other_branch.cpp",
+        contents="",
+        author=repo.actors["John Doe"],
+        commit_message="add my file",
+    )
+    main.checkout()
+    codector.analyze_files()
+
+    assert not any(
+        file.path == "file_on_other_branch.cpp" for file in codector.top_files()
+    )

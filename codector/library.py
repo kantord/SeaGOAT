@@ -6,6 +6,10 @@ from typing import Dict, List
 import time
 
 from git.repo import Repo
+from tqdm import tqdm
+
+
+IGNORED_BRANCHES = {"gh-pages"}
 
 
 class File:
@@ -38,7 +42,9 @@ class Codector:
     def _get_all_commits(self):
         all_commits = {}
 
-        for branch in self.repo.branches:
+        for branch in tqdm(self.repo.branches, desc="Analyzing branches"):
+            if branch.name in IGNORED_BRANCHES:
+                continue
             for commit in self.repo.iter_commits(branch):
                 all_commits[commit.hexsha] = commit
 
@@ -56,7 +62,7 @@ class Codector:
     def analyze_files(self):
         self._file_data = {}
 
-        for commit in self._get_all_commits():
+        for commit in tqdm(self._get_all_commits(), desc="Analyzing commits"):
             for path in commit.stats.files:
                 if path not in self._file_data:
                     self._file_data[path] = File(path)
