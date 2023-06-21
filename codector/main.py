@@ -1,6 +1,6 @@
 import sys
 
-from .engine import Engine
+from engine import Engine
 
 
 my_codector = Engine(sys.argv[1])
