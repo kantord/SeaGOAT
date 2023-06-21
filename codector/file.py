@@ -11,7 +11,7 @@ class File:
         current_time = int(time.time())
         age_of_commit_in_seconds = current_time - committed_date
         age_of_commit_in_days = int(age_of_commit_in_seconds / 86400)
-        self.score += 100 / (age_of_commit_in_days**2)
+        self.score += 100 / max((age_of_commit_in_days**2), 1)
 
     def _add_commit_message(self, message: str):
         if message not in self.commit_messages:
