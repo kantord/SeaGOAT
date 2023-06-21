@@ -3,7 +3,19 @@ from codector.library import Codector
 
 def test_returns_file_list_1(repo):
     codector = Codector(repo.working_dir)
-    assert set(codector.files()) == {"file1.md", "file2.py", "file3.py", "file4.js"}
+    codector.analyze_files()
+
+    assert set(file.path for file in codector.top_files()) == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+    }
+    file1 = [file for file in codector.top_files() if file.path == "file1.md"][0]
+    assert file1.commit_messages == {
+        "Initial commit for Markdown file",
+        "Update to Markdown file",
+    }
 
 
 def test_returns_file_list_2(repo):
@@ -14,13 +26,17 @@ def test_returns_file_list_2(repo):
         author=repo.actors["John Doe"],
         commit_message="Initial commit for C++ file",
     )
-    assert set(codector.files()) == {
+    codector.analyze_files()
+
+    assert set(file.path for file in codector.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
         "new_file.cpp",
     }
+    new_file = [file for file in codector.top_files() if file.path == "new_file.cpp"][0]
+    assert new_file.commit_messages == {"Initial commit for C++ file"}
 
 
 def test_gets_files_from_all_branches(repo):
@@ -35,8 +51,9 @@ def test_gets_files_from_all_branches(repo):
         commit_message="add my file",
     )
     main.checkout()
+    codector.analyze_files()
 
-    assert "file_on_other_branch.cpp" in codector.files()
+    assert any(file.path == "file_on_other_branch.cpp" for file in codector.top_files())
 
 
 def test_file_change_many_times_is_first_result(repo):
@@ -48,8 +65,9 @@ def test_file_change_many_times_is_first_result(repo):
             author=repo.actors["John Doe"],
             commit_message="add my file",
         )
+    codector.analyze_files()
 
-    assert codector.files()[0] == "new_file.txt"
+    assert codector.top_files()[0].path == "new_file.txt"
 
 
 def test_newer_change_can_beat_frequent_change_in_past(repo):
@@ -68,5 +86,6 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
         author=repo.actors["John Doe"],
         commit_message="add another file",
     )
+    codector.analyze_files()
 
-    assert codector.files()[0] == "new_file.txt"
+    assert codector.top_files()[0].path == "new_file.txt"
