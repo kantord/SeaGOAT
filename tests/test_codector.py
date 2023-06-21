@@ -1,11 +1,11 @@
 from unittest.mock import patch
 
-from codector.codector import Codector
+from codector.engine import Engine
 from codector.file import File
 
 
 def test_returns_file_list_1(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     codector.analyze_files()
 
     assert set(file.path for file in codector.top_files()) == {
@@ -21,7 +21,7 @@ def test_returns_file_list_1(repo):
 
 
 def test_returns_file_list_2(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     repo.add_file_change_commit(
         file_name="new_file.cpp",
         contents="#include <iostream>",
@@ -43,7 +43,7 @@ def test_returns_file_list_2(repo):
 
 
 def test_gets_files_from_all_branches(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     main = repo.active_branch
     new_branch = repo.create_head("other_branch")
     new_branch.checkout()
@@ -60,7 +60,7 @@ def test_gets_files_from_all_branches(repo):
 
 
 def test_file_change_many_times_is_first_result(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     for i in range(10):
         repo.add_file_change_commit(
             file_name="new_file.txt",
@@ -74,7 +74,7 @@ def test_file_change_many_times_is_first_result(repo):
 
 
 def test_newer_change_can_beat_frequent_change_in_past(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     for i in range(10):
         repo.add_file_change_commit(
             file_name="old_file.txt",
@@ -95,7 +95,7 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
 
 
 def test_ignores_certain_branches(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     main = repo.active_branch
     new_branch = repo.create_head("gh-pages")
     new_branch.checkout()
@@ -114,7 +114,7 @@ def test_ignores_certain_branches(repo):
 
 
 def test_commits_are_not_analyzed_twice(repo):
-    codector = Codector(repo.working_dir)
+    codector = Engine(repo.working_dir)
     repo.add_file_change_commit(
         file_name="file_to_test.cpp",
         contents="",
@@ -133,10 +133,10 @@ def test_commits_are_not_analyzed_twice(repo):
 
 
 def test_analysis_results_are_persisted_between_runs(repo):
-    codector1 = Codector(repo.working_dir)
+    codector1 = Engine(repo.working_dir)
     codector1.analyze_files()
     del codector1
-    codector2 = Codector(repo.working_dir)
+    codector2 = Engine(repo.working_dir)
     with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
         codector2.analyze_files()
         call_count = mock_add_commit.call_count

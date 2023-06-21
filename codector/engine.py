@@ -19,7 +19,7 @@ IGNORED_BRANCHES = {"gh-pages"}
 CACHE_FORMAT_VERSION = 1
 
 
-class Codector:
+class Engine:
     """
     A search engine for a code repository
     """
