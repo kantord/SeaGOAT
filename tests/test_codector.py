@@ -123,12 +123,28 @@ def test_commits_are_not_analyzed_twice(repo):
     )
 
     with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        codector.analyze_files()  # First analysis
+        codector.analyze_files()
         first_call_count = mock_add_commit.call_count
 
-        codector.analyze_files()  # Second analysis
+        codector.analyze_files()
         second_call_count = mock_add_commit.call_count
 
-    assert (
-        first_call_count == second_call_count
-    ), f"add_commit was called {first_call_count} times first and {second_call_count} times second"
+    assert first_call_count == second_call_count
+
+
+def test_analysis_results_are_persisted_between_runs(repo):
+    codector1 = Codector(repo.working_dir)
+    codector1.analyze_files()
+    del codector1
+    codector2 = Codector(repo.working_dir)
+    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
+        codector2.analyze_files()
+        call_count = mock_add_commit.call_count
+
+    assert call_count == 0
+    assert set(file.path for file in codector2.top_files()) == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+    }

@@ -5,9 +5,12 @@ import tempfile
 import shutil
 from datetime import datetime, timedelta, timezone
 from typing import cast
+from pathlib import Path
+
 import pytest
 from git.repo import Repo
 from git.util import Actor
+import appdirs
 
 
 class MockRepo(Repo):
@@ -116,3 +119,10 @@ def repo():
     repo.add_fake_data()
     yield repo
     shutil.rmtree(new_directory)
+
+
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    yield
+    cache_root = Path(appdirs.user_cache_dir("codector-pytest"))
+    shutil.rmtree(cache_root, ignore_errors=True)
