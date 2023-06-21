@@ -35,18 +35,6 @@ class Codector:
         self._sorted_files: List[str] = []
         self._file_data: Dict[str, File] = {}
 
-    def version(self):
-        """
-        Returns the version of the library
-        """
-        return "0.1.0"
-
-    def is_ready(self):
-        """
-        Returns true if the library is ready
-        """
-        return False
-
     def analyze_files(self):
         self._file_data = {}
 
