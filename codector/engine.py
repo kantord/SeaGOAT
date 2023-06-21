@@ -16,7 +16,21 @@ from codector.file import File
 
 
 IGNORED_BRANCHES = {"gh-pages"}
-CACHE_FORMAT_VERSION = 7
+CACHE_FORMAT_VERSION = 8
+SUPPORTED_FILE_TYPES = {
+    ".txt",
+    ".md",
+    ".py",
+    ".c",
+    ".cpp",
+    ".h",
+    ".hpp",
+    ".ts",
+    ".js",
+    ".tsx",
+    ".jsx",
+    ".html",
+}
 
 
 class Engine:
@@ -118,6 +132,8 @@ class Engine:
                 continue
             self._commits_already_analyzed.add(commit.hexsha)
             for path in commit.stats.files:  # type: ignore[reportGeneralTypeIssues]
+                if Path(path).suffix not in SUPPORTED_FILE_TYPES:
+                    continue
                 if path not in self._file_data:
                     self._file_data[path] = File(path)
                 self._file_data[path].add_commit(commit)

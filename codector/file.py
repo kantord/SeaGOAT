@@ -7,11 +7,14 @@ class File:
         self.score = 0.0
         self.commit_messages = []
 
+    def __repr__(self):
+        return f"<File {self.path} {self.score}>"
+
     def _increment_score(self, committed_date):
         current_time = int(time.time())
         age_of_commit_in_seconds = current_time - committed_date
         age_of_commit_in_days = int(age_of_commit_in_seconds / 86400)
-        self.score += 100 / max((age_of_commit_in_days**2), 1)
+        self.score += 1000 / max((age_of_commit_in_days**2), 1)
 
     def _add_commit_message(self, message: str):
         self.commit_messages = sorted(
