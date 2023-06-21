@@ -1,6 +1,6 @@
 import sys
 
-from library import Codector
+from .codector import Codector
 
 
 my_codector = Codector(sys.argv[1])

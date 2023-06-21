@@ -1,4 +1,7 @@
+from unittest.mock import patch
+
 from codector.codector import Codector
+from codector.file import File
 
 
 def test_returns_file_list_1(repo):
@@ -108,3 +111,24 @@ def test_ignores_certain_branches(repo):
     assert not any(
         file.path == "file_on_other_branch.cpp" for file in codector.top_files()
     )
+
+
+def test_commits_are_not_analyzed_twice(repo):
+    codector = Codector(repo.working_dir)
+    repo.add_file_change_commit(
+        file_name="file_to_test.cpp",
+        contents="",
+        author=repo.actors["John Doe"],
+        commit_message="add my file",
+    )
+
+    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
+        codector.analyze_files()  # First analysis
+        first_call_count = mock_add_commit.call_count
+
+        codector.analyze_files()  # Second analysis
+        second_call_count = mock_add_commit.call_count
+
+    assert (
+        first_call_count == second_call_count
+    ), f"add_commit was called {first_call_count} times first and {second_call_count} times second"
