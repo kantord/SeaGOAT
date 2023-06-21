@@ -7,7 +7,7 @@ from typing import Dict, List
 from git.repo import Repo
 from tqdm import tqdm
 
-from .file import File
+from codector.file import File
 
 
 IGNORED_BRANCHES = {"gh-pages"}
@@ -26,6 +26,7 @@ class Codector:
         self.repo = Repo(path)
         self._sorted_files: List[str] = []
         self._file_data: Dict[str, File] = {}
+        self._commits_already_analyzed = set()
 
     def _get_all_commits(self):
         all_commits = {}
@@ -51,6 +52,9 @@ class Codector:
         self._file_data = {}
 
         for commit in tqdm(self._get_all_commits(), desc="Analyzing commits"):
+            if commit.hexsha in self._commits_already_analyzed:
+                continue
+            self._commits_already_analyzed.add(commit.hexsha)
             for path in commit.stats.files:
                 if path not in self._file_data:
                     self._file_data[path] = File(path)
