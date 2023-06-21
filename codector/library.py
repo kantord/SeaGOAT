@@ -44,8 +44,18 @@ class Codector:
 
         return all_commits.values()
 
+    def _sort_files(self):
+        self._sorted_files = list(
+            sorted(
+                self._file_data.keys(),
+                key=lambda x: self._file_data[x].score,
+                reverse=True,
+            )
+        )
+
     def analyze_files(self):
         self._file_data = {}
+
         for commit in self._get_all_commits():
             for path in commit.stats.files:
                 if path not in self._file_data:
@@ -58,13 +68,7 @@ class Codector:
                     100 / (age_of_commit_in_days**2)
                 )
 
-        self._sorted_files = list(
-            sorted(
-                self._file_data.keys(),
-                key=lambda x: self._file_data[x].score,
-                reverse=True,
-            )
-        )
+        self._sort_files()
 
     def top_files(self):
         return [self._file_data[path] for path in self._sorted_files]
