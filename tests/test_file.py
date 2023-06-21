@@ -17,8 +17,8 @@ def test_file_returns_global_metadata_1():
     assert (
         my_file.get_metadata()
         == """###
-First commit for this
-Another commit for this"""
+Another commit for this
+First commit for this"""
     )
 
 

@@ -2,7 +2,7 @@
     This module allows you to use Codector as a library
 """
 
-from typing import Dict, List
+from typing import Dict, List, Set
 from pathlib import Path
 import hashlib
 import pickle
@@ -16,7 +16,7 @@ from codector.file import File
 
 
 IGNORED_BRANCHES = {"gh-pages"}
-CACHE_FORMAT_VERSION = 3
+CACHE_FORMAT_VERSION = 7
 
 
 class Engine:
@@ -32,9 +32,9 @@ class Engine:
         self.repo = Repo(path)
         self._sorted_files: List[str] = []
         self._file_data: Dict[str, File] = {}
-        self._commits_already_analyzed = set()
-        self._commits = {}
-        self._last_analyzed_version_of_branch = {}
+        self._commits_already_analyzed: Set[str] = set()
+        self._required_commits: Set[str] = set()
+        self._last_analyzed_version_of_branch: Dict[str, str] = {}
         self._load_cache()
 
     def _get_cache_folder(self):
@@ -58,7 +58,7 @@ class Engine:
                     self._commits_already_analyzed,
                     self._file_data,
                     self._sorted_files,
-                    self._commits,
+                    self._required_commits,
                     self._last_analyzed_version_of_branch,
                 ) = cache_tuple
         except (FileNotFoundError, pickle.UnpicklingError, EOFError):
@@ -70,7 +70,7 @@ class Engine:
                 self._commits_already_analyzed,
                 self._file_data,
                 self._sorted_files,
-                self._commits,
+                self._required_commits,
                 self._last_analyzed_version_of_branch,
             )
             pickle.dump(cache_tuple, cache_file)
@@ -88,13 +88,16 @@ class Engine:
         for branch in tqdm(self.repo.branches, desc="Analyzing branches"):
             if branch.name in IGNORED_BRANCHES:
                 continue
-            if self._last_analyzed_version_of_branch.get(branch.name) == branch.commit:
+            if (
+                self._last_analyzed_version_of_branch.get(branch.name)
+                == branch.commit.hexsha
+            ):
                 continue
             for commit in self.repo.iter_commits(branch):
-                self._commits[commit.hexsha] = commit
-            self._last_analyzed_version_of_branch[branch.name] = branch.commit
+                self._required_commits.add(commit.hexsha)
+            self._last_analyzed_version_of_branch[branch.name] = branch.commit.hexsha
 
-        return self._commits.values()
+        return (self.repo.commit(commit) for commit in self._required_commits)
 
     def _sort_files(self):
         self._sorted_files = list(
@@ -106,11 +109,15 @@ class Engine:
         )
 
     def analyze_files(self):
-        for commit in tqdm(self._get_all_commits(), desc="Analyzing commits"):
+        for commit in tqdm(
+            self._get_all_commits(),
+            desc="Analyzing commits",
+            total=len(self._required_commits),
+        ):
             if commit.hexsha in self._commits_already_analyzed:
                 continue
             self._commits_already_analyzed.add(commit.hexsha)
-            for path in commit.stats.files:
+            for path in commit.stats.files:  # type: ignore[reportGeneralTypeIssues]
                 if path not in self._file_data:
                     self._file_data[path] = File(path)
                 self._file_data[path].add_commit(commit)
