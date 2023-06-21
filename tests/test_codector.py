@@ -11,10 +11,10 @@ def test_returns_file_list_1(repo):
         "file3.py",
         "file4.js",
     }
-    assert codector.get_file("file1.md").commit_messages == {
-        "Initial commit for Markdown file",
+    assert codector.get_file("file1.md").commit_messages == [
         "Update to Markdown file",
-    }
+        "Initial commit for Markdown file",
+    ]
 
 
 def test_returns_file_list_2(repo):
@@ -34,9 +34,9 @@ def test_returns_file_list_2(repo):
         "file4.js",
         "new_file.cpp",
     }
-    assert codector.get_file("new_file.cpp").commit_messages == {
+    assert codector.get_file("new_file.cpp").commit_messages == [
         "Initial commit for C++ file"
-    }
+    ]
 
 
 def test_gets_files_from_all_branches(repo):

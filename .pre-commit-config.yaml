@@ -17,14 +17,6 @@ repos:
     hooks:
     -   id: pylint
 
--   repo: local
-    hooks:
-      - id: pytest-check
-        name: pytest-check
-        entry: poetry run pytest
-        language: system
-        pass_filenames: false
-        always_run: true
 -   repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.314
     exclude: ^typings/
