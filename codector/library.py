@@ -35,16 +35,18 @@ class Codector:
         self._sorted_files: List[str] = []
         self._file_data: Dict[str, File] = {}
 
-    def analyze_files(self):
-        self._file_data = {}
-
+    def _get_all_commits(self):
         all_commits = {}
 
         for branch in self.repo.branches:
             for commit in self.repo.iter_commits(branch):
                 all_commits[commit.hexsha] = commit
 
-        for commit in all_commits.values():
+        return all_commits.values()
+
+    def analyze_files(self):
+        self._file_data = {}
+        for commit in self._get_all_commits():
             for path in commit.stats.files:
                 if path not in self._file_data:
                     self._file_data[path] = File(path)
