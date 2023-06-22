@@ -16,7 +16,7 @@ from codector.file import File
 
 
 IGNORED_BRANCHES = {"gh-pages"}
-CACHE_FORMAT_VERSION = 8
+CACHE_FORMAT_VERSION = 9
 SUPPORTED_FILE_TYPES = {
     ".txt",
     ".md",
@@ -117,7 +117,7 @@ class Engine:
         self._sorted_files = list(
             sorted(
                 self._file_data.keys(),
-                key=lambda x: self._file_data[x].score,
+                key=lambda x: self._file_data[x].get_score(),
                 reverse=True,
             )
         )
