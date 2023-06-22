@@ -23,6 +23,7 @@ black = "^23.3.0"
 pre-commit = "^3.3.3"
 pyright = "^1.1.314"
 pytest-watch = "^4.2.0"
+freezegun = "^1.2.2"
 
 [build-system]
 requires = ["poetry-core"]
