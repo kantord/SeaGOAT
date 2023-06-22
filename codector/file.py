@@ -4,17 +4,19 @@ import time
 class File:
     def __init__(self, path: str):
         self.path = path
-        self.score = 0.0
-        self.commit_messages = []
+        self._commit_times = set()
+        self.commit_messages = sorted([])
 
     def __repr__(self):
-        return f"<File {self.path} {self.score}>"
+        return f"<File {self.path} {self.get_score()}>"
 
-    def _increment_score(self, committed_date):
+    def get_score(self):
         current_time = int(time.time())
-        age_of_commit_in_seconds = current_time - committed_date
-        age_of_commit_in_days = int(age_of_commit_in_seconds / 86400)
-        self.score += 1000 / max((age_of_commit_in_days**2), 1)
+
+        return sum(
+            1000 / max(int((current_time - committed_date) / 86400) ** 2, 1)
+            for committed_date in self._commit_times
+        )
 
     def _add_commit_message(self, message: str):
         self.commit_messages = sorted(
@@ -25,8 +27,8 @@ class File:
         )
 
     def add_commit(self, commit):
+        self._commit_times.add(commit.committed_date)
         self._add_commit_message(commit.message)
-        self._increment_score(commit.committed_date)
 
     def get_metadata(self):
         commit_messages = "\n".join(self.commit_messages)

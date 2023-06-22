@@ -1,6 +1,7 @@
 # pylint: disable=protected-access
 
 from unittest.mock import patch
+from freezegun import freeze_time
 
 from codector.engine import Engine
 from codector.file import File
@@ -70,6 +71,7 @@ def test_file_change_many_times_is_first_result(repo):
             author=repo.actors["John Doe"],
             commit_message="add my file",
         )
+        repo.tick_fake_date(minutes=1)
     codector.analyze_files()
 
     assert codector.top_files()[0].path == "new_file.txt"
@@ -218,3 +220,47 @@ def test_only_returns_supported_file_types(repo):
         "Initial commit for Markdown file",
         "Update to Markdown file",
     ]
+
+
+def test_file_score_is_recalculated_when_needed(generate_repo):
+    with freeze_time("2012-01-14"):
+        repo1 = generate_repo()
+        codector1 = Engine(repo1.working_dir)
+        repo1.add_file_change_commit(
+            file_name="old_file.txt",
+            contents="",
+            author=repo1.actors["John Doe"],
+            commit_message="add my file",
+        )
+        repo1.tick_fake_date(days=300)
+        repo1.add_file_change_commit(
+            file_name="new_file.txt",
+            contents="hello",
+            author=repo1.actors["John Doe"],
+            commit_message="add another file",
+        )
+        codector1.analyze_files()
+
+        repo2 = generate_repo()
+        codector2 = Engine(repo1.working_dir)
+        repo2.add_file_change_commit(
+            file_name="old_file.txt",
+            contents="",
+            author=repo2.actors["John Doe"],
+            commit_message="add my file",
+        )
+        codector2.analyze_files()
+    with freeze_time("2018-01-15"):
+        repo2.tick_fake_date(days=300)
+        repo2.add_file_change_commit(
+            file_name="new_file.txt",
+            contents="hello",
+            author=repo2.actors["John Doe"],
+            commit_message="add another file",
+        )
+        codector2.analyze_files()
+
+    assert (
+        codector1.get_file("file1.md").get_score()
+        == codector2.get_file("file1.md").get_score()
+    )
