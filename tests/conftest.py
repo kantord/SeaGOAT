@@ -23,8 +23,8 @@ class MockRepo(Repo):
             "Charlie Brown": Actor("Charlie Brown", "cbrown@example.com"),
         }
 
-    def tick_fake_date(self, days=0, hours=0):
-        delta = timedelta(days=days, hours=hours)
+    def tick_fake_date(self, days=0, hours=0, minutes=0):
+        delta = timedelta(days=days, hours=hours, minutes=minutes)
         self.fake_commit_date += delta
 
     def add_fake_data(self):
@@ -113,12 +113,26 @@ class MockRepo(Repo):
 
 
 @pytest.fixture
-def repo():
-    new_directory = tempfile.mkdtemp()
-    repo = cast(MockRepo, MockRepo.init(new_directory))
-    repo.add_fake_data()
+def generate_repo():
+    directories_to_delete = []
+
+    def repo_generator():
+        new_directory = tempfile.mkdtemp()
+        directories_to_delete.append(new_directory)
+        repo = cast(MockRepo, MockRepo.init(new_directory))
+        repo.add_fake_data()
+
+        return repo
+
+    yield repo_generator
+    for directory in directories_to_delete:
+        shutil.rmtree(directory)
+
+
+@pytest.fixture
+def repo(generate_repo):
+    repo = generate_repo()
     yield repo
-    shutil.rmtree(new_directory)
 
 
 @pytest.fixture(autouse=True)
