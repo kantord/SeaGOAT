@@ -6,6 +6,7 @@ import shutil
 from datetime import datetime, timedelta, timezone
 from typing import cast
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 import pytest
 from git.repo import Repo
@@ -140,3 +141,24 @@ def run_around_tests():
     yield
     cache_root = Path(appdirs.user_cache_dir("codector-pytest"))
     shutil.rmtree(cache_root, ignore_errors=True)
+
+
+chromadb_patcher = patch("chromadb.Client")
+
+
+@pytest.fixture(autouse=True)
+def mock_chromadb():
+    mock_collection = Mock()
+    mock_client = Mock()
+    mock_client.create_collection.return_value = mock_collection
+
+    chromadb_patcher.start().return_value = mock_client
+    yield
+    chromadb_patcher.stop()
+
+
+@pytest.fixture
+def real_chromadb():
+    chromadb_patcher.stop()
+    yield
+    chromadb_patcher.start()
