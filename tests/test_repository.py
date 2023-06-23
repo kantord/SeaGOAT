@@ -11,13 +11,13 @@ def test_returns_file_list_1(repo):
     codector = Engine(repo.working_dir)
     codector.analyze_files()
 
-    assert set(file.path for file in codector.top_files()) == {
+    assert set(file.path for file in codector.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
     }
-    assert codector.get_file("file1.md").commit_messages == [
+    assert codector.repository.get_file("file1.md").commit_messages == [
         "Initial commit for Markdown file",
         "Update to Markdown file",
     ]
@@ -33,14 +33,14 @@ def test_returns_file_list_2(repo):
     )
     codector.analyze_files()
 
-    assert set(file.path for file in codector.top_files()) == {
+    assert set(file.path for file in codector.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
         "new_file.cpp",
     }
-    assert codector.get_file("new_file.cpp").commit_messages == [
+    assert codector.repository.get_file("new_file.cpp").commit_messages == [
         "Initial commit for C++ file"
     ]
 
@@ -59,7 +59,10 @@ def test_gets_files_from_all_branches(repo):
     main.checkout()
     codector.analyze_files()
 
-    assert any(file.path == "file_on_other_branch.cpp" for file in codector.top_files())
+    assert any(
+        file.path == "file_on_other_branch.cpp"
+        for file in codector.repository.top_files()
+    )
 
 
 def test_file_change_many_times_is_first_result(repo):
@@ -74,7 +77,7 @@ def test_file_change_many_times_is_first_result(repo):
         repo.tick_fake_date(minutes=1)
     codector.analyze_files()
 
-    assert codector.top_files()[0].path == "new_file.txt"
+    assert codector.repository.top_files()[0].path == "new_file.txt"
 
 
 def test_newer_change_can_beat_frequent_change_in_past(repo):
@@ -95,7 +98,7 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
     )
     codector.analyze_files()
 
-    assert codector.top_files()[0].path == "new_file.txt"
+    assert codector.repository.top_files()[0].path == "new_file.txt"
 
 
 def test_ignores_certain_branches(repo):
@@ -113,7 +116,8 @@ def test_ignores_certain_branches(repo):
     codector.analyze_files()
 
     assert not any(
-        file.path == "file_on_other_branch.cpp" for file in codector.top_files()
+        file.path == "file_on_other_branch.cpp"
+        for file in codector.repository.top_files()
     )
 
 
@@ -146,7 +150,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
         call_count = mock_add_commit.call_count
 
     assert call_count == 0
-    assert set(file.path for file in codector2.top_files()) == {
+    assert set(file.path for file in codector2.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -170,7 +174,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
         call_count = mock_add_commit.call_count
 
     assert call_count != 0
-    assert set(file.path for file in codector2.top_files()) == {
+    assert set(file.path for file in codector2.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -191,7 +195,7 @@ def test_damaged_cache_doesnt_crash_app_2(repo):
         call_count = mock_add_commit.call_count
 
     assert call_count != 0
-    assert set(file.path for file in codector2.top_files()) == {
+    assert set(file.path for file in codector2.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -210,13 +214,13 @@ def test_only_returns_supported_file_types(repo):
         )
     codector.analyze_files()
 
-    assert set(file.path for file in codector.top_files()) == {
+    assert set(file.path for file in codector.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
     }
-    assert codector.get_file("file1.md").commit_messages == [
+    assert codector.repository.get_file("file1.md").commit_messages == [
         "Initial commit for Markdown file",
         "Update to Markdown file",
     ]
@@ -261,6 +265,6 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
         codector2.analyze_files()
 
     assert (
-        codector1.get_file("file1.md").get_score()
-        == codector2.get_file("file1.md").get_score()
+        codector1.repository.get_file("file1.md").get_score()
+        == codector2.repository.get_file("file1.md").get_score()
     )
