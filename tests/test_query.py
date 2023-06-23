@@ -11,7 +11,7 @@ def use_real_db(real_chromadb):
 
 def test_allows_setting_query(repo):
     codector = Engine(repo.working_dir)
-    codector.analyze_files()
+    codector.analyze_codebase()
     my_query = "lightweight markup language"
     codector.query(my_query)
 
@@ -20,7 +20,7 @@ def test_allows_setting_query(repo):
 
 def test_requires_fetching_data(repo):
     codector = Engine(repo.working_dir)
-    codector.analyze_files()
+    codector.analyze_codebase()
     my_query = "lightweight markup language"
     codector.query(my_query)
 
@@ -29,7 +29,7 @@ def test_requires_fetching_data(repo):
 
 def test_allows_fetching_data(repo):
     codector = Engine(repo.working_dir)
-    codector.analyze_files()
+    codector.analyze_codebase()
     my_query = "lightweight markup language"
     codector.query(my_query)
     codector.fetch()
@@ -39,7 +39,7 @@ def test_allows_fetching_data(repo):
 
 def test_gets_data_using_vector_embeddings_1(repo):
     codector = Engine(repo.working_dir)
-    codector.analyze_files()
+    codector.analyze_codebase()
     my_query = "lightweight markup language"
     codector.query(my_query)
     codector.fetch()
@@ -67,7 +67,7 @@ def test_gets_data_using_vector_embeddings_2(repo):
         commit_message="Update mexican food recipes",
     )
     codector = Engine(repo.working_dir)
-    codector.analyze_files()
+    codector.analyze_codebase()
     my_query = "pizza"
     codector.query(my_query)
     codector.fetch()
