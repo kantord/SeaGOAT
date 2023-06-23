@@ -9,7 +9,7 @@ from codector.file import File
 
 def test_returns_file_list_1(repo):
     codector = Engine(repo.working_dir)
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert set(file.path for file in codector.repository.top_files()) == {
         "file1.md",
@@ -31,7 +31,7 @@ def test_returns_file_list_2(repo):
         author=repo.actors["John Doe"],
         commit_message="Initial commit for C++ file",
     )
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert set(file.path for file in codector.repository.top_files()) == {
         "file1.md",
@@ -57,7 +57,7 @@ def test_gets_files_from_all_branches(repo):
         commit_message="add my file",
     )
     main.checkout()
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert any(
         file.path == "file_on_other_branch.cpp"
@@ -75,7 +75,7 @@ def test_file_change_many_times_is_first_result(repo):
             commit_message="add my file",
         )
         repo.tick_fake_date(minutes=1)
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert codector.repository.top_files()[0].path == "new_file.txt"
 
@@ -96,7 +96,7 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
         author=repo.actors["John Doe"],
         commit_message="add another file",
     )
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert codector.repository.top_files()[0].path == "new_file.txt"
 
@@ -113,7 +113,7 @@ def test_ignores_certain_branches(repo):
         commit_message="add my file",
     )
     main.checkout()
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert not any(
         file.path == "file_on_other_branch.cpp"
@@ -131,10 +131,10 @@ def test_commits_are_not_analyzed_twice(repo):
     )
 
     with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        codector.analyze_files()
+        codector.analyze_codebase()
         first_call_count = mock_add_commit.call_count
 
-        codector.analyze_files()
+        codector.analyze_codebase()
         second_call_count = mock_add_commit.call_count
 
     assert first_call_count == second_call_count
@@ -142,11 +142,11 @@ def test_commits_are_not_analyzed_twice(repo):
 
 def test_analysis_results_are_persisted_between_runs(repo):
     codector1 = Engine(repo.working_dir)
-    codector1.analyze_files()
+    codector1.analyze_codebase()
     del codector1
     codector2 = Engine(repo.working_dir)
     with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        codector2.analyze_files()
+        codector2.analyze_codebase()
         call_count = mock_add_commit.call_count
 
     assert call_count == 0
@@ -160,7 +160,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
 
 def test_damaged_cache_doesnt_crash_app_1(repo):
     codector1 = Engine(repo.working_dir)
-    codector1.analyze_files()
+    codector1.analyze_codebase()
     cache_folder = codector1._get_cache_folder()
     with open(cache_folder / "cache", "rb") as input_file:
         data = input_file.read()
@@ -170,7 +170,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
     del codector1
     codector2 = Engine(repo.working_dir)
     with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        codector2.analyze_files()
+        codector2.analyze_codebase()
         call_count = mock_add_commit.call_count
 
     assert call_count != 0
@@ -184,14 +184,14 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
 
 def test_damaged_cache_doesnt_crash_app_2(repo):
     codector1 = Engine(repo.working_dir)
-    codector1.analyze_files()
+    codector1.analyze_codebase()
     cache_folder = codector1._get_cache_folder()
     with open(cache_folder / "cache", "wb"):
         pass
     del codector1
     codector2 = Engine(repo.working_dir)
     with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        codector2.analyze_files()
+        codector2.analyze_codebase()
         call_count = mock_add_commit.call_count
 
     assert call_count != 0
@@ -212,7 +212,7 @@ def test_only_returns_supported_file_types(repo):
             author=repo.actors["John Doe"],
             commit_message="add my file",
         )
-    codector.analyze_files()
+    codector.analyze_codebase()
 
     assert set(file.path for file in codector.repository.top_files()) == {
         "file1.md",
@@ -243,7 +243,7 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
             author=repo1.actors["John Doe"],
             commit_message="add another file",
         )
-        codector1.analyze_files()
+        codector1.analyze_codebase()
 
         repo2 = generate_repo()
         codector2 = Engine(repo1.working_dir)
@@ -253,7 +253,7 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
             author=repo2.actors["John Doe"],
             commit_message="add my file",
         )
-        codector2.analyze_files()
+        codector2.analyze_codebase()
     with freeze_time("2018-01-15"):
         repo2.tick_fake_date(days=300)
         repo2.add_file_change_commit(
@@ -262,7 +262,7 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
             author=repo2.actors["John Doe"],
             commit_message="add another file",
         )
-        codector2.analyze_files()
+        codector2.analyze_codebase()
 
     assert (
         codector1.repository.get_file("file1.md").get_score()

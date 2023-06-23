@@ -58,7 +58,7 @@ class Engine:
 
         return hashlib.sha256(text.encode()).hexdigest()
 
-    def analyze_files(self):
+    def analyze_codebase(self):
         self.repository.analyze_files()
         self._create_vector_embeddings()
 
