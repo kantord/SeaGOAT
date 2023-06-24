@@ -17,10 +17,10 @@ def test_returns_file_list_1(repo):
         "file3.py",
         "file4.js",
     }
-    assert codector.repository.get_file("file1.md").commit_messages == [
+    assert codector.repository.get_file("file1.md").commit_messages == {
         "Initial commit for Markdown file",
         "Update to Markdown file",
-    ]
+    }
 
 
 def test_returns_file_list_2(repo):
@@ -40,9 +40,9 @@ def test_returns_file_list_2(repo):
         "file4.js",
         "new_file.cpp",
     }
-    assert codector.repository.get_file("new_file.cpp").commit_messages == [
+    assert codector.repository.get_file("new_file.cpp").commit_messages == {
         "Initial commit for C++ file"
-    ]
+    }
 
 
 def test_gets_files_from_all_branches(repo):
@@ -220,10 +220,10 @@ def test_only_returns_supported_file_types(repo):
         "file3.py",
         "file4.js",
     }
-    assert codector.repository.get_file("file1.md").commit_messages == [
+    assert codector.repository.get_file("file1.md").commit_messages == {
         "Initial commit for Markdown file",
         "Update to Markdown file",
-    ]
+    }
 
 
 def test_file_score_is_recalculated_when_needed(generate_repo):

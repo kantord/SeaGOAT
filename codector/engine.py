@@ -6,6 +6,7 @@ from pathlib import Path
 import hashlib
 
 from git.repo import Repo
+from tqdm import tqdm
 from gitdb.db.loose import os
 import appdirs
 import chromadb
@@ -14,7 +15,7 @@ from chromadb.errors import IDAlreadyExistsError
 from codector.repository import Repository
 from codector.result import Result
 
-CACHE_FORMAT_VERSION = 9
+CACHE_FORMAT_VERSION = 12
 
 
 class Engine:
@@ -63,23 +64,17 @@ class Engine:
         self._create_vector_embeddings()
 
     def _create_vector_embeddings(self):
-        for file in self.repository.file_data.values():
-            full_path = Path(self.path) / file.path
-            if not full_path.exists():
-                continue
-            with open(full_path, "r", encoding="utf-8") as source_code_file:
-                file_content = source_code_file.read()
+        chunks_to_process = []
+        for file in self.repository.top_files()[:24]:
+            for chunk in file.get_chunks():
+                chunks_to_process.append(chunk)
 
-            content = f"""
-                {file_content}
-                ###
-                {file.get_metadata()}
-            """
+        for chunk in tqdm(chunks_to_process, desc="Training AI"):
             try:
                 self._chroma_collection.add(
-                    ids=[file.path],
-                    documents=[content],
-                    metadatas=[{"path": file.path}],
+                    ids=[chunk.chunk_id],
+                    documents=[chunk.chunk],
+                    metadatas=[{"path": chunk.path, "line": chunk.codeline}],
                 )
             except IDAlreadyExistsError:
                 pass

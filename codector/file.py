@@ -1,11 +1,13 @@
 import time
+import hashlib
 
 
 class File:
-    def __init__(self, path: str):
+    def __init__(self, path: str, absolute_path: str):
         self.path = path
+        self.absolute_path = absolute_path
         self._commit_times = set()
-        self.commit_messages = sorted([])
+        self.commit_messages = set()
 
     def __repr__(self):
         return f"<File {self.path} {self.get_score()}>"
@@ -19,18 +21,62 @@ class File:
         )
 
     def _add_commit_message(self, message: str):
-        self.commit_messages = sorted(
-            set(self.commit_messages)
-            | {
-                message,
-            }
-        )
+        self.commit_messages.add(message)
 
     def add_commit(self, commit):
         self._commit_times.add(commit.committed_date)
         self._add_commit_message(commit.message)
 
     def get_metadata(self):
-        commit_messages = "\n".join(self.commit_messages)
-        return f"""###
+        commit_messages = "\n-".join(sorted(self.commit_messages))
+        return f"""
+    ###
+    Filename: {self.path}
+    Commits:
 {commit_messages}"""
+
+    def get_chunks(self):
+        try:
+            with open(self.absolute_path, "r", encoding="utf-8") as source_code_file:
+                lines = {
+                    (i + 1): line
+                    for i, line in enumerate(source_code_file.read().splitlines())
+                }
+
+            chunks = []
+
+            for line_number in lines.keys():
+                previous_line = (
+                    [lines[line_number - 1]] if line_number - 1 in lines.keys() else []
+                )
+                next_line = (
+                    [lines[line_number + 1]] if line_number + 1 in lines.keys() else []
+                )
+                relevant_lines = previous_line + [lines[line_number]] + next_line
+                truncated_lines = [line[:100] for line in relevant_lines]
+                chunk = "\n".join(truncated_lines)
+                chunk = chunk + self.get_metadata()
+
+                chunks.append(FileChunk(self, line_number, chunk))
+
+            return chunks
+
+        except FileNotFoundError:
+            return []
+
+
+# pylint: disable=too-few-public-methods
+class FileChunk:
+    def __init__(self, parent: File, codeline: int, chunk: str):
+        self.path = parent.path
+        self.codeline = codeline
+        self.chunk = chunk
+        self.chunk_id = self._get_id()
+
+    def _get_id(self):
+        text = f"""
+        Path: {self.path}
+        Code line: {self.codeline}
+        Chunk: {self.chunk}
+        """
+        return hashlib.sha256(text.encode()).hexdigest()
