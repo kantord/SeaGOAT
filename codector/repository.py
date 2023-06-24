@@ -89,7 +89,9 @@ class Repository:
                 if Path(path).suffix not in SUPPORTED_FILE_TYPES:
                     continue
                 if path not in self.file_data:
-                    self.file_data[path] = File(path)
+                    self.file_data[path] = File(
+                        path, Path(self._repo.working_dir) / path
+                    )
                 self.file_data[path].add_commit(commit)
 
         self._sort_files()
