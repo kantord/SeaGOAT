@@ -13,10 +13,10 @@ class RealTimeValidator(Validator):
 
     def validate(self, document):
         current_text = document.text
+        print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
+        print(f"Query: {current_text}", end="")
+        print(self.term.move_xy(0, 2) + self.term.clear_eos(), end="")
         if current_text:
-            print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
-            print(f"Query: {current_text}", end="")
-            print(self.term.move_xy(0, 2) + self.term.clear_eos(), end="")
             print(f"mock results for '{current_text}', blah blah", end="")
 
 
@@ -29,6 +29,7 @@ def analyze_codebase(repo_path):
 
     term = Terminal()
     with term.fullscreen():
+        print("Query: ", end="")
         session = PromptSession(validator=RealTimeValidator(term))
         try:
             session.prompt()
