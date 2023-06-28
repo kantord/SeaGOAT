@@ -2,6 +2,8 @@ import time
 import hashlib
 from typing import List
 
+from chromadb.errors import Dict
+
 
 class File:
     def __init__(self, path: str, absolute_path: str):
@@ -36,7 +38,7 @@ class File:
     Commits:
 {commit_messages}"""
 
-    def _get_file_lines(self):
+    def _get_file_lines(self) -> Dict[int, str]:
         with open(self.absolute_path, "r", encoding="utf-8") as source_code_file:
             lines = {
                 (i + 1): line
@@ -52,26 +54,21 @@ class File:
 
         return chunk
 
+    def _get_chunk_for_line(self, line_number: int, lines: Dict[int, str]):
+        previous_line = (
+            [lines[line_number - 1]] if line_number - 1 in lines.keys() else []
+        )
+        next_line = [lines[line_number + 1]] if line_number + 1 in lines.keys() else []
+        relevant_lines = previous_line + [lines[line_number]] + next_line
+        return FileChunk(self, line_number, self._format_chunk_summary(relevant_lines))
+
     def get_chunks(self):
         try:
             lines = self._get_file_lines()
-            chunks = []
-
-            for line_number in lines.keys():
-                previous_line = (
-                    [lines[line_number - 1]] if line_number - 1 in lines.keys() else []
-                )
-                next_line = (
-                    [lines[line_number + 1]] if line_number + 1 in lines.keys() else []
-                )
-                relevant_lines = previous_line + [lines[line_number]] + next_line
-                chunks.append(
-                    FileChunk(
-                        self, line_number, self._format_chunk_summary(relevant_lines)
-                    )
-                )
-
-            return chunks
+            return [
+                self._get_chunk_for_line(line_number, lines)
+                for line_number in lines.keys()
+            ]
 
         except FileNotFoundError:
             return []
