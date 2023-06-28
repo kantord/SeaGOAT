@@ -109,7 +109,7 @@ def test_considers_filename_in_results(repo):
 def test_considers_commit_messages(repo):
     repo.add_file_change_commit(
         file_name="vehicles_1.txt",
-        contents=".",
+        contents="the the the",
         author=repo.actors["John Doe"],
         commit_message="pizza tomato salami recipe",
     )

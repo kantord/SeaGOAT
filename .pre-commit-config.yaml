@@ -19,7 +19,7 @@ repos:
     -   id: pylint
 
 -   repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.315
+    rev: v1.1.316
     exclude: ^typings/
     hooks:
       - id: pyright

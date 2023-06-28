@@ -62,12 +62,16 @@ class File:
         relevant_lines = previous_line + [lines[line_number]] + next_line
         return FileChunk(self, line_number, self._format_chunk_summary(relevant_lines))
 
+    def line_has_relevant_data(self, line: str):
+        return sum(c.isalnum() for c in line) > 2
+
     def get_chunks(self):
         try:
             lines = self._get_file_lines()
             return [
                 self._get_chunk_for_line(line_number, lines)
                 for line_number in lines.keys()
+                if self.line_has_relevant_data(lines[line_number])
             ]
 
         except FileNotFoundError:

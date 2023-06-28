@@ -40,3 +40,20 @@ def test_handles_files_that_were_edited_today(repo_folder, snapshot):
     my_file.add_commit(Commit("Unrelated commit", int(time.time())))
 
     assert my_file.get_metadata() == snapshot
+
+
+def test_does_not_return_chunks_for_empty_lines(repo):
+    repo.add_file_change_commit(
+        file_name="example.py",
+        contents="""#this is a Python file
+
+class FooBar:
+
+    def __init__(self):
+        pass""",
+        author=repo.actors["John Doe"],
+        commit_message=".",
+    )
+
+    my_file = File("example.py", str(Path(repo.working_dir) / "example.py"))
+    assert {item.codeline for item in my_file.get_chunks()} == {1, 3, 5, 6}
