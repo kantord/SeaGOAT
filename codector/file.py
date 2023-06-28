@@ -1,6 +1,6 @@
 import time
 import hashlib
-from typing import List
+from typing import List, Literal
 
 from chromadb.errors import Dict
 
@@ -32,8 +32,7 @@ class File:
 
     def get_metadata(self):
         commit_messages = "\n-".join(sorted(self.commit_messages))
-        return f"""
-    ###
+        return f"""###
     Filename: {self.path}
     Commits:
 {commit_messages}"""
@@ -54,15 +53,36 @@ class File:
 
         return chunk
 
+    def _get_context_lines(
+        self, lines: Dict[int, str], line_number: int, direction: Literal[-1, 1]
+    ) -> List[str]:
+        context_lines = []
+        for i in range(1, 6):
+            current_line_number = line_number + (direction * i)
+            current_line = lines.get(current_line_number)
+
+            if current_line is None:
+                break
+
+            if direction == -1:
+                context_lines = [current_line] + context_lines
+            else:
+                context_lines.append(current_line)
+
+            if self._line_has_relevant_data(current_line):
+                break
+
+        return context_lines
+
     def _get_chunk_for_line(self, line_number: int, lines: Dict[int, str]):
-        previous_line = (
-            [lines[line_number - 1]] if line_number - 1 in lines.keys() else []
+        relevant_lines = (
+            self._get_context_lines(lines, line_number, -1)
+            + [lines[line_number]]
+            + self._get_context_lines(lines, line_number, 1)
         )
-        next_line = [lines[line_number + 1]] if line_number + 1 in lines.keys() else []
-        relevant_lines = previous_line + [lines[line_number]] + next_line
         return FileChunk(self, line_number, self._format_chunk_summary(relevant_lines))
 
-    def line_has_relevant_data(self, line: str):
+    def _line_has_relevant_data(self, line: str):
         return sum(c.isalnum() for c in line) > 2
 
     def get_chunks(self):
@@ -71,7 +91,7 @@ class File:
             return [
                 self._get_chunk_for_line(line_number, lines)
                 for line_number in lines.keys()
-                if self.line_has_relevant_data(lines[line_number])
+                if self._line_has_relevant_data(lines[line_number])
             ]
 
         except FileNotFoundError:

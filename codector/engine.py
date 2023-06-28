@@ -18,7 +18,7 @@ from codector.repository import Repository
 from codector.result import Result
 from codector.file import File
 
-CACHE_FORMAT_VERSION = 13
+CACHE_FORMAT_VERSION = 14
 
 
 RepositoryData = TypedDict(

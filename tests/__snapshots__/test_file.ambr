@@ -1,8 +1,7 @@
 # serializer version: 1
 # name: test_file_returns_global_metadata_1
   '''
-  
-      ###
+  ###
       Filename: hello.md
       Commits:
   Another commit for this
@@ -11,8 +10,7 @@
 # ---
 # name: test_file_returns_global_metadata_2
   '''
-  
-      ###
+  ###
       Filename: hello.md
       Commits:
   Unrelated commit
@@ -20,8 +18,7 @@
 # ---
 # name: test_handles_files_that_were_edited_today
   '''
-  
-      ###
+  ###
       Filename: hello.md
       Commits:
   Unrelated commit
