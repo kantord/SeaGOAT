@@ -8,8 +8,9 @@ from blessed import Terminal
 
 
 class RealTimeValidator(Validator):
-    def __init__(self, term):
+    def __init__(self, term, engine):
         self.term = term
+        self.engine = engine
 
     def validate(self, document):
         current_text = document.text
@@ -17,7 +18,11 @@ class RealTimeValidator(Validator):
         print(f"Query: {current_text}", end="")
         print(self.term.move_xy(0, 2) + self.term.clear_eos(), end="")
         if current_text:
-            print(f"mock results for '{current_text}', blah blah", end="")
+            self.engine.query(current_text)
+            self.engine.fetch()
+            results = self.engine.get_results()
+            for result in results:
+                print(result.path)
 
 
 @click.command()
@@ -30,7 +35,7 @@ def analyze_codebase(repo_path):
     term = Terminal()
     with term.fullscreen():
         print("Query: ", end="")
-        session = PromptSession(validator=RealTimeValidator(term))
+        session = PromptSession(validator=RealTimeValidator(term, my_codector))
         try:
             session.prompt()
         except EOFError:

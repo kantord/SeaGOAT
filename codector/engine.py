@@ -108,7 +108,7 @@ class Engine:
 
     def _create_vector_embeddings(self):
         chunks_to_process = []
-        for file in self.repository.top_files()[:10]:
+        for file in self.repository.top_files()[:40]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
 
@@ -127,15 +127,26 @@ class Engine:
 
     def fetch(self):
         chromadb_results = [
-            self._chroma_collection.query(query_texts=[self.query_string], n_results=5)
+            self._chroma_collection.query(query_texts=[self.query_string], n_results=15)
         ]
-        metadatas = (
+        self._results = (
             chromadb_results[0]["metadatas"][0]
             if chromadb_results[0]["metadatas"]
             else None
-        )
-
-        self._results = [str(item["path"]) for item in metadatas] if metadatas else []
+        ) or []
 
     def get_results(self):
-        return [Result(path) for path in self._results]
+        path_order = []
+        formatted_results = {}
+
+        for metadata in self._results:
+            path = str(metadata["path"])
+            line = int(metadata["line"])
+            if path not in path_order:
+                path_order.append(path)
+
+            if path not in formatted_results:
+                formatted_results[path] = Result(path)
+            formatted_results[path].add_line(line)
+
+        return [formatted_results[path] for path in path_order]

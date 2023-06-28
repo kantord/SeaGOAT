@@ -47,7 +47,16 @@ def test_gets_data_using_vector_embeddings_1(repo):
     codector.query(my_query)
     codector.fetch()
 
+    # Tests that results are sorted according to relevance
     assert codector.get_results()[0].path == "file1.md"
+
+    # Tests that results are grouped by file
+    assert len(set(result.path for result in codector.get_results())) == len(
+        list(codector.get_results())
+    )
+
+    # Tests that file lines are included for each result
+    assert all(1 in result.lines for result in codector.get_results())
 
 
 def test_gets_data_using_vector_embeddings_2(repo):
@@ -160,6 +169,37 @@ def test_truncates_very_long_lines(repo):
     codector.fetch()
 
     assert codector.get_results()[0].path == "vehicles.txt"
+
+
+def test_includes_all_matching_lines_from_line(repo):
+    repo.add_file_change_commit(
+        file_name="devices.txt",
+        contents="""1: Nothing
+        2: Google Pixel 2 Android
+        3:
+        4: Mango juice
+        5: Fried potatoes
+        6: Chicken wings
+        7: Apple iPhone 12
+        8: Pizza slices with pepperoni
+        9: Samsung Galaxy S10
+        10:
+        11:
+        12:
+        13:
+        14:
+        """,
+        author=repo.actors["John Doe"],
+        commit_message="Add italian food recipes",
+    )
+    codector = Engine(repo.working_dir)
+    codector.analyze_codebase()
+    my_query = "smartphone"
+    codector.query(my_query)
+    codector.fetch()
+
+    assert codector.get_results()[0].path == "devices.txt"
+    assert codector.get_results()[0].lines == {1, 2, 4, 5, 6, 7, 8, 9}
 
 
 def test_chunks_are_persisted_between_runs(repo):
