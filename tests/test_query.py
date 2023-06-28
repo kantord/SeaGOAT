@@ -1,10 +1,13 @@
+# pylint: disable=protected-access
+
 import pytest
 
 from codector.engine import Engine
+from tests.test_repository import patch
 
 
 @pytest.fixture(autouse=True)
-# pylint: disable=unused-argument
+# pylint: disable-next=unused-argument
 def use_real_db(real_chromadb):
     pass
 
@@ -157,3 +160,44 @@ def test_truncates_very_long_lines(repo):
     codector.fetch()
 
     assert codector.get_results()[0].path == "vehicles.txt"
+
+
+def test_chunks_are_persisted_between_runs(repo):
+    repo.add_file_change_commit(
+        file_name="articles.txt",
+        contents="Italian food recipes, spaghetti, pomodoro, pepperoni\n",
+        author=repo.actors["John Doe"],
+        commit_message="Add italian food recipes",
+    )
+    repo.add_file_change_commit(
+        file_name="vehicles.txt",
+        contents="Ford",
+        author=repo.actors["John Doe"],
+        commit_message="Add vehicle information",
+    )
+    repo.add_file_change_commit(
+        file_name="vehicles.txt",
+        contents="motorbike, ford, mercedes\n",
+        author=repo.actors["John Doe"],
+        commit_message="Add vehicle information",
+    )
+    codector1 = Engine(repo.working_dir)
+    with patch.object(
+        codector1, "_add_to_collection", wraps=codector1._add_to_collection
+    ) as mock_add_to_collection:
+        codector1.analyze_codebase()
+        codector1.query("pomodoro spaghetti")
+        codector1.fetch()
+        assert mock_add_to_collection.call_count > 2
+        assert codector1.get_results()[0].path == "articles.txt"
+        del codector1
+
+    codector2 = Engine(repo.working_dir)
+    with patch.object(
+        codector2, "_add_to_collection", wraps=codector2._add_to_collection
+    ) as mock_add_to_collection:
+        codector2.analyze_codebase()
+        codector2.query("pomodoro spaghetti")
+        codector2.fetch()
+        assert mock_add_to_collection.call_count == 0
+        assert codector2.get_results()[0].path == "articles.txt"
