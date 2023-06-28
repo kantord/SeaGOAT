@@ -35,14 +35,18 @@ class File:
     Commits:
 {commit_messages}"""
 
+    def _get_file_lines(self):
+        with open(self.absolute_path, "r", encoding="utf-8") as source_code_file:
+            lines = {
+                (i + 1): line
+                for i, line in enumerate(source_code_file.read().splitlines())
+            }
+
+        return lines
+
     def get_chunks(self):
         try:
-            with open(self.absolute_path, "r", encoding="utf-8") as source_code_file:
-                lines = {
-                    (i + 1): line
-                    for i, line in enumerate(source_code_file.read().splitlines())
-                }
-
+            lines = self._get_file_lines()
             chunks = []
 
             for line_number in lines.keys():
