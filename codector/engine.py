@@ -4,18 +4,34 @@
 
 from pathlib import Path
 import hashlib
+from typing import Dict, List, Set
+from typing_extensions import TypedDict
 
-from git.repo import Repo
 from tqdm import tqdm
 from gitdb.db.loose import os
 import appdirs
 import chromadb
 from chromadb.errors import IDAlreadyExistsError
+from codector.cache import Cache
 
 from codector.repository import Repository
 from codector.result import Result
+from codector.file import File
 
-CACHE_FORMAT_VERSION = 12
+CACHE_FORMAT_VERSION = 13
+
+
+RepositoryData = TypedDict(
+    "RepositoryData",
+    {
+        "last_analyzed_version_of_branch": Dict[str, str],
+        "required_commits": Set[str],
+        "commits_already_analyzed": Set[str],
+        "file_data": Dict[str, File],
+        "sorted_files": List[str],
+        "chunks_already_analyzed": Set[str],
+    },
+)
 
 
 class Engine:
@@ -28,14 +44,31 @@ class Engine:
         Initializes the library
         """
         self.path = path
-        self._repo = Repo(path)
         self.query_string = ""
         self._results = []
-        self._chroma_client = chromadb.Client()
-        self._chroma_collection = self._chroma_client.create_collection(
+
+        self._chroma_client = chromadb.Client(
+            chromadb.Settings(
+                chroma_db_impl="duckdb+parquet",
+                persist_directory=str(self._get_cache_folder()),
+            )
+        )
+        self._chroma_collection = self._chroma_client.get_or_create_collection(
             name="code_data"
         )
-        self.repository = Repository(path, self._get_cache_folder())
+        self._cache = Cache[RepositoryData](
+            self._get_cache_folder() / "cache",
+            {
+                "last_analyzed_version_of_branch": {},
+                "required_commits": set(),
+                "commits_already_analyzed": set(),
+                "file_data": {},
+                "sorted_files": [],
+                "chunks_already_analyzed": set(),
+            },
+        )
+        self._cache.load()
+        self.repository = Repository(path, self._cache)
 
     def _get_cache_folder(self):
         cache_folder = self._get_cache_root() / self._get_project_hash()
@@ -63,21 +96,31 @@ class Engine:
         self.repository.analyze_files()
         self._create_vector_embeddings()
 
+    def _add_to_collection(self, chunk):
+        try:
+            self._chroma_collection.add(
+                ids=[chunk.chunk_id],
+                documents=[chunk.chunk],
+                metadatas=[{"path": chunk.path, "line": chunk.codeline}],
+            )
+        except IDAlreadyExistsError:
+            pass
+
     def _create_vector_embeddings(self):
         chunks_to_process = []
-        for file in self.repository.top_files()[:24]:
+        for file in self.repository.top_files()[:10]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
 
-        for chunk in tqdm(chunks_to_process, desc="Training AI"):
-            try:
-                self._chroma_collection.add(
-                    ids=[chunk.chunk_id],
-                    documents=[chunk.chunk],
-                    metadatas=[{"path": chunk.path, "line": chunk.codeline}],
-                )
-            except IDAlreadyExistsError:
-                pass
+        for chunk in tqdm(chunks_to_process, desc="Analyzing source code"):
+            if chunk.chunk_id in self._cache.data["chunks_already_analyzed"]:
+                continue
+
+            self._add_to_collection(chunk)
+            self._cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
+
+        self._cache.persist()
+        self._chroma_client.persist()
 
     def query(self, query: str):
         self.query_string = query

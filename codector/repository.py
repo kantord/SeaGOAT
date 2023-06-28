@@ -1,6 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Set
-from typing_extensions import TypedDict
+
 
 from git.repo import Repo
 from tqdm import tqdm
@@ -26,33 +25,10 @@ SUPPORTED_FILE_TYPES = {
 }
 
 
-RepositoryData = TypedDict(
-    "RepositoryData",
-    {
-        "last_analyzed_version_of_branch": Dict[str, str],
-        "required_commits": Set[str],
-        "commits_already_analyzed": Set[str],
-        "file_data": Dict[str, File],
-        "sorted_files": List[str],
-    },
-)
-
-
 class Repository:
-    def __init__(self, path: str, cache_path: Path) -> None:
+    def __init__(self, path: str, cache: Cache) -> None:
         self._repo = Repo(path)
-        self._cache_file = cache_path / "cache"
-        self._cache = Cache[RepositoryData](
-            self._cache_file,
-            {
-                "last_analyzed_version_of_branch": {},
-                "required_commits": set(),
-                "commits_already_analyzed": set(),
-                "file_data": {},
-                "sorted_files": [],
-            },
-        )
-        self._cache.load()
+        self._cache = cache
 
     def _get_all_commits(self):
         for branch in tqdm(self._repo.branches, desc="Analyzing branches"):
