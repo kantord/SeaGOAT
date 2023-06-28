@@ -146,7 +146,7 @@ class Engine:
                 path_order.append(path)
 
             if path not in formatted_results:
-                formatted_results[path] = Result(path)
+                formatted_results[path] = Result(path, Path(self.path) / path)
             formatted_results[path].add_line(line)
 
         return [formatted_results[path] for path in path_order]
