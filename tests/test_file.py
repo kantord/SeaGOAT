@@ -42,18 +42,33 @@ def test_handles_files_that_were_edited_today(repo_folder, snapshot):
     assert my_file.get_metadata() == snapshot
 
 
-def test_does_not_return_chunks_for_empty_lines(repo):
+def test_ignores_almost_empyt_lines_in_chunks(repo):
     repo.add_file_change_commit(
         file_name="example.py",
         contents="""#this is a Python file
 
+# xd
+
 class FooBar:
 
-    def __init__(self):
+
+def __init__(self):
         pass""",
         author=repo.actors["John Doe"],
         commit_message=".",
     )
 
     my_file = File("example.py", str(Path(repo.working_dir) / "example.py"))
-    assert {item.codeline for item in my_file.get_chunks()} == {1, 3, 5, 6}
+    assert {item.codeline for item in my_file.get_chunks()} == {1, 5, 8, 9}
+    line5 = [item for item in my_file.get_chunks() if item.codeline == 5][0]
+    found_lines = line5.chunk.split("###")[0].splitlines()
+    assert found_lines == [
+        "#this is a Python file",
+        "",
+        "# xd",
+        "",
+        "class FooBar:",
+        "",
+        "",
+        "def __init__(self):",
+    ]
