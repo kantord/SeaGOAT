@@ -1,5 +1,6 @@
 import time
 import hashlib
+from typing import List
 
 
 class File:
@@ -44,6 +45,13 @@ class File:
 
         return lines
 
+    def _format_chunk_summary(self, relevant_lines: List[str]):
+        truncated_lines = [line[:100] for line in relevant_lines]
+        chunk = "\n".join(truncated_lines)
+        chunk = chunk + self.get_metadata()
+
+        return chunk
+
     def get_chunks(self):
         try:
             lines = self._get_file_lines()
@@ -57,11 +65,11 @@ class File:
                     [lines[line_number + 1]] if line_number + 1 in lines.keys() else []
                 )
                 relevant_lines = previous_line + [lines[line_number]] + next_line
-                truncated_lines = [line[:100] for line in relevant_lines]
-                chunk = "\n".join(truncated_lines)
-                chunk = chunk + self.get_metadata()
-
-                chunks.append(FileChunk(self, line_number, chunk))
+                chunks.append(
+                    FileChunk(
+                        self, line_number, self._format_chunk_summary(relevant_lines)
+                    )
+                )
 
             return chunks
 
