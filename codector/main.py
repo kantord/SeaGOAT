@@ -21,8 +21,12 @@ class RealTimeValidator(Validator):
             self.engine.query(current_text)
             self.engine.fetch()
             results = self.engine.get_results()
+            print(results)
             for result in results:
                 print(result.path)
+                for line in sorted(result.lines):
+                    print(f"{line}:  {result.line_texts[line - 1]}")
+                print()
 
 
 @click.command()
