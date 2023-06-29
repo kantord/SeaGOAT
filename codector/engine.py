@@ -108,7 +108,8 @@ class Engine:
 
     def _create_vector_embeddings(self):
         chunks_to_process = []
-        for file in self.repository.top_files()[:40]:
+        minimum_files_to_analyze = max(40, int(len(self.repository.top_files()) * 0.2))
+        for file in self.repository.top_files()[:minimum_files_to_analyze]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
 
