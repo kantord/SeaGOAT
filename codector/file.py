@@ -83,7 +83,7 @@ class File:
         return FileChunk(self, line_number, self._format_chunk_summary(relevant_lines))
 
     def _line_has_relevant_data(self, line: str):
-        return sum(c.isalnum() for c in line) > 2
+        return sum(c.isalnum() for c in line) > 3
 
     def get_chunks(self):
         try:
