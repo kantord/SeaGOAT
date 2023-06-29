@@ -89,11 +89,20 @@ class RealTimeValidator(Validator):
             for result in results:
                 self._print(f"{self.get_icon_for_file(result.path)} {result.path}")
                 formatted_lines = get_highlighted_lines(str(result.full_path))
+                previous_line = None
                 for line in sorted(result.lines):
+                    left_sign = "│ "
+                    if previous_line != line - 1:
+                        left_sign = "├─"
+                    previous_line = line
+                    left_sign = self.term.color(8)(left_sign)
                     formatted_line_number = self.term.on_color(8)(
-                        (str(line)).rjust(max_line_number_length + 1)
+                        (str(line)).rjust(max_line_number_length)
                     )
-                    self._print(f"{formatted_line_number}{formatted_lines[line - 1]}")
+
+                    self._print(
+                        f"{left_sign}{formatted_line_number}{formatted_lines[line - 1]}"
+                    )
                 print()
                 print()
 
