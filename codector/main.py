@@ -1,31 +1,100 @@
 # pylint: disable=too-few-public-methods
 
+import os
+import re
+
 import click
-from engine import Engine
 from prompt_toolkit import PromptSession
 from prompt_toolkit.validation import Validator
 from blessed import Terminal
+from pygments import highlight
+from pygments.lexers import get_lexer_for_filename
+from pygments.formatters import TerminalFormatter
+from pygments.lexers.javascript import JavascriptLexer, TypeScriptLexer
+
+from engine import Engine
+
+
+def get_highlighted_lines(file_name: str):
+    with open(file_name, "r", encoding="utf-8") as source_code_file:
+        code = source_code_file.read()
+
+    if file_name.endswith(".jsx"):
+        lexer = JavascriptLexer()
+    elif file_name.endswith(".tsx"):
+        lexer = TypeScriptLexer()
+    else:
+        lexer = get_lexer_for_filename(file_name)
+
+    result = highlight(code, lexer, TerminalFormatter())
+
+    return result.splitlines()
 
 
 class RealTimeValidator(Validator):
     def __init__(self, term, engine):
         self.term = term
         self.engine = engine
+        self._icon_map = {
+            ".txt": ("\uF15C", self.term.white),
+            ".md": ("\uF48A", self.term.cyan),
+            ".py": ("\uE73C", self.term.green),
+            ".c": ("\uE61E", self.term.yellow),
+            ".cpp": ("\uE61D", self.term.yellow),
+            ".h": ("\uF0FD", self.term.yellow),
+            ".hpp": ("\uF0FD", self.term.yellow),
+            ".ts": ("\uE628", self.term.blue),
+            ".js": ("\uE74E", self.term.blue),
+            ".tsx": ("\uF48A", self.term.blue),
+            ".jsx": ("\uF48A", self.term.blue),
+            ".html": ("\uE736", self.term.red),
+        }
+
+    def get_icon_for_file(self, file_name):
+        _, ext = os.path.splitext(file_name)
+        fallback_icon = self._icon_map[".txt"]
+        icon, color = self._icon_map.get(ext, fallback_icon)
+        return color(icon)
+
+    def _print(self, text: str, *args, **kwargs):
+        ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+        stripped = ansi_escape.sub("", text)
+
+        if len(stripped) <= self.term.width:
+            print(text, *args, **kwargs)
+
+        else:
+            remaining = text
+
+            while len(ansi_escape.sub("", remaining)) > self.term.width:
+                remaining = remaining.rsplit("\x1b", 1)[0]
+
+            reset_sequence = "\x1b[0m"
+            print(remaining + reset_sequence, *args, **kwargs)
 
     def validate(self, document):
         current_text = document.text
         print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
-        print(f"Query: {current_text}", end="")
-        print(self.term.move_xy(0, 2) + self.term.clear_eos(), end="")
+        self._print(f"Query: {current_text}", end="")
+        print(self.term.move_xy(0, 1) + self.term.clear_eos(), end="")
         if current_text:
             self.engine.query(current_text)
             self.engine.fetch()
             results = self.engine.get_results()
-            print(results)
+
+            max_line_number_length = len(
+                str(max(max(result.lines) for result in results))
+            )
+
             for result in results:
-                print(result.path)
+                self._print(f"{self.get_icon_for_file(result.path)} {result.path}")
+                formatted_lines = get_highlighted_lines(str(result.full_path))
                 for line in sorted(result.lines):
-                    print(f"{line}:  {result.line_texts[line - 1]}")
+                    formatted_line_number = self.term.on_color(8)(
+                        (str(line)).rjust(max_line_number_length + 1)
+                    )
+                    self._print(f"{formatted_line_number}{formatted_lines[line - 1]}")
+                print()
                 print()
 
 
