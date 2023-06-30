@@ -83,14 +83,14 @@ class RealTimeValidator(Validator):
             results = self.engine.get_results()
 
             max_line_number_length = len(
-                str(max(max(result.lines) for result in results))
+                str(max(max(result.get_lines()) for result in results))
             )
 
             for result in results:
                 self._print(f"{self.get_icon_for_file(result.path)} {result.path}")
                 formatted_lines = get_highlighted_lines(str(result.full_path))
                 previous_line = None
-                for line in sorted(result.lines):
+                for line in sorted(result.get_lines()):
                     left_sign = "│ "
                     if previous_line != line - 1:
                         left_sign = "├─"

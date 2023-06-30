@@ -56,7 +56,7 @@ def test_gets_data_using_vector_embeddings_1(repo):
     )
 
     # Tests that file lines are included for each result
-    assert all(1 in result.lines for result in codector.get_results())
+    assert all(1 in result.get_lines() for result in codector.get_results())
 
 
 def test_gets_data_using_vector_embeddings_2(repo):
@@ -199,7 +199,7 @@ def test_includes_all_matching_lines_from_line(repo):
     codector.fetch()
 
     assert codector.get_results()[0].path == "devices.txt"
-    assert codector.get_results()[0].lines == {1, 2, 4, 5, 6, 7, 8, 9}
+    assert set(codector.get_results()[0].get_lines()) == {1, 2, 4, 6, 7, 8, 9}
 
 
 def test_chunks_are_persisted_between_runs(repo):

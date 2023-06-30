@@ -128,11 +128,16 @@ class Engine:
 
     def fetch(self):
         chromadb_results = [
-            self._chroma_collection.query(query_texts=[self.query_string], n_results=15)
+            self._chroma_collection.query(query_texts=[self.query_string], n_results=50)
         ]
         self._results = (
-            chromadb_results[0]["metadatas"][0]
-            if chromadb_results[0]["metadatas"]
+            list(
+                zip(
+                    chromadb_results[0]["metadatas"][0],
+                    chromadb_results[0]["distances"][0],
+                )
+            )
+            if chromadb_results[0]["metadatas"] and chromadb_results[0]["distances"]
             else None
         ) or []
 
@@ -140,7 +145,7 @@ class Engine:
         path_order = []
         formatted_results = {}
 
-        for metadata in self._results:
+        for metadata, distance in self._results:
             path = str(metadata["path"])
             line = int(metadata["line"])
             if path not in path_order:
@@ -148,6 +153,6 @@ class Engine:
 
             if path not in formatted_results:
                 formatted_results[path] = Result(path, Path(self.path) / path)
-            formatted_results[path].add_line(line)
+            formatted_results[path].add_line(line, distance)
 
         return [formatted_results[path] for path in path_order]
