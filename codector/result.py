@@ -9,6 +9,9 @@ class ResultLine:
     line: int
     vector_distance: float
 
+    def get_score(self) -> float:
+        return self.vector_distance
+
 
 class Result:
     def __init__(self, path: str, full_path: Path) -> None:
@@ -25,12 +28,10 @@ class Result:
         self._lines.add(ResultLine(line, vector_distance))
 
     def get_lines(self):
-        best_score = min(
-            self._lines, key=lambda item: item.vector_distance
-        ).vector_distance
+        best_score = min(self._lines, key=lambda item: item.get_score()).get_score()
 
         return [
             result_line.line
             for result_line in self._lines
-            if result_line.vector_distance <= best_score * 1.2
+            if result_line.get_score() <= best_score * 1.2
         ]
