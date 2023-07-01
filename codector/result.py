@@ -8,9 +8,15 @@ from typing import Set
 class ResultLine:
     line: int
     vector_distance: float
+    line_text: str
 
-    def get_score(self) -> float:
-        return self.vector_distance
+    def _get_number_of_exact_matches(self, query: str) -> int:
+        if query.lower() in self.line_text.lower():
+            return 1
+        return 0
+
+    def get_score(self, query: str) -> float:
+        return self.vector_distance - self._get_number_of_exact_matches(query)
 
 
 class Result:
@@ -25,13 +31,15 @@ class Result:
             return source_code_file.read().splitlines()
 
     def add_line(self, line: int, vector_distance: float) -> None:
-        self._lines.add(ResultLine(line, vector_distance))
+        self._lines.add(ResultLine(line, vector_distance, self.line_texts[line - 1]))
 
-    def get_lines(self):
-        best_score = min(self._lines, key=lambda item: item.get_score()).get_score()
+    def get_lines(self, query: str):
+        best_score = min(self._lines, key=lambda item: item.get_score(query)).get_score(
+            query
+        )
 
         return [
             result_line.line
             for result_line in self._lines
-            if result_line.get_score() <= best_score * 1.2
+            if result_line.get_score(query) <= best_score * 1.2
         ]

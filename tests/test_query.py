@@ -56,7 +56,7 @@ def test_gets_data_using_vector_embeddings_1(repo):
     )
 
     # Tests that file lines are included for each result
-    assert all(1 in result.get_lines() for result in codector.get_results())
+    assert all(1 in result.get_lines(my_query) for result in codector.get_results())
 
 
 def test_gets_data_using_vector_embeddings_2(repo):
@@ -199,7 +199,38 @@ def test_includes_all_matching_lines_from_line(repo):
     codector.fetch()
 
     assert codector.get_results()[0].path == "devices.txt"
-    assert set(codector.get_results()[0].get_lines()) == {1, 2, 4, 6, 7, 8, 9}
+    assert set(codector.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
+
+
+def test_exact_matches_have_higher_score(repo):
+    repo.add_file_change_commit(
+        file_name="devices.txt",
+        contents="""1: Nothing
+        2: Google Pixel 2 Android
+        3:
+        4: Mango juice
+        5: Fried potatoes
+        6: Chicken wings
+        7: Apple iPhone 12
+        8: Pizza slices with pepperoni
+        9: Samsung Galaxy S10
+        10:
+        11:
+        12:
+        13:
+        14:
+        """,
+        author=repo.actors["John Doe"],
+        commit_message="Add italian food recipes",
+    )
+    codector = Engine(repo.working_dir)
+    codector.analyze_codebase()
+    my_query = "apple iphone 12"
+    codector.query(my_query)
+    codector.fetch()
+
+    assert codector.get_results()[0].path == "devices.txt"
+    assert set(codector.get_results()[0].get_lines(my_query)) == {7}
 
 
 def test_chunks_are_persisted_between_runs(repo):
