@@ -73,24 +73,24 @@ class RealTimeValidator(Validator):
             print(remaining + reset_sequence, *args, **kwargs)
 
     def validate(self, document):
-        current_text = document.text
+        query_text = document.text
         print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
-        self._print(f"Query: {current_text}", end="")
+        self._print(f"Query: {query_text}", end="")
         print(self.term.move_xy(0, 1) + self.term.clear_eos(), end="")
-        if current_text:
-            self.engine.query(current_text)
+        if query_text:
+            self.engine.query(query_text)
             self.engine.fetch()
             results = self.engine.get_results()
 
             max_line_number_length = len(
-                str(max(max(result.get_lines()) for result in results))
+                str(max(max(result.get_lines(query_text)) for result in results))
             )
 
             for result in results:
                 self._print(f"{self.get_icon_for_file(result.path)} {result.path}")
                 formatted_lines = get_highlighted_lines(str(result.full_path))
                 previous_line = None
-                for line in sorted(result.get_lines()):
+                for line in sorted(result.get_lines(query_text)):
                     left_sign = "│ "
                     if previous_line != line - 1:
                         left_sign = "├─"
