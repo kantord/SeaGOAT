@@ -73,38 +73,39 @@ class RealTimeValidator(Validator):
             print(remaining + reset_sequence, *args, **kwargs)
 
     def validate(self, document):
-        query_text = document.text
-        print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
-        self._print(f"Query: {query_text}", end="")
-        print(self.term.move_xy(0, 1) + self.term.clear_eos(), end="")
-        if query_text:
-            self.engine.query(query_text)
-            self.engine.fetch()
-            results = self.engine.get_results()
+        with self.term.location():
+            query_text = document.text
+            print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
+            self._print(f"Query: {query_text}", end="")
+            print(self.term.move_xy(0, 1) + self.term.clear_eos(), end="")
+            if query_text:
+                self.engine.query(query_text)
+                self.engine.fetch()
+                results = self.engine.get_results()
 
-            max_line_number_length = len(
-                str(max(max(result.get_lines(query_text)) for result in results))
-            )
+                max_line_number_length = len(
+                    str(max(max(result.get_lines(query_text)) for result in results))
+                )
 
-            for result in results:
-                self._print(f"{self.get_icon_for_file(result.path)} {result.path}")
-                formatted_lines = get_highlighted_lines(str(result.full_path))
-                previous_line = None
-                for line in sorted(result.get_lines(query_text)):
-                    left_sign = "│ "
-                    if previous_line != line - 1:
-                        left_sign = "├─"
-                    previous_line = line
-                    left_sign = self.term.color(8)(left_sign)
-                    formatted_line_number = self.term.on_color(8)(
-                        (str(line)).rjust(max_line_number_length)
-                    )
+                for result in results:
+                    self._print(f"{self.get_icon_for_file(result.path)} {result.path}")
+                    formatted_lines = get_highlighted_lines(str(result.full_path))
+                    previous_line = None
+                    for line in sorted(result.get_lines(query_text)):
+                        left_sign = "│ "
+                        if previous_line != line - 1:
+                            left_sign = "├─"
+                        previous_line = line
+                        left_sign = self.term.color(8)(left_sign)
+                        formatted_line_number = self.term.on_color(8)(
+                            (str(line)).rjust(max_line_number_length)
+                        )
 
-                    self._print(
-                        f"{left_sign}{formatted_line_number}{formatted_lines[line - 1]}"
-                    )
-                print()
-                print()
+                        self._print(
+                            f"{left_sign}{formatted_line_number}{formatted_lines[line - 1]}"
+                        )
+                    print()
+                    print()
 
 
 @click.command()
