@@ -49,6 +49,7 @@ class RealTimeValidator(Validator):
             ".jsx": ("\uF48A", self.term.blue),
             ".html": ("\uE736", self.term.red),
         }
+        self.lines_already_printed = 0
 
     def get_icon_for_file(self, file_name):
         _, ext = os.path.splitext(file_name)
@@ -57,6 +58,9 @@ class RealTimeValidator(Validator):
         return color(icon)
 
     def _print(self, text: str, *args, **kwargs):
+        if self.lines_already_printed >= self.term.height:
+            return
+        self.lines_already_printed += 1
         ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
         stripped = ansi_escape.sub("", text)
 
@@ -76,8 +80,9 @@ class RealTimeValidator(Validator):
         with self.term.location():
             query_text = document.text
             print(self.term.move_xy(0, 0) + self.term.clear_eol(), end="")
-            self._print(f"Query: {query_text}", end="")
+            self._print(query_text, end="")
             print(self.term.move_xy(0, 1) + self.term.clear_eos(), end="")
+            self.lines_already_printed = 1
             if query_text:
                 self.engine.query(query_text)
                 self.engine.fetch()
