@@ -51,6 +51,7 @@ class Engine:
             chromadb.Settings(
                 chroma_db_impl="duckdb+parquet",
                 persist_directory=str(self._get_cache_folder()),
+                anonymized_telemetry=False,
             )
         )
         self._chroma_collection = self._chroma_client.get_or_create_collection(
