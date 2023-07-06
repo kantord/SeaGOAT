@@ -6,7 +6,7 @@ import shutil
 from datetime import datetime, timedelta, timezone
 from typing import cast
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 from git.repo import Repo
@@ -148,8 +148,8 @@ chromadb_patcher = patch("chromadb.Client")
 
 @pytest.fixture(autouse=True)
 def mock_chromadb():
-    mock_collection = Mock()
-    mock_client = Mock()
+    mock_collection = MagicMock()
+    mock_client = MagicMock()
     mock_client.create_collection.return_value = mock_collection
 
     chromadb_patcher.start().return_value = mock_client

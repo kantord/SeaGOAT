@@ -16,7 +16,7 @@ class ResultLine:
         return 0
 
     def get_score(self, query: str) -> float:
-        return self.vector_distance - self._get_number_of_exact_matches(query)
+        return self.vector_distance / (1 + self._get_number_of_exact_matches(query))
 
 
 class Result:
@@ -38,8 +38,12 @@ class Result:
             query
         )
 
-        return [
-            result_line.line
-            for result_line in self._lines
-            if result_line.get_score(query) <= best_score * 1.2
-        ]
+        return list(
+            sorted(
+                set(
+                    result_line.line
+                    for result_line in self._lines
+                    if result_line.get_score(query) <= best_score * 1.2
+                )
+            )
+        )

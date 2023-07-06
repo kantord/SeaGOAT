@@ -11,9 +11,10 @@ from tqdm import tqdm
 from gitdb.db.loose import os
 import appdirs
 import chromadb
+from ripgrepy import Ripgrepy
+
 from chromadb.errors import IDAlreadyExistsError
 from codector.cache import Cache
-
 from codector.repository import Repository
 from codector.result import Result
 from codector.file import File
@@ -34,6 +35,7 @@ RepositoryData = TypedDict(
 )
 
 
+# pylint: disable=too-many-instance-attributes
 class Engine:
     """
     A search engine for a code repository
@@ -45,7 +47,8 @@ class Engine:
         """
         self.path = path
         self.query_string = ""
-        self._results = []
+        self._results_from_chromadb = []
+        self._results_from_ripgrep = []
 
         self._chroma_client = chromadb.Client(
             chromadb.Settings(
@@ -127,11 +130,11 @@ class Engine:
     def query(self, query: str):
         self.query_string = query
 
-    def fetch(self):
+    def _fetch_from_chromadb(self):
         chromadb_results = [
             self._chroma_collection.query(query_texts=[self.query_string], n_results=50)
         ]
-        self._results = (
+        self._results_from_chromadb = (
             list(
                 zip(
                     chromadb_results[0]["metadatas"][0],
@@ -142,11 +145,31 @@ class Engine:
             else None
         ) or []
 
+    def _fetch_from_ripgrep(self):
+        results = Ripgrepy(self.query_string, str(self.path)).json().run().as_dict
+        self._results_from_ripgrep = []
+        for result in results:
+            result_data = result["data"]
+            absolute_path = result_data["path"]["text"]
+            relative_path = Path(absolute_path).relative_to(self.path)
+            line_number = int(result_data["line_number"])
+            self._results_from_ripgrep.append(
+                {
+                    "absolute_path": absolute_path,
+                    "relative_path": relative_path,
+                    "line_number": line_number,
+                }
+            )
+
+    def fetch(self):
+        self._fetch_from_chromadb()
+        self._fetch_from_ripgrep()
+
     def get_results(self):
         path_order = []
         formatted_results = {}
 
-        for metadata, distance in self._results:
+        for metadata, distance in self._results_from_chromadb:
             path = str(metadata["path"])
             line = int(metadata["line"])
             if path not in path_order:
@@ -155,5 +178,17 @@ class Engine:
             if path not in formatted_results:
                 formatted_results[path] = Result(path, Path(self.path) / path)
             formatted_results[path].add_line(line, distance)
+
+        for item in self._results_from_ripgrep:
+            relative_path = str(item["relative_path"])
+            absolute_path = item["absolute_path"]
+            line_number = item["line_number"]
+
+            if relative_path not in path_order:
+                path_order.append(relative_path)
+                formatted_results[relative_path] = Result(
+                    str(relative_path), absolute_path
+                )
+            formatted_results[relative_path].add_line(line_number, 0.0)
 
         return [formatted_results[path] for path in path_order]

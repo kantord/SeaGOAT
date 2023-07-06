@@ -1459,6 +1459,21 @@ pluggy = ">=0.12,<2.0"
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
+name = "pytest-ordering"
+version = "0.6"
+description = "pytest plugin to run your tests in a specific order"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytest-ordering-0.6.tar.gz", hash = "sha256:561ad653626bb171da78e682f6d39ac33bb13b3e272d406cd555adb6b006bda6"},
+    {file = "pytest_ordering-0.6-py2-none-any.whl", hash = "sha256:27fba3fc265f5d0f8597e7557885662c1bdc1969497cd58aff6ed21c3b617de2"},
+    {file = "pytest_ordering-0.6-py3-none-any.whl", hash = "sha256:3f314a178dbeb6777509548727dc69edf22d6d9a2867bf2d310ab85c403380b6"},
+]
+
+[package.dependencies]
+pytest = "*"
+
+[[package]]
 name = "pytest-watch"
 version = "4.2.0"
 description = "Local continuous test runner with pytest and watchdog."
@@ -1582,6 +1597,16 @@ urllib3 = ">=1.21.1,<3"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
+name = "ripgrepy"
+version = "2.0.0"
+description = ""
+optional = false
+python-versions = "*"
+files = [
+    {file = "ripgrepy-2.0.0.tar.gz", hash = "sha256:6dd871bafe859301097354d1f171540fbc9bd38d3f8f52f8a196dc28522085da"},
+]
 
 [[package]]
 name = "setuptools"
@@ -2199,4 +2224,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "4abda87824470c83f2fe4566c70ecdef7fb548d5ee9c697e85c468c1a749b0c8"
+content-hash = "ad8e3cd9c669e0efe4ea9105d2b1f7031e99e254adb9bfe75fb5e8b704a4904b"

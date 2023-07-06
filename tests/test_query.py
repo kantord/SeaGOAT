@@ -12,15 +12,7 @@ def use_real_db(real_chromadb):
     pass
 
 
-def test_allows_setting_query(repo):
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
-    my_query = "lightweight markup language"
-    codector.query(my_query)
-
-    assert codector.query_string == my_query
-
-
+@pytest.mark.run(order=-1)
 def test_requires_fetching_data(repo):
     codector = Engine(repo.working_dir)
     codector.analyze_codebase()
@@ -30,16 +22,7 @@ def test_requires_fetching_data(repo):
     assert len(codector.get_results()) == 0
 
 
-def test_allows_fetching_data(repo):
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
-    my_query = "lightweight markup language"
-    codector.query(my_query)
-    codector.fetch()
-
-    assert len(codector.get_results()) > 2
-
-
+@pytest.mark.run(order=-1)
 def test_gets_data_using_vector_embeddings_1(repo):
     codector = Engine(repo.working_dir)
     codector.analyze_codebase()
@@ -59,6 +42,7 @@ def test_gets_data_using_vector_embeddings_1(repo):
     assert all(1 in result.get_lines(my_query) for result in codector.get_results())
 
 
+@pytest.mark.run(order=-1)
 def test_gets_data_using_vector_embeddings_2(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
@@ -87,6 +71,7 @@ def test_gets_data_using_vector_embeddings_2(repo):
     assert codector.get_results()[0].path == "articles.txt"
 
 
+@pytest.mark.run(order=-1)
 def test_considers_filename_in_results(repo):
     repo.add_file_change_commit(
         file_name="recipes.txt",
@@ -115,6 +100,7 @@ def test_considers_filename_in_results(repo):
     assert codector.get_results()[0].path == "recipes.txt"
 
 
+@pytest.mark.run(order=-1)
 def test_considers_commit_messages(repo):
     repo.add_file_change_commit(
         file_name="vehicles_1.txt",
@@ -143,6 +129,7 @@ def test_considers_commit_messages(repo):
     assert codector.get_results()[0].path == "vehicles_1.txt"
 
 
+@pytest.mark.run(order=-1)
 def test_truncates_very_long_lines(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
@@ -171,6 +158,7 @@ def test_truncates_very_long_lines(repo):
     assert codector.get_results()[0].path == "vehicles.txt"
 
 
+@pytest.mark.run(order=-1)
 def test_includes_all_matching_lines_from_line(repo):
     repo.add_file_change_commit(
         file_name="devices.txt",
@@ -202,6 +190,7 @@ def test_includes_all_matching_lines_from_line(repo):
     assert set(codector.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
 
 
+@pytest.mark.run(order=-1)
 def test_exact_matches_have_higher_score(repo):
     repo.add_file_change_commit(
         file_name="devices.txt",
@@ -233,6 +222,7 @@ def test_exact_matches_have_higher_score(repo):
     assert set(codector.get_results()[0].get_lines(my_query)) == {7}
 
 
+@pytest.mark.run(order=-1)
 def test_chunks_are_persisted_between_runs(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
