@@ -1,7 +1,9 @@
 from codector.engine import Engine
+from tests.conftest import pytest
 
 
-def test_includes_all_matching_lines_from_line(repo):
+@pytest.mark.asyncio
+async def test_includes_all_matching_lines_from_line(repo):
     repo.add_file_change_commit(
         file_name="events.txt",
         contents="""1: Nothing
@@ -21,13 +23,14 @@ def test_includes_all_matching_lines_from_line(repo):
     codector.analyze_codebase()
     my_query = "19"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert codector.get_results()[0].path == "events.txt"
     assert set(codector.get_results()[0].get_lines(my_query)) == {4, 6, 9}
 
 
-def test_respects_file_extension_restrictions(repo):
+@pytest.mark.asyncio
+async def test_respects_file_extension_restrictions(repo):
     repo.add_file_change_commit(
         file_name="rock.mp3",
         contents="19",
@@ -38,6 +41,6 @@ def test_respects_file_extension_restrictions(repo):
     codector.analyze_codebase()
     my_query = "19"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert "rock.mp3" not in [result.path for result in codector.get_results()]

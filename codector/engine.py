@@ -2,15 +2,19 @@
     This module allows you to use Codector as a library
 """
 
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import hashlib
 from typing import Dict, List, Set
+from functools import partial
 from typing_extensions import TypedDict
 
 from tqdm import tqdm
 from gitdb.db.loose import os
 import appdirs
 import chromadb
+import nest_asyncio
 
 from chromadb.errors import IDAlreadyExistsError
 from codector.cache import Cache
@@ -33,6 +37,9 @@ RepositoryData = TypedDict(
         "chunks_already_analyzed": Set[str],
     },
 )
+
+
+nest_asyncio.apply()
 
 
 # pylint: disable=too-many-instance-attributes
@@ -148,11 +155,24 @@ class Engine:
             else None
         ) or []
 
-    def fetch(self):
+    async def fetch(self):
         self._results = []
+        executor = ThreadPoolExecutor(max_workers=1)
+        loop = asyncio.get_event_loop()
+        async_tasks = [
+            loop.run_in_executor(executor, partial(fetch_source, self.query_string))
+            for fetch_source in self._fetchers
+        ]
+
         self._fetch_from_chromadb()
-        for fetch_source in self._fetchers:
-            self._results.extend(fetch_source(self.query_string))
+
+        results = await asyncio.gather(*async_tasks)
+        for result in results:
+            self._results.extend(result)
+
+    def fetch_sync(self):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.fetch())
 
     def get_results(self):
         path_order = []

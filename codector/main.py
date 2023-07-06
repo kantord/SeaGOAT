@@ -85,8 +85,11 @@ class RealTimeValidator(Validator):
             self.lines_already_printed = 1
             if query_text:
                 self.engine.query(query_text)
-                self.engine.fetch()
+                self.engine.fetch_sync()
                 results = self.engine.get_results()
+
+                if not results:
+                    return
 
                 max_line_number_length = len(
                     str(max(max(result.get_lines(query_text)) for result in results))

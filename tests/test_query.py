@@ -22,13 +22,14 @@ def test_requires_fetching_data(repo):
     assert len(codector.get_results()) == 0
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_gets_data_using_vector_embeddings_1(repo):
+async def test_gets_data_using_vector_embeddings(repo):
     codector = Engine(repo.working_dir)
     codector.analyze_codebase()
     my_query = "lightweight markup language"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     # Tests that results are sorted according to relevance
     assert codector.get_results()[0].path == "file1.md"
@@ -43,7 +44,7 @@ def test_gets_data_using_vector_embeddings_1(repo):
 
 
 @pytest.mark.run(order=-1)
-def test_gets_data_using_vector_embeddings_2(repo):
+def test_allows_fetching_data_synchronously(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents="Italian food recipes, spaghetti, pomodoro, pepperoni\n",
@@ -66,13 +67,14 @@ def test_gets_data_using_vector_embeddings_2(repo):
     codector.analyze_codebase()
     my_query = "tomato pizza"
     codector.query(my_query)
-    codector.fetch()
+    codector.fetch_sync()
 
     assert codector.get_results()[0].path == "articles.txt"
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_considers_filename_in_results(repo):
+async def test_considers_filename_in_results(repo):
     repo.add_file_change_commit(
         file_name="recipes.txt",
         contents="motorbike, ford, mercedes\n",
@@ -95,13 +97,14 @@ def test_considers_filename_in_results(repo):
     codector.analyze_codebase()
     my_query = "tomato pizza"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert codector.get_results()[0].path == "recipes.txt"
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_considers_commit_messages(repo):
+async def test_considers_commit_messages(repo):
     repo.add_file_change_commit(
         file_name="vehicles_1.txt",
         contents="the the the",
@@ -124,13 +127,14 @@ def test_considers_commit_messages(repo):
     codector.analyze_codebase()
     my_query = "italian pomodoro pie with slices of cured meat"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert codector.get_results()[0].path == "vehicles_1.txt"
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_truncates_very_long_lines(repo):
+async def test_truncates_very_long_lines(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents=f"car {'the a about ' * 40} pizza recipe tomato italian pie\n",
@@ -153,13 +157,14 @@ def test_truncates_very_long_lines(repo):
     codector.analyze_codebase()
     my_query = "tomato pizza"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert codector.get_results()[0].path == "vehicles.txt"
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_includes_all_matching_lines_from_line(repo):
+async def test_includes_all_matching_lines_from_line(repo):
     repo.add_file_change_commit(
         file_name="devices.txt",
         contents="""1: Nothing
@@ -184,14 +189,15 @@ def test_includes_all_matching_lines_from_line(repo):
     codector.analyze_codebase()
     my_query = "smartphone"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert codector.get_results()[0].path == "devices.txt"
     assert set(codector.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_exact_matches_have_higher_score(repo):
+async def test_exact_matches_have_higher_score(repo):
     repo.add_file_change_commit(
         file_name="devices.txt",
         contents="""1: Nothing
@@ -216,14 +222,15 @@ def test_exact_matches_have_higher_score(repo):
     codector.analyze_codebase()
     my_query = "apple iphone 12"
     codector.query(my_query)
-    codector.fetch()
+    await codector.fetch()
 
     assert codector.get_results()[0].path == "devices.txt"
     assert set(codector.get_results()[0].get_lines(my_query)) == {7}
 
 
+@pytest.mark.asyncio
 @pytest.mark.run(order=-1)
-def test_chunks_are_persisted_between_runs(repo):
+async def test_chunks_are_persisted_between_runs(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents="Italian food recipes, spaghetti, pomodoro, pepperoni\n",
@@ -248,7 +255,7 @@ def test_chunks_are_persisted_between_runs(repo):
     ) as mock_add_to_collection:
         codector1.analyze_codebase()
         codector1.query("pomodoro spaghetti")
-        codector1.fetch()
+        await codector1.fetch()
         assert mock_add_to_collection.call_count > 2
         assert codector1.get_results()[0].path == "articles.txt"
         del codector1
@@ -259,6 +266,6 @@ def test_chunks_are_persisted_between_runs(repo):
     ) as mock_add_to_collection:
         codector2.analyze_codebase()
         codector2.query("pomodoro spaghetti")
-        codector2.fetch()
+        await codector2.fetch()
         assert mock_add_to_collection.call_count == 0
         assert codector2.get_results()[0].path == "articles.txt"

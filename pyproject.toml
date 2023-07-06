@@ -16,6 +16,7 @@ prompt-toolkit = "^3.0.38"
 blessed = "^1.20.0"
 pygments = "^2.15.1"
 ripgrepy = "^2.0.0"
+nest-asyncio = "^1.5.6"
 
 [virtualenvs]
 in-project = true
@@ -31,6 +32,7 @@ pytest-watch = "^4.2.0"
 freezegun = "^1.2.2"
 syrupy = "^4.0.4"
 pytest-ordering = "^0.6"
+pytest-asyncio = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]
