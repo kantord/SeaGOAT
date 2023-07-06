@@ -11,14 +11,13 @@ from tqdm import tqdm
 from gitdb.db.loose import os
 import appdirs
 import chromadb
-from ripgrepy import Ripgrepy
 
 from chromadb.errors import IDAlreadyExistsError
 from codector.cache import Cache
 from codector.repository import Repository
 from codector.result import Result
 from codector.file import File
-from codector.common import SUPPORTED_FILE_TYPES
+from codector.sources import ripgrep
 
 CACHE_FORMAT_VERSION = 15
 
@@ -49,7 +48,7 @@ class Engine:
         self.path = path
         self.query_string = ""
         self._results_from_chromadb = []
-        self._results_from_ripgrep = []
+        self._results = []
 
         self._chroma_client = chromadb.Client(
             chromadb.Settings(
@@ -74,6 +73,9 @@ class Engine:
         )
         self._cache.load()
         self.repository = Repository(path, self._cache)
+        self._fetchers = [
+            ripgrep.initialize(self.repository),
+        ]
 
     def _get_cache_folder(self):
         cache_folder = self._get_cache_root() / self._get_project_hash()
@@ -146,29 +148,11 @@ class Engine:
             else None
         ) or []
 
-    def _fetch_from_ripgrep(self):
-        results = Ripgrepy(self.query_string, str(self.path)).json().run().as_dict
-        self._results_from_ripgrep = []
-        for result in results:
-            result_data = result["data"]
-            absolute_path = result_data["path"]["text"]
-            relative_path = Path(absolute_path).relative_to(self.path)
-            line_number = int(result_data["line_number"])
-
-            if relative_path.suffix not in SUPPORTED_FILE_TYPES:
-                continue
-
-            self._results_from_ripgrep.append(
-                {
-                    "absolute_path": absolute_path,
-                    "relative_path": relative_path,
-                    "line_number": line_number,
-                }
-            )
-
     def fetch(self):
+        self._results = []
         self._fetch_from_chromadb()
-        self._fetch_from_ripgrep()
+        for fetch_source in self._fetchers:
+            self._results.extend(fetch_source(self.query_string))
 
     def get_results(self):
         path_order = []
@@ -184,7 +168,7 @@ class Engine:
                 formatted_results[path] = Result(path, Path(self.path) / path)
             formatted_results[path].add_line(line, distance)
 
-        for item in self._results_from_ripgrep:
+        for item in self._results:
             relative_path = str(item["relative_path"])
             absolute_path = item["absolute_path"]
             line_number = item["line_number"]

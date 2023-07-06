@@ -13,6 +13,7 @@ class Repository:
     def __init__(self, path: str, cache: Cache) -> None:
         self._repo = Repo(path)
         self._cache = cache
+        self.path = path
 
     def _get_all_commits(self):
         for branch in tqdm(self._repo.branches, desc="Analyzing branches"):
