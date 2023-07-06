@@ -18,6 +18,7 @@ from codector.cache import Cache
 from codector.repository import Repository
 from codector.result import Result
 from codector.file import File
+from codector.common import SUPPORTED_FILE_TYPES
 
 CACHE_FORMAT_VERSION = 15
 
@@ -153,6 +154,10 @@ class Engine:
             absolute_path = result_data["path"]["text"]
             relative_path = Path(absolute_path).relative_to(self.path)
             line_number = int(result_data["line_number"])
+
+            if relative_path.suffix not in SUPPORTED_FILE_TYPES:
+                continue
+
             self._results_from_ripgrep.append(
                 {
                     "absolute_path": absolute_path,

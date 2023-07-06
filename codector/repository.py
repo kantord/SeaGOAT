@@ -4,25 +4,9 @@ from pathlib import Path
 from git.repo import Repo
 from tqdm import tqdm
 from codector.cache import Cache
+from codector.common import SUPPORTED_FILE_TYPES, IGNORED_BRANCHES
 
 from codector.file import File
-
-
-IGNORED_BRANCHES = {"gh-pages"}
-SUPPORTED_FILE_TYPES = {
-    ".txt",
-    ".md",
-    ".py",
-    ".c",
-    ".cpp",
-    ".h",
-    ".hpp",
-    ".ts",
-    ".js",
-    ".tsx",
-    ".jsx",
-    ".html",
-}
 
 
 class Repository:

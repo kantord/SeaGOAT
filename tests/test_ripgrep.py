@@ -25,3 +25,19 @@ def test_includes_all_matching_lines_from_line(repo):
 
     assert codector.get_results()[0].path == "events.txt"
     assert set(codector.get_results()[0].get_lines(my_query)) == {4, 6, 9}
+
+
+def test_respects_file_extension_restrictions(repo):
+    repo.add_file_change_commit(
+        file_name="rock.mp3",
+        contents="19",
+        author=repo.actors["John Doe"],
+        commit_message="Add music file",
+    )
+    codector = Engine(repo.working_dir)
+    codector.analyze_codebase()
+    my_query = "19"
+    codector.query(my_query)
+    codector.fetch()
+
+    assert "rock.mp3" not in [result.path for result in codector.get_results()]
