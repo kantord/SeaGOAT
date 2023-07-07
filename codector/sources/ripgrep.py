@@ -2,10 +2,11 @@ from pathlib import Path
 from ripgrepy import Ripgrepy
 from codector.repository import Repository
 from codector.common import SUPPORTED_FILE_TYPES
+from codector.result import Result
 
 
 def _fetch(query_text: str, path: str):
-    results = []
+    files = {}
     for result in Ripgrepy(query_text, path).json().run().as_dict:
         result_data = result["data"]
         absolute_path = result_data["path"]["text"]
@@ -15,21 +16,30 @@ def _fetch(query_text: str, path: str):
         if relative_path.suffix not in SUPPORTED_FILE_TYPES:
             continue
 
-        results.append(
-            {
-                "absolute_path": absolute_path,
-                "relative_path": relative_path,
-                "line_number": line_number,
-            }
-        )
+        if relative_path not in files:
+            files[path] = Result(path, absolute_path)
 
-    return results
+        files[path].add_line(line_number, 0.0)
+
+    return files.values()
 
 
-def initialize(repository: Repository):
+def initialize(repository: Repository, _: Path):
     path = repository.path
 
     def fetch(query_text: str):
         return _fetch(query_text, path)
 
-    return fetch
+    def cache_chunk(_):
+        # Ripgrep does not need a cache for chunks
+        pass
+
+    def persist():
+        # Ripgrep does not need persistence
+        pass
+
+    return {
+        "fetch": fetch,
+        "cache_chunk": cache_chunk,
+        "persist": persist,
+    }

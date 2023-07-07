@@ -23,18 +23,21 @@ class Result:
     def __init__(self, path: str, full_path: Path) -> None:
         self.path: str = path
         self.full_path: Path = full_path
-        self._lines: Set[ResultLine] = set()
+        self.lines: Set[ResultLine] = set()
         self.line_texts = self._read_lines()
+
+    def extend(self, other) -> None:
+        self.lines.update(other.lines)
 
     def _read_lines(self):
         with open(self.full_path, encoding="utf-8") as source_code_file:
             return source_code_file.read().splitlines()
 
     def add_line(self, line: int, vector_distance: float) -> None:
-        self._lines.add(ResultLine(line, vector_distance, self.line_texts[line - 1]))
+        self.lines.add(ResultLine(line, vector_distance, self.line_texts[line - 1]))
 
     def get_lines(self, query: str):
-        best_score = min(self._lines, key=lambda item: item.get_score(query)).get_score(
+        best_score = min(self.lines, key=lambda item: item.get_score(query)).get_score(
             query
         )
 
@@ -42,7 +45,7 @@ class Result:
             sorted(
                 set(
                     result_line.line
-                    for result_line in self._lines
+                    for result_line in self.lines
                     if result_line.get_score(query) <= best_score * 1.2
                 )
             )

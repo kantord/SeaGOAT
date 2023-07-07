@@ -4,6 +4,7 @@
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from itertools import chain
 from pathlib import Path
 import hashlib
 from typing import Dict, List, Set
@@ -13,15 +14,13 @@ from typing_extensions import TypedDict
 from tqdm import tqdm
 from gitdb.db.loose import os
 import appdirs
-import chromadb
 import nest_asyncio
 
-from chromadb.errors import IDAlreadyExistsError
 from codector.cache import Cache
 from codector.repository import Repository
-from codector.result import Result
 from codector.file import File
 from codector.sources import ripgrep
+from codector.sources import chroma
 
 CACHE_FORMAT_VERSION = 15
 
@@ -56,17 +55,6 @@ class Engine:
         self.query_string = ""
         self._results_from_chromadb = []
         self._results = []
-
-        self._chroma_client = chromadb.Client(
-            chromadb.Settings(
-                chroma_db_impl="duckdb+parquet",
-                persist_directory=str(self._get_cache_folder()),
-                anonymized_telemetry=False,
-            )
-        )
-        self._chroma_collection = self._chroma_client.get_or_create_collection(
-            name="code_data"
-        )
         self._cache = Cache[RepositoryData](
             self._get_cache_folder() / "cache",
             {
@@ -80,9 +68,14 @@ class Engine:
         )
         self._cache.load()
         self.repository = Repository(path, self._cache)
-        self._fetchers = [
-            ripgrep.initialize(self.repository),
-        ]
+        self._fetchers = {
+            "async": [
+                ripgrep.initialize(self.repository, self._get_cache_folder()),
+            ],
+            "sync": [
+                chroma.initialize(self.repository, self._get_cache_folder()),
+            ],
+        }
 
     def _get_cache_folder(self):
         cache_folder = self._get_cache_root() / self._get_project_hash()
@@ -111,14 +104,8 @@ class Engine:
         self._create_vector_embeddings()
 
     def _add_to_collection(self, chunk):
-        try:
-            self._chroma_collection.add(
-                ids=[chunk.chunk_id],
-                documents=[chunk.chunk],
-                metadatas=[{"path": chunk.path, "line": chunk.codeline}],
-            )
-        except IDAlreadyExistsError:
-            pass
+        for source in chain(*self._fetchers.values()):
+            source["cache_chunk"](chunk)
 
     def _create_vector_embeddings(self):
         chunks_to_process = []
@@ -135,36 +122,24 @@ class Engine:
             self._cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
 
         self._cache.persist()
-        self._chroma_client.persist()
+
+        for source in chain(*self._fetchers.values()):
+            source["persist"]()
 
     def query(self, query: str):
         self.query_string = query
-
-    def _fetch_from_chromadb(self):
-        chromadb_results = [
-            self._chroma_collection.query(query_texts=[self.query_string], n_results=50)
-        ]
-        self._results_from_chromadb = (
-            list(
-                zip(
-                    chromadb_results[0]["metadatas"][0],
-                    chromadb_results[0]["distances"][0],
-                )
-            )
-            if chromadb_results[0]["metadatas"] and chromadb_results[0]["distances"]
-            else None
-        ) or []
 
     async def fetch(self):
         self._results = []
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_event_loop()
         async_tasks = [
-            loop.run_in_executor(executor, partial(fetch_source, self.query_string))
-            for fetch_source in self._fetchers
+            loop.run_in_executor(executor, partial(source["fetch"], self.query_string))
+            for source in self._fetchers["async"]
         ]
 
-        self._fetch_from_chromadb()
+        for source in self._fetchers["sync"]:
+            self._results.extend(source["fetch"](self.query_string))
 
         results = await asyncio.gather(*async_tasks)
         for result in results:
@@ -175,29 +150,13 @@ class Engine:
         loop.run_until_complete(self.fetch())
 
     def get_results(self):
-        path_order = []
-        formatted_results = {}
+        merged_results = {}
 
-        for metadata, distance in self._results_from_chromadb:
-            path = str(metadata["path"])
-            line = int(metadata["line"])
-            if path not in path_order:
-                path_order.append(path)
+        for result_item in self._results:
+            if result_item.path not in merged_results:
+                merged_results[result_item.path] = result_item
+                continue
 
-            if path not in formatted_results:
-                formatted_results[path] = Result(path, Path(self.path) / path)
-            formatted_results[path].add_line(line, distance)
+            merged_results[result_item.path].extend(result_item)
 
-        for item in self._results:
-            relative_path = str(item["relative_path"])
-            absolute_path = item["absolute_path"]
-            line_number = item["line_number"]
-
-            if relative_path not in path_order:
-                path_order.append(relative_path)
-                formatted_results[relative_path] = Result(
-                    str(relative_path), absolute_path
-                )
-            formatted_results[relative_path].add_line(line_number, 0.0)
-
-        return [formatted_results[path] for path in path_order]
+        return list(merged_results.values())
