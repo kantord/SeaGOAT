@@ -36,10 +36,11 @@ class Result:
     def add_line(self, line: int, vector_distance: float) -> None:
         self.lines.add(ResultLine(line, vector_distance, self.line_texts[line - 1]))
 
+    def get_best_score(self, query: str) -> float:
+        return min(self.lines, key=lambda item: item.get_score(query)).get_score(query)
+
     def get_lines(self, query: str):
-        best_score = min(self.lines, key=lambda item: item.get_score(query)).get_score(
-            query
-        )
+        best_score = self.get_best_score(query)
 
         return list(
             sorted(

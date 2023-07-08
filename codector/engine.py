@@ -158,4 +158,9 @@ class Engine:
 
             merged_results[result_item.path].extend(result_item)
 
-        return list(merged_results.values())
+        return list(
+            sorted(
+                merged_results.values(),
+                key=lambda x: x.get_best_score(self.query_string),
+            )
+        )
