@@ -118,10 +118,22 @@ class RealTimeValidator(Validator):
 
 @click.command()
 @click.argument("repo_path")
-def analyze_codebase(repo_path):
+@click.argument("query", required=False)
+def analyze_codebase(repo_path, query):
     """Query your codebase using vector embeddings"""
     my_codector = Engine(repo_path)
     my_codector.analyze_codebase()
+
+    if query is not None:
+        my_codector.query(query)
+        my_codector.fetch_sync()
+        results = my_codector.get_results()
+
+        for result in results:
+            for line in result.get_lines(query):
+                print(f"{result.path}:{line}:{result.line_texts[line - 1]}")
+
+        return
 
     term = Terminal()
     with term.fullscreen():
