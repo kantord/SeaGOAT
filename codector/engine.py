@@ -41,7 +41,6 @@ RepositoryData = TypedDict(
 nest_asyncio.apply()
 
 
-# pylint: disable=too-many-instance-attributes
 class Engine:
     """
     A search engine for a code repository
