@@ -5,6 +5,7 @@
 **Requirements**:
 * [Poetry](https://python-poetry.org/)
 * Python 3.11 or newer
+* [ripgrep](https://github.com/BurntSushi/ripgrep)
 
 ### Install dependencies
 
