@@ -17,9 +17,9 @@ def _fetch(query_text: str, path: str):
             continue
 
         if relative_path not in files:
-            files[path] = Result(path, absolute_path)
+            files[relative_path] = Result(str(relative_path), absolute_path)
 
-        files[path].add_line(line_number, 0.0)
+        files[relative_path].add_line(line_number, 0.0)
 
     return files.values()
 
