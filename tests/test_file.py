@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import time
-from codector.file import File
+from seagoat.file import File
 from tests.conftest import pytest
 
 

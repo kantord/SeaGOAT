@@ -1,9 +1,9 @@
 from pathlib import Path
 from chromadb import chromadb
 from chromadb.errors import IDAlreadyExistsError
-from codector.cache import Cache
-from codector.repository import Repository
-from codector.result import Result
+from seagoat.cache import Cache
+from seagoat.repository import Repository
+from seagoat.result import Result
 
 
 def initialize(repository: Repository):

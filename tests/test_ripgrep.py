@@ -1,4 +1,4 @@
-from codector.engine import Engine
+from seagoat.engine import Engine
 from tests.conftest import pytest
 
 
@@ -19,14 +19,14 @@ async def test_includes_all_matching_lines_from_line(repo):
         author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "19"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert codector.get_results()[0].path == "events.txt"
-    assert set(codector.get_results()[0].get_lines(my_query)) == {4, 6, 9}
+    assert seagoat.get_results()[0].path == "events.txt"
+    assert set(seagoat.get_results()[0].get_lines(my_query)) == {4, 6, 9}
 
 
 @pytest.mark.asyncio
@@ -37,10 +37,10 @@ async def test_respects_file_extension_restrictions(repo):
         author=repo.actors["John Doe"],
         commit_message="Add music file",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "19"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert "rock.mp3" not in [result.path for result in codector.get_results()]
+    assert "rock.mp3" not in [result.path for result in seagoat.get_results()]

@@ -1,8 +1,8 @@
 from pathlib import Path
 from ripgrepy import Ripgrepy
-from codector.repository import Repository
-from codector.common import SUPPORTED_FILE_TYPES
-from codector.result import Result
+from seagoat.repository import Repository
+from seagoat.common import SUPPORTED_FILE_TYPES
+from seagoat.result import Result
 
 
 def _fetch(query_text: str, path: str):

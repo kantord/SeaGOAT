@@ -2,7 +2,7 @@
 
 import pytest
 
-from codector.engine import Engine
+from seagoat.engine import Engine
 from tests.test_repository import patch
 
 
@@ -14,33 +14,33 @@ def use_real_db(real_chromadb):
 
 @pytest.mark.run(order=-1)
 def test_requires_fetching_data(repo):
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "lightweight markup language"
-    codector.query(my_query)
+    seagoat.query(my_query)
 
-    assert len(codector.get_results()) == 0
+    assert len(seagoat.get_results()) == 0
 
 
 @pytest.mark.asyncio
 @pytest.mark.run(order=-1)
 async def test_gets_data_using_vector_embeddings(repo):
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "lightweight markup language"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
     # Tests that results are sorted according to relevance
-    assert codector.get_results()[0].path == "file1.md"
+    assert seagoat.get_results()[0].path == "file1.md"
 
     # Tests that results are grouped by file
-    assert len(set(result.path for result in codector.get_results())) == len(
-        list(codector.get_results())
+    assert len(set(result.path for result in seagoat.get_results())) == len(
+        list(seagoat.get_results())
     )
 
     # Tests that file lines are included for each result
-    assert all(1 in result.get_lines(my_query) for result in codector.get_results())
+    assert all(1 in result.get_lines(my_query) for result in seagoat.get_results())
 
 
 @pytest.mark.run(order=-1)
@@ -63,13 +63,13 @@ def test_allows_fetching_data_synchronously(repo):
         author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "tomato pizza"
-    codector.query(my_query)
-    codector.fetch_sync()
+    seagoat.query(my_query)
+    seagoat.fetch_sync()
 
-    assert codector.get_results()[0].path == "articles.txt"
+    assert seagoat.get_results()[0].path == "articles.txt"
 
 
 @pytest.mark.asyncio
@@ -93,13 +93,13 @@ async def test_considers_filename_in_results(repo):
         author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "tomato pizza"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert codector.get_results()[0].path == "recipes.txt"
+    assert seagoat.get_results()[0].path == "recipes.txt"
 
 
 @pytest.mark.asyncio
@@ -123,13 +123,13 @@ async def test_considers_commit_messages(repo):
         author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "italian pomodoro pie with slices of cured meat"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert codector.get_results()[0].path == "vehicles_1.txt"
+    assert seagoat.get_results()[0].path == "vehicles_1.txt"
 
 
 @pytest.mark.asyncio
@@ -153,13 +153,13 @@ async def test_truncates_very_long_lines(repo):
         author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "tomato pizza"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert codector.get_results()[0].path == "vehicles.txt"
+    assert seagoat.get_results()[0].path == "vehicles.txt"
 
 
 @pytest.mark.asyncio
@@ -185,14 +185,14 @@ async def test_includes_all_matching_lines_from_line(repo):
         author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "smartphone"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert codector.get_results()[0].path == "devices.txt"
-    assert set(codector.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
+    assert seagoat.get_results()[0].path == "devices.txt"
+    assert set(seagoat.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
 
 
 @pytest.mark.asyncio
@@ -218,14 +218,14 @@ async def test_exact_matches_have_higher_score(repo):
         author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
-    codector = Engine(repo.working_dir)
-    codector.analyze_codebase()
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
     my_query = "apple iphone 12"
-    codector.query(my_query)
-    await codector.fetch()
+    seagoat.query(my_query)
+    await seagoat.fetch()
 
-    assert codector.get_results()[0].path == "devices.txt"
-    assert set(codector.get_results()[0].get_lines(my_query)) == {7}
+    assert seagoat.get_results()[0].path == "devices.txt"
+    assert set(seagoat.get_results()[0].get_lines(my_query)) == {7}
 
 
 @pytest.mark.asyncio
@@ -249,23 +249,23 @@ async def test_chunks_are_persisted_between_runs(repo):
         author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
-    codector1 = Engine(repo.working_dir)
+    seagoat1 = Engine(repo.working_dir)
     with patch.object(
-        codector1, "_add_to_collection", wraps=codector1._add_to_collection
+        seagoat1, "_add_to_collection", wraps=seagoat1._add_to_collection
     ) as mock_add_to_collection:
-        codector1.analyze_codebase()
-        codector1.query("pomodoro spaghetti")
-        await codector1.fetch()
+        seagoat1.analyze_codebase()
+        seagoat1.query("pomodoro spaghetti")
+        await seagoat1.fetch()
         assert mock_add_to_collection.call_count > 2
-        assert codector1.get_results()[0].path == "articles.txt"
-        del codector1
+        assert seagoat1.get_results()[0].path == "articles.txt"
+        del seagoat1
 
-    codector2 = Engine(repo.working_dir)
+    seagoat2 = Engine(repo.working_dir)
     with patch.object(
-        codector2, "_add_to_collection", wraps=codector2._add_to_collection
+        seagoat2, "_add_to_collection", wraps=seagoat2._add_to_collection
     ) as mock_add_to_collection:
-        codector2.analyze_codebase()
-        codector2.query("pomodoro spaghetti")
-        await codector2.fetch()
+        seagoat2.analyze_codebase()
+        seagoat2.query("pomodoro spaghetti")
+        await seagoat2.fetch()
         assert mock_add_to_collection.call_count == 0
-        assert codector2.get_results()[0].path == "articles.txt"
+        assert seagoat2.get_results()[0].path == "articles.txt"

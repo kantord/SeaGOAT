@@ -148,9 +148,9 @@ def repo(generate_repo):
 @pytest.fixture(autouse=True)
 def run_around_tests():
     yield
-    cache_root = Path(appdirs.user_cache_dir("codector-pytest"))
+    cache_root = Path(appdirs.user_cache_dir("seagoat-pytest"))
     if "RUNNER_TEMP" in os.environ:
-        cache_root = Path(os.environ["RUNNER_TEMP"]) / "codector-pytest"
+        cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
     shutil.rmtree(cache_root, ignore_errors=True)
 
 

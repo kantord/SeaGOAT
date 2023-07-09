@@ -1,9 +1,9 @@
 from pathlib import Path
 from unittest.mock import patch
 from contextlib import contextmanager
-from codector.engine import Engine
-from codector.result import Result
-from codector.sources import ripgrep, chroma
+from seagoat.engine import Engine
+from seagoat.result import Result
+from seagoat.sources import ripgrep, chroma
 from tests.test_file import pytest
 
 
@@ -50,20 +50,20 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
         yield
 
 
-@pytest.fixture(name="create_prepared_codector")
-def _create_prepared_codector(repo):
-    def _prepared_codector(query, ripgrep_lines, chroma_lines):
+@pytest.fixture(name="create_prepared_seagoat")
+def _create_prepared_seagoat(repo):
+    def _prepared_seagoat(query, ripgrep_lines, chroma_lines):
         with mock_sources_context(repo, ripgrep_lines, chroma_lines):
-            codector = Engine(repo.working_dir)
-            codector.analyze_codebase()
-            codector.query(query)
-            codector.fetch_sync()
-            return codector
+            seagoat = Engine(repo.working_dir)
+            seagoat.analyze_codebase()
+            seagoat.query(query)
+            seagoat.fetch_sync()
+            return seagoat
 
-    return _prepared_codector
+    return _prepared_seagoat
 
 
-def test_sort_results_test1(create_prepared_codector):
+def test_sort_results_test1(create_prepared_seagoat):
     ripgrep_lines = {
         "file1.md": [(1, 10.0), (2, 4.0)],
         "file2.md": [(1, 5.0)],
@@ -74,13 +74,13 @@ def test_sort_results_test1(create_prepared_codector):
     }
     my_query = "fake query"
 
-    codector = create_prepared_codector(my_query, ripgrep_lines, chroma_lines)
-    results = codector.get_results()
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    results = seagoat.get_results()
 
     assert [result.path for result in results] == ["file1.md", "file3.md", "file2.md"]
 
 
-def test_sort_results_test2(create_prepared_codector):
+def test_sort_results_test2(create_prepared_seagoat):
     ripgrep_lines = {
         "file1.md": [(1, 10.0)],
         "file2.md": [(1, 15.0)],
@@ -90,13 +90,13 @@ def test_sort_results_test2(create_prepared_codector):
     }
     my_query = "fake query"
 
-    codector = create_prepared_codector(my_query, ripgrep_lines, chroma_lines)
-    results = codector.get_results()
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    results = seagoat.get_results()
 
     assert [result.path for result in results] == ["file3.md", "file1.md", "file2.md"]
 
 
-def test_missing_file_in_one_source(create_prepared_codector):
+def test_missing_file_in_one_source(create_prepared_seagoat):
     ripgrep_lines = {
         "file1.md": [(1, 10.0)],
         "file2.md": [(1, 5.0)],
@@ -106,24 +106,24 @@ def test_missing_file_in_one_source(create_prepared_codector):
     }
     my_query = "fake query"
 
-    codector = create_prepared_codector(my_query, ripgrep_lines, chroma_lines)
-    results = codector.get_results()
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    results = seagoat.get_results()
 
     assert [result.path for result in results] == ["file2.md", "file1.md"]
 
 
-def test_no_lines(create_prepared_codector):
+def test_no_lines(create_prepared_seagoat):
     ripgrep_lines = {}
     chroma_lines = {}
     my_query = "fake query"
 
-    codector = create_prepared_codector(my_query, ripgrep_lines, chroma_lines)
-    results = codector.get_results()
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    results = seagoat.get_results()
 
     assert results == []
 
 
-def test_file_edits_influence_order(create_prepared_codector, repo):
+def test_file_edits_influence_order(create_prepared_seagoat, repo):
     repo.add_file_change_commit(
         file_name="file_few_edits.md",
         contents="Some content",
@@ -160,9 +160,9 @@ def test_file_edits_influence_order(create_prepared_codector, repo):
     }
     my_query = "asdfadsfdfdffdafafdsfadsf"
 
-    codector = create_prepared_codector(my_query, ripgrep_lines, chroma_lines)
-    codector.analyze_codebase()
-    results = codector.get_results()
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    seagoat.analyze_codebase()
+    results = seagoat.get_results()
 
     assert [result.path for result in results] == [
         "file_many_edits.md",

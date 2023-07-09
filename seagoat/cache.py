@@ -43,7 +43,7 @@ class Cache(Generic[T]):
 
         return Path(
             appdirs.user_cache_dir(
-                "codector-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "codector"
+                "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
             )
         )
 

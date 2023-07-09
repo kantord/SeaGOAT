@@ -1,5 +1,5 @@
 """
-    This module allows you to use Codector as a library
+    This module allows you to use seagoat as a library
 """
 
 import asyncio
@@ -13,11 +13,11 @@ from typing_extensions import TypedDict
 from tqdm import tqdm
 import nest_asyncio
 
-from codector.cache import Cache
-from codector.repository import Repository
-from codector.file import File
-from codector.sources import ripgrep
-from codector.sources import chroma
+from seagoat.cache import Cache
+from seagoat.repository import Repository
+from seagoat.file import File
+from seagoat.sources import ripgrep
+from seagoat.sources import chroma
 
 
 RepositoryData = TypedDict(

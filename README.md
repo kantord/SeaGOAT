@@ -1,4 +1,13 @@
-# codector
+<h1>
+  <p align="center">
+    <img src="branding/logo-small.png" alt="Logo" width="200"/>
+    <font size="8"><b>SeaGOAT</b></font>
+  </p>
+</h1>
+
+A code search engine for the AI age. SeaGOAT leverages vector embeddings to enable to search
+your codebase semantically.
+
 
 ## Development
 
@@ -20,5 +29,5 @@ poetry install
 To manually test this app against a code repository, you can use the following command:
 
 ```bash
-poetry run python codector/main.py ~/path/to/your/repository
+poetry run python seagoat/main.py ~/path/to/your/repository
 ```
