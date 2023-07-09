@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "codector"
+name = "seagoat"
 version = "0.1.0"
 description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
@@ -41,7 +41,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
-include = ["codector"]
+include = ["seagoat"]
 exclude = ["**/node_modules",
     "**/__pycache__",
 ]

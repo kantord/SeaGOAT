@@ -121,13 +121,13 @@ class RealTimeValidator(Validator):
 @click.argument("query", required=False)
 def analyze_codebase(repo_path, query):
     """Query your codebase using vector embeddings"""
-    my_codector = Engine(repo_path)
-    my_codector.analyze_codebase()
+    my_seagoat = Engine(repo_path)
+    my_seagoat.analyze_codebase()
 
     if query is not None:
-        my_codector.query(query)
-        my_codector.fetch_sync()
-        results = my_codector.get_results()
+        my_seagoat.query(query)
+        my_seagoat.fetch_sync()
+        results = my_seagoat.get_results()
 
         for result in results:
             for line in result.get_lines(query):
@@ -138,7 +138,7 @@ def analyze_codebase(repo_path, query):
     term = Terminal()
     with term.fullscreen():
         print("Query: ", end="")
-        session = PromptSession(validator=RealTimeValidator(term, my_codector))
+        session = PromptSession(validator=RealTimeValidator(term, my_seagoat))
         try:
             session.prompt()
         except EOFError:
