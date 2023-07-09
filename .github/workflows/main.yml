@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.11']
 
     steps:
@@ -40,8 +40,16 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
 
-      - name: Install dependencies
+      - name: Install dependencies on macOS
+        if: runner.os == 'macOS'
         run: |
+          export HNSWLIB_NO_NATIVE=1
+          arch -x86_64 poetry install --no-interaction --no-root
+
+      - name: Install dependencies on other OS
+        if: runner.os != 'macOS'
+        run: |
+          export HNSWLIB_NO_NATIVE=1
           poetry install --no-interaction --no-root
 
       - name: Run pre-commit
