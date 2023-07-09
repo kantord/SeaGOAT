@@ -1,15 +1,17 @@
 from pathlib import Path
 from chromadb import chromadb
 from chromadb.errors import IDAlreadyExistsError
+from codector.cache import Cache
 from codector.repository import Repository
 from codector.result import Result
 
 
-def initialize(repository: Repository, cache_folder: Path):
+def initialize(repository: Repository):
+    cache = Cache("chroma", Path(repository.path), {})
     chroma_client = chromadb.Client(
         chromadb.Settings(
             chroma_db_impl="duckdb+parquet",
-            persist_directory=str(cache_folder),
+            persist_directory=str(cache.get_cache_folder()),
             anonymized_telemetry=False,
         )
     )

@@ -6,14 +6,11 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
 from pathlib import Path
-import hashlib
 from typing import Dict, List, Set
 from functools import partial
 from typing_extensions import TypedDict
 
 from tqdm import tqdm
-from gitdb.db.loose import os
-import appdirs
 import nest_asyncio
 
 from codector.cache import Cache
@@ -21,8 +18,6 @@ from codector.repository import Repository
 from codector.file import File
 from codector.sources import ripgrep
 from codector.sources import chroma
-
-CACHE_FORMAT_VERSION = 15
 
 
 RepositoryData = TypedDict(
@@ -55,7 +50,8 @@ class Engine:
         self._results_from_chromadb = []
         self._results = []
         self._cache = Cache[RepositoryData](
-            self._get_cache_folder() / "cache",
+            "cache",
+            Path(path),
             {
                 "last_analyzed_version_of_branch": {},
                 "required_commits": set(),
@@ -69,34 +65,12 @@ class Engine:
         self.repository = Repository(path, self._cache)
         self._fetchers = {
             "async": [
-                ripgrep.initialize(self.repository, self._get_cache_folder()),
+                ripgrep.initialize(self.repository),
             ],
             "sync": [
-                chroma.initialize(self.repository, self._get_cache_folder()),
+                chroma.initialize(self.repository),
             ],
         }
-
-    def _get_cache_folder(self):
-        cache_folder = self._get_cache_root() / self._get_project_hash()
-        cache_folder.mkdir(parents=True, exist_ok=True)
-
-        return cache_folder
-
-    def _get_cache_root(self):
-        return Path(
-            appdirs.user_cache_dir(
-                "codector-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "codector"
-            )
-        )
-
-    def _get_project_hash(self):
-        normalized_path = Path(self.path).expanduser().resolve()
-        text = f"""
-        Cache version: {CACHE_FORMAT_VERSION}
-        Normalized path: {normalized_path}
-        """
-
-        return hashlib.sha256(text.encode()).hexdigest()
 
     def analyze_codebase(self):
         self.repository.analyze_files()

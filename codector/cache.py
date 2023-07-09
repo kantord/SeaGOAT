@@ -1,22 +1,57 @@
+import os
+import hashlib
 from pathlib import Path
 import pickle
 from typing import TypeVar, Generic
 
+import appdirs
+
 T = TypeVar("T")
+
+CACHE_FORMAT_VERSION = 15
 
 
 class Cache(Generic[T]):
-    def __init__(self, path: Path, initial_value: T):
+    def __init__(self, cache_name: str, path: Path, initial_value: T):
         self._path = path
         self.data = initial_value
+        self._cache_name = cache_name
 
     def load(self):
         try:
-            with open(self._path, "rb") as cache_file:
+            with open(self._get_cache_file(), "rb") as cache_file:
                 self.data = pickle.load(cache_file)
         except (FileNotFoundError, pickle.UnpicklingError, EOFError):
             pass
 
     def persist(self):
-        with open(self._path, "wb") as cache_file:
+        with open(self._get_cache_file(), "wb") as cache_file:
             pickle.dump(self.data, cache_file)
+
+    def _get_cache_file(self):
+        return self.get_cache_folder() / self._cache_name
+
+    def get_cache_folder(self):
+        cache_folder = self._get_cache_root() / self._get_project_hash()
+        cache_folder.mkdir(parents=True, exist_ok=True)
+
+        return cache_folder
+
+    def _get_cache_root(self):
+        if "RUNNER_TEMP" in os.environ:
+            return Path(os.environ["RUNNER_TEMP"])
+
+        return Path(
+            appdirs.user_cache_dir(
+                "codector-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "codector"
+            )
+        )
+
+    def _get_project_hash(self):
+        normalized_path = Path(self._path).expanduser().resolve()
+        text = f"""
+        Cache version: {CACHE_FORMAT_VERSION}
+        Normalized path: {normalized_path}
+        """
+
+        return hashlib.sha256(text.encode()).hexdigest()

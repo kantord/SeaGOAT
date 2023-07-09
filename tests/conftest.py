@@ -116,18 +116,27 @@ class MockRepo(Repo):
 @pytest.fixture
 def generate_repo():
     directories_to_delete = []
+    repos_to_delete = []
 
     def repo_generator():
         new_directory = tempfile.mkdtemp()
         directories_to_delete.append(new_directory)
         repo = cast(MockRepo, MockRepo.init(new_directory))
         repo.add_fake_data()
+        repos_to_delete.append(repo)
 
         return repo
 
     yield repo_generator
+
     for directory in directories_to_delete:
-        shutil.rmtree(directory)
+        try:
+            shutil.rmtree(directory)
+        except PermissionError:
+            pass
+
+    for repo in repos_to_delete:
+        repo.close()
 
 
 @pytest.fixture
@@ -140,6 +149,8 @@ def repo(generate_repo):
 def run_around_tests():
     yield
     cache_root = Path(appdirs.user_cache_dir("codector-pytest"))
+    if "RUNNER_TEMP" in os.environ:
+        cache_root = Path(os.environ["RUNNER_TEMP"]) / "codector-pytest"
     shutil.rmtree(cache_root, ignore_errors=True)
 
 

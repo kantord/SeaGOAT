@@ -161,7 +161,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
 def test_damaged_cache_doesnt_crash_app_1(repo):
     codector1 = Engine(repo.working_dir)
     codector1.analyze_codebase()
-    cache_folder = codector1._get_cache_folder()
+    cache_folder = codector1._cache.get_cache_folder()
     with open(cache_folder / "cache", "rb") as input_file:
         data = input_file.read()
     damaged_data = data[:-1]
@@ -185,7 +185,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
 def test_damaged_cache_doesnt_crash_app_2(repo):
     codector1 = Engine(repo.working_dir)
     codector1.analyze_codebase()
-    cache_folder = codector1._get_cache_folder()
+    cache_folder = codector1._cache.get_cache_folder()
     with open(cache_folder / "cache", "wb"):
         pass
     del codector1

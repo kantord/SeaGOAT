@@ -24,7 +24,7 @@ def _fetch(query_text: str, path: str):
     return files.values()
 
 
-def initialize(repository: Repository, _: Path):
+def initialize(repository: Repository):
     path = repository.path
 
     def fetch(query_text: str):
