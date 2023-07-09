@@ -112,7 +112,6 @@ class Engine:
         for file in self.repository.top_files()[:minimum_files_to_analyze]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
-
         for chunk in tqdm(chunks_to_process, desc="Analyzing source code"):
             if chunk.chunk_id in self._cache.data["chunks_already_analyzed"]:
                 continue
@@ -158,9 +157,20 @@ class Engine:
 
             merged_results[result_item.path].extend(result_item)
 
+        sorted_by_score = sorted(
+            merged_results.values(),
+            key=lambda x: x.get_best_score(self.query_string),
+        )
+        position_by_result = {item: i for i, item in enumerate(sorted_by_score)}
+        position_by_file = {
+            file.path: i for i, file in enumerate(self.repository.top_files())
+        }
+
         return list(
             sorted(
                 merged_results.values(),
-                key=lambda x: x.get_best_score(self.query_string),
+                key=lambda x: (
+                    0.8 * position_by_result[x] + 0.2 * position_by_file[x.path]
+                ),
             )
         )

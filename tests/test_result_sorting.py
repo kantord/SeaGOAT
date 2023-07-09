@@ -9,6 +9,10 @@ from tests.test_file import pytest
 
 @contextmanager
 def mock_sources_context(repo, ripgrep_lines, chroma_lines):
+    # pylint: disable-next=unused-argument
+    def noop(*args, **kwargs):
+        pass
+
     def create_mock_fetch(repo, file_lines):
         def mock_fetch(_):
             results = []
@@ -33,8 +37,16 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
     with patch.object(ripgrep, "initialize") as mock_ripgrep, patch.object(
         chroma, "initialize"
     ) as mock_chroma:
-        mock_ripgrep.return_value = {"fetch": create_mock_fetch(repo, ripgrep_lines)}
-        mock_chroma.return_value = {"fetch": create_mock_fetch(repo, chroma_lines)}
+        mock_ripgrep.return_value = {
+            "fetch": create_mock_fetch(repo, ripgrep_lines),
+            "cache_chunk": noop,
+            "persist": noop,
+        }
+        mock_chroma.return_value = {
+            "fetch": create_mock_fetch(repo, chroma_lines),
+            "cache_chunk": noop,
+            "persist": noop,
+        }
         yield
 
 
@@ -43,6 +55,7 @@ def _create_prepared_codector(repo):
     def _prepared_codector(query, ripgrep_lines, chroma_lines):
         with mock_sources_context(repo, ripgrep_lines, chroma_lines):
             codector = Engine(repo.working_dir)
+            codector.analyze_codebase()
             codector.query(query)
             codector.fetch_sync()
             return codector
@@ -108,3 +121,50 @@ def test_no_lines(create_prepared_codector):
     results = codector.get_results()
 
     assert results == []
+
+
+def test_file_edits_influence_order(create_prepared_codector, repo):
+    repo.add_file_change_commit(
+        file_name="file_few_edits.md",
+        contents="Some content",
+        author=repo.actors["John Doe"],
+        commit_message="Edit file_few_edits.md",
+    )
+
+    for i in range(10):
+        for j in range(3):
+            repo.add_file_change_commit(
+                file_name=f"file_with_some_edits_{i}.md",
+                contents=f"Some content {i} {j}",
+                author=repo.actors["John Doe"],
+                commit_message="Edit file_many_edits.md",
+            )
+            repo.tick_fake_date(days=1)
+
+    for i in range(20):
+        repo.add_file_change_commit(
+            file_name="file_many_edits.md",
+            contents=f"Some content {i}",
+            author=repo.actors["John Doe"],
+            commit_message="Edit file_many_edits.md",
+        )
+        repo.tick_fake_date(days=1)
+
+    ripgrep_lines = {
+        "file_few_edits.md": [(1, 5.0)],
+        "file_many_edits.md": [(1, 6.0)],
+    }
+    chroma_lines = {
+        "file_few_edits.md": [(2, 5.0)],
+        "file_many_edits.md": [(1, 6.0)],
+    }
+    my_query = "asdfadsfdfdffdafafdsfadsf"
+
+    codector = create_prepared_codector(my_query, ripgrep_lines, chroma_lines)
+    codector.analyze_codebase()
+    results = codector.get_results()
+
+    assert [result.path for result in results] == [
+        "file_many_edits.md",
+        "file_few_edits.md",
+    ]
