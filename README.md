@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD033 -->
+
 <h1>
   <p align="center">
     <img src="branding/logo-small.png" alt="Logo" width="200"/>
@@ -5,13 +7,13 @@
   </p>
 </h1>
 
-A code search engine for the AI age. SeaGOAT leverages vector embeddings to enable to search
-your codebase semantically.
-
+A code search engine for the AI age. SeaGOAT leverages vector embeddings to
+enable to search your codebase semantically.
 
 ## Development
 
 **Requirements**:
+
 * [Poetry](https://python-poetry.org/)
 * Python 3.11 or newer
 * [ripgrep](https://github.com/BurntSushi/ripgrep)
@@ -26,7 +28,8 @@ poetry install
 
 ### Manually testing
 
-To manually test this app against a code repository, you can use the following command:
+To manually test this app against a code repository,
+you can use the following command:
 
 ```bash
 poetry run python seagoat/main.py ~/path/to/your/repository

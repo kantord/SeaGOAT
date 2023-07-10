@@ -28,5 +28,10 @@ repos:
     - repo: https://github.com/igorshubovych/markdownlint-cli
       rev: v0.35.0
       hooks:
-      - id: markdownlint
-      - id: markdownlint-fix
+          - id: markdownlint
+          - id: markdownlint-fix
+
+    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+      rev: 71af8556bfcf12745fdfdb3ed57b6698b444f58c
+      hooks:
+          - id: yamlfmt
