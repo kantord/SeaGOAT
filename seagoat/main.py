@@ -1,3 +1,4 @@
+from functools import cache
 import os
 import sys
 import click
@@ -9,6 +10,7 @@ from pygments.lexers.javascript import JavascriptLexer, TypeScriptLexer
 from seagoat.engine import Engine
 
 
+@cache
 def get_highlighted_lines(file_name: str):
     with open(file_name, "r", encoding="utf-8") as source_code_file:
         code = source_code_file.read()
