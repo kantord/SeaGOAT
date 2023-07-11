@@ -6,7 +6,7 @@ from pygments.lexers import get_lexer_for_filename
 from pygments.formatters import TerminalFormatter
 from pygments.lexers.javascript import JavascriptLexer, TypeScriptLexer
 
-from engine import Engine
+from seagoat.engine import Engine
 
 
 def get_highlighted_lines(file_name: str):

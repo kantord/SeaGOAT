@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "seagoat"
-version = "0.1.0"
+version = "0.1.1"
 description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
 readme = "README.md"
@@ -8,6 +8,7 @@ license = "MIT"
 
 [tool.poetry.scripts]
 gt = "seagoat.main:seagoat"
+seagoat = "seagoat.main:seagoat"
 
 [tool.poetry.dependencies]
 python = "^3.11"
