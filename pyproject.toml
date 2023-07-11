@@ -5,6 +5,9 @@ description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+gt = "seagoat.main:seagoat"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 chromadb = "^0.3.26"
