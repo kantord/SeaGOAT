@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
 readme = "README.md"
+license = "MIT"
 
 [tool.poetry.scripts]
 gt = "seagoat.main:seagoat"
