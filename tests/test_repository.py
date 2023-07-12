@@ -1,6 +1,6 @@
 # pylint: disable=protected-access
-
 from unittest.mock import patch
+
 from freezegun import freeze_time
 
 from seagoat.engine import Engine

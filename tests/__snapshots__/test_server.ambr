@@ -1,0 +1,21 @@
+# serializer version: 1
+# name: test_query_codebase
+  dict({
+    'results': list([
+      dict({
+        'full_path': '/path/to/repo/file1.md',
+        'lines': list([
+          dict({
+            'line': 1,
+            'line_text': '# Markdown file',
+          }),
+          dict({
+            'line': 2,
+            'line_text': 'This is an example Markdown file. Updated.',
+          }),
+        ]),
+        'path': 'file1.md',
+      }),
+    ]),
+  })
+# ---

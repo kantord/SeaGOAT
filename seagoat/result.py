@@ -18,6 +18,12 @@ class ResultLine:
     def get_score(self, query: str) -> float:
         return self.vector_distance / (1 + self._get_number_of_exact_matches(query))
 
+    def to_json(self):
+        return {
+            "line": self.line,
+            "line_text": self.line_text,
+        }
+
 
 class Result:
     def __init__(self, path: str, full_path: Path) -> None:
@@ -51,3 +57,13 @@ class Result:
                 )
             )
         )
+
+    def to_json(self):
+        return {
+            "path": self.path,
+            "full_path": str(self.full_path),
+            "lines": [
+                line.to_json()
+                for line in sorted(self.lines, key=lambda item: item.line)
+            ],
+        }

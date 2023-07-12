@@ -1,5 +1,4 @@
 # pylint: disable=protected-access
-
 import pytest
 
 from seagoat.engine import Engine

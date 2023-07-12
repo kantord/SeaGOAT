@@ -1,7 +1,7 @@
 # pylint: disable=redefined-outer-name
-
-from pathlib import Path
 import time
+from pathlib import Path
+
 from seagoat.file import File
 from tests.conftest import pytest
 

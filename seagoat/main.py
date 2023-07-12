@@ -1,11 +1,13 @@
-from functools import cache
 import os
 import sys
+from functools import cache
+
 import click
 from pygments import highlight
-from pygments.lexers import get_lexer_for_filename
 from pygments.formatters import TerminalFormatter
-from pygments.lexers.javascript import JavascriptLexer, TypeScriptLexer
+from pygments.lexers import get_lexer_for_filename
+from pygments.lexers.javascript import JavascriptLexer
+from pygments.lexers.javascript import TypeScriptLexer
 
 from seagoat.engine import Engine
 

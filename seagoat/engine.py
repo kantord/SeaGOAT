@@ -1,23 +1,24 @@
 """
     This module allows you to use seagoat as a library
 """
-
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from itertools import chain
 from pathlib import Path
-from typing import Dict, List, Set
-from functools import partial
+from typing import Dict
+from typing import List
+from typing import Set
+
+import nest_asyncio
+from tqdm import tqdm
 from typing_extensions import TypedDict
 
-from tqdm import tqdm
-import nest_asyncio
-
 from seagoat.cache import Cache
-from seagoat.repository import Repository
 from seagoat.file import File
-from seagoat.sources import ripgrep
+from seagoat.repository import Repository
 from seagoat.sources import chroma
+from seagoat.sources import ripgrep
 
 
 RepositoryData = TypedDict(
