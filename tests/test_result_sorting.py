@@ -1,9 +1,11 @@
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
-from contextlib import contextmanager
+
 from seagoat.engine import Engine
 from seagoat.result import Result
-from seagoat.sources import ripgrep, chroma
+from seagoat.sources import chroma
+from seagoat.sources import ripgrep
 from tests.test_file import pytest
 
 

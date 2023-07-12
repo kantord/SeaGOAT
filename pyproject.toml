@@ -9,6 +9,7 @@ license = "MIT"
 [tool.poetry.scripts]
 gt = "seagoat.main:seagoat"
 seagoat = "seagoat.main:seagoat"
+seagoat-server = "seagoat.server:cli"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -22,6 +23,8 @@ blessed = "^1.20.0"
 pygments = "^2.15.1"
 ripgrepy = "^2.0.0"
 nest-asyncio = "^1.5.6"
+flask = "^2.3.2"
+requests = "^2.31.0"
 
 [virtualenvs]
 in-project = true
@@ -38,6 +41,8 @@ freezegun = "^1.2.2"
 syrupy = "^4.0.4"
 pytest-ordering = "^0.6"
 pytest-asyncio = "^0.21.0"
+ipython = "^8.14.0"
+pytest-flask = "^1.2.0"
 
 [build-system]
 requires = ["poetry-core"]

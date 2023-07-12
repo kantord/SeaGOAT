@@ -1,17 +1,19 @@
 # pylint: disable=redefined-outer-name
-
 import os
-import tempfile
 import shutil
-from datetime import datetime, timedelta, timezone
-from typing import cast
+import tempfile
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from typing import cast
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
+import appdirs
 import pytest
 from git.repo import Repo
 from git.util import Actor
-import appdirs
 
 
 class MockRepo(Repo):

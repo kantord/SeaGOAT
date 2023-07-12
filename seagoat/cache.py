@@ -1,8 +1,9 @@
-import os
 import hashlib
-from pathlib import Path
+import os
 import pickle
-from typing import TypeVar, Generic
+from pathlib import Path
+from typing import Generic
+from typing import TypeVar
 
 import appdirs
 

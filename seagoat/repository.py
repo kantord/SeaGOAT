@@ -1,11 +1,11 @@
 from pathlib import Path
 
-
 from git.repo import Repo
 from tqdm import tqdm
-from seagoat.cache import Cache
-from seagoat.common import SUPPORTED_FILE_TYPES, IGNORED_BRANCHES
 
+from seagoat.cache import Cache
+from seagoat.common import IGNORED_BRANCHES
+from seagoat.common import SUPPORTED_FILE_TYPES
 from seagoat.file import File
 
 

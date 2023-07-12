@@ -9,8 +9,13 @@ repos:
           - id: check-yaml
           - id: check-added-large-files
 
+    - repo: https://github.com/asottile/reorder-python-imports
+      rev: v3.10.0
+      hooks:
+          - id: reorder-python-imports
+
     - repo: https://github.com/psf/black
-      rev: 23.3.0
+      rev: 23.7.0
       hooks:
           - id: black
 
@@ -20,7 +25,7 @@ repos:
           - id: pylint
 
     - repo: https://github.com/RobertCraigie/pyright-python
-      rev: v1.1.316
+      rev: v1.1.317
       exclude: ^typings/
       hooks:
           - id: pyright
@@ -32,6 +37,6 @@ repos:
           - id: markdownlint-fix
 
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 71af8556bfcf12745fdfdb3ed57b6698b444f58c
+      rev: 0.2.3
       hooks:
           - id: yamlfmt

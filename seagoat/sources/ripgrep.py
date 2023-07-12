@@ -1,7 +1,9 @@
 from pathlib import Path
+
 from ripgrepy import Ripgrepy
-from seagoat.repository import Repository
+
 from seagoat.common import SUPPORTED_FILE_TYPES
+from seagoat.repository import Repository
 from seagoat.result import Result
 
 
