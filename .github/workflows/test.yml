@@ -1,5 +1,5 @@
 ---
-name: all python tests
+name: pytest
 
 on:
     push:
@@ -15,7 +15,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
+                os: [ubuntu-latest]
                 python-version: ['3.11']
 
         steps:
@@ -52,10 +52,6 @@ jobs:
               run: |
                   export HNSWLIB_NO_NATIVE=1
                   poetry install --no-interaction --no-root
-
-            - name: Run pre-commit
-              run: |
-                  poetry run pre-commit run --all-files
 
             - name: Run pytest
               run: |

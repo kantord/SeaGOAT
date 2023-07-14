@@ -32,5 +32,5 @@ To manually test this app against a code repository,
 you can use the following command:
 
 ```bash
-poetry run python seagoat/main.py ~/path/to/your/repository
+poetry run seagoat ~/path/to/your/repository
 ```
