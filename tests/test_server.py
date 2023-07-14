@@ -2,14 +2,15 @@ import copy
 import json
 import multiprocessing
 import subprocess
-import time
 
 import pytest
 import requests
+from appdirs import os
 from click.testing import CliRunner
 
 from seagoat.server import get_server_info_file
 from seagoat.server import start_server
+from seagoat.server import wait_for
 
 
 @pytest.fixture(name="server")
@@ -18,9 +19,11 @@ def _server(repo):
         target=start_server, args=(repo.working_dir,)
     )
     server_process.start()
-    time.sleep(0.5)
 
     server_info_file = get_server_info_file(repo.working_dir)
+
+    wait_for(lambda: os.path.exists(server_info_file), 120)
+
     with open(server_info_file, "r", encoding="utf-8") as file:
         server_info = json.load(file)
 
@@ -55,7 +58,7 @@ def test_query_codebase(server, snapshot, repo):
     url = f"http://{host}:{port}/query/{query_text}"
     response = requests.get(url)
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
 
     data = response.json()
     normalized_data = normalize_full_paths(data, repo)
@@ -64,32 +67,42 @@ def test_query_codebase(server, snapshot, repo):
     assert len(data["results"]) > 0
 
 
-def test_status_command_sequence(repo):
-    def start_seagoat_server():
-        server_command = ["python", "-m", "seagoat.server", "start", repo.working_dir]
-        # This is explicitly closed later on
-        # pylint: disable=consider-using-with
-        subprocess.Popen(server_command)
-        time.sleep(1)
-
-    def run_server_command(command: str):
-        return subprocess.run(
-            ["python", "-m", "seagoat.server", command, repo.working_dir],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-    result = run_server_command("status")
+def test_status_1(repo):
+    result = subprocess.run(
+        ["python", "-m", "seagoat.server", "status", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     assert result.returncode == 0
-    assert "Server is not running." in result.stdout
+    assert "Server is not running" in result.stdout
 
-    start_seagoat_server()
-    result = run_server_command("status")
-    assert result.returncode == 0
-    assert "Server is running." in result.stdout
 
-    run_server_command("stop")
-    result = run_server_command("status")
+@pytest.mark.usefixtures("server")
+def test_status_2(repo):
+    result = subprocess.run(
+        ["python", "-m", "seagoat.server", "status", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     assert result.returncode == 0
-    assert "Server is not running." in result.stdout
+    assert "Server is running" in result.stdout
+
+
+@pytest.mark.usefixtures("server")
+def test_stop(repo):
+    subprocess.run(
+        ["python", "-m", "seagoat.server", "stop", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    result = subprocess.run(
+        ["python", "-m", "seagoat.server", "status", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "Server is not running" in result.stdout

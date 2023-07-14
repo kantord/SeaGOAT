@@ -1,0 +1,12 @@
+[licenses]
+accepted = ["MIT"]
+unaccepted = ["LGPL"]
+
+[dependencies]
+ignored=["ignored_dep1", "ignored_dep2"]
+ignore_dev_dependencies = false
+ignore_optional_dependencies = false
+
+[behavior]
+run_only_on_dependency_modification = true
+do_not_block_pr = false
