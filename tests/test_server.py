@@ -1,14 +1,16 @@
 import copy
-import json
 import multiprocessing
+import os
 import subprocess
 
 import pytest
 import requests
-from appdirs import os
 from click.testing import CliRunner
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 from seagoat.server import get_server_info_file
+from seagoat.server import load_server_info
 from seagoat.server import start_server
 from seagoat.server import wait_for
 
@@ -21,13 +23,29 @@ def _server(repo):
     server_process.start()
 
     server_info_file = get_server_info_file(repo.working_dir)
-
     wait_for(lambda: os.path.exists(server_info_file), 120)
 
-    with open(server_info_file, "r", encoding="utf-8") as file:
-        server_info = json.load(file)
+    _, __, server_address = load_server_info(get_server_info_file(repo.working_dir))
 
-    yield server_info
+    retries = Retry(
+        total=200, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+    )
+
+    session = requests.Session()
+    session.mount("http://", HTTPAdapter(max_retries=retries))
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    try:
+        response = session.get(
+            f"{server_address}/query/test", timeout=1
+        )  # adjust timeout as needed
+        response.raise_for_status()
+    except:
+        server_process.terminate()
+        server_process.join()
+        raise
+
+    yield server_address
 
     server_process.terminate()
     server_process.join()
@@ -52,10 +70,8 @@ def normalize_full_paths(data, repo):
 
 
 def test_query_codebase(server, snapshot, repo):
-    host = server["host"]
-    port = server["port"]
     query_text = "Markdown"
-    url = f"http://{host}:{port}/query/{query_text}"
+    url = f"{server}/query/{query_text}"
     response = requests.get(url)
 
     assert response.status_code == 200, response.text
