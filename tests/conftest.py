@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import multiprocessing
 import os
 import shutil
 import tempfile
@@ -12,8 +13,16 @@ from unittest.mock import patch
 
 import appdirs
 import pytest
+import requests
 from git.repo import Repo
 from git.util import Actor
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+
+from seagoat.server import get_server_info_file
+from seagoat.server import load_server_info
+from seagoat.server import start_server
+from seagoat.server import wait_for
 
 
 class MockRepo(Repo):
@@ -175,3 +184,39 @@ def real_chromadb():
     chromadb_patcher.stop()
     yield
     chromadb_patcher.start()
+
+
+@pytest.fixture(name="server")
+def _server(repo):
+    server_process = multiprocessing.Process(
+        target=start_server, args=(repo.working_dir,)
+    )
+    server_process.start()
+
+    server_info_file = get_server_info_file(repo.working_dir)
+    wait_for(lambda: os.path.exists(server_info_file), 120)
+
+    _, __, server_address = load_server_info(get_server_info_file(repo.working_dir))
+
+    retries = Retry(
+        total=200, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+    )
+
+    session = requests.Session()
+    session.mount("http://", HTTPAdapter(max_retries=retries))
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    try:
+        response = session.get(
+            f"{server_address}/query/test", timeout=1
+        )  # adjust timeout as needed
+        response.raise_for_status()
+    except:
+        server_process.terminate()
+        server_process.join()
+        raise
+
+    yield server_address
+
+    server_process.terminate()
+    server_process.join()

@@ -46,6 +46,7 @@ ipython = "^8.14.0"
 pytest-flask = "^1.2.0"
 exceptiongroup = "^1.1.2"
 pytest-timeout = "^2.1.0"
+pytest-mock = "^3.11.1"
 
 [build-system]
 requires = ["poetry-core"]
