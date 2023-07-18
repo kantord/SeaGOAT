@@ -2,6 +2,17 @@
 
 
 
+## v0.3.0 (2023-07-18)
+
+### Ci
+
+* ci: release to pypi ([`8531561`](https://github.com/kantord/SeaGOAT/commit/8531561226e134b1b6fcb8d94294f91c6df70649))
+
+### Feature
+
+* feat: reveal seagoat version in query response ([`cd5c0ba`](https://github.com/kantord/SeaGOAT/commit/cd5c0ba86e75062a10a25118c68a0598bb5d9c13))
+
+
 ## v0.2.1 (2023-07-18)
 
 ### Fix
