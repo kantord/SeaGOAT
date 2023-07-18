@@ -2,11 +2,11 @@ import json
 import os
 import socket
 import time
+from importlib.metadata import version
 from multiprocessing import Process
 
 import appdirs
 import click
-import pkg_resources
 from flask import current_app
 from flask import Flask
 from flask import jsonify
@@ -32,7 +32,7 @@ def create_app(repo_path):
         results = current_app.extensions["seagoat_engine"].get_results()
         return {
             "results": [result.to_json() for result in results],
-            "version": pkg_resources.get_distribution("seagoat").version,
+            "version": version("wheel"),
         }
 
     @app.errorhandler(Exception)

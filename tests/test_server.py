@@ -2,8 +2,8 @@ import copy
 import multiprocessing
 import os
 import subprocess
+from importlib.metadata import version
 
-import pkg_resources
 import pytest
 import requests
 from click.testing import CliRunner
@@ -83,7 +83,7 @@ def test_query_codebase(server, snapshot, repo):
 
     assert normalized_data == snapshot
     assert len(data["results"]) > 0
-    assert data["version"] == pkg_resources.get_distribution("seagoat").version
+    assert data["version"] == version("wheel")
 
 
 def test_status_1(repo):
