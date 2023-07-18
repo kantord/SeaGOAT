@@ -1835,6 +1835,20 @@ docs = ["sphinx (>=5.3)", "sphinx-rtd-theme (>=1.0)"]
 testing = ["coverage (>=6.2)", "flaky (>=3.5.0)", "hypothesis (>=5.7.1)", "mypy (>=0.931)", "pytest-trio (>=0.7.0)"]
 
 [[package]]
+name = "pytest-fast-first"
+version = "1.0.5"
+description = "Pytest plugin that runs fast tests first"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytest-fast-first-1.0.5.tar.gz", hash = "sha256:4940d8196290b22804c92b3d6316781895ba6e361011df112f976376ae2e6631"},
+    {file = "pytest_fast_first-1.0.5-py3-none-any.whl", hash = "sha256:5dfceb0407e66e9b3c5a5211cf283c23c7bb369c94d6468dcd79e3e1a12a9502"},
+]
+
+[package.dependencies]
+pytest = "*"
+
+[[package]]
 name = "pytest-flask"
 version = "1.2.0"
 description = "A set of py.test fixtures to test Flask applications."
@@ -2712,4 +2726,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "4700c7d88d75b9bdcecf122b5fe517a6f1e5b60f4882a9c372fe8be95758ff5e"
+content-hash = "4be0bfd2d42bd7df656b07235870d5f5296e5aa9bfc79abf385cc2ff4d0ec749"
