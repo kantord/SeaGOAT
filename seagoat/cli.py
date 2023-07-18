@@ -1,5 +1,4 @@
 import os
-import sys
 from functools import cache
 
 import click
@@ -66,7 +65,7 @@ def seagoat(query, repo_path, no_color):
     _, __, server_address = load_server_info(get_server_info_file(repo_path))
     results = query_server(query, server_address)
 
-    color_enabled = sys.stdout.isatty() and not no_color
+    color_enabled = os.isatty(0) and not no_color
     for result in results:
         for result_line in result.get("lines", []):
             print_result_line(result, result_line["line"], color_enabled)

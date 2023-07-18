@@ -1,0 +1,7 @@
+# serializer version: 1
+# name: test_integration_test_with_color
+  '''
+  file4.js:[1m1[0m:[37m// This is a second updated example JavaScript file[39;49;00m[37m[39;49;00m
+  
+  '''
+# ---
