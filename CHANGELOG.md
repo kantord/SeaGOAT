@@ -1,10 +1,19 @@
 # CHANGELOG
 
-## v0.1.0 (2023-07-17)
+
+
+## v0.2.1 (2023-07-18)
+
+### Fix
+
+* fix: fix server imports ([`7d01530`](https://github.com/kantord/SeaGOAT/commit/7d015305582bb5a674b7abc7be1e12311bc18a04))
+
+
+## v0.2.0 (2023-07-18)
 
 ### Chore
 
-* chore: set up semantic-release ([`59929bf`](https://github.com/kantord/SeaGOAT/commit/59929bf9ef9ae3b8cb9e5403983dd263da2889b0))
+* chore: set up semantic-release ([`74e4085`](https://github.com/kantord/SeaGOAT/commit/74e40859faa469ae813944de31c4ff54e9e64615))
 
 * chore: release new version ([`dc29537`](https://github.com/kantord/SeaGOAT/commit/dc295372787583cd8825899c951568f630558a11))
 
