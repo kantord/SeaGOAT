@@ -2,6 +2,29 @@
 
 
 
+## v0.3.1 (2023-07-18)
+
+### Chore
+
+* chore: add setuptools as a dependency
+
+it&#39;s needed because pkg_resources is used ([`efc23a3`](https://github.com/kantord/SeaGOAT/commit/efc23a3cd58cfd1d1555fd24a597c17c33036166))
+
+* chore: don&#39;t markdownlint CHANGELOG.md ([`005fe21`](https://github.com/kantord/SeaGOAT/commit/005fe21d1b1bab7b2e43ddb1e9c148d224df1136))
+
+### Ci
+
+* ci: show console output in real time in pytest ([`573bd72`](https://github.com/kantord/SeaGOAT/commit/573bd7245448313700d78d031f43550862315a71))
+
+* ci: add a timeout for tests ([`edea9cc`](https://github.com/kantord/SeaGOAT/commit/edea9cc72eec9533938ec852540b398dabe0ec8e))
+
+* ci: make pytest verbose ([`834c1e1`](https://github.com/kantord/SeaGOAT/commit/834c1e18a242880d962727905838132508c4f2a5))
+
+### Fix
+
+* fix: use importlib.metadata for getting the version ([`d0c442c`](https://github.com/kantord/SeaGOAT/commit/d0c442cb63aa6dcfe8640c4bc02bb42df788528a))
+
+
 ## v0.3.0 (2023-07-18)
 
 ### Ci
