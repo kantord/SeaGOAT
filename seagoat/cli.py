@@ -59,9 +59,21 @@ def print_result_line(result, line, color_enabled):
 @click.command()
 @click.argument("query")
 @click.argument("repo_path", required=False, default=os.getcwd())
-@click.option("--no-color", is_flag=True)
+@click.option(
+    "--no-color",
+    is_flag=True,
+    help="Disable formatting. Automatically enabled when part of a bash pipeline.",
+)
 def seagoat(query, repo_path, no_color):
-    """Query your codebase using vector embeddings"""
+    """
+    Query your codebase for your QUERY in the Git repository REPO_PATH.
+
+    Your query can either be text that you expect to find in a file,
+    or a description of what you are looking for.
+
+    When REPO_PATH is not specified, the current working directory is
+    assumed to be the repository path.
+    """
     _, __, server_address = load_server_info(get_server_info_file(repo_path))
     results = query_server(query, server_address)
 
