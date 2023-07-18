@@ -123,11 +123,11 @@ def get_server(repo_path):
 
 
 @click.group()
-def cli():
+def server():
     pass
 
 
-@cli.command()
+@server.command()
 @click.argument("repo_path")
 def start(repo_path):
     """Starts the server."""
@@ -135,7 +135,7 @@ def start(repo_path):
     click.echo("Server running.")
 
 
-@cli.command()
+@server.command()
 @click.argument("repo_path")
 def status(repo_path):
     """Checks the status of the server."""
@@ -157,7 +157,7 @@ def status(repo_path):
         click.echo("Server is not running.")
 
 
-@cli.command()
+@server.command()
 @click.argument("repo_path")
 def stop(repo_path):
     """Stops the server."""
@@ -172,4 +172,4 @@ def stop(repo_path):
 
 
 if __name__ == "__main__":
-    cli()
+    server()

@@ -9,7 +9,7 @@ license = "MIT"
 [tool.poetry.scripts]
 gt = "seagoat.cli:seagoat"
 seagoat = "seagoat.cli:seagoat"
-seagoat-server = "seagoat.server:cli"
+seagoat-server = "seagoat.server:server"
 
 [tool.poetry.dependencies]
 python = "^3.10"
