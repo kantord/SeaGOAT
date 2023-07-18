@@ -26,6 +26,26 @@ After cloning the repository, install dependencies using the following command:
 poetry install
 ```
 
+### Running tests
+
+#### Watch mode (recommended)
+
+```bash
+poetry run ptw
+```
+
+#### Test changed files
+
+```bash
+poetry run pytest .  --testmon
+```
+
+#### Test all files
+
+```bash
+poetry run pytest .
+```
+
 ### Manually testing
 
 To manually test this app against a code repository,
