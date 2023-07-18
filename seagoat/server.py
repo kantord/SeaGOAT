@@ -6,6 +6,7 @@ from multiprocessing import Process
 
 import appdirs
 import click
+import pkg_resources
 from flask import current_app
 from flask import Flask
 from flask import jsonify
@@ -29,7 +30,10 @@ def create_app(repo_path):
         current_app.extensions["seagoat_engine"].query(query)
         current_app.extensions["seagoat_engine"].fetch_sync()
         results = current_app.extensions["seagoat_engine"].get_results()
-        return {"results": [result.to_json() for result in results]}
+        return {
+            "results": [result.to_json() for result in results],
+            "version": pkg_resources.get_distribution("seagoat").version,
+        }
 
     @app.errorhandler(Exception)
     def handle_exception(exception_to_handle):

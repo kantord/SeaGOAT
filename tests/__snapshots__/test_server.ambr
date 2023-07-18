@@ -17,5 +17,6 @@
         'path': 'file1.md',
       }),
     ]),
+    'version': '0.0.0-test',
   })
 # ---

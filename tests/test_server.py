@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import subprocess
 
+import pkg_resources
 import pytest
 import requests
 from click.testing import CliRunner
@@ -78,9 +79,11 @@ def test_query_codebase(server, snapshot, repo):
 
     data = response.json()
     normalized_data = normalize_full_paths(data, repo)
+    normalized_data["version"] = "0.0.0-test"
 
     assert normalized_data == snapshot
     assert len(data["results"]) > 0
+    assert data["version"] == pkg_resources.get_distribution("seagoat").version
 
 
 def test_status_1(repo):
