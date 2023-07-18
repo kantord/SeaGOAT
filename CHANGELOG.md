@@ -2,6 +2,21 @@
 
 
 
+## v0.4.0 (2023-07-18)
+
+### Ci
+
+* ci: fix pypi release ([`6877972`](https://github.com/kantord/SeaGOAT/commit/68779722fa2517aded9ad21d05f5cf854cff58d7))
+
+### Feature
+
+* feat: add improved documentation to cli ([`02c10b4`](https://github.com/kantord/SeaGOAT/commit/02c10b41130fe21ae3f6ccf835079e123dd57ace))
+
+### Test
+
+* test: move server fixture to conftest ([`d510e87`](https://github.com/kantord/SeaGOAT/commit/d510e87ef7c2dbfab464e929703ba2b4299e7be3))
+
+
 ## v0.3.1 (2023-07-18)
 
 ### Chore
