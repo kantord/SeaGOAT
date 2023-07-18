@@ -48,6 +48,7 @@ exceptiongroup = "^1.1.2"
 pytest-timeout = "^2.1.0"
 pytest-mock = "^3.11.1"
 pytest-fast-first = "^1.0.5"
+pytest-sugar = "^0.9.7"
 
 [build-system]
 requires = ["poetry-core"]
