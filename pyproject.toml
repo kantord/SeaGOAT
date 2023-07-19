@@ -84,6 +84,7 @@ commit_parser = "angular"
 logging_use_named_masks = false
 major_on_zero = true
 tag_format = "v{version}"
+build_command = "pip install poetry && poetry build"
 
 [tool.semantic_release.branches.main]
 match = "(main|master)"
