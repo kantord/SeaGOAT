@@ -2,6 +2,31 @@
 
 
 
+## v0.5.0 (2023-07-19)
+
+### Chore
+
+* chore: update dependencies ([`7f48ea1`](https://github.com/kantord/SeaGOAT/commit/7f48ea18e3a9f7e562a5d138fb31a4e9d8beb149))
+
+* chore: only test changed files ([`cd5892b`](https://github.com/kantord/SeaGOAT/commit/cd5892b46aba52fa1592c1251230c8ac0a7c901c))
+
+* chore: improve test output format ([`dbaa873`](https://github.com/kantord/SeaGOAT/commit/dbaa8732217330df3c801e5d71021a182a2497a1))
+
+### Ci
+
+* ci: add id to release step ([`afddc91`](https://github.com/kantord/SeaGOAT/commit/afddc91d5c5a9754be83f1f8886dc92e3fdcfc91))
+
+### Feature
+
+* feat: allow getting server status in JSON ([`0a9210d`](https://github.com/kantord/SeaGOAT/commit/0a9210d145679b5e298283e162ce5a03a82bf4c9))
+
+### Test
+
+* test: reduce logging level of chromadb in pytest ([`fff8693`](https://github.com/kantord/SeaGOAT/commit/fff869375bd4f510c14bbb181471da147b6a8ee9))
+
+* test: run fast tests first ([`c7c60cf`](https://github.com/kantord/SeaGOAT/commit/c7c60cfa5085cb51faf3194450b3fcf7aff03720))
+
+
 ## v0.4.0 (2023-07-18)
 
 ### Ci
