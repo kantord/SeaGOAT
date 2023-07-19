@@ -74,7 +74,7 @@ def seagoat(query, repo_path, no_color):
     When REPO_PATH is not specified, the current working directory is
     assumed to be the repository path.
     """
-    _, __, server_address = load_server_info(get_server_info_file(repo_path))
+    _, __, ___, server_address = load_server_info(get_server_info_file(repo_path))
     results = query_server(query, server_address)
 
     color_enabled = os.isatty(0) and not no_color

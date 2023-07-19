@@ -67,15 +67,15 @@ def start_server(repo_path):
     _, port = socket_obj.getsockname()
     socket_obj.close()
 
-    server_info_file = get_server_info_file(repo_path)
-    with open(server_info_file, "w", encoding="utf-8") as file:
-        json.dump({"host": "localhost", "port": port}, file)
-
     app = create_app(repo_path)
     process = Process(
         target=run_simple, args=("localhost", port, app), kwargs={"use_reloader": False}
     )
     process.start()
+
+    server_info_file = get_server_info_file(repo_path)
+    with open(server_info_file, "w", encoding="utf-8") as file:
+        json.dump({"host": "localhost", "port": port, "pid": process.pid}, file)
 
 
 def is_server_running(host, port):
@@ -88,8 +88,9 @@ def load_server_info(server_info_file):
         server_info = json.load(file)
     host = server_info["host"]
     port = server_info["port"]
+    pid = server_info.get("pid")
     server_address = f"http://{host}:{port}"
-    return host, port, server_address
+    return host, port, pid, server_address
 
 
 def wait_for(condition_function, timeout, period=0.05):
@@ -104,15 +105,13 @@ def get_server(repo_path):
     server_info_file = get_server_info_file(repo_path)
 
     if os.path.exists(server_info_file):
-        host, port, server_address = load_server_info(server_info_file)
+        host, port, _, server_address = load_server_info(server_info_file)
 
         if is_server_running(host, port):
             click.echo(f"Server is already running at {server_address}")
             return server_address
         os.remove(server_info_file)
 
-    # Pre-create app in order to give the user feedback on creating
-    # the initial database
     os.environ["TOKENIZERS_PARALLELISM"] = "true"
     temp_app = create_app(repo_path)
     del temp_app
@@ -121,7 +120,7 @@ def get_server(repo_path):
 
     wait_for(lambda: os.path.exists(server_info_file), timeout=60)
 
-    host, port, server_address = load_server_info(server_info_file)
+    host, port, _, server_address = load_server_info(server_info_file)
     click.echo(f"Server started at {server_address}")
     return server_address
 
@@ -150,10 +149,11 @@ def get_status_data(repo_path):
 
         host = server_info["host"]
         port = server_info["port"]
+        pid = server_info.get("pid")
         server_address = f"http://{host}:{port}"
 
         if is_server_running(host, port):
-            status_info = {"isRunning": True, "url": server_address}
+            status_info = {"isRunning": True, "url": server_address, "pid": pid}
 
     return status_info
 

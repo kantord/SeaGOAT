@@ -4,8 +4,11 @@ import re
 import subprocess
 from importlib.metadata import version
 
+import psutil
 import pytest
 import requests
+
+from seagoat.server import get_status_data
 
 
 def normalize_full_paths(data, repo):
@@ -108,3 +111,29 @@ def test_status_with_json_when_server_running(repo):
     assert json_result.get("isRunning") is True
     url = json_result.get("url")
     assert re.match(r"http://localhost:\d+", url) is not None
+
+
+def assert_server_status(repo, running):
+    result = subprocess.run(
+        ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    json_result = json.loads(result.stdout)
+    assert json_result.get("isRunning") == running
+
+
+def simulate_server_dying(repo):
+    pid = get_status_data(repo.working_dir)["pid"]
+
+    process = psutil.Process(pid)
+    process.terminate()
+    process.wait(timeout=10)
+
+
+@pytest.mark.usefixtures("server")
+def test_server_status_not_running_if_process_does_not_exist(repo):
+    assert_server_status(repo, running=True)
+    simulate_server_dying(repo)
+    assert_server_status(repo, running=False)
