@@ -2,6 +2,13 @@
 
 
 
+## v0.5.1 (2023-07-19)
+
+### Fix
+
+* fix: server reported as running when process died ([`2758c18`](https://github.com/kantord/SeaGOAT/commit/2758c181b637e5eb1d947992b43bd5ea7611d8d2))
+
+
 ## v0.5.0 (2023-07-19)
 
 ### Chore
