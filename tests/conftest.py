@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import logging
 import multiprocessing
 import os
 import shutil
@@ -23,6 +24,11 @@ from seagoat.server import get_server_info_file
 from seagoat.server import load_server_info
 from seagoat.server import start_server
 from seagoat.server import wait_for
+
+
+@pytest.fixture(scope="session", autouse=True)
+def suppress_chromadb_logger():
+    logging.getLogger("chromadb").setLevel(logging.WARNING)
 
 
 class MockRepo(Repo):
