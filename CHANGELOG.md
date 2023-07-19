@@ -2,6 +2,13 @@
 
 
 
+## v0.5.3 (2023-07-19)
+
+### Fix
+
+* fix: fix package version in pypi (#31) ([`aaaeda7`](https://github.com/kantord/SeaGOAT/commit/aaaeda747d5f4a57aa901aff9429629f40cef700))
+
+
 ## v0.5.2 (2023-07-19)
 
 ### Fix
