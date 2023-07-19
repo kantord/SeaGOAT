@@ -202,7 +202,9 @@ def _server(repo):
     server_info_file = get_server_info_file(repo.working_dir)
     wait_for(lambda: os.path.exists(server_info_file), 120)
 
-    _, __, server_address = load_server_info(get_server_info_file(repo.working_dir))
+    _, __, ___, server_address = load_server_info(
+        get_server_info_file(repo.working_dir)
+    )
 
     retries = Retry(
         total=200, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
