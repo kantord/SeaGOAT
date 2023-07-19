@@ -32,7 +32,7 @@ def create_app(repo_path):
         results = current_app.extensions["seagoat_engine"].get_results()
         return {
             "results": [result.to_json() for result in results],
-            "version": version("wheel"),
+            "version": version("seagoat"),
         }
 
     @app.errorhandler(Exception)

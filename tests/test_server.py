@@ -37,7 +37,7 @@ def test_query_codebase(server, snapshot, repo):
 
     assert normalized_data == snapshot
     assert len(data["results"]) > 0
-    assert data["version"] == version("wheel")
+    assert data["version"] == version("seagoat")
 
 
 def test_status_1(repo):
