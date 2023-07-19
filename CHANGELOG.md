@@ -2,6 +2,13 @@
 
 
 
+## v0.5.2 (2023-07-19)
+
+### Fix
+
+* fix: fix build for semantic release (#30) ([`4e93c88`](https://github.com/kantord/SeaGOAT/commit/4e93c88db5180d82f3fcdb7ffa36d4e17a816772))
+
+
 ## v0.5.1 (2023-07-19)
 
 ### Fix
