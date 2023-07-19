@@ -1,4 +1,6 @@
 import copy
+import json
+import re
 import subprocess
 from importlib.metadata import version
 
@@ -74,3 +76,35 @@ def test_stop(repo):
     )
     assert result.returncode == 0
     assert "Server is not running" in result.stdout
+
+
+def test_status_with_json_when_server_not_running(repo):
+    result = subprocess.run(
+        ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+
+    json_result = json.loads(result.stdout)
+
+    assert json_result.get("isRunning") is False
+    assert json_result.get("url") is None
+
+
+@pytest.mark.usefixtures("server")
+def test_status_with_json_when_server_running(repo):
+    result = subprocess.run(
+        ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+
+    json_result = json.loads(result.stdout)
+
+    assert json_result.get("isRunning") is True
+    url = json_result.get("url")
+    assert re.match(r"http://localhost:\d+", url) is not None

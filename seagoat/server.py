@@ -139,11 +139,10 @@ def start(repo_path):
     click.echo("Server running.")
 
 
-@server.command()
-@click.argument("repo_path")
-def status(repo_path):
-    """Checks the status of the server."""
+def get_status_data(repo_path):
+    """Return the status data of the server."""
     server_info_file = get_server_info_file(repo_path)
+    status_info = {"isRunning": False, "url": None}
 
     if os.path.exists(server_info_file):
         with open(server_info_file, "r", encoding="utf-8") as file:
@@ -154,11 +153,25 @@ def status(repo_path):
         server_address = f"http://{host}:{port}"
 
         if is_server_running(host, port):
-            click.echo(f"Server is running at {server_address}")
+            status_info = {"isRunning": True, "url": server_address}
+
+    return status_info
+
+
+@server.command()
+@click.argument("repo_path")
+@click.option("--json", "use_json_format", is_flag=True, help="Output status as JSON.")
+def status(repo_path, use_json_format):
+    """Checks the status of the server."""
+    status_info = get_status_data(repo_path)
+
+    if use_json_format:
+        click.echo(json.dumps(status_info))
+    else:
+        if status_info["isRunning"]:
+            click.echo(f"Server is running at {status_info['url']}")
         else:
             click.echo("Server is not running.")
-    else:
-        click.echo("Server is not running.")
 
 
 @server.command()
