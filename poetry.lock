@@ -1996,21 +1996,6 @@ pytest = ">=5.0"
 dev = ["pre-commit", "pytest-asyncio", "tox"]
 
 [[package]]
-name = "pytest-ordering"
-version = "0.6"
-description = "pytest plugin to run your tests in a specific order"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pytest-ordering-0.6.tar.gz", hash = "sha256:561ad653626bb171da78e682f6d39ac33bb13b3e272d406cd555adb6b006bda6"},
-    {file = "pytest_ordering-0.6-py2-none-any.whl", hash = "sha256:27fba3fc265f5d0f8597e7557885662c1bdc1969497cd58aff6ed21c3b617de2"},
-    {file = "pytest_ordering-0.6-py3-none-any.whl", hash = "sha256:3f314a178dbeb6777509548727dc69edf22d6d9a2867bf2d310ab85c403380b6"},
-]
-
-[package.dependencies]
-pytest = "*"
-
-[[package]]
 name = "pytest-sugar"
 version = "0.9.7"
 description = "pytest-sugar is a plugin for pytest that changes the default look and feel of pytest (e.g. progressbar, show tests that fail instantly)."
@@ -2901,4 +2886,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9f86b2d820ba65ef36b17b256cada8ccf542b53358eb62c6b9ba41bc13a8cb9a"
+content-hash = "888c6338c2f64fc1a206049722fcea6bb2d2acd17c37518f5cef91f50157e4aa"

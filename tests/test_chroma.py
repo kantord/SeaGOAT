@@ -11,7 +11,6 @@ def use_real_db(real_chromadb):
     pass
 
 
-@pytest.mark.run(order=-1)
 def test_requires_fetching_data(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
@@ -22,7 +21,6 @@ def test_requires_fetching_data(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_gets_data_using_vector_embeddings(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
@@ -42,7 +40,6 @@ async def test_gets_data_using_vector_embeddings(repo):
     assert all(1 in result.get_lines(my_query) for result in seagoat.get_results())
 
 
-@pytest.mark.run(order=-1)
 def test_allows_fetching_data_synchronously(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
@@ -72,7 +69,6 @@ def test_allows_fetching_data_synchronously(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_considers_filename_in_results(repo):
     repo.add_file_change_commit(
         file_name="recipes.txt",
@@ -102,7 +98,6 @@ async def test_considers_filename_in_results(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_considers_commit_messages(repo):
     repo.add_file_change_commit(
         file_name="vehicles_1.txt",
@@ -132,7 +127,6 @@ async def test_considers_commit_messages(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_truncates_very_long_lines(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
@@ -162,7 +156,6 @@ async def test_truncates_very_long_lines(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_includes_all_matching_lines_from_line(repo):
     repo.add_file_change_commit(
         file_name="devices.txt",
@@ -195,7 +188,6 @@ async def test_includes_all_matching_lines_from_line(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_exact_matches_have_higher_score(repo):
     repo.add_file_change_commit(
         file_name="devices.txt",
@@ -228,7 +220,6 @@ async def test_exact_matches_have_higher_score(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.run(order=-1)
 async def test_chunks_are_persisted_between_runs(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
