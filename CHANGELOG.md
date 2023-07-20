@@ -2,6 +2,21 @@
 
 
 
+## v0.5.4 (2023-07-20)
+
+### Fix
+
+* fix: fix version handling (#34) ([`1418ab7`](https://github.com/kantord/SeaGOAT/commit/1418ab7217a2851a29c21ce3df6999f25160c7bc))
+
+### Refactor
+
+* refactor: remove redundant pytest-ordering (#33)
+
+* refactor: remove redundant pytest-ordering
+
+* fix: fix version handling ([`4995ef0`](https://github.com/kantord/SeaGOAT/commit/4995ef0c63dedf037e4256be4075a091381fb8c5))
+
+
 ## v0.5.3 (2023-07-19)
 
 ### Fix

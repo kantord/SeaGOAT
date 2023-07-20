@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "seagoat"
-version = "0.2.1"
+version = "0.5.4"
 description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
 readme = "README.md"
