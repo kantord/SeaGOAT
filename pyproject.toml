@@ -45,11 +45,11 @@ pytest-asyncio = "^0.21.0"
 ipython = "^8.14.0"
 pytest-flask = "^1.2.0"
 exceptiongroup = "^1.1.2"
-pytest-timeout = "^2.1.0"
 pytest-mock = "^3.11.1"
 pytest-fast-first = "^1.0.5"
 pytest-sugar = "^0.9.7"
 pytest-testmon = "^2.0.12"
+pytest-leaks = "^0.3.1"
 
 [build-system]
 requires = ["poetry-core"]

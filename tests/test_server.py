@@ -2,12 +2,12 @@ import copy
 import json
 import re
 import subprocess
-from importlib.metadata import version
 
 import psutil
 import pytest
 import requests
 
+from seagoat import __version__
 from seagoat.server import get_status_data
 
 
@@ -37,7 +37,7 @@ def test_query_codebase(server, snapshot, repo):
 
     assert normalized_data == snapshot
     assert len(data["results"]) > 0
-    assert data["version"] == version("wheel")
+    assert data["version"] == __version__
 
 
 def test_status_1(repo):
