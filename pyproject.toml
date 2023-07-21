@@ -50,6 +50,7 @@ pytest-fast-first = "^1.0.5"
 pytest-sugar = "^0.9.7"
 pytest-testmon = "^2.0.12"
 pytest-leaks = "^0.3.1"
+mkdocs-material = "^9.1.19"
 
 [build-system]
 requires = ["poetry-core"]
