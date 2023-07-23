@@ -2,6 +2,41 @@
 
 
 
+## v0.5.5 (2023-07-23)
+
+### Chore
+
+* chore(deps): update actions/setup-python action to v4 ([`25d9223`](https://github.com/kantord/SeaGOAT/commit/25d9223138a31e1924200a10934da31215ef1882))
+
+* chore(deps): update actions/checkout action to v3 ([`44f74f3`](https://github.com/kantord/SeaGOAT/commit/44f74f3ac7bda530abd3b0961923bf665949be30))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.3 ([`8e14cb6`](https://github.com/kantord/SeaGOAT/commit/8e14cb67acd131ae65c23b3a6d31cf09bf1ac895))
+
+* chore: enable automatically merging dependency updates ([`11c6b91`](https://github.com/kantord/SeaGOAT/commit/11c6b91e7e0fbf30d45ab5a3dd479f405b1ccfb5))
+
+* chore(deps): update dependency pyright to v1.1.318 (#39)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`aaabd65`](https://github.com/kantord/SeaGOAT/commit/aaabd65c4ce9a301b1ba5e752c2a06741a905126))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.2 (#37)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`fe7e39b`](https://github.com/kantord/SeaGOAT/commit/fe7e39b2a9d08d1c4f335653b88b77ba7a03f05e))
+
+* chore(deps): update dependency syrupy to v4.0.8 (#36)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b1eab92`](https://github.com/kantord/SeaGOAT/commit/b1eab92cfa7d04caa20942684562a1ab59a42f52))
+
+### Fix
+
+* fix: print result lines when color is disabled (#18) ([`fc95cf7`](https://github.com/kantord/SeaGOAT/commit/fc95cf76f1dcde9222d08c0b1cb0a0c5b6529179))
+
+### Unknown
+
+* Add renovate.json (#35)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`376e723`](https://github.com/kantord/SeaGOAT/commit/376e7237b19bb9b2db356b7964283cdeabea2726))
+
+
 ## v0.5.4 (2023-07-20)
 
 ### Fix
