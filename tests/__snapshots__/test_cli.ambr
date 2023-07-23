@@ -5,3 +5,9 @@
   
   '''
 # ---
+# name: test_integration_test_without_color
+  '''
+  file4.js:1:// This is a second updated example JavaScript file
+  
+  '''
+# ---
