@@ -53,7 +53,10 @@ def print_result_line(result, line, color_enabled):
             f"{result['path']}:{click.style(str(line), bold=True)}:{highlighted_lines[line - 1]}"
         )
     else:
-        print(f"{result['path']}:{line}:{result['line_texts'][line - 1]}")
+        for line_content in result["lines"]:
+            if line_content["line"] == line:
+                print(f"{result['path']}:{line}:{line_content['line_text']}")
+                break
 
 
 @click.command()
