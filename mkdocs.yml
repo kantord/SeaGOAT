@@ -1,8 +1,14 @@
 ---
 site_name: SeaGOAT
 repo_url: https://github.com/kantord/SeaGOAT
+edit_uri: edit/main/docs/
 theme:
     name: material
     logo: assets/logo.png
     palette:
         primary: cyan
+    icon:
+        edit: material/pencil
+        view: material/eye
+    features:
+        - content.action.edit
