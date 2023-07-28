@@ -2,6 +2,31 @@
 
 
 
+## v0.6.0 (2023-07-28)
+
+### Ci
+
+* ci: deploy docs using poetry ([`027f570`](https://github.com/kantord/SeaGOAT/commit/027f570c23e56299dd286ff20061547170cc6ddd))
+
+* ci: fix docs deployment ([`c08ea52`](https://github.com/kantord/SeaGOAT/commit/c08ea52792699b60af0370949173d9b4d664d3ed))
+
+### Documentation
+
+* docs: reuse readme as docs home ([`86cd0ef`](https://github.com/kantord/SeaGOAT/commit/86cd0ef5aefe4dfa8245a6c34cce702f3978e6e3))
+
+* docs: add usage documentation to Readme ([`7cc15fa`](https://github.com/kantord/SeaGOAT/commit/7cc15fa7981da761e85eb5605aafdbfd6492e4cc))
+
+* docs: allow editing documentation files ([`6a08d63`](https://github.com/kantord/SeaGOAT/commit/6a08d636c3205213eda3b37cdc38a503befe72ee))
+
+* docs: set up repo_url ([`2202f16`](https://github.com/kantord/SeaGOAT/commit/2202f16a1e5ec91e64c8334fc5ecf8c95a612708))
+
+* docs: add favicon ([`7e4dd52`](https://github.com/kantord/SeaGOAT/commit/7e4dd52a118c1e4dbd4c82dac9f53c99e591eb87))
+
+### Feature
+
+* feat: add --version option to cli ([`6bf15c9`](https://github.com/kantord/SeaGOAT/commit/6bf15c970811e2cd7a18a9752326ba898073d89b))
+
+
 ## v0.5.6 (2023-07-28)
 
 ### Chore
