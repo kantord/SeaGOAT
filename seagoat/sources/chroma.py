@@ -10,13 +10,7 @@ from seagoat.result import Result
 
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
-    chroma_client = chromadb.Client(
-        chromadb.Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory=str(cache.get_cache_folder()),
-            anonymized_telemetry=False,
-        )
-    )
+    chroma_client = chromadb.PersistentClient(path=str(cache.get_cache_folder()))
     chroma_collection = chroma_client.get_or_create_collection(name="code_data")
 
     def fetch(query_text: str):
@@ -56,8 +50,13 @@ def initialize(repository: Repository):
         except IDAlreadyExistsError:
             pass
 
+    def persist():
+        # Since 0.4.0 chromadb does not need persist()
+        # See: https://docs.trychroma.com/migration#migration-from-040-to-040---july-17-2023
+        pass
+
     return {
         "fetch": fetch,
         "cache_chunk": cache_chunk,
-        "persist": chroma_client.persist,
+        "persist": persist,
     }
