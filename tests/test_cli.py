@@ -1,5 +1,6 @@
 from click.testing import CliRunner
 
+from seagoat import __version__
 from seagoat.cli import seagoat
 from tests.conftest import pytest
 
@@ -24,3 +25,11 @@ def test_integration_test_without_color(snapshot, repo, mocker):
 
     assert result.output == snapshot
     assert result.exit_code == 0
+
+
+def test_version_option():
+    runner = CliRunner()
+    result = runner.invoke(seagoat, ["--version"])
+
+    assert result.exit_code == 0
+    assert result.output.strip() == f"seagoat, version {__version__}"
