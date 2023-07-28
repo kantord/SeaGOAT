@@ -9,6 +9,7 @@ from pygments.lexers import get_lexer_for_filename
 from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.javascript import TypeScriptLexer
 
+from seagoat import __version__
 from seagoat.server import get_server_info_file
 from seagoat.server import load_server_info
 
@@ -67,6 +68,7 @@ def print_result_line(result, line, color_enabled):
     is_flag=True,
     help="Disable formatting. Automatically enabled when part of a bash pipeline.",
 )
+@click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(query, repo_path, no_color):
     """
     Query your codebase for your QUERY in the Git repository REPO_PATH.
