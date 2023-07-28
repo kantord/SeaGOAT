@@ -2,6 +2,31 @@
 
 
 
+## v0.5.6 (2023-07-28)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.1.21 ([`8e18e00`](https://github.com/kantord/SeaGOAT/commit/8e18e009141c34591b19a365ffb1e33c23d4a38e))
+
+* chore(deps): update dependency mkdocs-material to v9.1.20 ([`ae794b6`](https://github.com/kantord/SeaGOAT/commit/ae794b6863c96aa92633adeadf7db63b0ac99d35))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.4 ([`cbb8b22`](https://github.com/kantord/SeaGOAT/commit/cbb8b22d2282647c039417c7ee4fbdb042d1bcb4))
+
+* chore(deps): update dependency pylint to v2.17.5 ([`5a7e4b7`](https://github.com/kantord/SeaGOAT/commit/5a7e4b7b8936a2f0cab714bf021e6375b0c2edf7))
+
+### Ci
+
+* ci: set up github pages deployment ([`7939a35`](https://github.com/kantord/SeaGOAT/commit/7939a357cc9468aef87f628ced6e84b8301edcf5))
+
+### Documentation
+
+* docs: add minimal documentation using mkdocs ([`d98b065`](https://github.com/kantord/SeaGOAT/commit/d98b06550c914290213fe0ff66a3ebec5ad28f2c))
+
+### Fix
+
+* fix(deps): update dependency nest-asyncio to v1.5.7 ([`e292bbe`](https://github.com/kantord/SeaGOAT/commit/e292bbe25b865af707bbb5b200253b9ed4329cdb))
+
+
 ## v0.5.5 (2023-07-23)
 
 ### Chore
