@@ -51,6 +51,7 @@ pytest-sugar = "^0.9.7"
 pytest-testmon = "^2.0.12"
 pytest-leaks = "^0.3.1"
 mkdocs-material = "^9.1.19"
+markdown-include = "^0.8.1"
 
 [build-system]
 requires = ["poetry-core"]
