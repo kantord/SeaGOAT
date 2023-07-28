@@ -1,5 +1,6 @@
 ---
 site_name: SeaGOAT
+repo_url: https://github.com/kantord/SeaGOAT
 theme:
     name: material
     logo: assets/logo.png
