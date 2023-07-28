@@ -2,6 +2,9 @@
 site_name: SeaGOAT
 repo_url: https://github.com/kantord/SeaGOAT
 edit_uri: edit/main/docs/
+markdown_extensions:
+    - markdown_include.include:
+          base_path: docs
 theme:
     name: material
     logo: assets/logo.png

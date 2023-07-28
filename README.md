@@ -2,7 +2,7 @@
 
 <h1>
   <p align="center">
-    <img src="branding/logo-small.png" alt="Logo" width="200"/>
+    <img src="assets/logo-small.png" alt="Logo" width="200"/>
     <font size="8"><b>SeaGOAT</b></font>
   </p>
 </h1>
@@ -10,7 +10,9 @@
 A code search engine for the AI age. SeaGOAT leverages vector
 embeddings to enable to search your codebase semantically.
 
-## Install SeaGOAT
+## Getting started
+
+### Install SeaGOAT
 
 In order to install SeaGOAT, you need to have the following
 dependencies already installed on your computer:
@@ -24,7 +26,7 @@ To install SeaGOAT using `pip`, use the following command:
 pip install seagoat
 ```
 
-## Start SeaGOAT server
+### Start SeaGOAT server
 
 In order to use SeaGOAT in your project, you have to start the SeaGOAT server
 using the following command:
@@ -33,7 +35,7 @@ using the following command:
 seagoat-server start /path/to/your/repo
 ```
 
-## Search your repository
+### Search your repository
 
 If you have the server running, you can simply use the
 `gt` or `seagoat` command to query your repository. For example:
@@ -42,7 +44,7 @@ If you have the server running, you can simply use the
 gt "Where are the numbers rounded"
 ```
 
-## Stopping the server
+### Stopping the server
 
 You can stop the running server using the following command:
 
