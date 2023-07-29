@@ -127,7 +127,11 @@ def get_server(repo_path):
 
 @click.group()
 def server():
-    pass
+    """
+    This server analyzes your codebase and creates vector embeddings for it.
+
+    You can query this server using the seagoat command.
+    """
 
 
 @server.command()
