@@ -2,6 +2,25 @@
 
 
 
+## v0.7.0 (2023-07-29)
+
+### Ci
+
+* ci: only release aur package when new version is released ([`0d7d26a`](https://github.com/kantord/SeaGOAT/commit/0d7d26ac213202e6c6a2ffa92805ec75956c7356))
+
+* ci: automatically update AUR package ([`15b7ab2`](https://github.com/kantord/SeaGOAT/commit/15b7ab2fdd5d1d94537244a939c141bf70db4f2a))
+
+### Feature
+
+* feat: document server usage in help text ([`f96ac47`](https://github.com/kantord/SeaGOAT/commit/f96ac470f68a27e5769cace3d3a24dad64b7abc4))
+
+### Unknown
+
+* revert: revert &#34;fix(deps): update dependency chromadb to ^0.4.0&#34;
+
+This reverts commit 5f230cc388085ea248421630a4cd826a3bfb699b. ([`917504a`](https://github.com/kantord/SeaGOAT/commit/917504adc5a7e68777bfb989b9427a34e6dd5a2f))
+
+
 ## v0.6.1 (2023-07-28)
 
 ### Fix
