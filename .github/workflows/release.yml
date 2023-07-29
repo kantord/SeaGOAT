@@ -31,3 +31,28 @@ jobs:
               # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
               # See https://github.com/actions/runner/issues/1173
               if: steps.release.outputs.released == 'true'
+
+            - name: Clone AUR package
+              run: git clone https://aur.archlinux.org/python-seagoat.git
+
+            - name: Update PKGBUILD
+              run: |
+                  ls
+                  VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+                  echo $VERSION
+                  sed -i "s/pkgver=.*/pkgver=$VERSION/g" python-seagoat/PKGBUILD
+                  cat python-seagoat/PKGBUILD
+
+            - name: Publish AUR package
+              uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
+              # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
+              # See https://github.com/actions/runner/issues/1173
+              if: steps.release.outputs.released == 'true'
+              with:
+                  pkgname: python-seagoat
+                  pkgbuild: ./python-seagoat/PKGBUILD
+                  commit_username: ${{ secrets.AUR_USERNAME }}
+                  commit_email: ${{ secrets.AUR_EMAIL }}
+                  ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+                  commit_message: Update AUR package
+                  ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
