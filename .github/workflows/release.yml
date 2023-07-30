@@ -20,6 +20,10 @@ jobs:
               with:
                   fetch-depth: 0
 
+            - name: Install Poetry
+              uses: snok/install-poetry@v1
+            - run: poetry install
+
             - name: release
               id: release
               uses: python-semantic-release/python-semantic-release@v8.0.4
@@ -56,3 +60,10 @@ jobs:
                   ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
                   commit_message: Update AUR package
                   ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+
+            - name: Deploy docs with mike
+              if: steps.release.outputs.released == 'true'
+              run: |
+                  VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+                  poetry run mike deploy --push --update-aliases $VERSION latest
+                  poetry run mike set-default --push latest
