@@ -2,6 +2,13 @@
 
 
 
+## v0.8.6 (2023-07-30)
+
+### Fix
+
+* fix: fix poetry install in docs build ([`0cc4620`](https://github.com/kantord/SeaGOAT/commit/0cc4620e7d9e68ecead4a585b67c77c8347ba9d5))
+
+
 ## v0.8.5 (2023-07-30)
 
 ### Fix
