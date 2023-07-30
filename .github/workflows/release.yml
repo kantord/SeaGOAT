@@ -34,7 +34,7 @@ jobs:
             - name: Deploy docs with mike
               if: steps.release.outputs.released == 'true'
               run: |
-                  poetry install
+                  poetry install --no-interaction --no-root
                   VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
                   poetry run mike deploy --push --update-aliases $VERSION latest
                   poetry run mike set-default --push latest
