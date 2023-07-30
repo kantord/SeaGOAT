@@ -1,0 +1,35 @@
+---
+name: docs deployment to github pages
+on:
+    push:
+        tags:
+            - latest
+permissions:
+    contents: write
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0 # fetch all history for all branches and tags
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: 3.11
+            - name: Install Poetry
+              uses: snok/install-poetry@v1
+            - name: Install dependencies
+              run: poetry install --no-interaction --no-root
+            - name: Install Mike
+              run: poetry run pip install mike
+            - name: Configure git
+              run: |
+                  git config --global user.name "GitHub Actions"
+                  git config --global user.email "actions@github.com"
+            - name: Fetch all history for all branches and tags
+              run: git fetch --all
+            - name: Deploy docs with Mike
+              run: |
+                  VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+                  poetry run mike deploy --push --update-aliases $VERSION latest
+                  poetry run mike set-default --push latest
