@@ -36,12 +36,7 @@ def initialize(repository: Repository):
         # Ripgrep does not need a cache for chunks
         pass
 
-    def persist():
-        # Ripgrep does not need persistence
-        pass
-
     return {
         "fetch": fetch,
         "cache_chunk": cache_chunk,
-        "persist": persist,
     }

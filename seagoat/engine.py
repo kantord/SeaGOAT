@@ -96,9 +96,6 @@ class Engine:
 
         self._cache.persist()
 
-        for source in chain(*self._fetchers.values()):
-            source["persist"]()
-
     def query(self, query: str):
         self.query_string = query
 

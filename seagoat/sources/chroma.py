@@ -50,13 +50,7 @@ def initialize(repository: Repository):
         except IDAlreadyExistsError:
             pass
 
-    def persist():
-        # Since 0.4.0 chromadb does not need persist()
-        # See: https://docs.trychroma.com/migration#migration-from-040-to-040---july-17-2023
-        pass
-
     return {
         "fetch": fetch,
         "cache_chunk": cache_chunk,
-        "persist": persist,
     }
