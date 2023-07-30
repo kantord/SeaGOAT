@@ -2,6 +2,17 @@
 
 
 
+## v0.8.7 (2023-07-30)
+
+### Ci
+
+* ci: automatically create latest tag ([`26a0181`](https://github.com/kantord/SeaGOAT/commit/26a0181e4fedfee11bac41cd24b02745aa04e394))
+
+### Fix
+
+* fix: temporarily remove docs deployment ([`038c6cd`](https://github.com/kantord/SeaGOAT/commit/038c6cd244d184b31f26b5c1234d8468ecb0cf9f))
+
+
 ## v0.8.6 (2023-07-30)
 
 ### Fix
