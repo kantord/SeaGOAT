@@ -10,6 +10,7 @@ markdown_extensions:
           base_path: docs
 theme:
     name: material
+    custom_dir: docs/overrides
     logo: assets/logo.png
     palette:
         primary: cyan
