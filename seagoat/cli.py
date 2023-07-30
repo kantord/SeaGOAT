@@ -1,4 +1,5 @@
 import os
+import sys
 from functools import cache
 
 import click
@@ -14,16 +15,23 @@ from seagoat.server import get_server_info_file
 from seagoat.server import load_server_info
 
 
-def query_server(query, server_address):
-    response = requests.get(f"{server_address}/query/{query}")
+# pylint: disable-next=too-few-public-methods
+class ExitCode:
+    SERVER_NOT_RUNNING = 3
+
+
+def query_server(query, server_address, repo_path):
     try:
+        response = requests.get(f"{server_address}/query/{query}")
         response.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        print("HTTP error occurred:")
-        print(f"Response code: {response.status_code}")
-        print(f"Error: {err}")
-        print(f"Response body: {response.text}")
-        raise
+    except (requests.exceptions.ConnectionError, requests.exceptions.RequestException):
+        print(
+            f"The SeaGOAT server is not running. "
+            f"Please start the server using the following command:\n\n"
+            f"seagoat-server start {repo_path}\n"
+        )
+        sys.exit(ExitCode.SERVER_NOT_RUNNING)
+
     return response.json()["results"]
 
 
@@ -70,20 +78,9 @@ def print_result_line(result, line, color_enabled):
 )
 @click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(query, repo_path, no_color):
-    """
-    Query your codebase for your QUERY in the Git repository REPO_PATH.
-
-    Your query can either be text that you expect to find in a file,
-    or a description of what you are looking for.
-
-    When REPO_PATH is not specified, the current working directory is
-    assumed to be the repository path.
-
-    In order to use seagoat in your repository, you need to run a server
-    that will analyze your codebase. Check seagoat-server --help for more
-    """
-    _, __, ___, server_address = load_server_info(get_server_info_file(repo_path))
-    results = query_server(query, server_address)
+    server_info_file = get_server_info_file(repo_path)
+    _, __, ___, server_address = load_server_info(server_info_file)
+    results = query_server(query, server_address, repo_path)
 
     color_enabled = os.isatty(0) and not no_color
     for result in results:

@@ -1,7 +1,10 @@
+import pytest
 from click.testing import CliRunner
+from flask import json
 
 from seagoat import __version__
 from seagoat.cli import seagoat
+from seagoat.server import get_server_info_file
 from tests.conftest import pytest
 
 
@@ -33,3 +36,23 @@ def test_version_option():
 
     assert result.exit_code == 0
     assert result.output.strip() == f"seagoat, version {__version__}"
+
+
+@pytest.mark.parametrize(
+    "repo_path",
+    [
+        ("/path/to/repo1"),
+        ("/another/path/to/repo2"),
+    ],
+)
+def test_server_is_not_running_error(mocker, repo_path, snapshot):
+    server_info_file = get_server_info_file(repo_path)
+    with open(server_info_file, "w", encoding="utf-8") as file:
+        json.dump({"host": "localhost", "port": 345435, "pid": 234234}, file)
+    mocker.patch("os.isatty", return_value=True)
+    runner = CliRunner()
+    query = "JavaScript"
+    result = runner.invoke(seagoat, [query, repo_path])
+
+    assert result.exit_code == 3
+    assert result.output == snapshot
