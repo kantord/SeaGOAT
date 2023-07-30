@@ -61,11 +61,11 @@ jobs:
 
             - name: Install Poetry
               uses: snok/install-poetry@v1
-            - run: poetry install
 
             - name: Deploy docs with mike
               if: steps.release.outputs.released == 'true'
               run: |
+                  poetry install
                   VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
                   poetry run mike deploy --push --update-aliases $VERSION latest
                   poetry run mike set-default --push latest
