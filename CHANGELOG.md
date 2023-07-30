@@ -2,6 +2,13 @@
 
 
 
+## v0.7.1 (2023-07-30)
+
+### Fix
+
+* fix: incorrect version number is displayed with --version ([`3e3d553`](https://github.com/kantord/SeaGOAT/commit/3e3d553eb4da332104d1aa319470f71f1a718bb0))
+
+
 ## v0.7.0 (2023-07-29)
 
 ### Ci
