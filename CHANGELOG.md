@@ -2,6 +2,13 @@
 
 
 
+## v0.8.8 (2023-07-30)
+
+### Fix
+
+* fix: fix git identity for deployments ([`7ed0350`](https://github.com/kantord/SeaGOAT/commit/7ed0350be77b25141c731d879f8e0b2ddac386e8))
+
+
 ## v0.8.7 (2023-07-30)
 
 ### Ci
