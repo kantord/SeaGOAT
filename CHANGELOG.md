@@ -2,6 +2,13 @@
 
 
 
+## v0.7.2 (2023-07-30)
+
+### Fix
+
+* fix: fix single-sourced version ([`2a97445`](https://github.com/kantord/SeaGOAT/commit/2a974452e0f5fa68bdd407018a6e7de00bd80b25))
+
+
 ## v0.7.1 (2023-07-30)
 
 ### Fix
