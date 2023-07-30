@@ -2,6 +2,13 @@
 
 
 
+## v0.8.3 (2023-07-30)
+
+### Fix
+
+* fix: yet another attempt to fix docs build ([`35682d1`](https://github.com/kantord/SeaGOAT/commit/35682d1bafe480668e69d010d1f38c0824e054a3))
+
+
 ## v0.8.2 (2023-07-30)
 
 ### Fix
