@@ -12,6 +12,9 @@ on:
 
 jobs:
     release:
+        defaults:
+            run:
+                shell: bash
         runs-on: ubuntu-latest
         concurrency: release
 
