@@ -2,6 +2,21 @@
 
 
 
+## v0.7.3 (2023-07-30)
+
+### Ci
+
+* ci: set up docs versioning ([`101e733`](https://github.com/kantord/SeaGOAT/commit/101e733f64cb206a8c01bb273ea4aee1399d62c6))
+
+### Fix
+
+* fix(deps): update dependency chromadb to ^0.4.0 ([`bebf58e`](https://github.com/kantord/SeaGOAT/commit/bebf58eb7de945da2b070ff129072f3eafbe8708))
+
+### Refactor
+
+* refactor: remove unnecessary persist() logic ([`112138e`](https://github.com/kantord/SeaGOAT/commit/112138ef66924848c5b8977903afc3c58edd8eaf))
+
+
 ## v0.7.2 (2023-07-30)
 
 ### Fix
