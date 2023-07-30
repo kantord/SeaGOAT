@@ -2,6 +2,13 @@
 
 
 
+## v0.8.1 (2023-07-30)
+
+### Fix
+
+* fix: fix release process ([`ce26f81`](https://github.com/kantord/SeaGOAT/commit/ce26f811907599474d0f3494795d11b4ac5d4f7b))
+
+
 ## v0.8.0 (2023-07-30)
 
 ### Ci
