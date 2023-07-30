@@ -2,6 +2,23 @@
 
 
 
+## v0.8.0 (2023-07-30)
+
+### Ci
+
+* ci: fix how poetry is installed in release.yml ([`4c0cda2`](https://github.com/kantord/SeaGOAT/commit/4c0cda2979460870b1ccdeb2d05f0ba9fd9130dc))
+
+* ci: install poetry directly before running mike ([`b14828e`](https://github.com/kantord/SeaGOAT/commit/b14828ea01dc95d8718ecfb6d6228f4a5a440e98))
+
+### Documentation
+
+* docs: warn user that their documentation version is outdated ([`5749273`](https://github.com/kantord/SeaGOAT/commit/5749273fe52376ba97db22a6b1f508230e29cea3))
+
+### Feature
+
+* feat: show a more helpful message when server offline ([`32b9f6d`](https://github.com/kantord/SeaGOAT/commit/32b9f6d8940c7f630df12ddccbfda2942f5fdb21))
+
+
 ## v0.7.3 (2023-07-30)
 
 ### Ci
