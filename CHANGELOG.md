@@ -2,6 +2,13 @@
 
 
 
+## v0.8.9 (2023-07-31)
+
+### Fix
+
+* fix: enable docs deployment again ([`1efbaa0`](https://github.com/kantord/SeaGOAT/commit/1efbaa0858d4682c9830f6b857f0e53dba030cde))
+
+
 ## v0.8.8 (2023-07-30)
 
 ### Fix
