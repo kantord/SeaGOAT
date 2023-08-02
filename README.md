@@ -20,10 +20,10 @@ dependencies already installed on your computer:
 - Python 3.11 or newer
 - ripgrep
 
-To install SeaGOAT using `pip`, use the following command:
+To install SeaGOAT using `pipx`, use the following command:
 
 ```bash
-pip install seagoat
+pipx install seagoat
 ```
 
 ### Start SeaGOAT server
