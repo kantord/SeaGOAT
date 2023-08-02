@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from chromadb import chromadb
+import chromadb
 from chromadb.errors import IDAlreadyExistsError
 
 from seagoat.cache import Cache
