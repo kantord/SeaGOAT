@@ -28,3 +28,4 @@ theme:
         view: material/eye
     features:
         - content.action.edit
+        - content.code.copy
