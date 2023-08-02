@@ -2,6 +2,33 @@
 
 
 
+## v0.9.1 (2023-08-02)
+
+### Chore
+
+* chore: add python-semantic-release as a dependency ([`b426e55`](https://github.com/kantord/SeaGOAT/commit/b426e55ca45d50e7428b79fcf84c88cb3f3635e4))
+
+### Documentation
+
+* docs: add title to code examples to save space ([`4febf4f`](https://github.com/kantord/SeaGOAT/commit/4febf4f49b30dd486d268e8cfa9f2b20b8081a19))
+
+* docs: allow copying code examples ([`88f1891`](https://github.com/kantord/SeaGOAT/commit/88f1891bdd8ba4b37c790591829297e4fb857c70))
+
+* docs: use syntax highlight configuration from docs
+
+https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration ([`f900aa6`](https://github.com/kantord/SeaGOAT/commit/f900aa6fbe61544f3ac0301b15ded4bb539347e1))
+
+* docs: put usage examples close to relevant sections ([`12f6282`](https://github.com/kantord/SeaGOAT/commit/12f6282510f41140bee8456d87514a9d99601716))
+
+* docs: document that SeaGOAT only works with Git ([`f90bb2e`](https://github.com/kantord/SeaGOAT/commit/f90bb2e29a8a37829ef8c0f9893d3ceba669cbe9))
+
+* docs: document usage ([`7e0445c`](https://github.com/kantord/SeaGOAT/commit/7e0445c8ff7e4a44a6d41e4e880168b6609abf5f))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.4 ([`88df96c`](https://github.com/kantord/SeaGOAT/commit/88df96c70c6bebc6b5f073d1d115a354e4d22da6))
+
+
 ## v0.9.0 (2023-08-02)
 
 ### Chore
