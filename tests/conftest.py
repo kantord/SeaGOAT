@@ -1,4 +1,4 @@
-# pylint: disable=redefined-outer-name
+# pylint: disable=redefined-outer-name, too-few-public-methods
 import logging
 import multiprocessing
 import os
@@ -9,12 +9,14 @@ from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
 from typing import cast
+from typing import DefaultDict
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import appdirs
 import pytest
 import requests
+from click.testing import CliRunner
 from git.repo import Repo
 from git.util import Actor
 from requests.adapters import HTTPAdapter
@@ -228,3 +230,68 @@ def _server(repo):
 
     server_process.terminate()
     server_process.join()
+
+
+@pytest.fixture
+def mock_server_factory(mocker):
+    def _mock_server(mocked_results):
+        mocker.patch("seagoat.cli.query_server", return_value=mocked_results)
+        mocker.patch(
+            "seagoat.cli.load_server_info",
+            return_value=(None, None, None, "fake_server_address"),
+        )
+        mocker.patch(
+            "seagoat.cli.get_server_info_file", return_value="fake_server_info_file"
+        )
+        mocker.patch("os.isatty", return_value=True)
+
+    return _mock_server
+
+
+@pytest.fixture
+def mock_result_factory(repo):
+    def _factory(results_template):
+        results = []
+        fake_files = DefaultDict(lambda: DefaultDict(lambda: ""))
+
+        for filename, lines in results_template:
+            for i, line_text in enumerate(lines):
+                fake_files[filename][i] = line_text
+
+        for filename, lines in fake_files.items():
+            with open(
+                Path(repo.working_dir) / filename, "w", encoding="utf-8"
+            ) as output_file:
+                lines_sorted_by_line_number = sorted(lines.items(), key=lambda x: x[0])
+                fake_file_contents = "\n".join(
+                    [line for _, line in lines_sorted_by_line_number]
+                )
+                output_file.write(fake_file_contents)
+
+        for filename, lines in results_template:
+            result = {
+                "path": filename,
+                "full_path": Path(repo.working_dir) / filename,
+                "lines": [],
+            }
+            for i, line_text in enumerate(lines):
+                result["lines"].append({"line": i + 1, "line_text": line_text})
+
+            results.append(result)
+
+        return results
+
+    return _factory
+
+
+class CustomCliRunner(CliRunner):
+    def invoke(self, *args, **kwargs):
+        kwargs["catch_exceptions"] = False
+        result = super().invoke(*args, **kwargs)
+        assert result.exception is None
+        return result
+
+
+@pytest.fixture
+def runner():
+    return CustomCliRunner()

@@ -1,6 +1,7 @@
 import os
 import sys
 from functools import cache
+from itertools import islice
 
 import click
 import requests
@@ -68,6 +69,12 @@ def print_result_line(result, line, color_enabled):
                 break
 
 
+def iterate_result_lines(results):
+    for result in results:
+        for line in result.get("lines", []):
+            yield result, line
+
+
 @click.command()
 @click.argument("query")
 @click.argument("repo_path", required=False, default=os.getcwd())
@@ -80,7 +87,7 @@ def print_result_line(result, line, color_enabled):
     "--max-results",
     type=int,
     default=None,
-    help="Limit the number of results.",
+    help="Limit the number of result lines",
 )
 @click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(query, repo_path, no_color, max_results):
@@ -89,9 +96,9 @@ def seagoat(query, repo_path, no_color, max_results):
     results = query_server(query, server_address, repo_path)
 
     color_enabled = os.isatty(0) and not no_color
-    for result in results[:max_results]:
-        for result_line in result.get("lines", []):
-            print_result_line(result, result_line["line"], color_enabled)
+
+    for result, result_line in islice(iterate_result_lines(results), max_results):
+        print_result_line(result, result_line["line"], color_enabled)
 
 
 if __name__ == "__main__":
