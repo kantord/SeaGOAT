@@ -30,6 +30,26 @@ def test_integration_test_without_color(snapshot, repo, mocker):
     assert result.exit_code == 0
 
 
+@pytest.mark.parametrize(
+    "max_length",
+    [
+        (0),
+        (2),
+    ],
+)
+@pytest.mark.usefixtures("server")
+def test_limit_output_lenght(repo, mocker, max_length):
+    mocker.patch("os.isatty", return_value=True)
+    runner = CliRunner()
+    query = "JavaScript"
+    result = runner.invoke(
+        seagoat, [query, repo.working_dir, "--no-color", f"--max-results={max_length}"]
+    )
+
+    assert result.output.splitlines() == result.output.splitlines()[:max_length]
+    assert result.exit_code == 0
+
+
 def test_version_option():
     runner = CliRunner()
     result = runner.invoke(seagoat, ["--version"])

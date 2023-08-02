@@ -76,14 +76,20 @@ def print_result_line(result, line, color_enabled):
     is_flag=True,
     help="Disable formatting. Automatically enabled when part of a bash pipeline.",
 )
+@click.option(
+    "--max-results",
+    type=int,
+    default=None,
+    help="Limit the number of results.",
+)
 @click.version_option(version=__version__, prog_name="seagoat")
-def seagoat(query, repo_path, no_color):
+def seagoat(query, repo_path, no_color, max_results):
     server_info_file = get_server_info_file(repo_path)
     _, __, ___, server_address = load_server_info(server_info_file)
     results = query_server(query, server_address, repo_path)
 
     color_enabled = os.isatty(0) and not no_color
-    for result in results:
+    for result in results[:max_results]:
         for result_line in result.get("lines", []):
             print_result_line(result, result_line["line"], color_enabled)
 
