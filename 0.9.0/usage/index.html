@@ -286,16 +286,10 @@
     Arguments
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    Options
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     Examples
   </a>
@@ -317,16 +311,41 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+    <nav class="md-nav" aria-label="Options">
+      <ul class="md-nav__list">
+        
           <li class="md-nav__item">
-  <a href="#limit-number-of-result-lines" class="md-nav__link">
-    Limit number of result lines
+  <a href="#-no-color-disable-syntax-highlighting" class="md-nav__link">
+    --no-color: Disable syntax highlighting
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#disable-syntax-highlighting" class="md-nav__link">
-    Disable syntax highlighting
+  <a href="#-l-max-results-limit-number-of-results" class="md-nav__link">
+    -l, --max-results: Limit number of results
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-version-print-version-number" class="md-nav__link">
+    --version: Print version number
   </a>
   
 </li>
@@ -382,16 +401,10 @@
     Arguments
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    Options
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     Examples
   </a>
@@ -413,16 +426,41 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+    <nav class="md-nav" aria-label="Options">
+      <ul class="md-nav__list">
+        
           <li class="md-nav__item">
-  <a href="#limit-number-of-result-lines" class="md-nav__link">
-    Limit number of result lines
+  <a href="#-no-color-disable-syntax-highlighting" class="md-nav__link">
+    --no-color: Disable syntax highlighting
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#disable-syntax-highlighting" class="md-nav__link">
-    Disable syntax highlighting
+  <a href="#-l-max-results-limit-number-of-results" class="md-nav__link">
+    -l, --max-results: Limit number of results
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-version-print-version-number" class="md-nav__link">
+    --version: Print version number
   </a>
   
 </li>
@@ -455,11 +493,17 @@
   
 
 
+<!-- markdownlint-disable MD046 -->
 <h1 id="usage">Usage</h1>
 <p>SeaGOAT is a command-line tool designed to assist in querying your codebase.
 By using technologies such as ChromaDB and ripgrep, it goes beyond direct
 match searches and uses semantic meaning to quickly find
 details related to your query.</p>
+<div class="admonition info">
+<p class="admonition-title">Only works with Git</p>
+<p>SeaGOAT takes your Git history into account in order to provide
+the most useful and relevant results.</p>
+</div>
 <h2 id="command-usage">Command Usage</h2>
 <div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span>&lt;query&gt;<span class="w"> </span><span class="o">[</span>repo_path<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
@@ -476,33 +520,27 @@ It is the query to be made to the SeaGOAT server.</li>
 <li><code>repo_path</code>: This argument is optional, and defaults
 to the current working directory. It represents the path to the code repository.</li>
 </ul>
-<h2 id="options">Options</h2>
-<ul>
-<li>
-<p><code>--no-color</code>: If used, it disables formatting in the output.
-This is automatically enabled when used as part of a bash pipeline.</p>
-</li>
-<li>
-<p><code>-l, --max-results</code>: This option allows you to limit the number of
-result lines. It is an integer type option.</p>
-</li>
-<li>
-<p><code>--version</code>: If used, it displays the version of the seagoat program.</p>
-</li>
-</ul>
-<h2 id="examples">Examples</h2>
-<h3 id="query-current-folder">Query current folder</h3>
+<h3 id="examples">Examples</h3>
+<h4 id="query-current-folder">Query current folder</h4>
 <div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span>
 </code></pre></div>
-<h3 id="query-specific-folder">Query specific folder</h3>
+<h4 id="query-specific-folder">Query specific folder</h4>
 <div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span><span class="s2">&quot;/path/to/my/repo&quot;</span>
 </code></pre></div>
-<h3 id="limit-number-of-result-lines">Limit number of result lines</h3>
-<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--max-results<span class="o">=</span><span class="m">5</span>
-</code></pre></div>
-<h3 id="disable-syntax-highlighting">Disable syntax highlighting</h3>
+<h2 id="options">Options</h2>
+<h3 id="-no-color-disable-syntax-highlighting"><code>--no-color</code>: Disable syntax highlighting</h3>
+<p>This is automatically enabled when used as part of a bash pipeline.</p>
+<p><strong>Example</strong>:</p>
 <div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--no-color
 </code></pre></div>
+<h3 id="-l-max-results-limit-number-of-results"><code>-l, --max-results</code>: Limit number of results</h3>
+<p>This limits the number of result lines displayed.
+Useful if you only care about the best results.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--max-results<span class="o">=</span><span class="m">5</span>
+</code></pre></div>
+<h3 id="-version-print-version-number"><code>--version</code>: Print version number</h3>
+<p>This prints the version of your current SeaGOAT installation.</p>
 
 
 
