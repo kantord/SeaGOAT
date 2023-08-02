@@ -9,8 +9,14 @@ markdown_extensions:
     - admonition
     - pymdownx.details
     - pymdownx.superfences
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
     - markdown_include.include:
           base_path: docs
+    - pymdownx.highlight:
+          anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
 theme:
     name: material
     custom_dir: docs/overrides
