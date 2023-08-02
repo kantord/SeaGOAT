@@ -1,9 +1,15 @@
+<!-- markdownlint-disable MD046 -->
 # Usage
 
 SeaGOAT is a command-line tool designed to assist in querying your codebase.
 By using technologies such as ChromaDB and ripgrep, it goes beyond direct
 match searches and uses semantic meaning to quickly find
 details related to your query.
+
+!!! info "Only works with Git"
+
+    SeaGOAT takes your Git history into account in order to provide
+    the most useful and relevant results.
 
 ## Command Usage
 
