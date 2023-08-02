@@ -2,8 +2,8 @@
 name: docs deployment to github pages
 on:
     push:
-        tags:
-            - latest
+        branches:
+            - main
 permissions:
     contents: write
 jobs:
@@ -30,6 +30,6 @@ jobs:
               run: git fetch --all
             - name: Deploy docs with Mike
               run: |
-                  VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+                  VERSION=$(poetry run semantic-release --noop version --print)
                   poetry run mike deploy --push --update-aliases $VERSION latest
                   poetry run mike set-default --push latest
