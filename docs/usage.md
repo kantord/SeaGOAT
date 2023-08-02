@@ -29,38 +29,43 @@ It is the query to be made to the SeaGOAT server.
 * `repo_path`: This argument is optional, and defaults
 to the current working directory. It represents the path to the code repository.
 
-## Options
+### Examples
 
-* `--no-color`: If used, it disables formatting in the output.
-This is automatically enabled when used as part of a bash pipeline.
-
-* `-l, --max-results`: This option allows you to limit the number of
-result lines. It is an integer type option.
-
-* `--version`: If used, it displays the version of the seagoat program.
-
-## Examples
-
-### Query current folder
+#### Query current folder
 
 ```bash
 seagoat "myQuery"
 ```
 
-### Query specific folder
+#### Query specific folder
 
 ```bash
 seagoat "myQuery" "/path/to/my/repo"
 ```
 
-### Limit number of result lines
+## Options
+
+### `--no-color`: Disable syntax highlighting
+
+This is automatically enabled when used as part of a bash pipeline.
+
+**Example**:
+
+```bash
+seagoat "myQuery" --no-color
+```
+
+### `-l, --max-results`: Limit number of results
+
+This limits the number of result lines displayed.
+Useful if you only care about the best results.
+
+**Example**:
 
 ```bash
 seagoat "myQuery" --max-results=5
 ```
 
-### Disable syntax highlighting
+### `--version`: Print version number
 
-```bash
-seagoat "myQuery" --no-color
-```
+This prints the version of your current SeaGOAT installation.
