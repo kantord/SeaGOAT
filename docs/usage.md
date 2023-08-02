@@ -49,9 +49,7 @@ seagoat "myQuery" "/path/to/my/repo"
 
 This is automatically enabled when used as part of a bash pipeline.
 
-**Example**:
-
-```bash
+```bash title="Example"
 seagoat "myQuery" --no-color
 ```
 
@@ -60,9 +58,7 @@ seagoat "myQuery" --no-color
 This limits the number of result lines displayed.
 Useful if you only care about the best results.
 
-**Example**:
-
-```bash
+```bash title="Example"
 seagoat "myQuery" --max-results=5
 ```
 
