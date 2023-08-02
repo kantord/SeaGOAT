@@ -1,9 +1,8 @@
 import hashlib
 import time
+from typing import Dict
 from typing import List
 from typing import Literal
-
-from chromadb.errors import Dict
 
 
 class File:
