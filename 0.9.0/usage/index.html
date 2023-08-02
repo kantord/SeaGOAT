@@ -9,20 +9,22 @@
       
       
       
+        <link rel="prev" href="..">
       
-      <link rel="icon" href="/assets/images/favicon.png">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.5.1, mkdocs-material-9.1.21">
     
     
       
-        <title>SeaGOAT</title>
+        <title>Usage - SeaGOAT</title>
       
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/main.eebd395e.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
-        <link rel="stylesheet" href="/assets/stylesheets/palette.ecc896b0.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
       
       
 
@@ -38,7 +40,7 @@
       
     
     
-    <script>__md_scope=new URL("/",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -62,6 +64,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#usage" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -73,7 +80,7 @@
             <div class="md-banner__inner md-grid md-typeset">
               
   This documentation is for an old version of SeaGOAT.
-  <a href="..//">
+  <a href="../..">
     <strong>Click here to go to latest documentation.</strong>
   </a>
 
@@ -90,9 +97,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="SeaGOAT" class="md-header__button md-logo" aria-label="SeaGOAT" data-md-component="logo">
+    <a href=".." title="SeaGOAT" class="md-header__button md-logo" aria-label="SeaGOAT" data-md-component="logo">
       
-  <img src="/assets/logo.png" alt="logo">
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -108,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Usage
             
           </span>
         </div>
@@ -189,9 +196,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="SeaGOAT" class="md-nav__button md-logo" aria-label="SeaGOAT" data-md-component="logo">
+    <a href=".." title="SeaGOAT" class="md-nav__button md-logo" aria-label="SeaGOAT" data-md-component="logo">
       
-  <img src="/assets/logo.png" alt="logo">
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     SeaGOAT
@@ -219,7 +226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         Home
       </a>
     </li>
@@ -232,11 +239,107 @@
 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="/usage/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Usage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Usage
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#command-usage" class="md-nav__link">
+    Command Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-current-folder" class="md-nav__link">
+    Query current folder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-specific-folder" class="md-nav__link">
+    Query specific folder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit-number-of-result-lines" class="md-nav__link">
+    Limit number of result lines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disable-syntax-highlighting" class="md-nav__link">
+    Disable syntax highlighting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -258,6 +361,78 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#command-usage" class="md-nav__link">
+    Command Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-current-folder" class="md-nav__link">
+    Query current folder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-specific-folder" class="md-nav__link">
+    Query specific folder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit-number-of-result-lines" class="md-nav__link">
+    Limit number of result lines
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disable-syntax-highlighting" class="md-nav__link">
+    Disable syntax highlighting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -269,8 +444,71 @@
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+  
+    <a href="https://github.com/kantord/SeaGOAT/edit/main/docs/usage.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="usage">Usage</h1>
+<p>SeaGOAT is a command-line tool designed to assist in querying your codebase.
+By using technologies such as ChromaDB and ripgrep, it goes beyond direct
+match searches and uses semantic meaning to quickly find
+details related to your query.</p>
+<h2 id="command-usage">Command Usage</h2>
+<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span>&lt;query&gt;<span class="w"> </span><span class="o">[</span>repo_path<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The seagoat CLI queries the SeaGOAT server. If the server is not running,
+you would be prompted to start the server using
+<code>seagoat-server start {repo_path} command</code>.</p>
+</div>
+<h2 id="arguments">Arguments</h2>
+<ul>
+<li><code>query</code>: This is a required argument.
+It is the query to be made to the SeaGOAT server.</li>
+<li><code>repo_path</code>: This argument is optional, and defaults
+to the current working directory. It represents the path to the code repository.</li>
+</ul>
+<h2 id="options">Options</h2>
+<ul>
+<li>
+<p><code>--no-color</code>: If used, it disables formatting in the output.
+This is automatically enabled when used as part of a bash pipeline.</p>
+</li>
+<li>
+<p><code>-l, --max-results</code>: This option allows you to limit the number of
+result lines. It is an integer type option.</p>
+</li>
+<li>
+<p><code>--version</code>: If used, it displays the version of the seagoat program.</p>
+</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<h3 id="query-current-folder">Query current folder</h3>
+<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span>
+</code></pre></div>
+<h3 id="query-specific-folder">Query specific folder</h3>
+<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span><span class="s2">&quot;/path/to/my/repo&quot;</span>
+</code></pre></div>
+<h3 id="limit-number-of-result-lines">Limit number of result lines</h3>
+<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--max-results<span class="o">=</span><span class="m">5</span>
+</code></pre></div>
+<h3 id="disable-syntax-highlighting">Disable syntax highlighting</h3>
+<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--no-color
+</code></pre></div>
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -302,10 +540,10 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "/", "features": ["content.action.edit"], "search": "/assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.action.edit"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="/assets/javascripts/bundle.220ee61c.min.js"></script>
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>

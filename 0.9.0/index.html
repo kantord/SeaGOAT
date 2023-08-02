@@ -10,6 +10,8 @@
       
       
       
+        <link rel="next" href="usage/">
+      
       <link rel="icon" href="assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.5.1, mkdocs-material-9.1.21">
     
@@ -363,6 +365,21 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -533,22 +550,22 @@ dependencies already installed on your computer:</p>
 <li>ripgrep</li>
 </ul>
 <p>To install SeaGOAT using <code>pipx</code>, use the following command:</p>
-<pre><code class="language-bash">pipx install seagoat
-</code></pre>
+<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span>seagoat
+</code></pre></div>
 <h3 id="start-seagoat-server">Start SeaGOAT server</h3>
 <p>In order to use SeaGOAT in your project, you have to start the SeaGOAT server
 using the following command:</p>
-<pre><code class="language-bash">seagoat-server start /path/to/your/repo
-</code></pre>
+<div class="highlight"><pre><span></span><code>seagoat-server<span class="w"> </span>start<span class="w"> </span>/path/to/your/repo
+</code></pre></div>
 <h3 id="search-your-repository">Search your repository</h3>
 <p>If you have the server running, you can simply use the
 <code>gt</code> or <code>seagoat</code> command to query your repository. For example:</p>
-<pre><code class="language-bash">gt &quot;Where are the numbers rounded&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>gt<span class="w"> </span><span class="s2">&quot;Where are the numbers rounded&quot;</span>
+</code></pre></div>
 <h3 id="stopping-the-server">Stopping the server</h3>
 <p>You can stop the running server using the following command:</p>
-<pre><code class="language-bash">seagoat-server stop /path/to/your/repo
-</code></pre>
+<div class="highlight"><pre><span></span><code>seagoat-server<span class="w"> </span>stop<span class="w"> </span>/path/to/your/repo
+</code></pre></div>
 <h2 id="development">Development</h2>
 <p><strong>Requirements</strong>:</p>
 <ul>
@@ -558,24 +575,24 @@ using the following command:</p>
 </ul>
 <h3 id="install-dependencies">Install dependencies</h3>
 <p>After cloning the repository, install dependencies using the following command:</p>
-<pre><code class="language-bash">poetry install
-</code></pre>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>install
+</code></pre></div>
 <h3 id="running-tests">Running tests</h3>
 <h4 id="watch-mode-recommended">Watch mode (recommended)</h4>
-<pre><code class="language-bash">poetry run ptw
-</code></pre>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>ptw
+</code></pre></div>
 <h4 id="test-changed-files">Test changed files</h4>
-<pre><code class="language-bash">poetry run pytest .  --testmon
-</code></pre>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
+</code></pre></div>
 <h4 id="test-all-files">Test all files</h4>
-<pre><code class="language-bash">poetry run pytest .
-</code></pre>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
+</code></pre></div>
 <h3 id="manual-testing">Manual testing</h3>
 <p>You can test any SeaGOAT command manually in your local development
 environment. For example to test the development version of the
 <code>seagoat-server</code> command, you can run:</p>
-<pre><code class="language-bash">poetry run seagoat-server ~/path/an/example/repository
-</code></pre>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>~/path/an/example/repository
+</code></pre></div>
 
 
 
