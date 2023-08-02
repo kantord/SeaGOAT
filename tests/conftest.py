@@ -4,12 +4,12 @@ import multiprocessing
 import os
 import shutil
 import tempfile
+from collections import defaultdict
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
 from typing import cast
-from typing import DefaultDict
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
@@ -233,26 +233,10 @@ def _server(repo):
 
 
 @pytest.fixture
-def mock_server_factory(mocker):
-    def _mock_server(mocked_results):
-        mocker.patch("seagoat.cli.query_server", return_value=mocked_results)
-        mocker.patch(
-            "seagoat.cli.load_server_info",
-            return_value=(None, None, None, "fake_server_address"),
-        )
-        mocker.patch(
-            "seagoat.cli.get_server_info_file", return_value="fake_server_info_file"
-        )
-        mocker.patch("os.isatty", return_value=True)
-
-    return _mock_server
-
-
-@pytest.fixture
-def mock_result_factory(repo):
-    def _factory(results_template):
+def mock_server_factory(mocker, repo):
+    def _mock_results(results_template):
         results = []
-        fake_files = DefaultDict(lambda: DefaultDict(lambda: ""))
+        fake_files = defaultdict(lambda: defaultdict(lambda: ""))
 
         for filename, lines in results_template:
             for i, line_text in enumerate(lines):
@@ -281,7 +265,19 @@ def mock_result_factory(repo):
 
         return results
 
-    return _factory
+    def _mock_server(results_template):
+        mocked_results = _mock_results(results_template)
+        mocker.patch("seagoat.cli.query_server", return_value=mocked_results)
+        mocker.patch(
+            "seagoat.cli.load_server_info",
+            return_value=(None, None, None, "fake_server_address"),
+        )
+        mocker.patch(
+            "seagoat.cli.get_server_info_file", return_value="fake_server_info_file"
+        )
+        mocker.patch("os.isatty", return_value=True)
+
+    return _mock_server
 
 
 class CustomCliRunner(CliRunner):

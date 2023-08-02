@@ -84,6 +84,7 @@ def iterate_result_lines(results):
     help="Disable formatting. Automatically enabled when part of a bash pipeline.",
 )
 @click.option(
+    "-l",
     "--max-results",
     type=int,
     default=None,
