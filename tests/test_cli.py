@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 from click.testing import CliRunner
 from flask import json
@@ -28,18 +30,13 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner):
 
 
 @pytest.mark.parametrize(
-    "max_length",
-    [
-        (0),
-        (1),
-        (2),
-        (20),
-    ],
+    "max_length, command_option",
+    list(itertools.product([0, 1, 2, 20], ["--max-results", "-l"])),
 )
-def test_limit_output_lenght(
-    repo, max_length, mock_server_factory, mock_result_factory, runner
+def test_limit_output_length(
+    repo, max_length, command_option, mock_server_factory, runner
 ):
-    fake_results = mock_result_factory(
+    mock_server_factory(
         [
             ["hello.txt", ["foo", "bar", "baz"]],
             ["foobar.py", ["def hello():", "    print('world')"]],
@@ -50,11 +47,10 @@ def test_limit_output_lenght(
             ["foobar3.fake", ["fn bonjour()", "    echo('monde')"]],
         ]
     )
-    print("🦗", fake_results)
-    mock_server_factory(fake_results)
     query = "JavaScript"
     result = runner.invoke(
-        seagoat, [query, repo.working_dir, "--no-color", f"--max-results={max_length}"]
+        seagoat,
+        [query, repo.working_dir, "--no-color", command_option, str(max_length)],
     )
 
     assert result.output.splitlines() == result.output.splitlines()[:max_length]
