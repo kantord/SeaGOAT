@@ -550,22 +550,22 @@ dependencies already installed on your computer:</p>
 <li>ripgrep</li>
 </ul>
 <p>To install SeaGOAT using <code>pipx</code>, use the following command:</p>
-<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span>seagoat
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pipx<span class="w"> </span>install<span class="w"> </span>seagoat
+</span></code></pre></div>
 <h3 id="start-seagoat-server">Start SeaGOAT server</h3>
 <p>In order to use SeaGOAT in your project, you have to start the SeaGOAT server
 using the following command:</p>
-<div class="highlight"><pre><span></span><code>seagoat-server<span class="w"> </span>start<span class="w"> </span>/path/to/your/repo
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>seagoat-server<span class="w"> </span>start<span class="w"> </span>/path/to/your/repo
+</span></code></pre></div>
 <h3 id="search-your-repository">Search your repository</h3>
 <p>If you have the server running, you can simply use the
 <code>gt</code> or <code>seagoat</code> command to query your repository. For example:</p>
-<div class="highlight"><pre><span></span><code>gt<span class="w"> </span><span class="s2">&quot;Where are the numbers rounded&quot;</span>
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gt<span class="w"> </span><span class="s2">&quot;Where are the numbers rounded&quot;</span>
+</span></code></pre></div>
 <h3 id="stopping-the-server">Stopping the server</h3>
 <p>You can stop the running server using the following command:</p>
-<div class="highlight"><pre><span></span><code>seagoat-server<span class="w"> </span>stop<span class="w"> </span>/path/to/your/repo
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>seagoat-server<span class="w"> </span>stop<span class="w"> </span>/path/to/your/repo
+</span></code></pre></div>
 <h2 id="development">Development</h2>
 <p><strong>Requirements</strong>:</p>
 <ul>
@@ -575,24 +575,24 @@ using the following command:</p>
 </ul>
 <h3 id="install-dependencies">Install dependencies</h3>
 <p>After cloning the repository, install dependencies using the following command:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>install
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>poetry<span class="w"> </span>install
+</span></code></pre></div>
 <h3 id="running-tests">Running tests</h3>
 <h4 id="watch-mode-recommended">Watch mode (recommended)</h4>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>ptw
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ptw
+</span></code></pre></div>
 <h4 id="test-changed-files">Test changed files</h4>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
+</span></code></pre></div>
 <h4 id="test-all-files">Test all files</h4>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
+</span></code></pre></div>
 <h3 id="manual-testing">Manual testing</h3>
 <p>You can test any SeaGOAT command manually in your local development
 environment. For example to test the development version of the
 <code>seagoat-server</code> command, you can run:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>~/path/an/example/repository
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>~/path/an/example/repository
+</span></code></pre></div>
 
 
 
@@ -630,7 +630,7 @@ environment. For example to test the development version of the
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["content.action.edit"], "search": "assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["content.action.edit", "content.code.copy"], "search": "assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.220ee61c.min.js"></script>

@@ -505,8 +505,8 @@ details related to your query.</p>
 the most useful and relevant results.</p>
 </div>
 <h2 id="command-usage">Command Usage</h2>
-<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span>&lt;query&gt;<span class="w"> </span><span class="o">[</span>repo_path<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>seagoat<span class="w"> </span>&lt;query&gt;<span class="w"> </span><span class="o">[</span>repo_path<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The seagoat CLI queries the SeaGOAT server. If the server is not running,
@@ -522,23 +522,21 @@ to the current working directory. It represents the path to the code repository.
 </ul>
 <h3 id="examples">Examples</h3>
 <h4 id="query-current-folder">Query current folder</h4>
-<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span>
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span>
+</span></code></pre></div>
 <h4 id="query-specific-folder">Query specific folder</h4>
-<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span><span class="s2">&quot;/path/to/my/repo&quot;</span>
-</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span><span class="s2">&quot;/path/to/my/repo&quot;</span>
+</span></code></pre></div>
 <h2 id="options">Options</h2>
 <h3 id="-no-color-disable-syntax-highlighting"><code>--no-color</code>: Disable syntax highlighting</h3>
 <p>This is automatically enabled when used as part of a bash pipeline.</p>
-<p><strong>Example</strong>:</p>
-<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--no-color
-</code></pre></div>
+<div class="language-bash highlight"><span class="filename">Example</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--no-color
+</span></code></pre></div>
 <h3 id="-l-max-results-limit-number-of-results"><code>-l, --max-results</code>: Limit number of results</h3>
 <p>This limits the number of result lines displayed.
 Useful if you only care about the best results.</p>
-<p><strong>Example</strong>:</p>
-<div class="highlight"><pre><span></span><code>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--max-results<span class="o">=</span><span class="m">5</span>
-</code></pre></div>
+<div class="language-bash highlight"><span class="filename">Example</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>seagoat<span class="w"> </span><span class="s2">&quot;myQuery&quot;</span><span class="w"> </span>--max-results<span class="o">=</span><span class="m">5</span>
+</span></code></pre></div>
 <h3 id="-version-print-version-number"><code>--version</code>: Print version number</h3>
 <p>This prints the version of your current SeaGOAT installation.</p>
 
@@ -578,7 +576,7 @@ Useful if you only care about the best results.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["content.action.edit"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.action.edit", "content.code.copy"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
