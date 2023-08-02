@@ -2,6 +2,31 @@
 
 
 
+## v0.9.0 (2023-08-02)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.320 ([`3ac3b81`](https://github.com/kantord/SeaGOAT/commit/3ac3b811c940b89c92147356cecb901c2aca161d))
+
+### Ci
+
+* ci: update docs build to use semantic-release to get the version ([`1f602e8`](https://github.com/kantord/SeaGOAT/commit/1f602e87dfa03567ee09d01736e88616b2f340a3))
+
+### Documentation
+
+* docs: recommend using pipx instead of pip ([`4afe920`](https://github.com/kantord/SeaGOAT/commit/4afe9202a7d18e3979f56caf6b2a057743d60061))
+
+### Feature
+
+* feat: allow short format for --max-results ([`2817be7`](https://github.com/kantord/SeaGOAT/commit/2817be75434a5d010b306b5bee6a177b3c713394))
+
+* feat: allow limiting the number of results ([`99a1d7b`](https://github.com/kantord/SeaGOAT/commit/99a1d7be02c2013044aff7ea3547ac0668a6e498))
+
+### Refactor
+
+* refactor: use an iterator for limiting the results ([`6d92543`](https://github.com/kantord/SeaGOAT/commit/6d925433778a2986b07be3ff58bd8a937c90d555))
+
+
 ## v0.8.9 (2023-07-31)
 
 ### Fix
