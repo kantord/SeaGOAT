@@ -51,6 +51,7 @@ pytest-testmon = "^2.0.12"
 pytest-leaks = "^0.3.1"
 mkdocs-material = "^9.1.19"
 markdown-include = "^0.8.1"
+python-semantic-release = "^8.0.4"
 
 [build-system]
 requires = ["poetry-core"]
