@@ -10,6 +10,8 @@
 A code search engine for the AI age. SeaGOAT leverages vector
 embeddings to enable to search your codebase semantically.
 
+![&nbsp;](assets/demo.gif)
+
 ## Getting started
 
 ### Install SeaGOAT
