@@ -31,5 +31,7 @@ jobs:
             - name: Deploy docs with Mike
               run: |
                   VERSION=$(poetry run semantic-release --noop version --print)
+                  # Remove patch version and replace it with 'x'
+                  VERSION="${VERSION%.*}.x"
                   poetry run mike deploy --push --update-aliases $VERSION latest
                   poetry run mike set-default --push latest
