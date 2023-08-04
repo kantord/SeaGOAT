@@ -2,6 +2,19 @@
 
 
 
+## v0.9.2 (2023-08-04)
+
+### Documentation
+
+* docs: add demo gif ([`3efad89`](https://github.com/kantord/SeaGOAT/commit/3efad89055c5676180589bd6dcd4838fd75bebb5))
+
+* docs: group patch versions together to avoid spamming ([`f3c41cc`](https://github.com/kantord/SeaGOAT/commit/f3c41ccf63545e37394af987d728ec41e0e29972))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.5 ([`36e7001`](https://github.com/kantord/SeaGOAT/commit/36e7001bf3c82d615eafc00ce815c05b41649e65))
+
+
 ## v0.9.1 (2023-08-02)
 
 ### Chore
