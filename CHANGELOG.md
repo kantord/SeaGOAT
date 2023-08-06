@@ -2,6 +2,13 @@
 
 
 
+## v0.9.3 (2023-08-06)
+
+### Fix
+
+* fix(deps): update dependency pygments to v2.16.1 ([`262484a`](https://github.com/kantord/SeaGOAT/commit/262484ad7ea4096691220cc340ef06277814a3c5))
+
+
 ## v0.9.2 (2023-08-04)
 
 ### Documentation
