@@ -83,3 +83,9 @@ def test_server_is_not_running_error(mocker, repo_path, snapshot):
 
     assert result.exit_code == 3
     assert result.output == snapshot
+
+
+def test_documentation_present(runner):
+    result = runner.invoke(seagoat, ["--help"])
+    assert result.exit_code == 0
+    assert "Query your codebase for your QUERY" in result.output
