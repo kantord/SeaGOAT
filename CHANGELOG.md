@@ -2,6 +2,27 @@
 
 
 
+## v0.10.0 (2023-08-07)
+
+### Documentation
+
+* docs: document how to use regular expressions ([`0bce61b`](https://github.com/kantord/SeaGOAT/commit/0bce61b723aa32c524d656ab1d8ca72f3fbb9a2e))
+
+### Feature
+
+* feat: allow combining regexp and vector embeddings ([`1a7c40c`](https://github.com/kantord/SeaGOAT/commit/1a7c40cd2f4d9fcdc21ad1b6b5976873d358318e))
+
+### Fix
+
+* fix: re-add missing CLI documentation ([`1955e2f`](https://github.com/kantord/SeaGOAT/commit/1955e2fe7eac24a6ea0ed4991ccad910cb2a97f6))
+
+### Test
+
+* test: add a unit test for the ripgrep source ([`444b7ba`](https://github.com/kantord/SeaGOAT/commit/444b7ba98f1297587af0cf87643c2ef6db78aa4e))
+
+* test: add missing docs for regexp ([`91f2873`](https://github.com/kantord/SeaGOAT/commit/91f2873a4c1970ad42ddae79133b496f4eb66a5f))
+
+
 ## v0.9.3 (2023-08-06)
 
 ### Fix
