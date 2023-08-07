@@ -43,6 +43,17 @@ seagoat "myQuery"
 seagoat "myQuery" "/path/to/my/repo"
 ```
 
+#### Using Regular Expressions
+
+One of SeaGOAT's most powerful features is the ability to combine regular expressions
+with AI-driven vector queries. This synergistic approach narrows down your
+codebase search using pattern-based regular expressions while leveraging AI
+to understand the semantic meaning behind your query.
+
+```bash
+seagoat "function db_.* that initializes database"
+```
+
 ## Options
 
 ### `--no-color`: Disable syntax highlighting

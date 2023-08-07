@@ -14,12 +14,12 @@ def _initialize_source():
             "cache",
             Path(path),
             {
-                "last_analyzed_version_of_branch": {},
                 "required_commits": set(),
-                "commits_already_analyzed": set(),
+                "last_analyzed_version_of_branch": {},
                 "file_data": {},
-                "sorted_files": [],
+                "commits_already_analyzed": set(),
                 "chunks_already_analyzed": set(),
+                "sorted_files": [],
             },
         )
         source = initialize(Repository(path, cache))
