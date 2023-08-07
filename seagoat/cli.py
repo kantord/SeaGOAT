@@ -92,6 +92,15 @@ def iterate_result_lines(results):
 )
 @click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(query, repo_path, no_color, max_results):
+    """
+    Query your codebase for your QUERY in the Git repository REPO_PATH.
+    Your query can either be text that you expect to find in a file,
+    or a description of what you are looking for.
+    When REPO_PATH is not specified, the current working directory is
+    assumed to be the repository path.
+    In order to use seagoat in your repository, you need to run a server
+    that will analyze your codebase. Check seagoat-server --help for more
+    """
     server_info_file = get_server_info_file(repo_path)
     _, __, ___, server_address = load_server_info(server_info_file)
     results = query_server(query, server_address, repo_path)
