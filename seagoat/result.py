@@ -1,4 +1,5 @@
 # pylint: disable=too-few-public-methods
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Set
@@ -11,7 +12,10 @@ class ResultLine:
     line_text: str
 
     def _get_number_of_exact_matches(self, query: str) -> int:
-        if query.lower() in self.line_text.lower():
+        terms = re.split(r"\s+", query)
+        pattern = ".*".join(map(re.escape, terms))
+
+        if re.search(pattern, self.line_text, re.IGNORECASE):
             return 1
         return 0
 

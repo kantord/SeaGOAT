@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from ripgrepy import Ripgrepy
@@ -8,6 +9,7 @@ from seagoat.result import Result
 
 
 def _fetch(query_text: str, path: str):
+    query_text = re.sub(r"\s+", "|", query_text)
     files = {}
     for result in Ripgrepy(query_text, path).json().run().as_dict:
         result_data = result["data"]
