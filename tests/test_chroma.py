@@ -202,7 +202,7 @@ async def test_exact_matches_have_higher_score(repo):
         9: Samsung Galaxy S10
         10:
         11:
-        12:
+
         13:
         14:
         """,
@@ -211,7 +211,7 @@ async def test_exact_matches_have_higher_score(repo):
     )
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
-    my_query = "apple iphone 12"
+    my_query = "apple      iphone 12"
     seagoat.query(my_query)
     await seagoat.fetch()
 
