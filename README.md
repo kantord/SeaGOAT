@@ -46,6 +46,14 @@ If you have the server running, you can simply use the
 gt "Where are the numbers rounded"
 ```
 
+You can also use
+[Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)
+in your queries, for example
+
+```bash
+gt "function calc_.* that deals with taxes"
+```
+
 ### Stopping the server
 
 You can stop the running server using the following command:
