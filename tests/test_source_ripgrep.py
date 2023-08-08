@@ -48,7 +48,7 @@ hello foo bar baz 23
     )
 
     fetch = initialize_source(repo)
-    fetched_files = fetch("[0-9]{2,10}")
+    fetched_files = fetch("[0-9]{2,10}", limit=400)
 
     assert len(fetched_files) == 1
     file = next(iter(fetched_files))
@@ -78,7 +78,7 @@ b3
     )
 
     fetch = initialize_source(repo)
-    fetched_files = fetch("[0-9]{2,10} baz bar b[0-9]")
+    fetched_files = fetch("[0-9]{2,10} baz bar b[0-9]", limit=100)
 
     assert len(fetched_files) == 1
     file = next(iter(fetched_files))

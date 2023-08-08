@@ -8,7 +8,10 @@ from seagoat.repository import Repository
 from seagoat.result import Result
 
 
-def _fetch(query_text: str, path: str):
+# Note: limit cannot be respected for now as results are not
+# pre-sorted
+# pylint: disable-next=unused-argument
+def _fetch(query_text: str, path: str, limit: int):
     query_text = re.sub(r"\s+", "|", query_text)
     files = {}
     for result in Ripgrepy(query_text, path).json().run().as_dict:
@@ -31,8 +34,8 @@ def _fetch(query_text: str, path: str):
 def initialize(repository: Repository):
     path = repository.path
 
-    def fetch(query_text: str):
-        return _fetch(query_text, path)
+    def fetch(query_text: str, limit: int):
+        return _fetch(query_text, path, limit)
 
     def cache_chunk(_):
         # Ripgrep does not need a cache for chunks

@@ -99,17 +99,19 @@ class Engine:
     def query(self, query: str):
         self.query_string = query
 
-    async def fetch(self):
+    async def fetch(self, limit=50):
         self._results = []
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_event_loop()
         async_tasks = [
-            loop.run_in_executor(executor, partial(source["fetch"], self.query_string))
+            loop.run_in_executor(
+                executor, partial(source["fetch"], self.query_string, limit)
+            )
             for source in self._fetchers["async"]
         ]
 
         for source in self._fetchers["sync"]:
-            self._results.extend(source["fetch"](self.query_string))
+            self._results.extend(source["fetch"](self.query_string, limit))
 
         results = await asyncio.gather(*async_tasks)
         for result in results:
