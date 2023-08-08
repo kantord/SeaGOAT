@@ -16,7 +16,7 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
         pass
 
     def create_mock_fetch(repo, file_lines):
-        def mock_fetch(_):
+        def mock_fetch(_, __):
             results = []
             for file_path, lines in file_lines.items():
                 full_path = Path(repo.working_dir) / file_path

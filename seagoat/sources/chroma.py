@@ -13,9 +13,12 @@ def initialize(repository: Repository):
     chroma_client = chromadb.PersistentClient(path=str(cache.get_cache_folder()))
     chroma_collection = chroma_client.get_or_create_collection(name="code_data")
 
-    def fetch(query_text: str):
+    def fetch(query_text: str, limit: int):
+        # Slightly overfetch results as it will sorted using a different score later
+        n_results = limit * 2
+
         chromadb_results = [
-            chroma_collection.query(query_texts=[query_text], n_results=50)
+            chroma_collection.query(query_texts=[query_text], n_results=n_results)
         ]
         metadata_with_distance = (
             list(

@@ -259,3 +259,42 @@ async def test_chunks_are_persisted_between_runs(repo):
         await seagoat2.fetch()
         assert mock_add_to_collection.call_count == 0
         assert seagoat2.get_results()[0].path == "articles.txt"
+
+
+@pytest.mark.asyncio
+async def test_respects_limit_in_chromadb(repo):
+    for i in range(100):
+        repo.add_file_change_commit(
+            file_name="devices2.txt",
+            contents="food",
+            author=repo.actors["John Doe"],
+            commit_message=f"commit {i}",
+        )
+        repo.tick_fake_date(days=1)
+    repo.tick_fake_date(days=1)
+    repo.add_file_change_commit(
+        file_name="devices.txt",
+        contents="""banana
+        """
+        * 6,
+        author=repo.actors["John Doe"],
+        commit_message="Add italian food recipes",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "apple"
+    seagoat.query(my_query)
+    await seagoat.fetch(limit=5)
+
+    expected_files = {"devices.txt", "devices2.txt"}
+    results_files = set(result.path for result in seagoat.get_results())
+
+    assert expected_files.issubset(results_files)
+    result_for_devices_txt = next(
+        (result for result in seagoat.get_results() if result.path == "devices.txt"),
+        None,
+    )
+    if result_for_devices_txt:
+        assert len(result_for_devices_txt.get_lines(my_query)) == 6
+    else:
+        raise AssertionError("File 'devices.txt' not found in results.")
