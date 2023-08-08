@@ -2,6 +2,13 @@
 
 
 
+## v0.10.1 (2023-08-08)
+
+### Performance
+
+* perf: avoid overfetching data when limit is specified ([`a7904cf`](https://github.com/kantord/SeaGOAT/commit/a7904cfeca639fc4b04bc1daf9d528a74ef3eef2))
+
+
 ## v0.10.0 (2023-08-07)
 
 ### Documentation
