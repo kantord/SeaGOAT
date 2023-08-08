@@ -2,6 +2,13 @@
 
 
 
+## v0.10.2 (2023-08-08)
+
+### Fix
+
+* fix(deps): update dependency tqdm to v4.65.1 ([`900c61e`](https://github.com/kantord/SeaGOAT/commit/900c61ee627eaefb7fee943a5a8c3c98d77eae18))
+
+
 ## v0.10.1 (2023-08-08)
 
 ### Performance
