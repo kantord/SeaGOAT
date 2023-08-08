@@ -137,3 +137,11 @@ def test_server_status_not_running_if_process_does_not_exist(repo):
     assert_server_status(repo, running=True)
     simulate_server_dying(repo)
     assert_server_status(repo, running=False)
+
+
+@pytest.mark.parametrize("limit_value", [1, 3, 7])
+def test_query_with_limit_clue_param(client, mocker, limit_value):
+    mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
+    response = client.get(f"/query/Markdown?limitClue={limit_value}")
+    mocked_fetch.assert_called_with(limit_clue=limit_value)
+    assert response.status_code == 200
