@@ -99,27 +99,34 @@ class Engine:
     def query(self, query: str):
         self.query_string = query
 
-    async def fetch(self, limit=50):
+    async def fetch(self, limit_clue=50):
+        """
+        limit_clue: a clue regarding how many results will be processed in the end
+
+        Sources don't need to respect this value and it does not have an inherent
+        direct effect on the number of results returned, but sources can use it as
+        a rule of thumb.
+        """
         self._results = []
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_event_loop()
         async_tasks = [
             loop.run_in_executor(
-                executor, partial(source["fetch"], self.query_string, limit)
+                executor, partial(source["fetch"], self.query_string, limit_clue)
             )
             for source in self._fetchers["async"]
         ]
 
         for source in self._fetchers["sync"]:
-            self._results.extend(source["fetch"](self.query_string, limit))
+            self._results.extend(source["fetch"](self.query_string, limit_clue))
 
         results = await asyncio.gather(*async_tasks)
         for result in results:
             self._results.extend(result)
 
-    def fetch_sync(self):
+    def fetch_sync(self, *args, **kwargs):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.fetch())
+        loop.run_until_complete(self.fetch(*args, **kwargs))
 
     def get_results(self):
         merged_results = {}

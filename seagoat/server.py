@@ -9,6 +9,7 @@ import click
 from flask import current_app
 from flask import Flask
 from flask import jsonify
+from flask import request
 from werkzeug.serving import run_simple
 
 from seagoat import __version__
@@ -27,9 +28,20 @@ def create_app(repo_path):
     def query_codebase(query):
         if "seagoat_engine" not in current_app.extensions:
             raise RuntimeError("seagoat_engine is not initialized")
+
+        limit_clue = request.args.get("limitClue", "500")
+
+        try:
+            limit_clue = int(limit_clue)
+        except ValueError as exception:
+            raise RuntimeError(
+                "Invalid limitClue value. Must be an integer."
+            ) from exception
+
         current_app.extensions["seagoat_engine"].query(query)
-        current_app.extensions["seagoat_engine"].fetch_sync()
+        current_app.extensions["seagoat_engine"].fetch_sync(limit_clue=limit_clue)
         results = current_app.extensions["seagoat_engine"].get_results()
+
         return {
             "results": [result.to_json() for result in results],
             "version": __version__,

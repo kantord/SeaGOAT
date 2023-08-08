@@ -21,9 +21,14 @@ class ExitCode:
     SERVER_NOT_RUNNING = 3
 
 
-def query_server(query, server_address, repo_path):
+def query_server(query, server_address, repo_path, max_results):
     try:
-        response = requests.get(f"{server_address}/query/{query}")
+        response = requests.get(
+            f"{server_address}/query/{query}",
+            params={
+                "limitClue": max_results,
+            },
+        )
         response.raise_for_status()
     except (requests.exceptions.ConnectionError, requests.exceptions.RequestException):
         print(
@@ -105,7 +110,7 @@ def seagoat(query, repo_path, no_color, max_results):
     """
     server_info_file = get_server_info_file(repo_path)
     _, __, ___, server_address = load_server_info(server_info_file)
-    results = query_server(query, server_address, repo_path)
+    results = query_server(query, server_address, repo_path, max_results)
 
     color_enabled = os.isatty(0) and not no_color
 

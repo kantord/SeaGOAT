@@ -63,7 +63,7 @@ def test_allows_fetching_data_synchronously(repo):
     seagoat.analyze_codebase()
     my_query = "tomato pizza"
     seagoat.query(my_query)
-    seagoat.fetch_sync()
+    seagoat.fetch_sync(limit_clue=33)
 
     assert seagoat.get_results()[0].path == "articles.txt"
 
@@ -284,7 +284,7 @@ async def test_respects_limit_in_chromadb(repo):
     seagoat.analyze_codebase()
     my_query = "apple"
     seagoat.query(my_query)
-    await seagoat.fetch(limit=5)
+    await seagoat.fetch(limit_clue=5)
 
     expected_files = {"devices.txt", "devices2.txt"}
     results_files = set(result.path for result in seagoat.get_results())

@@ -29,6 +29,47 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner):
     assert result.exit_code == 0
 
 
+@pytest.mark.parametrize("max_length", [1, 2, 10])
+def test_forwards_limit_clue_to_server(
+    max_length, repo, runner, mock_server_factory, mocker
+):
+    mock_server_factory(
+        [
+            ["hello.txt", ["foo", "bar", "baz"]],
+            ["foobar.py", ["def hello():", "    print('world')"]],
+            ["foobar2.py", ["def hola():", "    print('mundo')"]],
+            ["foobar3.py", ["def bonjour():", "    print('monde')"]],
+            ["foobar.fake", ["fn hello()", "    echo('world')"]],
+            ["foobar2.fake", ["fn hola()", "    echo('mundo')"]],
+            ["foobar3.fake", ["fn bonjour()", "    echo('monde')"]],
+        ],
+        manually_mock_request=True,
+    )
+
+    request_args = {}
+
+    def fake_requests(*args, **kwargs):
+        mock_response = mocker.Mock()
+        mock_response.json.return_value = {"results": []}
+
+        request_args["url"] = args[0]
+        request_args["params"] = kwargs.get("params", {})
+
+        return mock_response
+
+    mocked_requests_get = mocker.patch(
+        "seagoat.cli.requests.get", side_effect=fake_requests
+    )
+    query = "JavaScript"
+    result = runner.invoke(
+        seagoat,
+        [query, repo.working_dir, "--no-color", "--max-results", str(max_length)],
+    )
+    assert result.exit_code == 0
+    mocked_requests_get.assert_called_once()
+    assert request_args["params"]["limitClue"] == max_length
+
+
 @pytest.mark.parametrize(
     "max_length, command_option",
     list(itertools.product([0, 1, 2, 20], ["--max-results", "-l"])),

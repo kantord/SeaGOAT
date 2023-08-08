@@ -22,6 +22,7 @@ from git.util import Actor
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
+from seagoat.server import create_app
 from seagoat.server import get_server_info_file
 from seagoat.server import load_server_info
 from seagoat.server import start_server
@@ -194,42 +195,51 @@ def real_chromadb():
     chromadb_patcher.start()
 
 
+@pytest.fixture(name="start_server")
+def _start_server(repo):
+    def _start():
+        server_process = multiprocessing.Process(
+            target=start_server, args=(repo.working_dir,)
+        )
+        server_process.start()
+
+        server_info_file = get_server_info_file(repo.working_dir)
+        wait_for(lambda: os.path.exists(server_info_file), 120)
+
+        _, __, ___, server_address = load_server_info(
+            get_server_info_file(repo.working_dir)
+        )
+
+        retries = Retry(
+            total=200, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+        )
+
+        session = requests.Session()
+        session.mount("http://", HTTPAdapter(max_retries=retries))
+        session.mount("https://", HTTPAdapter(max_retries=retries))
+
+        try:
+            response = session.get(f"{server_address}/query/test", timeout=1)
+            response.raise_for_status()
+        except:
+            server_process.terminate()
+            server_process.join()
+            raise
+
+        def _stop():
+            server_process.terminate()
+            server_process.join()
+
+        return server_address, _stop
+
+    yield _start
+
+
 @pytest.fixture(name="server")
-def _server(repo):
-    server_process = multiprocessing.Process(
-        target=start_server, args=(repo.working_dir,)
-    )
-    server_process.start()
-
-    server_info_file = get_server_info_file(repo.working_dir)
-    wait_for(lambda: os.path.exists(server_info_file), 120)
-
-    _, __, ___, server_address = load_server_info(
-        get_server_info_file(repo.working_dir)
-    )
-
-    retries = Retry(
-        total=200, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
-    )
-
-    session = requests.Session()
-    session.mount("http://", HTTPAdapter(max_retries=retries))
-    session.mount("https://", HTTPAdapter(max_retries=retries))
-
-    try:
-        response = session.get(
-            f"{server_address}/query/test", timeout=1
-        )  # adjust timeout as needed
-        response.raise_for_status()
-    except:
-        server_process.terminate()
-        server_process.join()
-        raise
-
+def _server(start_server):
+    server_address, stop_server = start_server()
     yield server_address
-
-    server_process.terminate()
-    server_process.join()
+    stop_server()
 
 
 @pytest.fixture
@@ -265,9 +275,10 @@ def mock_server_factory(mocker, repo):
 
         return results
 
-    def _mock_server(results_template):
+    def _mock_server(results_template, manually_mock_request=False):
         mocked_results = _mock_results(results_template)
-        mocker.patch("seagoat.cli.query_server", return_value=mocked_results)
+        if not manually_mock_request:
+            mocker.patch("seagoat.cli.query_server", return_value=mocked_results)
         mocker.patch(
             "seagoat.cli.load_server_info",
             return_value=(None, None, None, "fake_server_address"),
@@ -291,3 +302,9 @@ class CustomCliRunner(CliRunner):
 @pytest.fixture
 def runner():
     return CustomCliRunner()
+
+
+@pytest.fixture
+def app(repo):
+    app = create_app(repo.working_dir)
+    yield app
