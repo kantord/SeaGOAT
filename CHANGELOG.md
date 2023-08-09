@@ -2,6 +2,21 @@
 
 
 
+## v0.10.5 (2023-08-09)
+
+### Performance
+
+* perf: limit regexp file size to 200K ([`9cc2c5f`](https://github.com/kantord/SeaGOAT/commit/9cc2c5fdefd45df9e4cba27d8ae22fa538e12ce8))
+
+* perf: limit number of regex results per file ([`13bec2a`](https://github.com/kantord/SeaGOAT/commit/13bec2a015a17b8bfa2d0b46be4b5462b5756d96))
+
+* perf: forward limit clue to server ([`dacb96d`](https://github.com/kantord/SeaGOAT/commit/dacb96d3def75602abec1f1ec5bb904819012599))
+
+### Style
+
+* style: remove unnecessary pylint ignore ([`56ebcdd`](https://github.com/kantord/SeaGOAT/commit/56ebcdd1cb56be044068934317c23de909cbbc8c))
+
+
 ## v0.10.4 (2023-08-09)
 
 ### Fix
