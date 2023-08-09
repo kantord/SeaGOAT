@@ -14,7 +14,14 @@ from seagoat.result import Result
 def _fetch(query_text: str, path: str, limit: int):
     query_text = re.sub(r"\s+", "|", query_text)
     files = {}
-    for result in Ripgrepy(query_text, path).max_count(limit).json().run().as_dict:
+    for result in (
+        Ripgrepy(query_text, path)
+        .max_count(limit)
+        .max_filesize("200K")
+        .json()
+        .run()
+        .as_dict
+    ):
         result_data = result["data"]
         absolute_path = result_data["path"]["text"]
         relative_path = Path(absolute_path).relative_to(path)
