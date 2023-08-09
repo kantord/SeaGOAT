@@ -8,9 +8,6 @@ from seagoat.repository import Repository
 from seagoat.result import Result
 
 
-# Note: limit cannot be respected for now as results are not
-# pre-sorted
-# pylint: disable-next=unused-argument
 def _fetch(query_text: str, path: str, limit: int):
     query_text = re.sub(r"\s+", "|", query_text)
     files = {}
