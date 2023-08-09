@@ -2,6 +2,13 @@
 
 
 
+## v0.10.4 (2023-08-09)
+
+### Fix
+
+* fix(deps): update dependency tqdm to v4.66.0 ([`ec737ca`](https://github.com/kantord/SeaGOAT/commit/ec737ca9238acd2af90605d226d15ffc70eb7e73))
+
+
 ## v0.10.3 (2023-08-09)
 
 ### Fix
