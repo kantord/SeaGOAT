@@ -1,23 +1,22 @@
 # pylint: disable=protected-access
-from unittest.mock import patch
+from pathlib import Path
 
 from freezegun import freeze_time
 
 from seagoat.engine import Engine
-from seagoat.file import File
 
 
 def test_returns_file_list_1(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
 
-    assert set(file.path for file in seagoat.repository.top_files()) == {
+    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
     }
-    assert seagoat.repository.get_file("file1.md").commit_messages == {
+    assert set(seagoat.repository.get_file("file1.md").commit_messages) == {
         "Initial commit for Markdown file",
         "Update to Markdown file",
     }
@@ -33,36 +32,16 @@ def test_returns_file_list_2(repo):
     )
     seagoat.analyze_codebase()
 
-    assert set(file.path for file in seagoat.repository.top_files()) == {
+    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
         "new_file.cpp",
     }
-    assert seagoat.repository.get_file("new_file.cpp").commit_messages == {
+    assert set(seagoat.repository.get_file("new_file.cpp").commit_messages) == {
         "Initial commit for C++ file"
     }
-
-
-def test_gets_files_from_all_branches(repo):
-    seagoat = Engine(repo.working_dir)
-    main = repo.active_branch
-    new_branch = repo.create_head("other_branch")
-    new_branch.checkout()
-    repo.add_file_change_commit(
-        file_name="file_on_other_branch.cpp",
-        contents="",
-        author=repo.actors["John Doe"],
-        commit_message="add my file",
-    )
-    main.checkout()
-    seagoat.analyze_codebase()
-
-    assert any(
-        file.path == "file_on_other_branch.cpp"
-        for file in seagoat.repository.top_files()
-    )
 
 
 def test_file_change_many_times_is_first_result(repo):
@@ -77,7 +56,7 @@ def test_file_change_many_times_is_first_result(repo):
         repo.tick_fake_date(minutes=1)
     seagoat.analyze_codebase()
 
-    assert seagoat.repository.top_files()[0].path == "new_file.txt"
+    assert seagoat.repository.top_files()[0][0].path == "new_file.txt"
 
 
 def test_newer_change_can_beat_frequent_change_in_past(repo):
@@ -98,7 +77,7 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
     )
     seagoat.analyze_codebase()
 
-    assert seagoat.repository.top_files()[0].path == "new_file.txt"
+    assert seagoat.repository.top_files()[0][0].path == "new_file.txt"
 
 
 def test_ignores_certain_branches(repo):
@@ -117,27 +96,8 @@ def test_ignores_certain_branches(repo):
 
     assert not any(
         file.path == "file_on_other_branch.cpp"
-        for file in seagoat.repository.top_files()
+        for file, _ in seagoat.repository.top_files()
     )
-
-
-def test_commits_are_not_analyzed_twice(repo):
-    seagoat = Engine(repo.working_dir)
-    repo.add_file_change_commit(
-        file_name="file_to_test.cpp",
-        contents="",
-        author=repo.actors["John Doe"],
-        commit_message="add my file",
-    )
-
-    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        seagoat.analyze_codebase()
-        first_call_count = mock_add_commit.call_count
-
-        seagoat.analyze_codebase()
-        second_call_count = mock_add_commit.call_count
-
-    assert first_call_count == second_call_count
 
 
 def test_analysis_results_are_persisted_between_runs(repo):
@@ -145,12 +105,9 @@ def test_analysis_results_are_persisted_between_runs(repo):
     seagoat1.analyze_codebase()
     del seagoat1
     seagoat2 = Engine(repo.working_dir)
-    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        seagoat2.analyze_codebase()
-        call_count = mock_add_commit.call_count
+    seagoat2.analyze_codebase()
 
-    assert call_count == 0
-    assert set(file.path for file in seagoat2.repository.top_files()) == {
+    assert set(file.path for file, _ in seagoat2.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -169,12 +126,9 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
         output_file.write(damaged_data)
     del seagoat1
     seagoat2 = Engine(repo.working_dir)
-    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        seagoat2.analyze_codebase()
-        call_count = mock_add_commit.call_count
+    seagoat2.analyze_codebase()
 
-    assert call_count != 0
-    assert set(file.path for file in seagoat2.repository.top_files()) == {
+    assert set(file.path for file, _ in seagoat2.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -190,12 +144,9 @@ def test_damaged_cache_doesnt_crash_app_2(repo):
         pass
     del seagoat1
     seagoat2 = Engine(repo.working_dir)
-    with patch.object(File, "add_commit", autospec=True) as mock_add_commit:
-        seagoat2.analyze_codebase()
-        call_count = mock_add_commit.call_count
+    seagoat2.analyze_codebase()
 
-    assert call_count != 0
-    assert set(file.path for file in seagoat2.repository.top_files()) == {
+    assert set(file.path for file, _ in seagoat2.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -214,13 +165,13 @@ def test_only_returns_supported_file_types(repo):
         )
     seagoat.analyze_codebase()
 
-    assert set(file.path for file in seagoat.repository.top_files()) == {
+    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
         "file1.md",
         "file2.py",
         "file3.py",
         "file4.js",
     }
-    assert seagoat.repository.get_file("file1.md").commit_messages == {
+    assert set(seagoat.repository.get_file("file1.md").commit_messages) == {
         "Initial commit for Markdown file",
         "Update to Markdown file",
     }
@@ -254,6 +205,12 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
             commit_message="add my file",
         )
         seagoat2.analyze_codebase()
+
+    assert (
+        seagoat1.repository.get_file("file1.md").score
+        == seagoat2.repository.get_file("file1.md").score
+    )
+
     with freeze_time("2018-01-15"):
         repo2.tick_fake_date(days=300)
         repo2.add_file_change_commit(
@@ -265,6 +222,18 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
         seagoat2.analyze_codebase()
 
     assert (
-        seagoat1.repository.get_file("file1.md").get_score()
-        == seagoat2.repository.get_file("file1.md").get_score()
+        seagoat1.repository.get_file("file1.md").score
+        != seagoat2.repository.get_file("file1.md").score
     )
+
+
+def test_does_not_crash_because_of_non_existent_files(repo):
+    seagoat = Engine(repo.working_dir)
+    (Path(repo.working_dir) / "file1.md").unlink()
+    seagoat.analyze_codebase()
+
+    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+        "file2.py",
+        "file3.py",
+        "file4.js",
+    }

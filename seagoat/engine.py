@@ -6,7 +6,9 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from itertools import chain
 from pathlib import Path
+from typing import Callable
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Set
 
@@ -63,7 +65,7 @@ class Engine:
             },
         )
         self._cache.load()
-        self.repository = Repository(path, self._cache)
+        self.repository = Repository(path)
         self._fetchers = {
             "async": [
                 ripgrep.initialize(self.repository),
@@ -83,8 +85,11 @@ class Engine:
 
     def _create_vector_embeddings(self):
         chunks_to_process = []
-        minimum_files_to_analyze = max(40, int(len(self.repository.top_files()) * 0.2))
-        for file in self.repository.top_files()[:minimum_files_to_analyze]:
+        minimum_files_to_analyze = min(
+            max(40, int(len(self.repository.top_files()) * 0.2)),
+            len(self.repository.top_files()),
+        )
+        for file, _ in self.repository.top_files()[:minimum_files_to_analyze]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
         for chunk in tqdm(chunks_to_process, desc="Analyzing source code"):
@@ -128,6 +133,23 @@ class Engine:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.fetch(*args, **kwargs))
 
+    def _get_normalization_function(
+        self, values: Iterable[float], min_=None, max_=None
+    ) -> Callable[[float], float]:
+        if not values:
+            return lambda x: 0
+
+        max_value = max_ or max(values)
+        min_value = min_ or min(values)
+
+        def normalize(value: float) -> float:
+            if max_value != min_value:
+                return (value - min_value) / (max_value - min_value)
+
+            return 1
+
+        return normalize
+
     def get_results(self):
         merged_results = {}
 
@@ -138,36 +160,27 @@ class Engine:
 
             merged_results[result_item.path].extend(result_item)
 
-        scores = [x.get_best_score(self.query_string) for x in merged_results.values()]
+        results_to_sort = list(merged_results.values())
+
+        scores = [x.get_best_score(self.query_string) for x in results_to_sort]
 
         if not scores:
             return []
 
-        top_files = self.repository.top_files()
-
-        max_score = max(scores)
-        min_score = min(scores)
-        normalized_scores = [
-            (score - min_score) / (max_score - min_score)
-            if max_score != min_score
-            else 1
-            for score in scores
-        ]
-
-        result_to_normalized_score = dict(
-            zip(merged_results.values(), normalized_scores)
-        )
-
-        normalized_position_by_file = {
-            file.path: float(i) / len(top_files) for i, file in enumerate(top_files)
+        top_files = {
+            file.path: 0.0 - position_score
+            for file, position_score in self.repository.top_files()
         }
+
+        normalize_score = self._get_normalization_function(scores, min_=0.0)
+        normalize_file_position = self._get_normalization_function(top_files.values())
 
         return list(
             sorted(
-                merged_results.values(),
+                results_to_sort,
                 key=lambda x: (
-                    0.7 * result_to_normalized_score[x]
-                    + 0.3 * normalized_position_by_file[x.path]
+                    0.7 * normalize_score(x.get_best_score(self.query_string))
+                    + 0.3 * normalize_file_position(top_files[x.path])
                 ),
             )
         )
