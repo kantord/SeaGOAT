@@ -4,23 +4,26 @@ from pathlib import Path
 
 from seagoat.result import Result
 from seagoat.result import ResultLine
+from seagoat.result import ResultLineType
 
 
 def test_to_result_line_correct_output_example1():
-    line = ResultLine(1, 0.5, "some line text")
+    line = ResultLine(1, 0.5, "some line text", {ResultLineType.RESULT})
     result_dict = line.to_json()
     assert result_dict == {
         "line": 1,
-        "line_text": "some line text",
+        "lineText": "some line text",
+        "resultTypes": ["result"],
     }
 
 
 def test_to_result_line_correct_output_example2():
-    line = ResultLine(2, 0.2, "another line of text")
+    line = ResultLine(2, 0.2, "another line of text", {ResultLineType.RESULT})
     result_dict = line.to_json()
     assert result_dict == {
         "line": 2,
-        "line_text": "another line of text",
+        "lineText": "another line of text",
+        "resultTypes": ["result"],
     }
 
 
@@ -37,10 +40,10 @@ def test_to_result_json_correct_output_example1():
         result_dict = result.to_json()
         assert result_dict == {
             "path": "example1.txt",
-            "full_path": file_path,
+            "fullPath": file_path,
             "lines": [
-                {"line": 1, "line_text": "Line 1"},
-                {"line": 2, "line_text": "Line 2"},
+                {"line": 1, "lineText": "Line 1", "resultTypes": ["result"]},
+                {"line": 2, "lineText": "Line 2", "resultTypes": ["result"]},
             ],
         }
 
@@ -58,9 +61,9 @@ def test_to_result_json_correct_output_example2():
         result_dict = result.to_json()
         assert result_dict == {
             "path": "example2.txt",
-            "full_path": file_path,
+            "fullPath": file_path,
             "lines": [
-                {"line": 1, "line_text": "This is line 1"},
-                {"line": 3, "line_text": "This is line 3"},
+                {"line": 1, "lineText": "This is line 1", "resultTypes": ["result"]},
+                {"line": 3, "lineText": "This is line 3", "resultTypes": ["result"]},
             ],
         }

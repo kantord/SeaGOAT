@@ -265,11 +265,11 @@ def mock_server_factory(mocker, repo):
         for filename, lines in results_template:
             result = {
                 "path": filename,
-                "full_path": Path(repo.working_dir) / filename,
+                "fullPath": Path(repo.working_dir) / filename,
                 "lines": [],
             }
             for i, line_text in enumerate(lines):
-                result["lines"].append({"line": i + 1, "line_text": line_text})
+                result["lines"].append({"line": i + 1, "lineText": line_text})
 
             results.append(result)
 

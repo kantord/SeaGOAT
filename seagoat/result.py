@@ -1,8 +1,18 @@
 # pylint: disable=too-few-public-methods
 import re
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Dict
+from typing import Set
+
+
+class ResultLineType(Enum):
+    RESULT = "result"
+    CONTEXT = "context"
+
+    def __str__(self):
+        return self.value
 
 
 @dataclass(frozen=True)
@@ -10,6 +20,7 @@ class ResultLine:
     line: int
     vector_distance: float
     line_text: str
+    types: Set[ResultLineType]
 
     def _get_number_of_exact_matches(self, query: str) -> int:
         terms = re.split(r"\s+", query)
@@ -22,10 +33,14 @@ class ResultLine:
     def get_score(self, query: str) -> float:
         return self.vector_distance / (1 + self._get_number_of_exact_matches(query))
 
+    def add_type(self, type_: ResultLineType) -> None:
+        self.types.add(type_)
+
     def to_json(self):
         return {
             "line": self.line,
-            "line_text": self.line_text,
+            "lineText": self.line_text,
+            "resultTypes": list(sorted(set(str(t) for t in self.types))),
         }
 
 
@@ -46,7 +61,14 @@ class Result:
     def add_line(self, line: int, vector_distance: float) -> None:
         if line in self.lines:
             raise RuntimeError(f"Line {line} already exists in result {self.path}")
-        self.lines[line] = ResultLine(line, vector_distance, self.line_texts[line - 1])
+        self.lines[line] = ResultLine(
+            line,
+            vector_distance,
+            self.line_texts[line - 1],
+            {
+                ResultLineType.RESULT,
+            },
+        )
 
     def get_best_score(self, query: str) -> float:
         return min(
@@ -69,7 +91,7 @@ class Result:
     def to_json(self):
         return {
             "path": self.path,
-            "full_path": str(self.full_path),
+            "fullPath": str(self.full_path),
             "lines": [
                 line.to_json()
                 for line in sorted(self.lines.values(), key=lambda item: item.line)
