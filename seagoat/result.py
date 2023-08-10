@@ -2,7 +2,7 @@
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set
+from typing import Dict
 
 
 @dataclass(frozen=True)
@@ -33,7 +33,7 @@ class Result:
     def __init__(self, path: str, full_path: Path) -> None:
         self.path: str = path
         self.full_path: Path = full_path
-        self.lines: Set[ResultLine] = set()
+        self.lines: Dict[int, ResultLine] = {}
         self.line_texts = self._read_lines()
 
     def extend(self, other) -> None:
@@ -44,10 +44,14 @@ class Result:
             return source_code_file.read().splitlines()
 
     def add_line(self, line: int, vector_distance: float) -> None:
-        self.lines.add(ResultLine(line, vector_distance, self.line_texts[line - 1]))
+        if line in self.lines:
+            raise RuntimeError(f"Line {line} already exists in result {self.path}")
+        self.lines[line] = ResultLine(line, vector_distance, self.line_texts[line - 1])
 
     def get_best_score(self, query: str) -> float:
-        return min(self.lines, key=lambda item: item.get_score(query)).get_score(query)
+        return min(
+            self.lines.values(), key=lambda item: item.get_score(query)
+        ).get_score(query)
 
     def get_lines(self, query: str):
         best_score = self.get_best_score(query)
@@ -56,7 +60,7 @@ class Result:
             sorted(
                 set(
                     result_line.line
-                    for result_line in self.lines
+                    for result_line in self.lines.values()
                     if result_line.get_score(query) <= best_score * 1.2
                 )
             )
@@ -68,6 +72,6 @@ class Result:
             "full_path": str(self.full_path),
             "lines": [
                 line.to_json()
-                for line in sorted(self.lines, key=lambda item: item.line)
+                for line in sorted(self.lines.values(), key=lambda item: item.line)
             ],
         }
