@@ -2,6 +2,17 @@
 
 
 
+## v0.11.0 (2023-08-10)
+
+### Feature
+
+* feat: include reason why line was included in result ([`8df8101`](https://github.com/kantord/SeaGOAT/commit/8df8101cead6cf4c51680eefaa25d6be560816af))
+
+### Refactor
+
+* refactor: use dict instead of set to store result lines ([`8d26fda`](https://github.com/kantord/SeaGOAT/commit/8d26fda489b757e00726c6944d927f217f5fdb62))
+
+
 ## v0.10.6 (2023-08-10)
 
 ### Chore
