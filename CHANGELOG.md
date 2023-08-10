@@ -2,6 +2,17 @@
 
 
 
+## v0.10.6 (2023-08-10)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.321 ([`5d7fe81`](https://github.com/kantord/SeaGOAT/commit/5d7fe81937e59d96c9def07ce7b80103d530bf48))
+
+### Fix
+
+* fix(deps): update dependency tqdm to v4.66.1 ([`b29ba3b`](https://github.com/kantord/SeaGOAT/commit/b29ba3b277b8ddee9f44e8ed22e1df85faa45399))
+
+
 ## v0.10.5 (2023-08-09)
 
 ### Performance
