@@ -29,7 +29,7 @@ def _initialize_source():
     return _initalize
 
 
-def test__fetch_and_initialize(repo, initialize_source):
+def test_fetch_and_initialize(repo, initialize_source):
     contents = """
 234
 hello foo bar baz
@@ -53,7 +53,7 @@ hello foo bar baz 23
     assert len(fetched_files) == 1
     file = next(iter(fetched_files))
     assert file.path == "file1.txt"
-    assert set(line.line for line in file.lines) == {2, 4, 6, 7, 8, 9}
+    assert set(line for line in file.lines) == {2, 4, 6, 7, 8, 9}
 
 
 def test_whitespace_is_used_as_or_operator(repo, initialize_source):
@@ -83,4 +83,4 @@ b3
     assert len(fetched_files) == 1
     file = next(iter(fetched_files))
     assert file.path == "file1.txt"
-    assert set(line.line for line in file.lines) == {2, 3, 4, 6, 7, 8, 9, 10, 11, 12}
+    assert set(line for line in file.lines) == {2, 3, 4, 6, 7, 8, 9, 10, 11, 12}
