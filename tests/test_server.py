@@ -17,9 +17,7 @@ def normalize_full_paths(data, repo):
     deep_copy_of_data = copy.deepcopy(data)
 
     for result in deep_copy_of_data["results"]:
-        result["full_path"] = result["full_path"].replace(
-            real_repo_path, fake_repo_path
-        )
+        result["fullPath"] = result["fullPath"].replace(real_repo_path, fake_repo_path)
 
     return deep_copy_of_data
 

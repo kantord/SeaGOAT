@@ -63,14 +63,14 @@ def get_highlighted_lines(file_name: str):
 
 def print_result_line(result, line, color_enabled):
     if color_enabled:
-        highlighted_lines = get_highlighted_lines(str(result["full_path"]))
+        highlighted_lines = get_highlighted_lines(str(result["fullPath"]))
         print(
             f"{result['path']}:{click.style(str(line), bold=True)}:{highlighted_lines[line - 1]}"
         )
     else:
         for line_content in result["lines"]:
             if line_content["line"] == line:
-                print(f"{result['path']}:{line}:{line_content['line_text']}")
+                print(f"{result['path']}:{line}:{line_content['lineText']}")
                 break
 
 

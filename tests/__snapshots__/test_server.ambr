@@ -3,15 +3,21 @@
   dict({
     'results': list([
       dict({
-        'full_path': '/path/to/repo/file1.md',
+        'fullPath': '/path/to/repo/file1.md',
         'lines': list([
           dict({
             'line': 1,
-            'line_text': '# Markdown file',
+            'lineText': '# Markdown file',
+            'resultTypes': list([
+              'result',
+            ]),
           }),
           dict({
             'line': 2,
-            'line_text': 'This is an example Markdown file. Updated.',
+            'lineText': 'This is an example Markdown file. Updated.',
+            'resultTypes': list([
+              'result',
+            ]),
           }),
         ]),
         'path': 'file1.md',
