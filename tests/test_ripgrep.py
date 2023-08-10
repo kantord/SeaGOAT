@@ -1,5 +1,6 @@
+import pytest
+
 from seagoat.engine import Engine
-from tests.conftest import pytest
 
 
 @pytest.mark.asyncio

@@ -25,7 +25,6 @@ async def test_simple_regexp(repo):
     seagoat.query(my_regex_query)
     await seagoat.fetch()
 
-    print(seagoat.get_results())
     assert seagoat.get_results()[0].path == "line_positions.txt"
     assert set(seagoat.get_results()[0].get_lines(my_regex_query)) == {4, 6}
 
@@ -62,7 +61,6 @@ asdf
     seagoat.query(my_regex_query)
     await seagoat.fetch()
 
-    print(seagoat.get_results())
     assert seagoat.get_results()[0].path == "line_positions.txt"
     assert set(seagoat.get_results()[0].get_lines(my_regex_query)) == {
         3,

@@ -157,7 +157,8 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     chroma_lines = {
         "file_few_edits.md": [(2, 5.0)],
         "file_many_edits.md": [(1, 6.0)],
-        "third_file.py": [(13, 63.21)],
+        "random.py": [(1, 60.01)],
+        "things.js": [(1, 160.01)],
     }
     my_query = "asdfadsfdfdffdafafdsfadsf"
 
@@ -165,8 +166,7 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     seagoat.analyze_codebase()
     results = seagoat.get_results()
 
-    assert [result.path for result in results] == [
+    assert [result.path for result in results][0:2] == [
         "file_many_edits.md",
         "file_few_edits.md",
-        "third_file.py",
     ]

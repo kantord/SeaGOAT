@@ -1,9 +1,9 @@
 # pylint: disable=redefined-outer-name
-import time
 from pathlib import Path
 
+import pytest
+
 from seagoat.file import File
-from tests.conftest import pytest
 
 
 @pytest.fixture
@@ -13,31 +13,22 @@ def repo_folder(repo):
     yield Path(repo.working_dir)
 
 
-# pylint: disable-next=too-few-public-methods
-class Commit:
-    def __init__(self, message, committed_date=0):
-        self.message = message
-        self.committed_date = committed_date
-
-
 def test_file_returns_global_metadata_1(repo_folder, snapshot):
-    my_file = File("hello.md", repo_folder / "hello.md")
-    my_file.add_commit(Commit("First commit for this"))
-    my_file.add_commit(Commit("Another commit for this"))
+    my_file = File(
+        "hello.md",
+        repo_folder / "hello.md",
+        0.543245,
+        [
+            "First commit",
+            "Second commit",
+        ],
+    )
 
     assert my_file.get_metadata() == snapshot
 
 
 def test_file_returns_global_metadata_2(repo_folder, snapshot):
-    my_file = File("hello.md", repo_folder / "hello.md")
-    my_file.add_commit(Commit("Unrelated commit"))
-
-    assert my_file.get_metadata() == snapshot
-
-
-def test_handles_files_that_were_edited_today(repo_folder, snapshot):
-    my_file = File("hello.md", repo_folder / "hello.md")
-    my_file.add_commit(Commit("Unrelated commit", int(time.time())))
+    my_file = File("hello.md", repo_folder / "hello.md", 0.234234, ["unrelated commit"])
 
     assert my_file.get_metadata() == snapshot
 
@@ -58,7 +49,9 @@ def __init__(self):
         commit_message=".",
     )
 
-    my_file = File("example.py", str(Path(repo.working_dir) / "example.py"))
+    my_file = File(
+        "example.py", str(Path(repo.working_dir) / "example.py"), 0.234234, []
+    )
     assert {item.codeline for item in my_file.get_chunks()} == {1, 5, 8, 9}
     line5 = [item for item in my_file.get_chunks() if item.codeline == 5][0]
     found_lines = line5.chunk.split("###")[0].splitlines()

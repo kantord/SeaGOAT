@@ -1,34 +1,24 @@
 import hashlib
-import time
 from typing import Dict
 from typing import List
 from typing import Literal
 
 
 class File:
-    def __init__(self, path: str, absolute_path: str):
+    def __init__(
+        self, path: str, absolute_path: str, score: float, commit_messages: list[str]
+    ):
         self.path = path
         self.absolute_path = absolute_path
-        self._commit_times = set()
-        self.commit_messages = set()
+        self.commit_hashes = set()
+        self.score = score
+        self.commit_messages = commit_messages
 
     def __repr__(self):
-        return f"<File {self.path} {self.get_score()}>"
+        return f"<File {self.path} {self.score}>"
 
-    def get_score(self):
-        current_time = int(time.time())
-
-        return sum(
-            1000 / max(int((current_time - committed_date) / 86400) ** 2, 1)
-            for committed_date in self._commit_times
-        )
-
-    def _add_commit_message(self, message: str):
-        self.commit_messages.add(message)
-
-    def add_commit(self, commit):
-        self._commit_times.add(commit.committed_date)
-        self._add_commit_message(commit.message)
+    def add_commit(self, commit_hash: str):
+        self.commit_hashes.add(commit_hash)
 
     def get_metadata(self):
         commit_messages = "\n-".join(sorted(self.commit_messages))
@@ -86,16 +76,12 @@ class File:
         return sum(c.isalnum() for c in line) > 3
 
     def get_chunks(self):
-        try:
-            lines = self._get_file_lines()
-            return [
-                self._get_chunk_for_line(line_number, lines)
-                for line_number in lines.keys()
-                if self._line_has_relevant_data(lines[line_number])
-            ]
-
-        except FileNotFoundError:
-            return []
+        lines = self._get_file_lines()
+        return [
+            self._get_chunk_for_line(line_number, lines)
+            for line_number in lines.keys()
+            if self._line_has_relevant_data(lines[line_number])
+        ]
 
 
 # pylint: disable=too-few-public-methods

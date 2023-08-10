@@ -116,21 +116,27 @@ class MockRepo(Repo):
                 )
                 self.tick_fake_date(days=1)
 
-    def add_file_change_commit(self, file_name, contents, author, commit_message):
+    def add_file_change_commit(
+        self,
+        file_name,
+        contents,
+        author,
+        commit_message,
+    ):
         with open(
             os.path.join(self.working_dir, file_name), "w", encoding="utf-8"
         ) as output_file:
             output_file.write(contents)
 
         self.index.add([file_name])
-        self.index.commit(
+        return self.index.commit(
             commit_message,
             author=author,
             committer=author,
             author_date=self.fake_commit_date,
             commit_date=self.fake_commit_date,
             skip_hooks=True,
-        )
+        ).hexsha
 
 
 @pytest.fixture

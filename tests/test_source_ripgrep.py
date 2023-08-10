@@ -1,8 +1,5 @@
-from seagoat.cache import Cache
-from seagoat.engine import RepositoryData
 from seagoat.repository import Repository
 from seagoat.sources.ripgrep import initialize
-from tests.conftest import Path
 from tests.test_ripgrep import pytest
 
 
@@ -10,19 +7,7 @@ from tests.test_ripgrep import pytest
 def _initialize_source():
     def _initalize(repo):
         path = repo.working_dir
-        cache = Cache[RepositoryData](
-            "cache",
-            Path(path),
-            {
-                "required_commits": set(),
-                "last_analyzed_version_of_branch": {},
-                "file_data": {},
-                "commits_already_analyzed": set(),
-                "chunks_already_analyzed": set(),
-                "sorted_files": [],
-            },
-        )
-        source = initialize(Repository(path, cache))
+        source = initialize(Repository(path))
 
         return source["fetch"]
 

@@ -1,8 +1,9 @@
 # pylint: disable=protected-access
+from unittest.mock import patch
+
 import pytest
 
 from seagoat.engine import Engine
-from tests.test_repository import patch
 
 
 @pytest.fixture(autouse=True)

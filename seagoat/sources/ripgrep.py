@@ -39,7 +39,7 @@ def initialize(repository: Repository):
     path = repository.path
 
     def fetch(query_text: str, limit: int):
-        return _fetch(query_text, path, limit)
+        return _fetch(query_text, str(path), limit)
 
     def cache_chunk(_):
         # Ripgrep does not need a cache for chunks
