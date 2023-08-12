@@ -216,17 +216,25 @@ def _start_server(repo):
             get_server_info_file(repo.working_dir)
         )
 
-        retries = Retry(
-            total=200, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
-        )
+        retries = Retry(total=5, backoff_factor=0.1)
 
         session = requests.Session()
         session.mount("http://", HTTPAdapter(max_retries=retries))
         session.mount("https://", HTTPAdapter(max_retries=retries))
 
+        response = None
         try:
             response = session.get(f"{server_address}/query/test", timeout=1)
             response.raise_for_status()
+        except requests.HTTPError:
+            # Make it easier to debug problems by printing error messages
+            if response is not None:
+                if response.status_code == 500:
+                    print("Server responded with a 500 error:")
+                    print(response.text)
+            server_process.terminate()
+            server_process.join()
+            raise
         except:
             server_process.terminate()
             server_process.join()
@@ -275,7 +283,15 @@ def mock_server_factory(mocker, repo):
                 "lines": [],
             }
             for i, line_text in enumerate(lines):
-                result["lines"].append({"line": i + 1, "lineText": line_text})
+                result["lines"].append(
+                    {
+                        "line": i + 1,
+                        "lineText": line_text,
+                        "resultTypes": ["result"]
+                        if "context line" not in line_text
+                        else ["context"],
+                    }
+                )
 
             results.append(result)
 
@@ -314,3 +330,20 @@ def runner():
 def app(repo):
     app = create_app(repo.working_dir)
     yield app
+
+
+@pytest.fixture
+def client(repo):
+    mock_engine_init = MagicMock(return_value=None)
+    mock_analyze_codebase = MagicMock(return_value=None)
+
+    with patch("seagoat.server.Engine.__init__", mock_engine_init):
+        with patch("seagoat.server.Engine.analyze_codebase", mock_analyze_codebase):
+            app = create_app(repo.working_dir)
+            app.config["TESTING"] = True
+            mock_engine = app.extensions["seagoat_engine"]
+            # pylint: disable-next=protected-access
+            mock_engine._results = []
+            client = app.test_client()
+
+            yield client

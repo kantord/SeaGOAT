@@ -73,6 +73,76 @@ Useful if you only care about the best results.
 seagoat "myQuery" --max-results=5
 ```
 
+Note that the line number limit is only applied to actual result lines.
+If you include context lines, those lines will not be counted as part of the
+limit and will be displayed regardless. When the last last result line of the
+last result file is displayed, all following context lines until the next
+result line (or the end of the file) are displayed.
+
 ### `--version`: Print version number
 
 This prints the version of your current SeaGOAT installation.
+
+### `-B, --context-above`: Lines of context before each result
+
+This option allows you to include a specified number of lines
+of context before each matching result.
+
+!!! note "Tricky context lines"
+
+    Context lines are lines that are added because they are adjacent to a
+    result line.
+
+    That being said, because lines are grouped into chunks of 3,
+    results based on vector embeddings might already contain lines that might
+    not be strictly related to the query.
+
+    This might make it appear like there are more context lines than you
+    requested. Consider this when deciding how many context lines to include.
+
+```bash title="Example"
+seagoat "myQuery" --context-above=5
+```
+
+### `-A, --context-below`: Lines of context after each result
+
+This option allows you to include a specified number of lines of context after
+each matching result.
+
+```bash title="Example"
+seagoat "myQuery" --context-below=5
+```
+
+!!! note "Tricky context lines"
+
+    Context lines are lines that are added because they are adjacent to a
+    result line.
+
+    That being said, because lines are grouped into chunks of 3,
+    results based on vector embeddings might already contain lines that might
+    not be strictly related to the query.
+
+    This might make it appear like there are more context lines than you
+    requested. Consider this when deciding how many context lines to include.
+
+### `-C, --context`: Lines of context both before and after each result
+
+This option sets both `--context-above` and `--context-below` to the same
+specified value. This is useful if you want an equal amount of context around
+each matching result.
+
+```bash title="Example"
+seagoat "myQuery" --context=5
+```
+
+!!! note "Tricky context lines"
+
+    Context lines are lines that are added because they are adjacent to a
+    result line.
+
+    That being said, because lines are grouped into chunks of 3,
+    results based on vector embeddings might already contain lines that might
+    not be strictly related to the query.
+
+    This might make it appear like there are more context lines than you
+    requested. Consider this when deciding how many context lines to include.
