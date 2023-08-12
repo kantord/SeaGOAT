@@ -157,6 +157,7 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     chroma_lines = {
         "file_few_edits.md": [(2, 5.0)],
         "file_many_edits.md": [(1, 6.0)],
+        "third_file.py": [(13, 63.21)],
     }
     my_query = "asdfadsfdfdffdafafdsfadsf"
 
@@ -167,4 +168,5 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     assert [result.path for result in results] == [
         "file_many_edits.md",
         "file_few_edits.md",
+        "third_file.py",
     ]
