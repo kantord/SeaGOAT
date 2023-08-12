@@ -2,6 +2,19 @@
 
 
 
+## v0.12.0 (2023-08-12)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.5 ([`ccd05f9`](https://github.com/kantord/SeaGOAT/commit/ccd05f9495ed72892fb7fbb0b7239b92fcdbc04b))
+
+* chore(deps): update dependency python-semantic-release to v8.0.5 ([`091d0b0`](https://github.com/kantord/SeaGOAT/commit/091d0b029cc2d136341146828866d9f191b54dd2))
+
+### Feature
+
+* feat: reduce bias/noise in result sorting ([`557ae30`](https://github.com/kantord/SeaGOAT/commit/557ae309c85fe7b627aabc108e83ee96680ef182))
+
+
 ## v0.11.0 (2023-08-10)
 
 ### Feature
