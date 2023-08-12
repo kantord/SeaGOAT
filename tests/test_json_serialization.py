@@ -37,7 +37,7 @@ def test_to_result_json_correct_output_example1():
         result.add_line(1, 0.5)
         result.add_line(2, 0.3)
 
-        result_dict = result.to_json()
+        result_dict = result.to_json("")
         assert result_dict == {
             "path": "example1.txt",
             "fullPath": file_path,
@@ -58,7 +58,7 @@ def test_to_result_json_correct_output_example2():
         result.add_line(1, 0.5)
         result.add_line(3, 0.1)
 
-        result_dict = result.to_json()
+        result_dict = result.to_json("")
         assert result_dict == {
             "path": "example2.txt",
             "fullPath": file_path,

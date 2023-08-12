@@ -104,7 +104,7 @@ class Engine:
     def query(self, query: str):
         self.query_string = query
 
-    async def fetch(self, limit_clue=50):
+    async def fetch(self, limit_clue=50, context_above=0, context_below=0):
         """
         limit_clue: a clue regarding how many results will be processed in the end
 
@@ -126,8 +126,16 @@ class Engine:
             self._results.extend(source["fetch"](self.query_string, limit_clue))
 
         results = await asyncio.gather(*async_tasks)
+
         for result in results:
             self._results.extend(result)
+
+        self._include_context_lines(context_above, context_below)
+
+    def _include_context_lines(self, context_above: int, context_below: int):
+        for result in self._results:
+            result.add_context_lines(-context_above)
+            result.add_context_lines(context_below)
 
     def fetch_sync(self, *args, **kwargs):
         loop = asyncio.get_event_loop()

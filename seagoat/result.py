@@ -59,20 +59,26 @@ class Result:
             return source_code_file.read().splitlines()
 
     def add_line(self, line: int, vector_distance: float) -> None:
-        if line in self.lines:
-            raise RuntimeError(f"Line {line} already exists in result {self.path}")
+        types = set()
+        if line in self.lines and self.lines[line].vector_distance < vector_distance:
+            vector_distance = self.lines[line].vector_distance
+            types = self.lines[line].types
+
+        types.add(
+            ResultLineType.RESULT,
+        )
+
         self.lines[line] = ResultLine(
             line,
             vector_distance,
             self.line_texts[line - 1],
-            {
-                ResultLineType.RESULT,
-            },
+            types,
         )
 
     def get_best_score(self, query: str) -> float:
         return min(
-            self.lines.values(), key=lambda item: item.get_score(query)
+            (x for x in self.lines.values() if ResultLineType.RESULT in x.types),
+            key=lambda item: item.get_score(query),
         ).get_score(query)
 
     def get_lines(self, query: str):
@@ -83,17 +89,42 @@ class Result:
                 set(
                     result_line.line
                     for result_line in self.lines.values()
-                    if result_line.get_score(query) <= best_score * 1.2
+                    if (result_line.get_score(query) <= best_score * 10)
+                    or ResultLineType.CONTEXT in result_line.types
                 )
             )
         )
 
-    def to_json(self):
+    def to_json(self, query: str):
+        lines_to_include = self.get_lines(query)
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
             "lines": [
                 line.to_json()
                 for line in sorted(self.lines.values(), key=lambda item: item.line)
+                if line.line in lines_to_include
             ],
         }
+
+    def add_context_lines(self, lines: int):
+        if lines == 0:
+            return
+
+        direction = lines // abs(lines)
+        for result_line, _ in list(self.lines.items()):
+            for offset in range(abs(lines)):
+                new_line = result_line + (offset + 1) * direction
+
+                if (new_line) not in range(len(self.line_texts)):
+                    continue
+
+                if new_line not in self.lines:
+                    self.lines[new_line] = ResultLine(
+                        line=new_line,
+                        vector_distance=0.0,
+                        line_text=self.line_texts[new_line - 1],
+                        types={ResultLineType.CONTEXT},
+                    )
+
+                self.lines[new_line].add_type(ResultLineType.CONTEXT)

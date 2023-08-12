@@ -30,6 +30,8 @@ def create_app(repo_path):
             raise RuntimeError("seagoat_engine is not initialized")
 
         limit_clue = request.args.get("limitClue", "500")
+        context_above = request.args.get("contextAbove", 0)
+        context_below = request.args.get("contextBelow", 0)
 
         try:
             limit_clue = int(limit_clue)
@@ -39,11 +41,19 @@ def create_app(repo_path):
             ) from exception
 
         current_app.extensions["seagoat_engine"].query(query)
-        current_app.extensions["seagoat_engine"].fetch_sync(limit_clue=limit_clue)
+        current_app.extensions["seagoat_engine"].fetch_sync(
+            limit_clue=limit_clue,
+            context_above=int(context_above),
+            context_below=int(context_below),
+        )
         results = current_app.extensions["seagoat_engine"].get_results()
 
+        for result in results:
+            if context_above:
+                result.add_context_lines(-int(context_above))
+
         return {
-            "results": [result.to_json() for result in results],
+            "results": [result.to_json(query) for result in results],
             "version": __version__,
         }
 

@@ -1,7 +1,9 @@
+# pylint: disable=no-member
 import copy
 import json
 import re
 import subprocess
+from unittest.mock import ANY
 
 import psutil
 import pytest
@@ -141,5 +143,27 @@ def test_server_status_not_running_if_process_does_not_exist(repo):
 def test_query_with_limit_clue_param(client, mocker, limit_value):
     mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
     response = client.get(f"/query/Markdown?limitClue={limit_value}")
-    mocked_fetch.assert_called_with(limit_clue=limit_value)
+    mocked_fetch.assert_called_with(
+        limit_clue=limit_value, context_below=ANY, context_above=ANY
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("context_above", [0, 7])
+def test_query_with_context_above(client, mocker, context_above):
+    mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
+    response = client.get(f"/query/Markdown?contextAbove={context_above}")
+    mocked_fetch.assert_called_with(
+        context_above=context_above, limit_clue=ANY, context_below=ANY
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("context_below", [0, 2])
+def test_query_with_context_below(client, mocker, context_below):
+    mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
+    response = client.get(f"/query/Markdown?contextBelow={context_below}")
+    mocked_fetch.assert_called_with(
+        context_below=context_below, limit_clue=ANY, context_above=ANY
+    )
     assert response.status_code == 200

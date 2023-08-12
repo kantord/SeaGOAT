@@ -185,7 +185,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     await seagoat.fetch()
 
     assert seagoat.get_results()[0].path == "devices.txt"
-    assert set(seagoat.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
+    assert set(seagoat.get_results()[0].get_lines(my_query)) == {1, 2, 4, 5, 6, 7, 8, 9}
 
 
 @pytest.mark.asyncio
