@@ -138,20 +138,36 @@ class Engine:
 
             merged_results[result_item.path].extend(result_item)
 
-        sorted_by_score = sorted(
-            merged_results.values(),
-            key=lambda x: x.get_best_score(self.query_string),
+        scores = [x.get_best_score(self.query_string) for x in merged_results.values()]
+
+        if not scores:
+            return []
+
+        top_files = self.repository.top_files()
+
+        max_score = max(scores)
+        min_score = min(scores)
+        normalized_scores = [
+            (score - min_score) / (max_score - min_score)
+            if max_score != min_score
+            else 1
+            for score in scores
+        ]
+
+        result_to_normalized_score = dict(
+            zip(merged_results.values(), normalized_scores)
         )
-        position_by_result = {item: i for i, item in enumerate(sorted_by_score)}
-        position_by_file = {
-            file.path: i for i, file in enumerate(self.repository.top_files())
+
+        normalized_position_by_file = {
+            file.path: float(i) / len(top_files) for i, file in enumerate(top_files)
         }
 
         return list(
             sorted(
                 merged_results.values(),
                 key=lambda x: (
-                    0.8 * position_by_result[x] + 0.2 * position_by_file[x.path]
+                    0.7 * result_to_normalized_score[x]
+                    + 0.3 * normalized_position_by_file[x.path]
                 ),
             )
         )
