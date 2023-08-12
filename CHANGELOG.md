@@ -2,6 +2,17 @@
 
 
 
+## v0.12.1 (2023-08-12)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.322 ([`c3c053f`](https://github.com/kantord/SeaGOAT/commit/c3c053f88424d78156fe86be56785dc885a1551b))
+
+### Performance
+
+* perf: dramatically speed up frecency analysis ([`84e8345`](https://github.com/kantord/SeaGOAT/commit/84e8345e1d00c03696103da5083b1d550d06aa15))
+
+
 ## v0.12.0 (2023-08-12)
 
 ### Chore
