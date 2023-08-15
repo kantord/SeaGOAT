@@ -2,6 +2,13 @@
 
 
 
+## v0.12.3 (2023-08-15)
+
+### Fix
+
+* fix(deps): update dependency setuptools to v68.1.0 ([`a445ae4`](https://github.com/kantord/SeaGOAT/commit/a445ae454e3d4437fcdd00214ff02d70f8c4e4b0))
+
+
 ## v0.12.2 (2023-08-15)
 
 ### Chore
