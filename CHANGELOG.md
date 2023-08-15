@@ -2,6 +2,21 @@
 
 
 
+## v0.12.2 (2023-08-15)
+
+### Chore
+
+* chore(deps): update dependency exceptiongroup to v1.1.3 ([`01c03ca`](https://github.com/kantord/SeaGOAT/commit/01c03caad9f455cc3aa542dbeb418575689246e4))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.6 ([`b8d4f04`](https://github.com/kantord/SeaGOAT/commit/b8d4f04ee982c874e86b0b97ba80ca57ae9e8bf7))
+
+* chore(deps): update dependency python-semantic-release to v8.0.6 ([`a1b3fd9`](https://github.com/kantord/SeaGOAT/commit/a1b3fd9daf825d9392c2635b0743d368292f8dec))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.6 ([`e1520c8`](https://github.com/kantord/SeaGOAT/commit/e1520c8e70d488f6cddd3f63d7608ddf07b222d4))
+
+
 ## v0.12.1 (2023-08-12)
 
 ### Chore
