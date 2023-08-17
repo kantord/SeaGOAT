@@ -2,6 +2,23 @@
 
 
 
+## v0.12.4 (2023-08-17)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.7 ([`237fd96`](https://github.com/kantord/SeaGOAT/commit/237fd96b8d9045d3684c1f9ca3377f941c262a7d))
+
+* chore(deps): update dependency python-semantic-release to v8.0.7 ([`2b0a79e`](https://github.com/kantord/SeaGOAT/commit/2b0a79e4a1b7ad588bf1a50a4e088fa756c58a80))
+
+* chore(deps): update dependency syrupy to v4.1.0 ([`63e5e84`](https://github.com/kantord/SeaGOAT/commit/63e5e844865c24c7edfa642a2f7b9412aae7e1c5))
+
+* chore(deps): update dependency pyright to v1.1.323 ([`2811f26`](https://github.com/kantord/SeaGOAT/commit/2811f265df0fc2539da250690b1f218ced3fdd14))
+
+### Fix
+
+* fix(deps): update dependency click to v8.1.7 ([`e8f0de1`](https://github.com/kantord/SeaGOAT/commit/e8f0de146bfb33314318e1e38416e5254dccb77b))
+
+
 ## v0.12.3 (2023-08-15)
 
 ### Fix
