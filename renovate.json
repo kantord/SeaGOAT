@@ -5,11 +5,16 @@
   ],
   "automerge": true,
   "automergeType": "pr",
-  "requiredStatusChecks": ["pipeline"],
+  "requiredStatusChecks": [
+    "pipeline"
+  ],
   "prCreation": "immediate",
   "packageRules": [
     {
-      "depTypeList": ["dependencies", "devDependencies"],
+      "depTypeList": [
+        "dependencies",
+        "devDependencies"
+      ],
       "automerge": true
     }
   ]

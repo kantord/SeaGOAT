@@ -11,6 +11,7 @@ import requests
 
 from seagoat import __version__
 from seagoat.server import get_status_data
+from seagoat.server import server as seagoat_server
 
 
 def normalize_full_paths(data, repo):
@@ -167,3 +168,10 @@ def test_query_with_context_below(client, mocker, context_below):
         context_below=context_below, limit_clue=ANY, context_above=ANY
     )
     assert response.status_code == 200
+
+
+def test_version_option(runner):
+    result = runner.invoke(seagoat_server, ["--version"])
+
+    assert result.exit_code == 0
+    assert result.output.strip() == f"seagoat, version {__version__}"
