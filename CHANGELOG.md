@@ -2,6 +2,17 @@
 
 
 
+## v0.12.5 (2023-08-18)
+
+### Chore
+
+* chore(deps): update dependency syrupy to v4.1.1 ([`bc55692`](https://github.com/kantord/SeaGOAT/commit/bc55692870c1a4f959b78ba841f9d6781e9caf0c))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v68.1.2 ([`dcf57e6`](https://github.com/kantord/SeaGOAT/commit/dcf57e65e5c8f794267dd9f9ff1d1d665ba7fb3a))
+
+
 ## v0.12.4 (2023-08-17)
 
 ### Chore
