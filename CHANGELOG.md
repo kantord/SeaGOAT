@@ -2,6 +2,15 @@
 
 
 
+## v0.13.0 (2023-08-18)
+
+### Feature
+
+* feat: add --context/--context-above-/--context-below
+
+refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord/SeaGOAT/commit/4fe4887e9dbb9c355ae664e30906b7dc21dcdbe0))
+
+
 ## v0.12.5 (2023-08-18)
 
 ### Chore
