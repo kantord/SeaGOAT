@@ -148,6 +148,7 @@ def get_server(repo_path):
 
 
 @click.group()
+@click.version_option(version=__version__, prog_name="seagoat")
 def server():
     """
     This server analyzes your codebase and creates vector embeddings for it.
