@@ -38,7 +38,7 @@ def query_server(
         )
         response.raise_for_status()
     except (requests.exceptions.ConnectionError, requests.exceptions.RequestException):
-        print(
+        click.echo(
             f"The SeaGOAT server is not running. "
             f"Please start the server using the following command:\n\n"
             f"seagoat-server start {repo_path}\n"
@@ -71,13 +71,14 @@ def get_highlighted_lines(file_name: str):
 def print_result_line(result, line, color_enabled):
     if color_enabled:
         highlighted_lines = get_highlighted_lines(str(result["fullPath"]))
-        print(
-            f"{result['path']}:{click.style(str(line), bold=True)}:{highlighted_lines[line - 1]}"
+        click.echo(
+            f"{result['path']}:{click.style(str(line), bold=True)}:{highlighted_lines[line - 1]}",
+            color=True,
         )
     else:
         for line_content in result["lines"]:
             if line_content["line"] == line:
-                print(f"{result['path']}:{line}:{line_content['lineText']}")
+                click.echo(f"{result['path']}:{line}:{line_content['lineText']}")
                 break
 
 
