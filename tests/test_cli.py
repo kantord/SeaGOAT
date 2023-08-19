@@ -265,3 +265,22 @@ def test_context_lines_are_not_included_from_other_files_when_limit_exceeded(
 
     assert len(result.output.splitlines()) == 5
     assert result.exit_code == 0
+
+
+@pytest.mark.parametrize(
+    "error_message, error_code",
+    [("File Not Found on Server", 500), ("Database Connection Failed", 503)],
+)
+def test_server_error_handling(
+    repo, mock_server_error_factory, runner_with_error, error_message, error_code
+):
+    mock_server_error_factory(error_message, error_code)
+
+    query = "JavaScript"
+    result = runner_with_error.invoke(
+        seagoat,
+        [query, repo.working_dir, "--no-color", "-l2", "--context=3"],
+    )
+
+    assert result.exit_code == 4
+    assert error_message in result.stderr
