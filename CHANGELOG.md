@@ -2,6 +2,25 @@
 
 
 
+## v0.14.0 (2023-08-19)
+
+### Feature
+
+* feat: add --version to seagoat-server
+
+fixes #101 ([`8c2e127`](https://github.com/kantord/SeaGOAT/commit/8c2e127079e1db5548839c47a8214fc205ae4adf))
+
+### Fix
+
+* fix: display server errors to user
+
+fixes #114 ([`d768d6f`](https://github.com/kantord/SeaGOAT/commit/d768d6f9ba67f840616a7ecfcf82b956dc7ee634))
+
+### Refactor
+
+* refactor: use click.echo() instead of print() ([`d147008`](https://github.com/kantord/SeaGOAT/commit/d14700844027f53cb203a7a0f7e6f62703bea6ec))
+
+
 ## v0.13.0 (2023-08-18)
 
 ### Feature
