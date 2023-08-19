@@ -22,6 +22,7 @@ from seagoat.server import load_server_info
 # pylint: disable-next=too-few-public-methods
 class ExitCode:
     SERVER_NOT_RUNNING = 3
+    SERVER_ERROR = 4
 
 
 def query_server(
@@ -36,8 +37,17 @@ def query_server(
                 "contextBelow": context_below,
             },
         )
+
+        response_data = response.json()
+        if "error" in response_data:
+            click.echo(response_data["error"]["message"], err=True)
+            sys.exit(ExitCode.SERVER_ERROR)
+
         response.raise_for_status()
-    except (requests.exceptions.ConnectionError, requests.exceptions.RequestException):
+    except (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.RequestException,
+    ):
         click.echo(
             f"The SeaGOAT server is not running. "
             f"Please start the server using the following command:\n\n"

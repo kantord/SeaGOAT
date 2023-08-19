@@ -257,7 +257,22 @@ def _server(start_server):
 
 
 @pytest.fixture
-def mock_server_factory(mocker, repo):
+def init_server_mock(mocker):
+    def _init_server_mock():
+        mocker.patch(
+            "seagoat.cli.load_server_info",
+            return_value=(None, None, None, "fake_server_address"),
+        )
+        mocker.patch(
+            "seagoat.cli.get_server_info_file", return_value="fake_server_info_file"
+        )
+        mocker.patch("os.isatty", return_value=True)
+
+    return _init_server_mock
+
+
+@pytest.fixture
+def mock_server_factory(mocker, repo, init_server_mock):
     def _mock_results(results_template):
         results = []
         fake_files = defaultdict(lambda: defaultdict(lambda: ""))
@@ -298,32 +313,56 @@ def mock_server_factory(mocker, repo):
         return results
 
     def _mock_server(results_template, manually_mock_request=False):
+        init_server_mock()
         mocked_results = _mock_results(results_template)
+
         if not manually_mock_request:
             mocker.patch("seagoat.cli.query_server", return_value=mocked_results)
-        mocker.patch(
-            "seagoat.cli.load_server_info",
-            return_value=(None, None, None, "fake_server_address"),
-        )
-        mocker.patch(
-            "seagoat.cli.get_server_info_file", return_value="fake_server_info_file"
-        )
-        mocker.patch("os.isatty", return_value=True)
 
     return _mock_server
 
 
+@pytest.fixture
+def mock_server_error_factory(mocker, init_server_mock):
+    def _mock_error_response(error_message, code):
+        error_response = {
+            "code": code,
+            "error": {"type": "Internal Server Error", "message": error_message},
+        }
+
+        mocked_response = MagicMock()
+
+        mocked_response.json.return_value = error_response
+
+        return mocked_response
+
+    def _mock_server_error(error_message, code, manually_mock_request=False):
+        init_server_mock()
+        mocked_error_response = _mock_error_response(error_message, code)
+
+        if not manually_mock_request:
+            mocker.patch("seagoat.cli.requests.get", return_value=mocked_error_response)
+
+    return _mock_server_error
+
+
 class CustomCliRunner(CliRunner):
-    def invoke(self, *args, **kwargs):
+    def invoke(self, *args, expect_errors=False, **kwargs):
         kwargs["catch_exceptions"] = False
         result = super().invoke(*args, **kwargs)
-        assert result.exception is None
+        if not expect_errors:
+            assert result.exception is None
         return result
 
 
 @pytest.fixture
 def runner():
     return CustomCliRunner()
+
+
+@pytest.fixture
+def runner_with_error():
+    return CliRunner(mix_stderr=False)
 
 
 @pytest.fixture
