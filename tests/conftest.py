@@ -373,16 +373,20 @@ def app(repo):
 
 @pytest.fixture
 def client(repo):
-    mock_engine_init = MagicMock(return_value=None)
-    mock_analyze_codebase = MagicMock(return_value=None)
+    mock_queue = MagicMock()
 
-    with patch("seagoat.server.Engine.__init__", mock_engine_init):
-        with patch("seagoat.server.Engine.analyze_codebase", mock_analyze_codebase):
-            app = create_app(repo.working_dir)
-            app.config["TESTING"] = True
-            mock_engine = app.extensions["seagoat_engine"]
-            # pylint: disable-next=protected-access
-            mock_engine._results = []
-            client = app.test_client()
+    with patch("seagoat.server.TaskQueue", mock_queue):
+        app = create_app(repo.working_dir)
+        app.config["TESTING"] = True
+        app.extensions["task_queue"] = mock_queue
+        client = app.test_client()
+        # pylint: disable=protected-access
+        client._mock_queue = mock_queue  # type: ignore
 
-            yield client
+        yield client
+
+
+@pytest.fixture
+def mock_queue(client):
+    # pylint: disable=protected-access
+    yield client._mock_queue
