@@ -134,5 +134,4 @@ dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
 
 [tool.pytest.ini_options]
-timeout = 300
-method = 'thread'
+timeout = 30

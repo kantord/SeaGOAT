@@ -13,22 +13,17 @@ from flask import request
 from werkzeug.serving import run_simple
 
 from seagoat import __version__
-from seagoat.engine import Engine
+from seagoat.queue import TaskQueue
 
 
 def create_app(repo_path):
     app = Flask(__name__)
     app.config["PROPAGATE_EXCEPTIONS"] = True
 
-    seagoat_engine = Engine(repo_path)
-    seagoat_engine.analyze_codebase()
-    app.extensions["seagoat_engine"] = seagoat_engine
+    app.extensions["task_queue"] = TaskQueue(repo_path)
 
     @app.route("/query/<query>")
     def query_codebase(query):
-        if "seagoat_engine" not in current_app.extensions:
-            raise RuntimeError("seagoat_engine is not initialized")
-
         limit_clue = request.args.get("limitClue", "500")
         context_above = request.args.get("contextAbove", 0)
         context_below = request.args.get("contextBelow", 0)
@@ -40,13 +35,13 @@ def create_app(repo_path):
                 "Invalid limitClue value. Must be an integer."
             ) from exception
 
-        current_app.extensions["seagoat_engine"].query(query)
-        current_app.extensions["seagoat_engine"].fetch_sync(
-            limit_clue=limit_clue,
-            context_above=int(context_above),
+        results = current_app.extensions["task_queue"].enqueue(
+            "query",
+            query=query,
             context_below=int(context_below),
+            context_above=int(context_above),
+            limit_clue=limit_clue,
         )
-        results = current_app.extensions["seagoat_engine"].get_results()
 
         for result in results:
             if context_above:

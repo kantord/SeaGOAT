@@ -141,31 +141,40 @@ def test_server_status_not_running_if_process_does_not_exist(repo):
 
 
 @pytest.mark.parametrize("limit_value", [1, 3, 7])
-def test_query_with_limit_clue_param(client, mocker, limit_value):
-    mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
+def test_query_with_limit_clue_param(client, limit_value, mock_queue):
     response = client.get(f"/query/Markdown?limitClue={limit_value}")
-    mocked_fetch.assert_called_with(
-        limit_clue=limit_value, context_below=ANY, context_above=ANY
+    mock_queue.enqueue.assert_called_with(
+        "query",
+        query="Markdown",
+        limit_clue=limit_value,
+        context_below=ANY,
+        context_above=ANY,
     )
     assert response.status_code == 200
 
 
 @pytest.mark.parametrize("context_above", [0, 7])
-def test_query_with_context_above(client, mocker, context_above):
-    mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
+def test_query_with_context_above(client, context_above, mock_queue):
     response = client.get(f"/query/Markdown?contextAbove={context_above}")
-    mocked_fetch.assert_called_with(
-        context_above=context_above, limit_clue=ANY, context_below=ANY
+    mock_queue.enqueue.assert_called_with(
+        "query",
+        query="Markdown",
+        context_above=context_above,
+        limit_clue=ANY,
+        context_below=ANY,
     )
     assert response.status_code == 200
 
 
 @pytest.mark.parametrize("context_below", [0, 2])
-def test_query_with_context_below(client, mocker, context_below):
-    mocked_fetch = mocker.patch("seagoat.server.Engine.fetch_sync")
+def test_query_with_context_below(client, mock_queue, context_below):
     response = client.get(f"/query/Markdown?contextBelow={context_below}")
-    mocked_fetch.assert_called_with(
-        context_below=context_below, limit_clue=ANY, context_above=ANY
+    mock_queue.enqueue.assert_called_with(
+        "query",
+        query="Markdown",
+        context_below=context_below,
+        limit_clue=ANY,
+        context_above=ANY,
     )
     assert response.status_code == 200
 
