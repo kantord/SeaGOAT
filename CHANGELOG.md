@@ -2,6 +2,25 @@
 
 
 
+## v0.15.0 (2023-08-21)
+
+### Chore
+
+* chore(deps): update dependency syrupy to v4.2.0 ([`984697e`](https://github.com/kantord/SeaGOAT/commit/984697e6083a3c029fa3a85a8c9958b63a1b6b55))
+
+### Feature
+
+* feat: allow running server on custom port
+
+fixes #75 ([`01f36d9`](https://github.com/kantord/SeaGOAT/commit/01f36d92e39859c6dffceea78903c382ab1da595))
+
+### Refactor
+
+* refactor: extract get_free_port() ([`1dfcaa3`](https://github.com/kantord/SeaGOAT/commit/1dfcaa3717cd44908f848cba62e4c47f267892ad))
+
+* refactor: create a simple task queue ([`4cb0017`](https://github.com/kantord/SeaGOAT/commit/4cb0017ef5f64f9b84ca7af3cdfc64bc609b8141))
+
+
 ## v0.14.0 (2023-08-19)
 
 ### Feature
