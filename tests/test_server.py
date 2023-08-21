@@ -184,3 +184,31 @@ def test_version_option(runner):
 
     assert result.exit_code == 0
     assert result.output.strip() == f"seagoat, version {__version__}"
+
+
+@pytest.mark.parametrize("port", [8080, 8081])
+def test_start_server_on_specific_port(port, repo):
+    subprocess.run(
+        [
+            "python",
+            "-m",
+            "seagoat.server",
+            "start",
+            "--port",
+            str(port),
+            repo.working_dir,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    response = requests.get(f"http://localhost:{port}/query/hello")
+    assert response.status_code == 200
+
+    # subprocess.run(
+    #     ["python", "-m", "seagoat.server", "stop", repo.working_dir],
+    #     capture_output=True,
+    #     text=True,
+    #     check=False,
+    # )

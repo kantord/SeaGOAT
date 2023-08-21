@@ -76,15 +76,22 @@ def get_server_info_file(repo_path):
     return os.path.join(user_cache_dir, f"{repo_id}.json")
 
 
-def start_server(repo_path):
-    os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
+def get_free_port():
     socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_obj.bind(("", 0))
     _, port = socket_obj.getsockname()
     socket_obj.close()
 
+    return port
+
+
+def start_server(repo_path, port=None):
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
     app = create_app(repo_path)
+
+    if port is None:
+        port = get_free_port()
+
     process = Process(
         target=run_simple, args=("localhost", port, app), kwargs={"use_reloader": False}
     )
@@ -118,7 +125,7 @@ def wait_for(condition_function, timeout, period=0.05):
         time.sleep(period)
 
 
-def get_server(repo_path):
+def get_server(repo_path, port=None):
     server_info_file = get_server_info_file(repo_path)
 
     if os.path.exists(server_info_file):
@@ -133,7 +140,7 @@ def get_server(repo_path):
     temp_app = create_app(repo_path)
     del temp_app
 
-    start_server(str(repo_path))
+    start_server(str(repo_path), port)
 
     wait_for(lambda: os.path.exists(server_info_file), timeout=60)
 
@@ -156,7 +163,7 @@ def server():
 @click.argument("repo_path")
 def start(repo_path):
     """Starts the server."""
-    get_server(repo_path)
+    get_server(repo_path, port=None)
     click.echo("Server running.")
 
 
