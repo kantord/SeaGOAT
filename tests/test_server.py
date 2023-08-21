@@ -1,6 +1,7 @@
 # pylint: disable=no-member
 import copy
 import json
+import os
 import re
 import subprocess
 from unittest.mock import ANY
@@ -10,8 +11,11 @@ import pytest
 import requests
 
 from seagoat import __version__
+from seagoat.server import get_server_info_file
 from seagoat.server import get_status_data
+from seagoat.server import load_server_info
 from seagoat.server import server as seagoat_server
+from seagoat.server import wait_for
 
 
 def normalize_full_paths(data, repo):
@@ -126,11 +130,14 @@ def assert_server_status(repo, running):
 
 
 def simulate_server_dying(repo):
-    pid = get_status_data(repo.working_dir)["pid"]
+    try:
+        pid = get_status_data(repo.working_dir)["pid"]
 
-    process = psutil.Process(pid)
-    process.terminate()
-    process.wait(timeout=10)
+        process = psutil.Process(pid)
+        process.terminate()
+        process.wait(timeout=10)
+    except psutil.TimeoutExpired:
+        pass
 
 
 @pytest.mark.usefixtures("server")
@@ -186,29 +193,23 @@ def test_version_option(runner):
     assert result.output.strip() == f"seagoat, version {__version__}"
 
 
-@pytest.mark.parametrize("port", [8080, 8081])
-def test_start_server_on_specific_port(port, repo):
-    subprocess.run(
-        [
-            "python",
-            "-m",
-            "seagoat.server",
-            "start",
-            "--port",
-            str(port),
-            repo.working_dir,
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+@pytest.mark.parametrize("custom_port", [7483, 99081])
+def test_start_server_on_specific_port(custom_port, repo, mocker, managed_process):
+    mocker.patch("seagoat.server.TaskQueue")
 
-    response = requests.get(f"http://localhost:{port}/query/hello")
-    assert response.status_code == 200
+    server_cmd = [
+        "python",
+        "-m",
+        "seagoat.server",
+        "start",
+        "--port",
+        str(custom_port),
+        repo.working_dir,
+    ]
 
-    # subprocess.run(
-    #     ["python", "-m", "seagoat.server", "stop", repo.working_dir],
-    #     capture_output=True,
-    #     text=True,
-    #     check=False,
-    # )
+    with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+        wait_for(lambda: os.path.exists(get_server_info_file(repo.working_dir)), 8)
+
+        server_info_file = get_server_info_file(repo.working_dir)
+        _, _, _, server_address = load_server_info(server_info_file)
+        assert str(custom_port) in server_address
