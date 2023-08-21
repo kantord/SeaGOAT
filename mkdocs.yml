@@ -29,3 +29,9 @@ theme:
     features:
         - content.action.edit
         - content.code.copy
+        - navigation.instant
+        - navigation.tracking
+nav:
+    - Getting Started: index.md
+    - Usage Reference: usage.md
+    - SeaGOAT Server: server.md

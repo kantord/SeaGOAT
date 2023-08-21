@@ -55,6 +55,7 @@ python-semantic-release = "^8.0.4"
 pytest-sugar = "^0.9.7"
 pytest-profiling = "^1.7.0"
 pytest-timeout = "^2.1.0"
+psutil = "^5.9.5"
 
 [build-system]
 requires = ["poetry-core"]
@@ -134,4 +135,4 @@ dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
 
 [tool.pytest.ini_options]
-timeout = 30
+timeout = 15

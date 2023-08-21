@@ -85,9 +85,10 @@ def get_free_port():
     return port
 
 
-def start_server(repo_path, port=None):
+def start_server(repo_path, custom_port=None):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     app = create_app(repo_path)
+    port = custom_port
 
     if port is None:
         port = get_free_port()
@@ -125,8 +126,9 @@ def wait_for(condition_function, timeout, period=0.05):
         time.sleep(period)
 
 
-def get_server(repo_path, port=None):
+def get_server(repo_path, custom_port=None):
     server_info_file = get_server_info_file(repo_path)
+    port = None
 
     if os.path.exists(server_info_file):
         host, port, _, server_address = load_server_info(server_info_file)
@@ -136,11 +138,14 @@ def get_server(repo_path, port=None):
             return server_address
         os.remove(server_info_file)
 
+    if custom_port is not None:
+        port = custom_port
+
     os.environ["TOKENIZERS_PARALLELISM"] = "true"
     temp_app = create_app(repo_path)
     del temp_app
 
-    start_server(str(repo_path), port)
+    start_server(str(repo_path), custom_port=port)
 
     wait_for(lambda: os.path.exists(server_info_file), timeout=60)
 
@@ -161,9 +166,10 @@ def server():
 
 @server.command()
 @click.argument("repo_path")
-def start(repo_path):
+@click.option("--port", type=int, help="The port to start the server on", default=None)
+def start(repo_path, port):
     """Starts the server."""
-    get_server(repo_path, port=None)
+    get_server(repo_path, custom_port=port)
     click.echo("Server running.")
 
 

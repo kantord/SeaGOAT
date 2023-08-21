@@ -3,8 +3,10 @@ import logging
 import multiprocessing
 import os
 import shutil
+import subprocess
 import tempfile
 from collections import defaultdict
+from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -390,3 +392,25 @@ def client(repo):
 def mock_queue(client):
     # pylint: disable=protected-access
     yield client._mock_queue
+
+
+@pytest.fixture
+def managed_process():
+    processes = []
+
+    @contextmanager
+    def _process(*args, **kwargs):
+        proc = subprocess.Popen(*args, **kwargs)
+        processes.append(proc)
+        try:
+            yield proc
+        finally:
+            proc.terminate()
+            proc.wait()
+            processes.remove(proc)
+
+    yield _process
+
+    for proc in processes:
+        proc.terminate()
+        proc.wait()
