@@ -2,6 +2,13 @@
 
 
 
+## v0.15.2 (2023-08-22)
+
+### Fix
+
+* fix: task queue unexpectedly dies ([`b217b6a`](https://github.com/kantord/SeaGOAT/commit/b217b6acdd25edd57eeecc23bd57ca291a1600bb))
+
+
 ## v0.15.1 (2023-08-22)
 
 ### Chore
