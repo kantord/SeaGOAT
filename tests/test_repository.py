@@ -4,6 +4,7 @@ from pathlib import Path
 from freezegun import freeze_time
 
 from seagoat.engine import Engine
+from tests.test_server import pytest
 
 
 def test_returns_file_list_1(repo):
@@ -54,7 +55,7 @@ def test_file_change_many_times_is_first_result(repo):
             commit_message="add my file",
         )
         repo.tick_fake_date(minutes=1)
-    seagoat.analyze_codebase()
+    seagoat.analyze_codebase(minimum_files_to_analyze=2)
 
     assert seagoat.repository.top_files()[0][0].path == "new_file.txt"
 
@@ -237,3 +238,20 @@ def test_does_not_crash_because_of_non_existent_files(repo):
         "file3.py",
         "file4.js",
     }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("files_to_analyze", [1, 2, 4])
+async def test_allows_limiting_how_many_files_are_automatically_analized(
+    repo, files_to_analyze
+):
+    seagoat = Engine(repo.working_dir)
+    repo.add_file_change_commit(
+        file_name="new_file.cpp",
+        contents="#include <iostream>",
+        author=repo.actors["John Doe"],
+        commit_message="Initial commit for C++ file",
+    )
+    seagoat.analyze_codebase(minimum_files_to_analyze=files_to_analyze)
+
+    assert len(seagoat._cache.data["chunks_already_analyzed"]) == files_to_analyze
