@@ -2571,13 +2571,13 @@ mpmath = ">=0.19"
 
 [[package]]
 name = "syrupy"
-version = "4.2.0"
+version = "4.2.1"
 description = "Pytest Snapshot Test Utility"
 optional = false
 python-versions = ">=3.8.1,<4"
 files = [
-    {file = "syrupy-4.2.0-py3-none-any.whl", hash = "sha256:5cbb39c8383122d5b1cf88e1655b9401abd53fdb62cbc7610b4e1104fd33fd4c"},
-    {file = "syrupy-4.2.0.tar.gz", hash = "sha256:d4908060dd5dc034434be74afbe9b50bfd34a5d60da72ee086ddbcb2d2f50af7"},
+    {file = "syrupy-4.2.1-py3-none-any.whl", hash = "sha256:4054878270184979a20e78b17a19f5f19eb62c6cbdc3adac6f432a528ddeb099"},
+    {file = "syrupy-4.2.1.tar.gz", hash = "sha256:8c2f4e0c4416780f21f3cd696c64b046d79ddff43522d6a9a4ad7a4f48e9a594"},
 ]
 
 [package.dependencies]
