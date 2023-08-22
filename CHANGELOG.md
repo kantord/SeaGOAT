@@ -2,6 +2,21 @@
 
 
 
+## v0.15.1 (2023-08-22)
+
+### Chore
+
+* chore(deps): update dependency syrupy to v4.2.1 ([`c535201`](https://github.com/kantord/SeaGOAT/commit/c53520176fe5a2e6a04e77dd11f84db9ddf00ec5))
+
+* chore(deps): update dependency mkdocs-material to v9.2.1 ([`28a8066`](https://github.com/kantord/SeaGOAT/commit/28a8066f12fb6acfbcdc91d5d4c257352b370fca))
+
+* chore(deps): update dependency mkdocs-material to v9.2.0 ([`75edfd3`](https://github.com/kantord/SeaGOAT/commit/75edfd361ef19aa76824e608e065553b5e2437da))
+
+### Fix
+
+* fix(deps): update dependency flask to v2.3.3 ([`06b9157`](https://github.com/kantord/SeaGOAT/commit/06b9157fa7f49dad2ffdb5d9bb999a44e7838d81))
+
+
 ## v0.15.0 (2023-08-21)
 
 ### Chore
