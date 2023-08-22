@@ -24,11 +24,15 @@ from git.util import Actor
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
+from seagoat.engine import Engine
+from seagoat.result import Result
 from seagoat.server import create_app
 from seagoat.server import get_server_info_file
 from seagoat.server import load_server_info
 from seagoat.server import start_server
 from seagoat.server import wait_for
+from seagoat.sources import chroma
+from seagoat.sources import ripgrep
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -414,3 +418,57 @@ def managed_process():
     for proc in processes:
         proc.terminate()
         proc.wait()
+
+
+@contextmanager
+def mock_sources_context(repo, ripgrep_lines, chroma_lines):
+    # pylint: disable-next=unused-argument
+    def noop(*args, **kwargs):
+        pass
+
+    def create_mock_fetch(repo, file_lines):
+        def mock_fetch(_, __):
+            results = []
+            for file_path, lines in file_lines.items():
+                full_path = Path(repo.working_dir) / file_path
+                result = Result(path=file_path, full_path=full_path)
+                for line, vector_distance in lines:
+                    result.add_line(line=line, vector_distance=vector_distance)
+                results.append(result)
+            return results
+
+        return mock_fetch
+
+    for file_path in set(list(ripgrep_lines.keys()) + list(chroma_lines.keys())):
+        repo.add_file_change_commit(
+            file_name=file_path,
+            contents="\n" * 50,
+            author=repo.actors["John Doe"],
+            commit_message=f"Add {file_path}",
+        )
+
+    with patch.object(ripgrep, "initialize") as mock_ripgrep, patch.object(
+        chroma, "initialize"
+    ) as mock_chroma:
+        mock_ripgrep.return_value = {
+            "fetch": create_mock_fetch(repo, ripgrep_lines),
+            "cache_chunk": noop,
+        }
+        mock_chroma.return_value = {
+            "fetch": create_mock_fetch(repo, chroma_lines),
+            "cache_chunk": noop,
+        }
+        yield
+
+
+@pytest.fixture(name="create_prepared_seagoat")
+def _create_prepared_seagoat(repo):
+    def _prepared_seagoat(query, ripgrep_lines, chroma_lines):
+        with mock_sources_context(repo, ripgrep_lines, chroma_lines):
+            seagoat = Engine(repo.working_dir)
+            seagoat.analyze_codebase()
+            seagoat.query(query)
+            seagoat.fetch_sync()
+            return seagoat
+
+    return _prepared_seagoat
