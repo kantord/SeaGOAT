@@ -143,6 +143,7 @@ def get_server(repo_path, custom_port=None):
 
     os.environ["TOKENIZERS_PARALLELISM"] = "true"
     temp_app = create_app(repo_path)
+    temp_app.extensions["task_queue"].shutdown()
     del temp_app
 
     start_server(str(repo_path), custom_port=port)
