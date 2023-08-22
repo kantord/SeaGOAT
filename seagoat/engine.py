@@ -83,6 +83,13 @@ class Engine:
         for source in chain(*self._fetchers.values()):
             source["cache_chunk"](chunk)
 
+    def _process_chunk(self, chunk):
+        if chunk.chunk_id in self._cache.data["chunks_already_analyzed"]:
+            return
+
+        self._add_to_collection(chunk)
+        self._cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
+
     def _create_vector_embeddings(self):
         chunks_to_process = []
         minimum_files_to_analyze = min(
@@ -92,12 +99,9 @@ class Engine:
         for file, _ in self.repository.top_files()[:minimum_files_to_analyze]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
-        for chunk in tqdm(chunks_to_process, desc="Analyzing source code"):
-            if chunk.chunk_id in self._cache.data["chunks_already_analyzed"]:
-                continue
 
-            self._add_to_collection(chunk)
-            self._cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
+        for chunk in tqdm(chunks_to_process, desc="Analyzing source code"):
+            self._process_chunk(chunk)
 
         self._cache.persist()
 
