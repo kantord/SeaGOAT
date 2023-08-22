@@ -75,9 +75,9 @@ class Engine:
             ],
         }
 
-    def analyze_codebase(self):
+    def analyze_codebase(self, minimum_files_to_analyze=None):
         self.repository.analyze_files()
-        self._create_vector_embeddings()
+        self._create_vector_embeddings(minimum_files_to_analyze)
 
     def _add_to_collection(self, chunk):
         for source in chain(*self._fetchers.values()):
@@ -90,12 +90,13 @@ class Engine:
         self._add_to_collection(chunk)
         self._cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
 
-    def _create_vector_embeddings(self):
+    def _create_vector_embeddings(self, minimum_files_to_analyze=None):
         chunks_to_process = []
-        minimum_files_to_analyze = min(
-            max(40, int(len(self.repository.top_files()) * 0.2)),
-            len(self.repository.top_files()),
-        )
+        if minimum_files_to_analyze is None:
+            minimum_files_to_analyze = min(
+                max(40, int(len(self.repository.top_files()) * 0.2)),
+                len(self.repository.top_files()),
+            )
         for file, _ in self.repository.top_files()[:minimum_files_to_analyze]:
             for chunk in file.get_chunks():
                 chunks_to_process.append(chunk)
