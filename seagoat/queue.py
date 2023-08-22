@@ -1,5 +1,4 @@
 # pylint: disable=import-outside-toplevel
-import atexit
 from collections import namedtuple
 from multiprocessing import Manager
 from multiprocessing import Process
@@ -14,7 +13,6 @@ class TaskQueue:
         self._task_queue = Queue()
         self._worker_process = Process(target=self._worker_function, args=(repo_path,))
         self._worker_process.start()
-        atexit.register(self.shutdown)
 
     def _worker_function(self, repo_path: str):
         from seagoat.engine import Engine
@@ -26,7 +24,6 @@ class TaskQueue:
         }
 
         while True:
-            print("Waiting for task")
             task = self._task_queue.get()
 
             if task.name == "shutdown":
