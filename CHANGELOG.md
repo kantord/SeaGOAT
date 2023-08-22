@@ -2,6 +2,25 @@
 
 
 
+## v0.16.0 (2023-08-22)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.2.2 ([`c7c37bb`](https://github.com/kantord/SeaGOAT/commit/c7c37bba6c7788024e736b273b619585e3650664))
+
+### Feature
+
+* feat: allow analyzing a specific number of files in Engine ([`7d7cb66`](https://github.com/kantord/SeaGOAT/commit/7d7cb66751faeed676909f788e3736cfdd6ef1df))
+
+### Refactor
+
+* refactor: extract _process_chunk ([`4392727`](https://github.com/kantord/SeaGOAT/commit/4392727ad8017255c18c342ea28f84e37e7455d8))
+
+### Test
+
+* test: make source faker reusable ([`e25ecb7`](https://github.com/kantord/SeaGOAT/commit/e25ecb74e50c7691358671e6cf29950ed5f7d105))
+
+
 ## v0.15.2 (2023-08-22)
 
 ### Fix
