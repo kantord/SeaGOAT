@@ -26,3 +26,17 @@
     'version': '0.0.0-test',
   })
 # ---
+# name: test_status_endpoint_with_all_files_analyzed
+  dict({
+    'stats': dict({
+      'chunks': dict({
+        'analyzed': 5,
+        'unanalyzed': 0,
+      }),
+      'queue': dict({
+        'size': 0,
+      }),
+    }),
+    'version': '0.0.0-test',
+  })
+# ---

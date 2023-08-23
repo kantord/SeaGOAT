@@ -51,6 +51,9 @@ class Result:
         self.lines: Dict[int, ResultLine] = {}
         self.line_texts = self._read_lines()
 
+    def __repr__(self) -> str:
+        return f"Result(path={self.path})"
+
     def extend(self, other) -> None:
         self.lines.update(other.lines)
 

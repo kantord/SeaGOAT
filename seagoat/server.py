@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import socket
 import time
@@ -17,6 +18,7 @@ from seagoat.queue import TaskQueue
 
 
 def create_app(repo_path):
+    logging.info("Creating server...")
     app = Flask(__name__)
     app.config["PROPAGATE_EXCEPTIONS"] = True
 
@@ -49,6 +51,16 @@ def create_app(repo_path):
 
         return {
             "results": [result.to_json(query) for result in results],
+            "version": __version__,
+        }
+
+    @app.route("/status")
+    def status_():
+        stats = current_app.extensions["task_queue"].enqueue(
+            "get_stats",
+        )
+        return {
+            "stats": stats,
             "version": __version__,
         }
 
@@ -142,9 +154,6 @@ def get_server(repo_path, custom_port=None):
         port = custom_port
 
     os.environ["TOKENIZERS_PARALLELISM"] = "true"
-    temp_app = create_app(repo_path)
-    temp_app.extensions["task_queue"].shutdown()
-    del temp_app
 
     start_server(str(repo_path), custom_port=port)
 
@@ -163,6 +172,7 @@ def server():
 
     You can query this server using the seagoat command.
     """
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
 
 @server.command()
@@ -214,6 +224,7 @@ def status(repo_path, use_json_format):
 @click.argument("repo_path")
 def stop(repo_path):
     """Stops the server."""
+
     server_info_file = get_server_info_file(repo_path)
 
     if os.path.exists(server_info_file):

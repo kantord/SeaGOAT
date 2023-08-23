@@ -472,3 +472,30 @@ def _create_prepared_seagoat(repo):
             return seagoat
 
     return _prepared_seagoat
+
+
+@pytest.fixture
+def repo_with_more_files(repo):
+    for i in range(300):
+        repo.add_file_change_commit(
+            file_name=f"file{i}.py",
+            contents=("hello()\n" * (i % 50)),
+            author=repo.actors["John Doe"],
+            commit_message=f"add file{i}.py",
+        )
+
+    return repo
+
+
+@pytest.fixture
+def mock_sources(create_prepared_seagoat):
+    ripgrep_lines = {
+        "docs1.md": [(1, 15.0), (2, 6.0)],
+        "docs2.md": [(1, 4.81)],
+    }
+    chroma_lines = {
+        "docs2.md": [(2, 7.5)],
+        "docs3.md": [(1, 5.332)],
+    }
+    my_query = "fake query"
+    create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
