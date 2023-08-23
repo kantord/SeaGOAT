@@ -55,7 +55,7 @@ def test_file_change_many_times_is_first_result(repo):
             commit_message="add my file",
         )
         repo.tick_fake_date(minutes=1)
-    seagoat.analyze_codebase(minimum_files_to_analyze=2)
+    seagoat.analyze_codebase(minimum_chunks_to_analyze=2)
 
     assert seagoat.repository.top_files()[0][0].path == "new_file.txt"
 
@@ -119,7 +119,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
 def test_damaged_cache_doesnt_crash_app_1(repo):
     seagoat1 = Engine(repo.working_dir)
     seagoat1.analyze_codebase()
-    cache_folder = seagoat1._cache.get_cache_folder()
+    cache_folder = seagoat1.cache.get_cache_folder()
     with open(cache_folder / "cache", "rb") as input_file:
         data = input_file.read()
     damaged_data = data[:-1]
@@ -140,7 +140,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
 def test_damaged_cache_doesnt_crash_app_2(repo):
     seagoat1 = Engine(repo.working_dir)
     seagoat1.analyze_codebase()
-    cache_folder = seagoat1._cache.get_cache_folder()
+    cache_folder = seagoat1.cache.get_cache_folder()
     with open(cache_folder / "cache", "wb"):
         pass
     del seagoat1
@@ -241,9 +241,9 @@ def test_does_not_crash_because_of_non_existent_files(repo):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("files_to_analyze", [1, 2, 4])
+@pytest.mark.parametrize("chunks_to_analyze", [1, 2, 4])
 async def test_allows_limiting_how_many_files_are_automatically_analized(
-    repo, files_to_analyze
+    repo, chunks_to_analyze
 ):
     seagoat = Engine(repo.working_dir)
     repo.add_file_change_commit(
@@ -252,6 +252,6 @@ async def test_allows_limiting_how_many_files_are_automatically_analized(
         author=repo.actors["John Doe"],
         commit_message="Initial commit for C++ file",
     )
-    seagoat.analyze_codebase(minimum_files_to_analyze=files_to_analyze)
+    seagoat.analyze_codebase(minimum_chunks_to_analyze=chunks_to_analyze)
 
-    assert len(seagoat._cache.data["chunks_already_analyzed"]) == files_to_analyze
+    assert len(seagoat.cache.data["chunks_already_analyzed"]) == chunks_to_analyze

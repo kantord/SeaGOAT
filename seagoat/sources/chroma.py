@@ -10,7 +10,9 @@ from seagoat.result import Result
 
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
+
     chroma_client = chromadb.PersistentClient(path=str(cache.get_cache_folder()))
+
     chroma_collection = chroma_client.get_or_create_collection(name="code_data")
 
     def fetch(query_text: str, limit: int):

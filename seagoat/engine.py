@@ -52,7 +52,7 @@ class Engine:
         self.query_string = ""
         self._results_from_chromadb = []
         self._results = []
-        self._cache = Cache[RepositoryData](
+        self.cache = Cache[RepositoryData](
             "cache",
             Path(path),
             {
@@ -64,8 +64,9 @@ class Engine:
                 "chunks_already_analyzed": set(),
             },
         )
-        self._cache.load()
+        self.cache.load()
         self.repository = Repository(path)
+
         self._fetchers = {
             "async": [
                 ripgrep.initialize(self.repository),
@@ -75,36 +76,44 @@ class Engine:
             ],
         }
 
-    def analyze_codebase(self, minimum_files_to_analyze=None):
+    def analyze_codebase(self, minimum_chunks_to_analyze=None):
         self.repository.analyze_files()
-        self._create_vector_embeddings(minimum_files_to_analyze)
+
+        return self._create_vector_embeddings(minimum_chunks_to_analyze)
 
     def _add_to_collection(self, chunk):
         for source in chain(*self._fetchers.values()):
             source["cache_chunk"](chunk)
 
-    def _process_chunk(self, chunk):
-        if chunk.chunk_id in self._cache.data["chunks_already_analyzed"]:
+    def process_chunk(self, chunk):
+        if chunk.chunk_id in self.cache.data["chunks_already_analyzed"]:
             return
 
         self._add_to_collection(chunk)
-        self._cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
+        self.cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
+        self.cache.persist()
 
-    def _create_vector_embeddings(self, minimum_files_to_analyze=None):
+    def _create_vector_embeddings(self, minimum_chunks_to_analyze=None):
         chunks_to_process = []
-        if minimum_files_to_analyze is None:
-            minimum_files_to_analyze = min(
-                max(40, int(len(self.repository.top_files()) * 0.2)),
-                len(self.repository.top_files()),
-            )
-        for file, _ in self.repository.top_files()[:minimum_files_to_analyze]:
+
+        for file, _ in self.repository.top_files():
             for chunk in file.get_chunks():
-                chunks_to_process.append(chunk)
+                if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
+                    chunks_to_process.append(chunk)
 
-        for chunk in tqdm(chunks_to_process, desc="Analyzing source code"):
-            self._process_chunk(chunk)
+        if minimum_chunks_to_analyze is None:
+            minimum_chunks_to_analyze = min(
+                max(40, int(len(chunks_to_process) * 0.2)),
+                len(chunks_to_process),
+            )
 
-        self._cache.persist()
+        for _ in tqdm(
+            enumerate(range(minimum_chunks_to_analyze)), desc="Analyzing source code"
+        ):
+            chunk = chunks_to_process.pop(0)
+            self.process_chunk(chunk)
+
+        return chunks_to_process
 
     def query(self, query: str):
         self.query_string = query

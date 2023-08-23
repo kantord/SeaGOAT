@@ -99,3 +99,6 @@ class FileChunk:
         Chunk: {self.chunk}
         """
         return hashlib.sha256(text.encode()).hexdigest()
+
+    def __repr__(self) -> str:
+        return f"<FileChunk {self.path} {self.codeline}>"

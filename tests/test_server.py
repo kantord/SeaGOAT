@@ -29,6 +29,13 @@ def normalize_full_paths(data, repo):
     return deep_copy_of_data
 
 
+def normalize_version(data):
+    deep_copy_of_data = copy.deepcopy(data)
+    deep_copy_of_data["version"] = "0.0.0-test"
+
+    return deep_copy_of_data
+
+
 def test_query_codebase(server, snapshot, repo):
     query_text = "Markdown"
     url = f"{server}/query/{query_text}"
@@ -38,11 +45,43 @@ def test_query_codebase(server, snapshot, repo):
 
     data = response.json()
     normalized_data = normalize_full_paths(data, repo)
-    normalized_data["version"] = "0.0.0-test"
+    normalized_data = normalize_version(normalized_data)
 
     assert normalized_data == snapshot
     assert len(data["results"]) > 0
     assert data["version"] == __version__
+
+
+def test_status_endpoint_with_all_files_analyzed(server, snapshot):
+    url = f"{server}/status"
+    response = requests.get(url)
+
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+    assert data["version"] == __version__
+    data = normalize_version(data)
+
+    assert data["stats"]["chunks"]["analyzed"] > 0
+    assert data["stats"]["chunks"]["unanalyzed"] == 0
+    assert data["stats"]["queue"]["size"] == 0
+    assert data == snapshot
+
+
+@pytest.mark.usefixtures("repo_with_more_files")
+def test_status_endpoint_with_some_files_not_analyzed(server):
+    url = f"{server}/status"
+    response = requests.get(url)
+
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+    assert data["version"] == __version__
+    data = normalize_version(data)
+
+    assert data["stats"]["chunks"]["analyzed"] > 0
+    assert data["stats"]["chunks"]["unanalyzed"] > 0
+    assert data["stats"]["queue"]["size"] >= data["stats"]["chunks"]["unanalyzed"]
 
 
 def test_status_1(repo):

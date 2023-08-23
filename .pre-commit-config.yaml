@@ -41,3 +41,11 @@ repos:
       rev: 0.2.3
       hooks:
           - id: yamlfmt
+
+    - repo: https://github.com/dhruvmanila/remove-print-statements
+      rev: v0.5.2
+      hooks:
+          - id: remove-print-statements
+            args:
+                - --verbose
+                - --ignore=tests/conftest.py
