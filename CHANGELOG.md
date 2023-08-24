@@ -2,6 +2,27 @@
 
 
 
+## v0.16.1 (2023-08-24)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.324 ([`5c3bba0`](https://github.com/kantord/SeaGOAT/commit/5c3bba08aac47b040d4b0efd1fcfa38900091f38))
+
+* chore(deps): update dependency mkdocs-material to v9.2.3 ([`4eeecea`](https://github.com/kantord/SeaGOAT/commit/4eeeceaa329eecb9b507e42fa774bf29f1971296))
+
+### Documentation
+
+* docs: fix formatting issue ([`f98c440`](https://github.com/kantord/SeaGOAT/commit/f98c440f85b02ac00a256ddb47b2917f1550e759))
+
+* docs: add &#34;bat-signal&#34;
+
+part of this documentation: https://app.gitbook.com/o/frj4DkAraQA62Kx3r3Ah/s/aGFK5cc3nFU7yY7QWW6r/builders-area/guides/week-1-kick-ass-readme-+-intro ([`91f35ad`](https://github.com/kantord/SeaGOAT/commit/91f35adecb3f5e37354404b2b4a6d8ac4e85e8f3))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.7 ([`e03deb4`](https://github.com/kantord/SeaGOAT/commit/e03deb40748c4c486c5392f4b0cdce1ce3b24b47))
+
+
 ## v0.16.0 (2023-08-22)
 
 ### Chore
