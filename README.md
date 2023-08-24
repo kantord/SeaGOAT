@@ -12,7 +12,8 @@ embeddings to enable to search your codebase semantically.
 
 ![&nbsp;](assets/demo.gif)
 
-_🛟 Looking for someone to help me benchmark the accuracy of SeaGOAT. If you can help me make it happen, [let me know](https://github.com/kantord)!_
+_🛟 Looking for someone to help me benchmark the accuracy of SeaGOAT._
+_If you can help me make it happen, [let me know](https://github.com/kantord)!_
 
 ## Getting started
 
