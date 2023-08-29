@@ -2,6 +2,25 @@
 
 
 
+## v0.16.2 (2023-08-29)
+
+### Chore
+
+* chore(deps): update dependency syrupy to v4.3.0 ([`650d4e1`](https://github.com/kantord/SeaGOAT/commit/650d4e14119c1d5e784a04e8e39da01321271cce))
+
+* chore(deps): update dependency mkdocs-material to v9.2.5 ([`59e6ac7`](https://github.com/kantord/SeaGOAT/commit/59e6ac73dff76d68ab8bcce854a246df2fee1803))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.0.8 ([`2b9512b`](https://github.com/kantord/SeaGOAT/commit/2b9512b475d1d7ed7b1af7a8190a58e12ab58964))
+
+* chore(deps): update dependency python-semantic-release to v8.0.8 ([`95510e9`](https://github.com/kantord/SeaGOAT/commit/95510e95366a6335e103163b730f8e9aa91fb1d4))
+
+* chore(deps): update dependency mkdocs-material to v9.2.4 ([`4f47410`](https://github.com/kantord/SeaGOAT/commit/4f47410307e4de55ba8bd01800ef8af27c2edade))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.8 ([`cb93d6e`](https://github.com/kantord/SeaGOAT/commit/cb93d6ec9e7582e3d36360bcde3c9d8574aad629))
+
+
 ## v0.16.1 (2023-08-24)
 
 ### Chore
