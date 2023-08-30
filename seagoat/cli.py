@@ -25,6 +25,24 @@ class ExitCode:
     SERVER_ERROR = 4
 
 
+def display_accuracy_warning(server_address):
+    response = requests.get(
+        f"{server_address}/status",
+    )
+    response_data = response.json()
+    accuracy = response_data["stats"]["accuracy"]["percentage"]
+
+    if accuracy < 100:
+        click.echo(
+            click.style(
+                "Warning: SeaGOAT is still analyzing your repository. "
+                + f"The results displayed have an estimated accuracy of {accuracy}%",
+                fg="red",
+            ),
+            err=True,
+        )
+
+
 def query_server(
     query, server_address, repo_path, max_results, context_above, context_below
 ):
@@ -185,6 +203,8 @@ def seagoat(
 
     for result, result_line in iterate_result_lines(results, max_results):
         print_result_line(result, result_line["line"], color_enabled)
+
+    display_accuracy_warning(server_address)
 
 
 if __name__ == "__main__":
