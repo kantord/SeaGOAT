@@ -2,6 +2,7 @@ import itertools
 from typing import List
 
 import pytest
+import requests
 from click.testing import CliRunner
 from flask import json
 
@@ -53,13 +54,78 @@ def get_request_args_from_cli_call_(mock_server_factory, mocker, runner, repo):
     return _run_cli
 
 
+@pytest.fixture(name="mock_response")
+def mock_response_(mocker):
+    def _mock_response(json_data, status_code=200):
+        mock_resp = mocker.Mock(spec=requests.Response)
+        mock_resp.status_code = status_code
+        mock_resp.json = mocker.Mock(return_value=json_data)
+        return mock_resp
+
+    return _mock_response
+
+
+@pytest.fixture
+def mock_accuracy_warning(mocker):
+    # pylint: disable-next=unused-argument
+    def _noop(*args, **kwargs):
+        pass
+
+    mocker.patch("seagoat.cli.display_accuracy_warning", _noop)
+
+
+@pytest.fixture
+def mock_query_server(mocker):
+    # pylint: disable-next=unused-argument
+    def _mocked_query_server(*args, **kwargs):
+        return []
+
+    mocker.patch("seagoat.cli.query_server", _mocked_query_server)
+
+
+@pytest.mark.usefixtures("mock_query_server")
+@pytest.mark.parametrize("accuracy_percentage", [50, 75, 99, 100])
+def test_seagoat_warns_on_incomplete_accuracy(
+    accuracy_percentage,
+    runner_with_error,
+    mocker,
+    mock_response,
+):
+    mock_status_response = {
+        "stats": {
+            "chunks": {"analyzed": 100, "unanalyzed": 0},
+            "queue": {"size": 0},
+            "accuracy": {"percentage": accuracy_percentage},
+        },
+        "version": __version__,
+    }
+
+    mocker.patch("requests.get", return_value=mock_response(mock_status_response))
+    mocker.patch("seagoat.cli.get_server_info_file")
+    mocker.patch("seagoat.cli.load_server_info", return_value=(None, None, None, ""))
+    mocker.patch("seagoat.cli.iterate_result_lines", return_value=[])
+
+    query = "some random query"
+    result = runner_with_error.invoke(seagoat, [query, "--no-color"])
+
+    if accuracy_percentage < 100:
+        assert (
+            "Warning: SeaGOAT is still analyzing your repository. "
+            + f"The results displayed have an estimated accuracy of {accuracy_percentage}%"
+            in result.stderr
+        )
+    else:
+        assert "Warning" not in result.stderr
+
+
+@pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize("max_length", [1, 2, 10])
 def test_forwards_limit_clue_to_server(max_length, get_request_args_from_cli_call):
     request_args = get_request_args_from_cli_call(["--max-results", str(max_length)])
     assert request_args["params"]["limitClue"] == max_length
 
 
-@pytest.mark.usefixtures("server")
+@pytest.mark.usefixtures("server", "mock_accuracy_warning")
 def test_integration_test_with_color(snapshot, repo, mocker, runner):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
@@ -69,7 +135,7 @@ def test_integration_test_with_color(snapshot, repo, mocker, runner):
     assert result.exit_code == 0
 
 
-@pytest.mark.usefixtures("server")
+@pytest.mark.usefixtures("server", "mock_accuracy_warning")
 def test_integration_test_without_color(snapshot, repo, mocker, runner):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
@@ -79,6 +145,7 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner):
     assert result.exit_code == 0
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize(
     "max_length, command_option",
     list(itertools.product([0, 1, 2, 20], ["--max-results", "-l"])),
@@ -141,6 +208,7 @@ def test_documentation_present(runner):
     assert "Query your codebase for your QUERY" in result.output
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize("context_above", [1, 2, 10])
 def test_forwards_context_above_to_server(
     context_above, get_request_args_from_cli_call
@@ -154,6 +222,7 @@ def test_forwards_context_above_to_server(
     assert request_args2["params"]["contextAbove"] == context_above
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize("context_below", [1, 2, 10])
 def test_forwards_context_below_to_server(
     context_below, get_request_args_from_cli_call
@@ -167,6 +236,7 @@ def test_forwards_context_below_to_server(
     assert request_args2["params"]["contextBelow"] == context_below
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize("context", [1, 2, 10])
 def test_forwards_context_to_server(context, get_request_args_from_cli_call):
     request_args1 = get_request_args_from_cli_call(["--context", str(context)])
@@ -178,6 +248,7 @@ def test_forwards_context_to_server(context, get_request_args_from_cli_call):
     assert request_args2["params"]["contextBelow"] == context
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 def test_limit_does_not_apply_to_context_lines(repo, mock_server_factory, runner):
     mock_server_factory(
         [
@@ -206,6 +277,7 @@ def test_limit_does_not_apply_to_context_lines(repo, mock_server_factory, runner
     assert result.exit_code == 0
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 def test_context_lines_at_the_end_are_included(repo, mock_server_factory, runner):
     mock_server_factory(
         [
@@ -231,6 +303,7 @@ def test_context_lines_at_the_end_are_included(repo, mock_server_factory, runner
     assert result.exit_code == 0
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
 def test_context_lines_are_not_included_from_other_files_when_limit_exceeded(
     repo, mock_server_factory, runner
 ):
