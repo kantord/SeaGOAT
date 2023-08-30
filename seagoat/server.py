@@ -22,7 +22,7 @@ def create_app(repo_path):
     app = Flask(__name__)
     app.config["PROPAGATE_EXCEPTIONS"] = True
 
-    app.extensions["task_queue"] = TaskQueue(repo_path)
+    app.extensions["task_queue"] = TaskQueue(repo_path, minimum_chunks_to_analyze=0)
 
     @app.route("/query/<query>")
     def query_codebase(query):
