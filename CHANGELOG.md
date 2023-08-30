@@ -2,6 +2,27 @@
 
 
 
+## v0.17.0 (2023-08-30)
+
+### Chore
+
+* chore(deps): update dependency syrupy to v4.4.0 ([`396c6f6`](https://github.com/kantord/SeaGOAT/commit/396c6f6239c8b8b50ff60ecbdf8157181fb4457a))
+
+### Feature
+
+* feat: display a warning if chunks are not fully analyzed ([`6bc200d`](https://github.com/kantord/SeaGOAT/commit/6bc200d2dd7a0065d403fda281da28e002507a05))
+
+* feat: use a more sophisticated formula for accuracy ([`c3fa172`](https://github.com/kantord/SeaGOAT/commit/c3fa1723b0ef3307ead73c615014408c79be50e3))
+
+* feat: estimate accuracy using square root formula ([`d31c13d`](https://github.com/kantord/SeaGOAT/commit/d31c13da0430894b7d90ad4cd5713b4eff84fbb6))
+
+* feat: allow starting server before preanalyzing chunks ([`e28ffd8`](https://github.com/kantord/SeaGOAT/commit/e28ffd88ae93dad5a5e85a21ecec024175ad6b0f))
+
+* feat: disable telemetry for chromadb ([`dfcf053`](https://github.com/kantord/SeaGOAT/commit/dfcf05313c03652ab318819e330b2053363b57ba))
+
+* feat: analyze all files using the queue ([`84ea9f4`](https://github.com/kantord/SeaGOAT/commit/84ea9f4eadc724529fe0cf3ba19a57f90f833cfe))
+
+
 ## v0.16.2 (2023-08-29)
 
 ### Chore
