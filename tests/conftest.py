@@ -476,7 +476,7 @@ def _create_prepared_seagoat(repo):
 
 @pytest.fixture
 def repo_with_more_files(repo):
-    for i in range(300):
+    for i in range(100):
         repo.add_file_change_commit(
             file_name=f"file{i}.py",
             contents=("hello()\n" * (i % 50)),

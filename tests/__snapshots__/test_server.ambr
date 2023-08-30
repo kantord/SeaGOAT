@@ -29,6 +29,9 @@
 # name: test_status_endpoint_with_all_files_analyzed
   dict({
     'stats': dict({
+      'accuracy': dict({
+        'percentage': 100,
+      }),
       'chunks': dict({
         'analyzed': 5,
         'unanalyzed': 0,

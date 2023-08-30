@@ -1,5 +1,6 @@
 # pylint: disable=import-outside-toplevel
 import logging
+import math
 from collections import namedtuple
 from multiprocessing import Manager
 from multiprocessing import Process
@@ -15,9 +16,17 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
         return 100
 
     progress = chunks_analyzed / total_chunks
-    sqrt_value = progress**0.5
 
-    return int(sqrt_value * 100)
+    k = 10
+    x_0 = 0.25
+
+    f_x = 1 / (1 + math.exp(-k * (progress - x_0)))
+    f_0 = 1 / (1 + math.exp(k * x_0))
+    f_1 = 1 / (1 + math.exp(-k * (1 - x_0)))
+
+    normalized_value = (f_x - f_0) / (f_1 - f_0)
+
+    return int(normalized_value * 100)
 
 
 class TaskQueue:
