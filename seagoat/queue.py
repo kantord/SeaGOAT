@@ -10,6 +10,16 @@ from typing import Optional
 Task = namedtuple("Task", ["name", "args", "kwargs"])
 
 
+def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
+    if total_chunks == 0 or total_chunks - chunks_analyzed == 0:
+        return 100
+
+    progress = chunks_analyzed / total_chunks
+    sqrt_value = progress**0.5
+
+    return int(sqrt_value * 100)
+
+
 class TaskQueue:
     def __init__(
         self,
@@ -91,14 +101,20 @@ class TaskQueue:
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
         chunks_to_analyze = context["chunks_to_analyze"]
+        analyzed_count = len(engine.cache.data["chunks_already_analyzed"])
+        unanalyzed_count = chunks_to_analyze.qsize()
+        total_chunks = analyzed_count + unanalyzed_count
 
         return {
             "queue": {
-                "size": chunks_to_analyze.qsize() + self._task_queue.qsize(),
+                "size": unanalyzed_count + self._task_queue.qsize(),
             },
             "chunks": {
-                "analyzed": len(engine.cache.data["chunks_already_analyzed"]),
-                "unanalyzed": chunks_to_analyze.qsize(),
+                "analyzed": analyzed_count,
+                "unanalyzed": unanalyzed_count,
+            },
+            "accuracy": {
+                "percentage": calculate_accuracy(analyzed_count, total_chunks),
             },
         }
 
