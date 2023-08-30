@@ -82,6 +82,10 @@ def test_status_endpoint_with_some_files_not_analyzed(server):
     assert data["stats"]["chunks"]["analyzed"] > 0
     assert data["stats"]["chunks"]["unanalyzed"] > 0
     assert data["stats"]["queue"]["size"] >= data["stats"]["chunks"]["unanalyzed"]
+    assert data["stats"]["accuracy"]["percentage"] == int(
+        data["stats"]["accuracy"]["percentage"]
+    )
+    assert 0 < data["stats"]["accuracy"]["percentage"] < 100
 
 
 def test_status_1(repo):
