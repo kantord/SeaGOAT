@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import chromadb
+from chromadb.config import Settings
 from chromadb.errors import IDAlreadyExistsError
 
 from seagoat.cache import Cache
@@ -11,7 +12,12 @@ from seagoat.result import Result
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
 
-    chroma_client = chromadb.PersistentClient(path=str(cache.get_cache_folder()))
+    chroma_client = chromadb.PersistentClient(
+        path=str(cache.get_cache_folder()),
+        settings=Settings(
+            anonymized_telemetry=False,
+        ),
+    )
 
     chroma_collection = chroma_client.get_or_create_collection(name="code_data")
 
