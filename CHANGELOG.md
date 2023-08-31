@@ -2,6 +2,23 @@
 
 
 
+## v0.17.1 (2023-08-31)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.2.6 ([`e210648`](https://github.com/kantord/SeaGOAT/commit/e2106485b8fe9453ef55d595bef2f0a7b6393cf2))
+
+* chore(deps): update dependency pyright to v1.1.325 ([`018c1f6`](https://github.com/kantord/SeaGOAT/commit/018c1f6371845bc10e262f93085a15464b76c35a))
+
+### Performance
+
+* perf: avoid importing pygments when it&#39;s not needed ([`25fb7ac`](https://github.com/kantord/SeaGOAT/commit/25fb7acba2803d38c88b5ae19978fd4040125bcc))
+
+* perf: avoid loading server dependencies in CLI
+
+fixes #126 ([`e26078d`](https://github.com/kantord/SeaGOAT/commit/e26078db97e4b14c459f5655c93e4d6bd0f78e8e))
+
+
 ## v0.17.0 (2023-08-30)
 
 ### Chore
