@@ -50,7 +50,7 @@ class TaskQueue(BaseQueue):
 
         for chunk in remaining_chunks_to_analyze:
             context["low_priority_queue"].put(
-                Task(name="analyze_chunk", args=[chunk], kwargs={})
+                Task(name="analyze_chunk", args=(chunk,), kwargs={})
             )
 
         context.update(
