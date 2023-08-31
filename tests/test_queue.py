@@ -7,13 +7,14 @@ from seagoat.queue.task_queue import TaskQueue
 
 @pytest.fixture(name="task_queue")
 def task_queue_(repo):
-    return TaskQueue(repo_path=repo.working_dir)
+    return TaskQueue(repo_path=repo.working_dir, minimum_chunks_to_analyze=0)
 
 
 @pytest.mark.parametrize(
     "chunks_analyzed, unanalyzed, expected_accuracy",
     [
         (0, 0, 100),
+        (1, 999999, 1),
         (1000, 0, 100),
         (0, 20, 0),
         (5, 150, 2),
