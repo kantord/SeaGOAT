@@ -14,8 +14,8 @@ from werkzeug.serving import run_simple
 
 from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
-from seagoat.utils import get_server_info_file
-from seagoat.utils import load_server_info
+from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import load_server_info
 
 
 def create_app(repo_path):
