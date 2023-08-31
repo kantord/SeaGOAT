@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Dict
+from typing import List
 from typing import Set
 
 
@@ -42,6 +43,11 @@ class ResultLine:
             "lineText": self.line_text,
             "resultTypes": list(sorted(set(str(t) for t in self.types))),
         }
+
+
+@dataclass(frozen=True)
+class ResultBlock:
+    lines: List[ResultLine]
 
 
 class Result:
@@ -98,15 +104,21 @@ class Result:
             )
         )
 
+    def get_result_blocks(self, query):
+        lines_to_include = [
+            line
+            for line in sorted(self.lines.values(), key=lambda item: item.line)
+            if line.line in self.get_lines(query)
+        ]
+
+        return [ResultBlock(lines=[line]) for line in lines_to_include]
+
     def to_json(self, query: str):
-        lines_to_include = self.get_lines(query)
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
             "lines": [
-                line.to_json()
-                for line in sorted(self.lines.values(), key=lambda item: item.line)
-                if line.line in lines_to_include
+                block.lines[0].to_json() for block in self.get_result_blocks(query)
             ],
         }
 
