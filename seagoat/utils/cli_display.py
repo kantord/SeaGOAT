@@ -40,7 +40,7 @@ def print_result_line(result, line, color_enabled):
             color=True,
         )
     else:
-        for line_content in result["lines"]:
+        for line_content in result["blocks"]:
             if line_content["line"] == line:
                 click.echo(f"{result['path']}:{line}:{line_content['lineText']}")
                 break
@@ -56,7 +56,7 @@ def iterate_result_lines(results, max_results: Optional[int]):
         if lines_left_to_print <= 0:
             return
 
-        for line in result.get("lines", []):
+        for line in result.get("blocks", []):
             if "result" in line["resultTypes"]:
                 if lines_left_to_print <= 0:
                     return

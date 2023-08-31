@@ -41,7 +41,7 @@ def test_get_lines_without_context(create_result, repo):
     assert actual_lines == [40]
     assert result.to_json(query) == {
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "lines": [
+        "blocks": [
             {
                 "line": 40,
                 "lineText": "lorem ipsum",
@@ -74,7 +74,7 @@ def test_add_context_above_1(create_result, repo):
     assert actual_lines == [39, 40]
     assert result.to_json(query) == {
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "lines": [
+        "blocks": [
             {
                 "line": 39,
                 "lineText": "fake line 39",
@@ -103,7 +103,7 @@ def test_add_context_above_2(create_result, repo):
     assert actual_lines == [19, 20, 39, 40]
     assert result.to_json(query) == {
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "lines": [
+        "blocks": [
             {
                 "line": 19,
                 "lineText": "fake line 19",
@@ -145,7 +145,7 @@ def test_add_context_below_1(create_result, repo):
     assert actual_lines == [40, 41]
     assert result.to_json(query) == {
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "lines": [
+        "blocks": [
             {
                 "line": 40,
                 "lineText": "fake line 40",
@@ -175,7 +175,7 @@ def test_add_context_below_2(create_result, repo):
     assert actual_lines == [40, 41, 42, 43]
     assert result.to_json(query) == {
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "lines": [
+        "blocks": [
             {
                 "line": 40,
                 "lineText": "fake line 40",
