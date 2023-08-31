@@ -13,10 +13,6 @@
                   'result',
                 ]),
               }),
-            ]),
-          }),
-          dict({
-            'lines': list([
               dict({
                 'line': 2,
                 'lineText': 'This is an example Markdown file. Updated.',

@@ -45,10 +45,6 @@ def test_to_result_json_correct_output_example1():
                 {
                     "lines": [
                         {"line": 1, "lineText": "Line 1", "resultTypes": ["result"]},
-                    ]
-                },
-                {
-                    "lines": [
                         {"line": 2, "lineText": "Line 2", "resultTypes": ["result"]},
                     ]
                 },
