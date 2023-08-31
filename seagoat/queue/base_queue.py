@@ -66,11 +66,7 @@ class BaseQueue:
         while True:
             while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
                 task = low_priority_queue.get()
-                handler_name = f"handle_{task.name}"
-                handler = getattr(self, handler_name, None)
-                kwargs = dict(task.kwargs or {})
-                if handler:
-                    handler(context, *task.args, **kwargs)
+                self._handle_task(context, task)
 
             task = self._task_queue.get()
 
