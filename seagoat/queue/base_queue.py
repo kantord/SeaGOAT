@@ -12,13 +12,10 @@ Task = namedtuple("Task", ["name", "args", "kwargs"])
 class BaseQueue:
     def __init__(
         self,
-        *args,
         **kwargs,
     ):
         self._task_queue = Queue()
-        self._worker_process = Process(
-            target=self._worker_function, args=args, kwargs=kwargs
-        )
+        self._worker_process = Process(target=self._worker_function, kwargs=kwargs)
         self._worker_process.start()
 
     def _worker_function(self, *args, **kwargs):
