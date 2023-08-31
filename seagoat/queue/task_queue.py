@@ -67,21 +67,15 @@ class TaskQueue(BaseQueue):
         logging.info("Starting worker process...")
         context = self._get_context(repo_path, minimum_chunks_to_analyze)
         low_priority_queue = context["low_priority_queue"]
-        seagoat_engine = context["seagoat_engine"]
 
         while True:
             while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
-                logging.info(
-                    "Note, %s chunks left to analyze.", low_priority_queue.qsize()
-                )
                 task = low_priority_queue.get()
-                chunk = task.args[0]
-                logging.info("Processing chunk %s...", chunk)
-                seagoat_engine.process_chunk(chunk)
-                if low_priority_queue.empty():
-                    logging.info(
-                        "Analyzed all chunks!",
-                    )
+                handler_name = f"handle_{task.name}"
+                handler = getattr(self, handler_name, None)
+                kwargs = dict(task.kwargs or {})
+                if handler:
+                    handler(context, *task.args, **kwargs)
 
             task = self._task_queue.get()
 
@@ -89,6 +83,17 @@ class TaskQueue(BaseQueue):
                 break
 
             self._handle_task(context, task)
+
+    def handle_analyze_chunk(self, context, chunk):
+        logging.info(
+            "Note, %s chunks left to analyze.", context["low_priority_queue"].qsize()
+        )
+        logging.info("Processing chunk %s...", chunk)
+        context["seagoat_engine"].process_chunk(chunk)
+        if context["low_priority_queue"].empty():
+            logging.info(
+                "Analyzed all chunks!",
+            )
 
     def handle_query(self, context, **kwargs):
         context["seagoat_engine"].query(kwargs["query"])
