@@ -15,8 +15,8 @@ from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.javascript import TypeScriptLexer
 
 from seagoat import __version__
-from seagoat.server import get_server_info_file
-from seagoat.server import load_server_info
+from seagoat.utils import get_server_info_file
+from seagoat.utils import load_server_info
 
 
 # pylint: disable-next=too-few-public-methods
