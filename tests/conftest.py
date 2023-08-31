@@ -31,8 +31,8 @@ from seagoat.server import start_server
 from seagoat.server import wait_for
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
-from seagoat.utils import get_server_info_file
-from seagoat.utils import load_server_info
+from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import load_server_info
 
 
 @pytest.fixture(scope="session", autouse=True)

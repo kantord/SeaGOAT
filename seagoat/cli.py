@@ -6,10 +6,10 @@ import click
 import requests
 
 from seagoat import __version__
-from seagoat.cli_utils.display import iterate_result_lines
-from seagoat.cli_utils.display import print_result_line
-from seagoat.utils import get_server_info_file
-from seagoat.utils import load_server_info
+from seagoat.utils.cli_display import iterate_result_lines
+from seagoat.utils.cli_display import print_result_line
+from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import load_server_info
 
 
 # pylint: disable-next=too-few-public-methods
