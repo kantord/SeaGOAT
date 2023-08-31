@@ -88,10 +88,6 @@ def test_add_context_above_1(create_result, repo):
                             "context",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 40,
                         "lineText": "fake line 40",
@@ -100,7 +96,7 @@ def test_add_context_above_1(create_result, repo):
                         ],
                     },
                 ]
-            },
+            }
         ],
         "path": "test.txt",
     }
@@ -125,10 +121,6 @@ def test_add_context_above_2(create_result, repo):
                             "context",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 20,
                         "lineText": "fake line 20",
@@ -147,10 +139,6 @@ def test_add_context_above_2(create_result, repo):
                             "context",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 40,
                         "lineText": "fake line 40",
@@ -183,10 +171,6 @@ def test_add_context_below_1(create_result, repo):
                             "result",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 41,
                         "lineText": "fake line 41",
@@ -221,10 +205,6 @@ def test_add_context_below_2(create_result, repo):
                             "result",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 41,
                         "lineText": "fake line 41",
@@ -233,10 +213,6 @@ def test_add_context_below_2(create_result, repo):
                             "result",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 42,
                         "lineText": "fake line 42",
@@ -245,10 +221,6 @@ def test_add_context_below_2(create_result, repo):
                             "result",
                         ],
                     },
-                ]
-            },
-            {
-                "lines": [
                     {
                         "line": 43,
                         "lineText": "fake line 43",

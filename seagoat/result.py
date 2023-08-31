@@ -50,7 +50,7 @@ class ResultBlock:
     lines: List[ResultLine]
 
     def to_json(self):
-        return {"lines": [self.lines[0].to_json()]}
+        return {"lines": [line.to_json() for line in self.lines]}
 
 
 class Result:
@@ -113,8 +113,19 @@ class Result:
             for line in sorted(self.lines.values(), key=lambda item: item.line)
             if line.line in self.get_lines(query)
         ]
+        blocks = []
 
-        return [ResultBlock(lines=[line]) for line in lines_to_include]
+        for line in lines_to_include:
+            distance_from_previous_line = (
+                line.line - blocks[-1].lines[-1].line if blocks else 0
+            )
+
+            if not blocks or distance_from_previous_line > 1:
+                blocks.append(ResultBlock(lines=[]))
+
+            blocks[-1].lines.append(line)
+
+        return blocks
 
     def to_json(self, query: str):
         return {
