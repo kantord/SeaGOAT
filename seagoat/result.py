@@ -1,5 +1,6 @@
 # pylint: disable=too-few-public-methods
 import re
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -49,8 +50,20 @@ class ResultLine:
 class ResultBlock:
     lines: List[ResultLine]
 
+    def _get_line_count_per_type(self) -> Dict[str, int]:
+        counts = Counter()
+
+        for line in self.lines:
+            for type_ in line.types:
+                counts[str(type_)] += 1
+
+        return dict(counts)
+
     def to_json(self):
-        return {"lines": [line.to_json() for line in self.lines]}
+        return {
+            "lines": [line.to_json() for line in self.lines],
+            "lineTypeCount": self._get_line_count_per_type(),
+        }
 
 
 class Result:

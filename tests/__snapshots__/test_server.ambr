@@ -5,6 +5,9 @@
       dict({
         'blocks': list([
           dict({
+            'lineTypeCount': dict({
+              'result': 2,
+            }),
             'lines': list([
               dict({
                 'line': 1,

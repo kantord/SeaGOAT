@@ -43,10 +43,11 @@ def test_to_result_json_correct_output_example1():
             "fullPath": file_path,
             "blocks": [
                 {
+                    "lineTypeCount": {"result": 2},
                     "lines": [
                         {"line": 1, "lineText": "Line 1", "resultTypes": ["result"]},
                         {"line": 2, "lineText": "Line 2", "resultTypes": ["result"]},
-                    ]
+                    ],
                 },
             ],
         }
@@ -68,22 +69,24 @@ def test_to_result_json_correct_output_example2():
             "fullPath": file_path,
             "blocks": [
                 {
+                    "lineTypeCount": {"result": 1},
                     "lines": [
                         {
                             "line": 1,
                             "lineText": "This is line 1",
                             "resultTypes": ["result"],
                         },
-                    ]
+                    ],
                 },
                 {
+                    "lineTypeCount": {"result": 1},
                     "lines": [
                         {
                             "line": 3,
                             "lineText": "This is line 3",
                             "resultTypes": ["result"],
                         },
-                    ]
+                    ],
                 },
             ],
         }
