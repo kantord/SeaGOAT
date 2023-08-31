@@ -50,7 +50,7 @@ class ResultBlock:
     lines: List[ResultLine]
 
     def to_json(self):
-        return self.lines[0].to_json()
+        return {"lines": [self.lines[0].to_json()]}
 
 
 class Result:

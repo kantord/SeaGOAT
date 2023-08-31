@@ -43,12 +43,16 @@ def test_get_lines_without_context(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
-                "line": 40,
-                "lineText": "lorem ipsum",
-                "resultTypes": [
-                    "result",
-                ],
-            },
+                "lines": [
+                    {
+                        "line": 40,
+                        "lineText": "lorem ipsum",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    },
+                ]
+            }
         ],
         "path": "test.txt",
     }
@@ -76,18 +80,26 @@ def test_add_context_above_1(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
-                "line": 39,
-                "lineText": "fake line 39",
-                "resultTypes": [
-                    "context",
-                ],
+                "lines": [
+                    {
+                        "line": 39,
+                        "lineText": "fake line 39",
+                        "resultTypes": [
+                            "context",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 40,
-                "lineText": "fake line 40",
-                "resultTypes": [
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 40,
+                        "lineText": "fake line 40",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    },
+                ]
             },
         ],
         "path": "test.txt",
@@ -105,32 +117,48 @@ def test_add_context_above_2(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
-                "line": 19,
-                "lineText": "fake line 19",
-                "resultTypes": [
-                    "context",
-                ],
+                "lines": [
+                    {
+                        "line": 19,
+                        "lineText": "fake line 19",
+                        "resultTypes": [
+                            "context",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 20,
-                "lineText": "fake line 20",
-                "resultTypes": [
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 20,
+                        "lineText": "fake line 20",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 39,
-                "lineText": "fake line 39",
-                "resultTypes": [
-                    "context",
-                ],
+                "lines": [
+                    {
+                        "line": 39,
+                        "lineText": "fake line 39",
+                        "resultTypes": [
+                            "context",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 40,
-                "lineText": "fake line 40",
-                "resultTypes": [
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 40,
+                        "lineText": "fake line 40",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    },
+                ]
             },
         ],
         "path": "test.txt",
@@ -147,18 +175,26 @@ def test_add_context_below_1(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
-                "line": 40,
-                "lineText": "fake line 40",
-                "resultTypes": [
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 40,
+                        "lineText": "fake line 40",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 41,
-                "lineText": "fake line 41",
-                "resultTypes": [
-                    "context",
-                ],
+                "lines": [
+                    {
+                        "line": 41,
+                        "lineText": "fake line 41",
+                        "resultTypes": [
+                            "context",
+                        ],
+                    },
+                ]
             },
         ],
         "path": "test.txt",
@@ -177,34 +213,50 @@ def test_add_context_below_2(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
-                "line": 40,
-                "lineText": "fake line 40",
-                "resultTypes": [
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 40,
+                        "lineText": "fake line 40",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 41,
-                "lineText": "fake line 41",
-                "resultTypes": [
-                    "context",
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 41,
+                        "lineText": "fake line 41",
+                        "resultTypes": [
+                            "context",
+                            "result",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 42,
-                "lineText": "fake line 42",
-                "resultTypes": [
-                    "context",
-                    "result",
-                ],
+                "lines": [
+                    {
+                        "line": 42,
+                        "lineText": "fake line 42",
+                        "resultTypes": [
+                            "context",
+                            "result",
+                        ],
+                    },
+                ]
             },
             {
-                "line": 43,
-                "lineText": "fake line 43",
-                "resultTypes": [
-                    "context",
-                ],
+                "lines": [
+                    {
+                        "line": 43,
+                        "lineText": "fake line 43",
+                        "resultTypes": [
+                            "context",
+                        ],
+                    },
+                ]
             },
         ],
         "path": "test.txt",
