@@ -30,7 +30,7 @@ class TaskQueue(BaseQueue):
         self, repo_path: str, minimum_chunks_to_analyze: Optional[int]
     ):
         logging.info("Starting worker process...")
-        chunks_to_analyze = Queue()
+        low_priority_queue = Queue()
 
         from seagoat.engine import Engine
 
@@ -52,22 +52,22 @@ class TaskQueue(BaseQueue):
             )
 
         for chunk in remaining_chunks_to_analyze:
-            chunks_to_analyze.put(chunk)
+            low_priority_queue.put(chunk)
 
         context = {
             "seagoat_engine": seagoat_engine,
-            "chunks_to_analyze": chunks_to_analyze,
+            "chunks_to_analyze": low_priority_queue,
         }
 
         while True:
-            while self._task_queue.qsize() == 0 and chunks_to_analyze.qsize() > 0:
+            while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
                 logging.info(
-                    "Note, %s chunks left to analyze.", chunks_to_analyze.qsize()
+                    "Note, %s chunks left to analyze.", low_priority_queue.qsize()
                 )
-                chunk = chunks_to_analyze.get()
+                chunk = low_priority_queue.get()
                 logging.info("Processing chunk %s...", chunk)
                 seagoat_engine.process_chunk(chunk)
-                if chunks_to_analyze.empty():
+                if low_priority_queue.empty():
                     logging.info(
                         "Analyzed all chunks!",
                     )
