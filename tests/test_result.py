@@ -43,6 +43,7 @@ def test_get_lines_without_context(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "lineTypeCount": {"result": 1},
                 "lines": [
                     {
                         "line": 40,
@@ -51,7 +52,7 @@ def test_get_lines_without_context(create_result, repo):
                             "result",
                         ],
                     },
-                ]
+                ],
             }
         ],
         "path": "test.txt",
@@ -80,6 +81,7 @@ def test_add_context_above_1(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
                         "line": 39,
@@ -95,7 +97,7 @@ def test_add_context_above_1(create_result, repo):
                             "result",
                         ],
                     },
-                ]
+                ],
             }
         ],
         "path": "test.txt",
@@ -113,6 +115,7 @@ def test_add_context_above_2(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
                         "line": 19,
@@ -128,9 +131,10 @@ def test_add_context_above_2(create_result, repo):
                             "result",
                         ],
                     },
-                ]
+                ],
             },
             {
+                "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
                         "line": 39,
@@ -146,7 +150,7 @@ def test_add_context_above_2(create_result, repo):
                             "result",
                         ],
                     },
-                ]
+                ],
             },
         ],
         "path": "test.txt",
@@ -163,6 +167,7 @@ def test_add_context_below_1(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
                         "line": 40,
@@ -178,7 +183,7 @@ def test_add_context_below_1(create_result, repo):
                             "context",
                         ],
                     },
-                ]
+                ],
             },
         ],
         "path": "test.txt",
@@ -197,6 +202,7 @@ def test_add_context_below_2(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "lineTypeCount": {"context": 3, "result": 3},
                 "lines": [
                     {
                         "line": 40,
@@ -228,7 +234,7 @@ def test_add_context_below_2(create_result, repo):
                             "context",
                         ],
                     },
-                ]
+                ],
             },
         ],
         "path": "test.txt",

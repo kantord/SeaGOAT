@@ -55,6 +55,7 @@ def iterate_result_lines(results, max_results: Optional[int]):
     for result in results:
         if lines_left_to_print <= 0:
             return
+
         for block in result["blocks"]:
             for line in block["lines"]:
                 if "result" in line["resultTypes"]:
