@@ -77,14 +77,7 @@ class TaskQueue(BaseQueue):
             if task.name == "shutdown":
                 break
 
-            handler_name = f"handle_{task.name}"
-            handler = getattr(self, handler_name, None)
-            if handler:
-                kwargs = dict(task.kwargs or {})
-                if "__result_queue" in kwargs:
-                    del kwargs["__result_queue"]
-                result = handler(context, *task.args, **kwargs)
-                task.kwargs.get("__result_queue").put(result)
+            self._handle_task(context, task)
 
     def handle_query(self, context, **kwargs):
         context["seagoat_engine"].query(kwargs["query"])
