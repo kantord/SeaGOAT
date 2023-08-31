@@ -36,3 +36,13 @@ class BaseQueue:
     def shutdown(self):
         self._task_queue.put(Task(name="shutdown", args=None, kwargs=None))
         self._worker_process.join()
+
+    def _handle_task(self, context, task: Task):
+        handler_name = f"handle_{task.name}"
+        handler = getattr(self, handler_name, None)
+        if handler:
+            kwargs = dict(task.kwargs or {})
+            if "__result_queue" in kwargs:
+                del kwargs["__result_queue"]
+            result = handler(context, *task.args, **kwargs)
+            task.kwargs.get("__result_queue").put(result)
