@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import socket
-import time
 from multiprocessing import Process
 
 import click
@@ -16,6 +15,7 @@ from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.server import get_server_info_file
 from seagoat.utils.server import load_server_info
+from seagoat.utils.wait import wait_for
 
 
 def create_app(repo_path):
@@ -114,14 +114,6 @@ def start_server(repo_path, custom_port=None):
 def is_server_running(host, port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_obj:
         return socket_obj.connect_ex((host, port)) == 0
-
-
-def wait_for(condition_function, timeout, period=0.05):
-    start_time = time.time()
-    while not condition_function():
-        if time.time() - start_time > timeout:
-            raise TimeoutError("Timeout expired while waiting for condition.")
-        time.sleep(period)
 
 
 def get_server(repo_path, custom_port=None):
