@@ -4,6 +4,7 @@ import math
 from typing import Optional
 
 from seagoat.queue.base_queue import BaseQueue
+from seagoat.queue.base_queue import Task
 
 
 def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
@@ -48,7 +49,9 @@ class TaskQueue(BaseQueue):
             )
 
         for chunk in remaining_chunks_to_analyze:
-            context["low_priority_queue"].put(chunk)
+            context["low_priority_queue"].put(
+                Task(name="analyze_chunk", args=[chunk], kwargs={})
+            )
 
         context.update(
             {
@@ -71,7 +74,8 @@ class TaskQueue(BaseQueue):
                 logging.info(
                     "Note, %s chunks left to analyze.", low_priority_queue.qsize()
                 )
-                chunk = low_priority_queue.get()
+                task = low_priority_queue.get()
+                chunk = task.args[0]
                 logging.info("Processing chunk %s...", chunk)
                 seagoat_engine.process_chunk(chunk)
                 if low_priority_queue.empty():
