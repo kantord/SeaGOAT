@@ -1,14 +1,10 @@
 # pylint: disable=import-outside-toplevel
 import logging
 import math
-from collections import namedtuple
-from multiprocessing import Manager
-from multiprocessing import Process
 from multiprocessing import Queue
 from typing import Optional
 
-
-Task = namedtuple("Task", ["name", "args", "kwargs"])
+from seagoat.queue.base_queue import BaseQueue
 
 
 def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
@@ -29,18 +25,10 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
     return int(normalized_value * 100)
 
 
-class TaskQueue:
-    def __init__(
-        self,
-        repo_path: str,
-        minimum_chunks_to_analyze: Optional[int] = None,
+class TaskQueue(BaseQueue):
+    def _worker_function(
+        self, repo_path: str, minimum_chunks_to_analyze: Optional[int]
     ):
-        self._task_queue = Queue()
-        self._worker_process = Process(target=self._worker_function, args=(repo_path,))
-        self.minimum_chunks_to_analyze = minimum_chunks_to_analyze
-        self._worker_process.start()
-
-    def _worker_function(self, repo_path: str):
         logging.info("Starting worker process...")
         chunks_to_analyze = Queue()
 
@@ -49,7 +37,7 @@ class TaskQueue:
         seagoat_engine = Engine(repo_path)
 
         remaining_chunks_to_analyze = seagoat_engine.analyze_codebase(
-            self.minimum_chunks_to_analyze
+            minimum_chunks_to_analyze
         )
 
         logging.info("Analyzed the minimum number of chunks needed to operate. ")
@@ -126,18 +114,3 @@ class TaskQueue:
                 "percentage": calculate_accuracy(analyzed_count, total_chunks),
             },
         }
-
-    def enqueue(self, task_name, *args, wait_for_result=True, **kwargs):
-        result_queue = Manager().Queue()
-        task = Task(
-            name=task_name, args=args, kwargs={**kwargs, "__result_queue": result_queue}
-        )
-        self._task_queue.put(task)
-        if wait_for_result:
-            return result_queue.get()
-
-        return None
-
-    def shutdown(self):
-        self._task_queue.put(Task(name="shutdown", args=None, kwargs=None))
-        self._worker_process.join()
