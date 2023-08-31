@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from seagoat.queue import TaskQueue
+from seagoat.queue.task_queue import TaskQueue
 
 
 @pytest.fixture(name="task_queue")

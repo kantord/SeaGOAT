@@ -27,12 +27,12 @@ from urllib3.util import Retry
 from seagoat.engine import Engine
 from seagoat.result import Result
 from seagoat.server import create_app
-from seagoat.server import get_server_info_file
-from seagoat.server import load_server_info
 from seagoat.server import start_server
 from seagoat.server import wait_for
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
+from seagoat.utils import get_server_info_file
+from seagoat.utils import load_server_info
 
 
 @pytest.fixture(scope="session", autouse=True)
