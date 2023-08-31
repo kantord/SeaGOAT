@@ -5,7 +5,6 @@ import socket
 import time
 from multiprocessing import Process
 
-import appdirs
 import click
 from flask import current_app
 from flask import Flask
@@ -15,6 +14,8 @@ from werkzeug.serving import run_simple
 
 from seagoat import __version__
 from seagoat.queue import TaskQueue
+from seagoat.utils import get_server_info_file
+from seagoat.utils import load_server_info
 
 
 def create_app(repo_path):
@@ -81,13 +82,6 @@ def create_app(repo_path):
     return app
 
 
-def get_server_info_file(repo_path):
-    repo_id = os.path.normpath(repo_path).replace(os.sep, "_")
-    user_cache_dir = appdirs.user_cache_dir("seagoat-servers")
-    os.makedirs(user_cache_dir, exist_ok=True)
-    return os.path.join(user_cache_dir, f"{repo_id}.json")
-
-
 def get_free_port():
     socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_obj.bind(("", 0))
@@ -118,16 +112,6 @@ def start_server(repo_path, custom_port=None):
 def is_server_running(host, port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_obj:
         return socket_obj.connect_ex((host, port)) == 0
-
-
-def load_server_info(server_info_file):
-    with open(server_info_file, "r", encoding="utf-8") as file:
-        server_info = json.load(file)
-    host = server_info["host"]
-    port = server_info["port"]
-    pid = server_info.get("pid")
-    server_address = f"http://{host}:{port}"
-    return host, port, pid, server_address
 
 
 def wait_for(condition_function, timeout, period=0.05):
@@ -190,13 +174,7 @@ def get_status_data(repo_path):
     status_info = {"isRunning": False, "url": None}
 
     if os.path.exists(server_info_file):
-        with open(server_info_file, "r", encoding="utf-8") as file:
-            server_info = json.load(file)
-
-        host = server_info["host"]
-        port = server_info["port"]
-        pid = server_info.get("pid")
-        server_address = f"http://{host}:{port}"
+        host, port, pid, server_address = load_server_info(server_info_file)
 
         if is_server_running(host, port):
             status_info = {"isRunning": True, "url": server_address, "pid": pid}
@@ -224,7 +202,6 @@ def status(repo_path, use_json_format):
 @click.argument("repo_path")
 def stop(repo_path):
     """Stops the server."""
-
     server_info_file = get_server_info_file(repo_path)
 
     if os.path.exists(server_info_file):
