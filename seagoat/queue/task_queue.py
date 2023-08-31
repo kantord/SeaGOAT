@@ -20,8 +20,13 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
     f_1 = 1 / (1 + math.exp(-k * (1 - x_0)))
 
     normalized_value = (f_x - f_0) / (f_1 - f_0)
+    percentage_value = normalized_value * 100
+    rounded_percentage_value = int(percentage_value)
 
-    return int(normalized_value * 100)
+    if percentage_value > 0 and rounded_percentage_value == 0:
+        return 1
+
+    return rounded_percentage_value
 
 
 class TaskQueue(BaseQueue):
