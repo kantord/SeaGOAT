@@ -11,11 +11,11 @@ import pytest
 import requests
 
 from seagoat import __version__
-from seagoat.server import get_server_info_file
 from seagoat.server import get_status_data
-from seagoat.server import load_server_info
 from seagoat.server import server as seagoat_server
-from seagoat.server import wait_for
+from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import load_server_info
+from seagoat.utils.wait import wait_for
 
 
 def normalize_full_paths(data, repo):
