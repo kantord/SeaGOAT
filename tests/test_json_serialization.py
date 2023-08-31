@@ -41,7 +41,7 @@ def test_to_result_json_correct_output_example1():
         assert result_dict == {
             "path": "example1.txt",
             "fullPath": file_path,
-            "lines": [
+            "blocks": [
                 {"line": 1, "lineText": "Line 1", "resultTypes": ["result"]},
                 {"line": 2, "lineText": "Line 2", "resultTypes": ["result"]},
             ],
@@ -62,7 +62,7 @@ def test_to_result_json_correct_output_example2():
         assert result_dict == {
             "path": "example2.txt",
             "fullPath": file_path,
-            "lines": [
+            "blocks": [
                 {"line": 1, "lineText": "This is line 1", "resultTypes": ["result"]},
                 {"line": 3, "lineText": "This is line 3", "resultTypes": ["result"]},
             ],

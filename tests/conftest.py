@@ -301,10 +301,10 @@ def mock_server_factory(mocker, repo, init_server_mock):
             result = {
                 "path": filename,
                 "fullPath": Path(repo.working_dir) / filename,
-                "lines": [],
+                "blocks": [],
             }
             for i, line_text in enumerate(lines):
-                result["lines"].append(
+                result["blocks"].append(
                     {
                         "line": i + 1,
                         "lineText": line_text,

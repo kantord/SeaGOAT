@@ -117,7 +117,7 @@ class Result:
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "lines": [
+            "blocks": [
                 block.lines[0].to_json() for block in self.get_result_blocks(query)
             ],
         }

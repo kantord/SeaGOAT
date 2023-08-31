@@ -3,8 +3,7 @@
   dict({
     'results': list([
       dict({
-        'fullPath': '/path/to/repo/file1.md',
-        'lines': list([
+        'blocks': list([
           dict({
             'line': 1,
             'lineText': '# Markdown file',
@@ -20,6 +19,7 @@
             ]),
           }),
         ]),
+        'fullPath': '/path/to/repo/file1.md',
         'path': 'file1.md',
       }),
     ]),
