@@ -1,12 +1,18 @@
-from collections import namedtuple
+from dataclasses import dataclass
+from dataclasses import field
 from multiprocessing import Manager
 from multiprocessing import Process
 from multiprocessing import Queue
 from typing import Any
 from typing import Dict
+from typing import Tuple
 
 
-Task = namedtuple("Task", ["name", "args", "kwargs"])
+@dataclass
+class Task:
+    name: str
+    args: Tuple[Any, ...] = field(default_factory=tuple)
+    kwargs: Dict[str, Any] = field(default_factory=dict)
 
 
 class BaseQueue:
@@ -40,7 +46,7 @@ class BaseQueue:
         return None
 
     def shutdown(self):
-        self._task_queue.put(Task(name="shutdown", args=None, kwargs=None))
+        self._task_queue.put(Task(name="shutdown", args=(), kwargs={}))
         self._worker_process.join()
 
     def _handle_task(self, context, task: Task):
@@ -48,7 +54,7 @@ class BaseQueue:
         handler = getattr(self, handler_name, None)
         if handler:
             kwargs = dict(task.kwargs or {})
-            if "__result_queue" in kwargs:
-                del kwargs["__result_queue"]
+            result_queue = kwargs.pop("__result_queue", None)
             result = handler(context, *task.args, **kwargs)
-            task.kwargs.get("__result_queue").put(result)
+            if result_queue is not None:
+                result_queue.put(result)
