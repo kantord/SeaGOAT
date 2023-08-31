@@ -5,17 +5,25 @@
       dict({
         'blocks': list([
           dict({
-            'line': 1,
-            'lineText': '# Markdown file',
-            'resultTypes': list([
-              'result',
+            'lines': list([
+              dict({
+                'line': 1,
+                'lineText': '# Markdown file',
+                'resultTypes': list([
+                  'result',
+                ]),
+              }),
             ]),
           }),
           dict({
-            'line': 2,
-            'lineText': 'This is an example Markdown file. Updated.',
-            'resultTypes': list([
-              'result',
+            'lines': list([
+              dict({
+                'line': 2,
+                'lineText': 'This is an example Markdown file. Updated.',
+                'resultTypes': list([
+                  'result',
+                ]),
+              }),
             ]),
           }),
         ]),

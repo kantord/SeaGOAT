@@ -6,8 +6,7 @@ import click
 import requests
 
 from seagoat import __version__
-from seagoat.utils.cli_display import iterate_result_lines
-from seagoat.utils.cli_display import print_result_line
+from seagoat.utils.cli_display import display_results
 from seagoat.utils.server import get_server_info_file
 from seagoat.utils.server import load_server_info
 
@@ -138,8 +137,7 @@ def seagoat(
 
     color_enabled = os.isatty(0) and not no_color
 
-    for result, result_line in iterate_result_lines(results, max_results):
-        print_result_line(result, result_line["line"], color_enabled)
+    display_results(results, max_results, color_enabled)
 
     display_accuracy_warning(server_address)
 

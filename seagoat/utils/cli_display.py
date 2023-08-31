@@ -32,7 +32,7 @@ def get_highlighted_lines(file_name: str):
     return result.splitlines()
 
 
-def print_result_line(result, line, color_enabled):
+def print_result_line(result, block, line, color_enabled):
     if color_enabled:
         highlighted_lines = get_highlighted_lines(str(result["fullPath"]))
         click.echo(
@@ -40,7 +40,7 @@ def print_result_line(result, line, color_enabled):
             color=True,
         )
     else:
-        for line_content in result["blocks"]:
+        for line_content in block["lines"]:
             if line_content["line"] == line:
                 click.echo(f"{result['path']}:{line}:{line_content['lineText']}")
                 break
@@ -55,14 +55,20 @@ def iterate_result_lines(results, max_results: Optional[int]):
     for result in results:
         if lines_left_to_print <= 0:
             return
+        for block in result["blocks"]:
+            for line in block["lines"]:
+                if "result" in line["resultTypes"]:
+                    if lines_left_to_print <= 0:
+                        return
 
-        for line in result.get("blocks", []):
-            if "result" in line["resultTypes"]:
-                if lines_left_to_print <= 0:
-                    return
+                yield result, block, line
 
-            yield result, line
+                if "result" in line["resultTypes"]:
+                    if max_results is not None:
+                        lines_left_to_print -= 1
 
-            if "result" in line["resultTypes"]:
-                if max_results is not None:
-                    lines_left_to_print -= 1
+
+def display_results(results, max_results, color_enabled):
+    for result, block, result_line in iterate_result_lines(results, max_results):
+        line = result_line["line"]
+        print_result_line(result, block, line, color_enabled)
