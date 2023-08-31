@@ -1,4 +1,5 @@
 # pylint: disable=too-many-arguments
+# pylint: disable=import-outside-toplevel
 import math
 import os
 import sys
@@ -8,11 +9,6 @@ from typing import Union
 import click
 import requests
 from pydantic.typing import NoneType
-from pygments import highlight
-from pygments.formatters import TerminalFormatter
-from pygments.lexers import get_lexer_for_filename
-from pygments.lexers.javascript import JavascriptLexer
-from pygments.lexers.javascript import TypeScriptLexer
 
 from seagoat import __version__
 from seagoat.utils import get_server_info_file
@@ -78,6 +74,12 @@ def query_server(
 
 @cache
 def get_highlighted_lines(file_name: str):
+    from pygments import highlight
+    from pygments.formatters import TerminalFormatter
+    from pygments.lexers import get_lexer_for_filename
+    from pygments.lexers.javascript import JavascriptLexer
+    from pygments.lexers.javascript import TypeScriptLexer
+
     with open(file_name, "r", encoding="utf-8") as source_code_file:
         code = source_code_file.read()
 
