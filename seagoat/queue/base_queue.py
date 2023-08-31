@@ -2,6 +2,8 @@ from collections import namedtuple
 from multiprocessing import Manager
 from multiprocessing import Process
 from multiprocessing import Queue
+from typing import Any
+from typing import Dict
 
 
 Task = namedtuple("Task", ["name", "args", "kwargs"])
@@ -21,6 +23,13 @@ class BaseQueue:
 
     def _worker_function(self, *args, **kwargs):
         return args, kwargs
+
+    def _get_context(self) -> Dict[str, Any]:
+        low_priority_queue = Queue()
+
+        return {
+            "low_priority_queue": low_priority_queue,
+        }
 
     def enqueue_high_prio(self, task_name, *args, wait_for_result=True, **kwargs):
         result_queue = Manager().Queue()
