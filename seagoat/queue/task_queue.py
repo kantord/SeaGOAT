@@ -1,7 +1,6 @@
 # pylint: disable=import-outside-toplevel
 import logging
 import math
-from multiprocessing import Queue
 from typing import Optional
 
 from seagoat.queue.base_queue import BaseQueue
@@ -26,11 +25,8 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
 
 
 class TaskQueue(BaseQueue):
-    def _worker_function(
-        self, repo_path: str, minimum_chunks_to_analyze: Optional[int]
-    ):
-        logging.info("Starting worker process...")
-        low_priority_queue = Queue()
+    def _get_context(self, repo_path: str, minimum_chunks_to_analyze: Optional[int]):
+        context = dict(super()._get_context())
 
         from seagoat.engine import Engine
 
@@ -52,12 +48,23 @@ class TaskQueue(BaseQueue):
             )
 
         for chunk in remaining_chunks_to_analyze:
-            low_priority_queue.put(chunk)
+            context["low_priority_queue"].put(chunk)
 
-        context = {
-            "seagoat_engine": seagoat_engine,
-            "chunks_to_analyze": low_priority_queue,
-        }
+        context.update(
+            {
+                "seagoat_engine": seagoat_engine,
+            }
+        )
+
+        return context
+
+    def _worker_function(
+        self, repo_path: str, minimum_chunks_to_analyze: Optional[int]
+    ):
+        logging.info("Starting worker process...")
+        context = self._get_context(repo_path, minimum_chunks_to_analyze)
+        low_priority_queue = context["low_priority_queue"]
+        seagoat_engine = context["seagoat_engine"]
 
         while True:
             while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
@@ -90,9 +97,9 @@ class TaskQueue(BaseQueue):
 
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
-        chunks_to_analyze = context["chunks_to_analyze"]
+        low_priority_queue = context["low_priority_queue"]
         analyzed_count = len(engine.cache.data["chunks_already_analyzed"])
-        unanalyzed_count = chunks_to_analyze.qsize()
+        unanalyzed_count = low_priority_queue.qsize()
         total_chunks = analyzed_count + unanalyzed_count
 
         return {
