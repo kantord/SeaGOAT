@@ -192,7 +192,7 @@ def test_server_status_not_running_if_process_does_not_exist(repo):
 @pytest.mark.parametrize("limit_value", [1, 3, 7])
 def test_query_with_limit_clue_param(client, limit_value, mock_queue):
     response = client.get(f"/query/Markdown?limitClue={limit_value}")
-    mock_queue.enqueue.assert_called_with(
+    mock_queue.enqueue_high_prio.assert_called_with(
         "query",
         query="Markdown",
         limit_clue=limit_value,
@@ -205,7 +205,7 @@ def test_query_with_limit_clue_param(client, limit_value, mock_queue):
 @pytest.mark.parametrize("context_above", [0, 7])
 def test_query_with_context_above(client, context_above, mock_queue):
     response = client.get(f"/query/Markdown?contextAbove={context_above}")
-    mock_queue.enqueue.assert_called_with(
+    mock_queue.enqueue_high_prio.assert_called_with(
         "query",
         query="Markdown",
         context_above=context_above,
@@ -218,7 +218,7 @@ def test_query_with_context_above(client, context_above, mock_queue):
 @pytest.mark.parametrize("context_below", [0, 2])
 def test_query_with_context_below(client, mock_queue, context_below):
     response = client.get(f"/query/Markdown?contextBelow={context_below}")
-    mock_queue.enqueue.assert_called_with(
+    mock_queue.enqueue_high_prio.assert_called_with(
         "query",
         query="Markdown",
         context_below=context_below,

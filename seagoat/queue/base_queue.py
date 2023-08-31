@@ -22,7 +22,7 @@ class BaseQueue:
     def _worker_function(self, **args):
         return args
 
-    def enqueue(self, task_name, *args, wait_for_result=True, **kwargs):
+    def enqueue_high_prio(self, task_name, *args, wait_for_result=True, **kwargs):
         result_queue = Manager().Queue()
         task = Task(
             name=task_name, args=args, kwargs={**kwargs, "__result_queue": result_queue}
