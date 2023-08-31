@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from dataclasses import field
 from multiprocessing import Manager
@@ -20,12 +21,10 @@ class BaseQueue:
         self,
         **kwargs,
     ):
+        self.kwargs = kwargs
         self._task_queue = Queue()
-        self._worker_process = Process(target=self._worker_function, kwargs=kwargs)
+        self._worker_process = Process(target=self._worker_function)
         self._worker_process.start()
-
-    def _worker_function(self, *args, **kwargs):
-        return args, kwargs
 
     def _get_context(self) -> Dict[str, Any]:
         low_priority_queue = Queue()
@@ -58,3 +57,24 @@ class BaseQueue:
             result = handler(context, *task.args, **kwargs)
             if result_queue is not None:
                 result_queue.put(result)
+
+    def _worker_function(self):
+        logging.info("Starting worker process...")
+        context = self._get_context()
+        low_priority_queue = context["low_priority_queue"]
+
+        while True:
+            while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
+                task = low_priority_queue.get()
+                handler_name = f"handle_{task.name}"
+                handler = getattr(self, handler_name, None)
+                kwargs = dict(task.kwargs or {})
+                if handler:
+                    handler(context, *task.args, **kwargs)
+
+            task = self._task_queue.get()
+
+            if task.name == "shutdown":
+                break
+
+            self._handle_task(context, task)

@@ -1,7 +1,6 @@
 # pylint: disable=import-outside-toplevel
 import logging
 import math
-from typing import Optional
 
 from seagoat.queue.base_queue import BaseQueue
 from seagoat.queue.base_queue import Task
@@ -26,15 +25,14 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
 
 
 class TaskQueue(BaseQueue):
-    def _get_context(self, repo_path: str, minimum_chunks_to_analyze: Optional[int]):
+    def _get_context(self):
         context = dict(super()._get_context())
 
         from seagoat.engine import Engine
 
-        seagoat_engine = Engine(repo_path)
-
+        seagoat_engine = Engine(self.kwargs["repo_path"])
         remaining_chunks_to_analyze = seagoat_engine.analyze_codebase(
-            minimum_chunks_to_analyze
+            self.kwargs["minimum_chunks_to_analyze"]
         )
 
         logging.info("Analyzed the minimum number of chunks needed to operate. ")
@@ -60,29 +58,6 @@ class TaskQueue(BaseQueue):
         )
 
         return context
-
-    def _worker_function(
-        self, repo_path: str, minimum_chunks_to_analyze: Optional[int]
-    ):
-        logging.info("Starting worker process...")
-        context = self._get_context(repo_path, minimum_chunks_to_analyze)
-        low_priority_queue = context["low_priority_queue"]
-
-        while True:
-            while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
-                task = low_priority_queue.get()
-                handler_name = f"handle_{task.name}"
-                handler = getattr(self, handler_name, None)
-                kwargs = dict(task.kwargs or {})
-                if handler:
-                    handler(context, *task.args, **kwargs)
-
-            task = self._task_queue.get()
-
-            if task.name == "shutdown":
-                break
-
-            self._handle_task(context, task)
 
     def handle_analyze_chunk(self, context, chunk):
         logging.info(
