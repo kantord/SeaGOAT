@@ -49,6 +49,9 @@ class ResultLine:
 class ResultBlock:
     lines: List[ResultLine]
 
+    def to_json(self):
+        return self.lines[0].to_json()
+
 
 class Result:
     def __init__(self, path: str, full_path: Path) -> None:
@@ -117,9 +120,7 @@ class Result:
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "blocks": [
-                block.lines[0].to_json() for block in self.get_result_blocks(query)
-            ],
+            "blocks": [block.to_json() for block in self.get_result_blocks(query)],
         }
 
     def add_context_lines(self, lines: int):
