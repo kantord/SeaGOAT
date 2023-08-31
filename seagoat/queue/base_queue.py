@@ -19,8 +19,8 @@ class BaseQueue:
         )
         self._worker_process.start()
 
-    def _worker_function(self, **args):
-        return args
+    def _worker_function(self, *args, **kwargs):
+        return args, kwargs
 
     def enqueue_high_prio(self, task_name, *args, wait_for_result=True, **kwargs):
         result_queue = Manager().Queue()
