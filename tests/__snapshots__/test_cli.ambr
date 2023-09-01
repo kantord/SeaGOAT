@@ -7,7 +7,7 @@
 # ---
 # name: test_integration_test_with_color_and_bat
   list([
-    'bat /normalized_path/file4.js --line-range 1:1 --file-name file4.js',
+    'bat /normalized_path/file4.js --line-range 1:1 --file-name file4.js --paging never',
   ])
 # ---
 # name: test_integration_test_without_color

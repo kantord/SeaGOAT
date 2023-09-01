@@ -94,6 +94,8 @@ def display_block_with_bat(result, block):
         f"{start_line_number}:{end_line_number}",
         "--file-name",
         file_name,
+        "--paging",
+        "never",
     ]
 
     subprocess.run(command, check=True)
