@@ -1,5 +1,6 @@
 # pylint: disable=import-outside-toplevel
 import math
+import subprocess
 from functools import cache
 from typing import Optional
 
@@ -62,12 +63,46 @@ def iterate_result_blocks(results, max_results: Optional[int]):
             number_of_blocks_printed += 1
 
 
-def print_result_block(result, block, color_enabled):
-    for result_line in block["lines"]:
-        line = result_line["line"]
-        print_result_line(result, block, line, color_enabled)
-
-
 def display_results(results, max_results, color_enabled):
     for result, block in iterate_result_blocks(results, max_results):
         print_result_block(result, block, color_enabled)
+
+
+def is_bat_installed():
+    try:
+        result = subprocess.run(
+            ["bat", "--version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
+
+
+def display_block_with_bat(result, block):
+    file_name = result["path"]
+    full_path = result["fullPath"]
+    start_line_number = block["lines"][0]["line"]
+    end_line_number = block["lines"][-1]["line"]
+
+    command = [
+        "bat",
+        full_path,
+        "--line-range",
+        f"{start_line_number}:{end_line_number}",
+        "--file-name",
+        file_name,
+    ]
+
+    subprocess.run(command, check=True)
+
+
+def print_result_block(result, block, color_enabled):
+    if color_enabled and is_bat_installed():
+        display_block_with_bat(result, block)
+    else:
+        for result_line in block["lines"]:
+            line = result_line["line"]
+            print_result_line(result, block, line, color_enabled)

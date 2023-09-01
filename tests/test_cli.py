@@ -8,6 +8,12 @@ from flask import json
 from seagoat import __version__
 from seagoat.cli import seagoat
 from seagoat.server import get_server_info_file
+from seagoat.utils.cli_display import is_bat_installed
+
+
+@pytest.fixture
+def real_bat():
+    return
 
 
 @pytest.fixture(name="get_request_args_from_cli_call")
@@ -123,13 +129,23 @@ def test_forwards_limit_clue_to_server(max_length, get_request_args_from_cli_cal
     assert request_args["params"]["limitClue"] == max_length
 
 
-@pytest.mark.usefixtures("server", "mock_accuracy_warning")
+@pytest.mark.usefixtures("server", "mock_accuracy_warning", "bat_not_available")
 def test_integration_test_with_color(snapshot, repo, mocker, runner):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
     result = runner.invoke(seagoat, [query, repo.working_dir])
 
     assert result.output == snapshot
+    assert result.exit_code == 0
+
+
+@pytest.mark.usefixtures("server", "mock_accuracy_warning", "bat_available")
+def test_integration_test_with_color_and_bat(snapshot, repo, mocker, runner, bat_calls):
+    mocker.patch("os.isatty", return_value=True)
+    query = "JavaScript"
+    result = runner.invoke(seagoat, [query, repo.working_dir])
+
+    assert bat_calls == snapshot
     assert result.exit_code == 0
 
 
@@ -371,3 +387,22 @@ def test_server_error_handling(
 
     assert result.exit_code == 4
     assert error_message in result.stderr
+
+
+def test_bat_installed(mocker):
+    mock_run = mocker.patch("seagoat.utils.cli_display.subprocess.run")
+    mock_run.return_value.returncode = 0
+    assert is_bat_installed() is True
+
+
+def test_bat_not_installed_1(mocker):
+    mocker.patch(
+        "seagoat.utils.cli_display.subprocess.run", side_effect=FileNotFoundError
+    )
+    assert is_bat_installed() is False
+
+
+def test_bat_not_installed_2(mocker):
+    mock_run = mocker.patch("seagoat.utils.cli_display.subprocess.run")
+    mock_run.return_value.returncode = 1
+    assert is_bat_installed() is False
