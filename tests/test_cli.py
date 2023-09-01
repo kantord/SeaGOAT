@@ -9,11 +9,195 @@ from seagoat import __version__
 from seagoat.cli import seagoat
 from seagoat.server import get_server_info_file
 from seagoat.utils.cli_display import is_bat_installed
+from tests.conftest import MagicMock
 
 
 @pytest.fixture
 def real_bat():
     return
+
+
+@pytest.fixture
+def lots_of_fake_results(mocker):
+    mock_results = {
+        "results": [
+            {
+                "blocks": [
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 9,
+                                "lineText": "* feat: only display full code blocks in result ([`e2767f9`](https://github.com/kantord/SeaGOAT/commit/e2767f98ece3023e01ec4a6d95cd14701b11f842))",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 24,
+                                "lineText": "* refactor: group continuous lines into blocks ([`6a15673`](https://github.com/kantord/SeaGOAT/commit/6a15673e27bf906f8aca4e7eb000a8e24ba56acf))",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                ],
+                "fullPath": "/home/kantord/repos/SeaGOAT/CHANGELOG.md",
+                "path": "CHANGELOG.md",
+            },
+            {
+                "blocks": [
+                    {
+                        "lineTypeCount": {"result": 2},
+                        "lines": [
+                            {
+                                "line": 240,
+                                "lineText": '                    print("Server responded with a 500 error:")',
+                                "resultTypes": ["result"],
+                            },
+                            {
+                                "line": 241,
+                                "lineText": "                    print(response.text)",
+                                "resultTypes": ["result"],
+                            },
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 2},
+                        "lines": [
+                            {
+                                "line": 283,
+                                "lineText": "    def _mock_results(results_template):",
+                                "resultTypes": ["result"],
+                            },
+                            {
+                                "line": 284,
+                                "lineText": "        results = []",
+                                "resultTypes": ["result"],
+                            },
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 2},
+                        "lines": [
+                            {
+                                "line": 287,
+                                "lineText": "        for filename, lines in results_template:",
+                                "resultTypes": ["result"],
+                            },
+                            {
+                                "line": 288,
+                                "lineText": "            for i, line_text in enumerate(lines):",
+                                "resultTypes": ["result"],
+                            },
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 291,
+                                "lineText": "        for filename, lines in fake_files.items():",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 295,
+                                "lineText": "                lines_sorted_by_line_number = sorted(lines.items(), key=lambda x: x[0])",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 297,
+                                "lineText": "                    [line for _, line in lines_sorted_by_line_number]",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 2},
+                        "lines": [
+                            {
+                                "line": 301,
+                                "lineText": "        for filename, lines in results_template:",
+                                "resultTypes": ["result"],
+                            },
+                            {
+                                "line": 302,
+                                "lineText": "            result = {",
+                                "resultTypes": ["result"],
+                            },
+                        ],
+                    },
+                ],
+                "fullPath": "/home/kantord/repos/SeaGOAT/tests/conftest.py",
+                "path": "tests/conftest.py",
+            },
+            {
+                "blocks": [
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 43,
+                                "lineText": '        results = current_app.extensions["task_queue"].enqueue_high_prio(',
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 51,
+                                "lineText": "        for result in results:",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 53,
+                                "lineText": "                result.add_context_lines(-int(context_above))",
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                    {
+                        "lineTypeCount": {"result": 1},
+                        "lines": [
+                            {
+                                "line": 56,
+                                "lineText": '            "results": [result.to_json(query) for result in results],',
+                                "resultTypes": ["result"],
+                            }
+                        ],
+                    },
+                ],
+                "fullPath": "/home/kantord/repos/SeaGOAT/seagoat/server.py",
+                "path": "seagoat/server.py",
+            },
+        ],
+        "version": "0.18.0",
+    }
+
+    mock_response = MagicMock()
+    mock_response.json.return_value = mock_results
+    mocker.patch("requests.get", return_value=mock_response)
+
+    return mock_results
 
 
 @pytest.fixture(name="get_request_args_from_cli_call")
@@ -139,7 +323,9 @@ def test_integration_test_with_color(snapshot, repo, mocker, runner):
     assert result.exit_code == 0
 
 
-@pytest.mark.usefixtures("server", "mock_accuracy_warning", "bat_available")
+@pytest.mark.usefixtures(
+    "server", "mock_accuracy_warning", "bat_available", "lots_of_fake_results"
+)
 def test_integration_test_with_color_and_bat(snapshot, repo, mocker, runner, bat_calls):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
