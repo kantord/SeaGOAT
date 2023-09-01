@@ -62,8 +62,12 @@ def iterate_result_blocks(results, max_results: Optional[int]):
             number_of_blocks_printed += 1
 
 
+def print_result_block(result, block, color_enabled):
+    for result_line in block["lines"]:
+        line = result_line["line"]
+        print_result_line(result, block, line, color_enabled)
+
+
 def display_results(results, max_results, color_enabled):
     for result, block in iterate_result_blocks(results, max_results):
-        for result_line in block["lines"]:
-            line = result_line["line"]
-            print_result_line(result, block, line, color_enabled)
+        print_result_block(result, block, color_enabled)
