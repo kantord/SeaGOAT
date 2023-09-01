@@ -7,7 +7,9 @@
 # ---
 # name: test_integration_test_with_color_and_bat
   list([
-    'bat /normalized_path/file4.js --line-range 1:1 --file-name file4.js --paging never',
+    'bat /home/kantord/repos/SeaGOAT/CHANGELOG.md --file-name CHANGELOG.md --paging never --line-range 9:9 --line-range 24:24',
+    'bat /home/kantord/repos/SeaGOAT/tests/conftest.py --file-name tests/conftest.py --paging never --line-range 240:241 --line-range 283:284 --line-range 287:288 --line-range 291:291 --line-range 295:295 --line-range 297:297 --line-range 301:302',
+    'bat /home/kantord/repos/SeaGOAT/seagoat/server.py --file-name seagoat/server.py --paging never --line-range 43:43 --line-range 51:51 --line-range 53:53 --line-range 56:56',
   ])
 # ---
 # name: test_integration_test_without_color
