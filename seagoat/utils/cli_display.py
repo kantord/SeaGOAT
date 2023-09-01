@@ -47,26 +47,20 @@ def print_result_line(result, block, line, color_enabled):
 
 
 def iterate_result_lines(results, max_results: Optional[int]):
-    if max_results == 0:
-        return
-
     lines_left_to_print = max_results if max_results is not None else math.inf
+    number_of_blocks_printed = 0
 
     for result in results:
-        if lines_left_to_print <= 0:
-            return
-
         for block in result["blocks"]:
-            for line in block["lines"]:
-                if "result" in line["resultTypes"]:
-                    if lines_left_to_print <= 0:
-                        return
+            if lines_left_to_print <= 0 and number_of_blocks_printed >= 1:
+                return
 
+            lines_left_to_print -= block["lineTypeCount"]["result"]
+
+            for line in block["lines"]:
                 yield result, block, line
 
-                if "result" in line["resultTypes"]:
-                    if max_results is not None:
-                        lines_left_to_print -= 1
+            number_of_blocks_printed += 1
 
 
 def display_results(results, max_results, color_enabled):

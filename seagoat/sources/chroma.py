@@ -23,7 +23,7 @@ def initialize(repository: Repository):
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
-        n_results = limit * 2
+        n_results = (limit + 1) * 2
 
         chromadb_results = [
             chroma_collection.query(query_texts=[query_text], n_results=n_results)
