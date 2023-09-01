@@ -2,6 +2,35 @@
 
 
 
+## v0.19.0 (2023-09-01)
+
+### Chore
+
+* chore(deps): update dependency ipython to v8.15.0 ([`9c19d36`](https://github.com/kantord/SeaGOAT/commit/9c19d367355cea2f17f7c4e22cc1820570638be8))
+
+### Documentation
+
+* docs: document bat usage ([`173853c`](https://github.com/kantord/SeaGOAT/commit/173853cd93463e1c436e96357442a0a5a93b7437))
+
+### Feature
+
+* feat: group results together when printing with bat ([`f8e26f8`](https://github.com/kantord/SeaGOAT/commit/f8e26f8dd7a58becccd494a2f48b8fa04993364f))
+
+* feat: display results with bat
+
+fixes: #145 ([`199b06d`](https://github.com/kantord/SeaGOAT/commit/199b06daa293875da8d192cf97bf54c3861255bb))
+
+### Fix
+
+* fix: never use pager in bat ([`86e8d5d`](https://github.com/kantord/SeaGOAT/commit/86e8d5d8697d3999690e475969ec27a5fd255551))
+
+### Refactor
+
+* refactor: extract print_result_block() ([`3acbe18`](https://github.com/kantord/SeaGOAT/commit/3acbe18bcd50bd1d37df42aa871512d5ceed6b8e))
+
+* refactor: iterate lines in display_results() ([`ebadc81`](https://github.com/kantord/SeaGOAT/commit/ebadc8157685bd271210c376d940cac6f9b4a349))
+
+
 ## v0.18.0 (2023-09-01)
 
 ### Feature
