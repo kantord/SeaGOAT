@@ -2,6 +2,7 @@
 import logging
 import multiprocessing
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -501,3 +502,48 @@ def mock_sources(create_prepared_seagoat):
     }
     my_query = "fake query"
     create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+
+
+@pytest.fixture
+def bat_not_available(mocker):
+    """This fixture makes the assumption that bat is NOT available by default."""
+    mocker.patch("seagoat.utils.cli_display.is_bat_installed", return_value=False)
+
+
+@pytest.fixture(autouse=True)
+# pylint: disable-next=unused-argument
+def real_bat(bat_not_available):
+    """This fixture sets the default behavior of is_bat_installed."""
+    # Nothing to do here since bat_not_available has already set the behavior
+
+
+@pytest.fixture
+def bat_available(mocker):
+    """This fixture makes bat available for tests that explicitly use it."""
+    mocker.patch("seagoat.utils.cli_display.is_bat_installed", return_value=True)
+
+
+@pytest.fixture
+def bat_calls(mocker):
+    calls = []
+
+    # pylint: disable-next=unused-argument
+    def mock_bat(*args, **kwargs):
+        if args[0] and args[0][0] == "bat":
+            command_str = " ".join(args[0])
+            normalized_command = re.sub(
+                r"/tmp/[^/]+/", "/normalized_path/", command_str
+            )
+
+            calls.append(normalized_command)
+
+            class MockResult:
+                returncode = 0
+
+            return MockResult()
+
+        return ""
+
+    mocker.patch("subprocess.run", side_effect=mock_bat)
+
+    return calls
