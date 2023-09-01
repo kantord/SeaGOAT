@@ -24,6 +24,13 @@ dependencies already installed on your computer:
 
 - Python 3.11 or newer
 - ripgrep
+- [https://github.com/sharkdp/bat](bat) (**optional**)
+
+When `bat` is [installed](https://github.com/sharkdp/bat#on-ubuntu-using-apt),
+it is used to display results as long as color is enabled. When SeaGOAT is
+used as part of a pipeline, a grep-line output format is used. When color is
+enabled, but `bat` is not installed, SeaGOAT will highlight the output using
+pygments. Using `bat` is recommended.
 
 To install SeaGOAT using `pipx`, use the following command:
 
