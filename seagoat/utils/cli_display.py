@@ -46,7 +46,7 @@ def print_result_line(result, block, line, color_enabled):
                 break
 
 
-def iterate_result_lines(results, max_results: Optional[int]):
+def iterate_result_blocks(results, max_results: Optional[int]):
     lines_left_to_print = max_results if max_results is not None else math.inf
     number_of_blocks_printed = 0
 
@@ -57,13 +57,13 @@ def iterate_result_lines(results, max_results: Optional[int]):
 
             lines_left_to_print -= block["lineTypeCount"]["result"]
 
-            for line in block["lines"]:
-                yield result, block, line
+            yield result, block
 
             number_of_blocks_printed += 1
 
 
 def display_results(results, max_results, color_enabled):
-    for result, block, result_line in iterate_result_lines(results, max_results):
-        line = result_line["line"]
-        print_result_line(result, block, line, color_enabled)
+    for result, block in iterate_result_blocks(results, max_results):
+        for result_line in block["lines"]:
+            line = result_line["line"]
+            print_result_line(result, block, line, color_enabled)
