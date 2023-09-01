@@ -2,6 +2,59 @@
 
 
 
+## v0.17.2 (2023-09-01)
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.33 ([`7e25ab5`](https://github.com/kantord/SeaGOAT/commit/7e25ab52bfe3b2d4c95126fac25ba82250b92011))
+
+### Refactor
+
+* refactor: group continuous lines into blocks ([`6a15673`](https://github.com/kantord/SeaGOAT/commit/6a15673e27bf906f8aca4e7eb000a8e24ba56acf))
+
+* refactor: nest lines under blocks ([`b50158f`](https://github.com/kantord/SeaGOAT/commit/b50158f0e6181f3f6721c321475112dfef512542))
+
+* refactor: add to_json() to ResultBlock ([`a1423be`](https://github.com/kantord/SeaGOAT/commit/a1423be803e6892ac0a362f058e7a3dfb07d3cec))
+
+* refactor: rename &#34;lines&#34; to &#34;blocks&#34; ([`27321fc`](https://github.com/kantord/SeaGOAT/commit/27321fc7579690a67dcebe43756d5e994dd95081))
+
+* refactor: create ResultBlock ([`f02fdcd`](https://github.com/kantord/SeaGOAT/commit/f02fdcdeeffc2406a2a18ad0d918fa93a4d4e22b))
+
+* refactor: move wait_for to utils ([`1bb1255`](https://github.com/kantord/SeaGOAT/commit/1bb12558c5e24d0b1302a59de1f8ae06e05639de))
+
+* refactor: create utils folder ([`6244c51`](https://github.com/kantord/SeaGOAT/commit/6244c51de8a27e83f4ee152375150d6da1386214))
+
+* refactor: extract display utils to a separate files ([`9efef1b`](https://github.com/kantord/SeaGOAT/commit/9efef1bef098564e0ccff1ee4fea628306f9733c))
+
+* refactor: reuse _handle_task ([`cdfca1e`](https://github.com/kantord/SeaGOAT/commit/cdfca1ea8e1bfc0c4529282bbb15a49dbbd81a81))
+
+* refactor: move worker function to BaseQueue ([`0ff8be2`](https://github.com/kantord/SeaGOAT/commit/0ff8be2bffbcf9339c58f603b41d8f8dcecc7b1e))
+
+* refactor: handle chunks using task handlers ([`9489715`](https://github.com/kantord/SeaGOAT/commit/9489715105999bfdd428dccf0f6caa722e75c191))
+
+* refactor: use Task dataclass instead of named tuple ([`ba81343`](https://github.com/kantord/SeaGOAT/commit/ba813431b229e1b6aac4880120a23f5afdfe6e3b))
+
+* refactor: use Task for low prio queues ([`b61bc29`](https://github.com/kantord/SeaGOAT/commit/b61bc292ed2f6d868def8ae9d272cf195ead66b7))
+
+* refactor: force kwargs only for queues ([`2127263`](https://github.com/kantord/SeaGOAT/commit/21272634d777cb819c713ae3ecc4f6d7ad7c4319))
+
+* refactor: extract _get_context ([`2d8c24a`](https://github.com/kantord/SeaGOAT/commit/2d8c24a6c3df2aa3cad4aa21949a36f94cbfa050))
+
+* refactor: rename chunks_to_analyze to low_priority_queue ([`440e9da`](https://github.com/kantord/SeaGOAT/commit/440e9daa27c7fa1324abaa1fe8217c649726e1ad))
+
+* refactor: rename enqueue to enqueue_high_prio ([`221dba8`](https://github.com/kantord/SeaGOAT/commit/221dba8317b6fa0dbd42ade79ec46b067ba7c138))
+
+* refactor: extract _handle_task ([`68fe9d8`](https://github.com/kantord/SeaGOAT/commit/68fe9d86d1129c7701add050ffd290b1e5155fe8))
+
+* refactor: extract BaseQueue ([`73edaf2`](https://github.com/kantord/SeaGOAT/commit/73edaf281860bfd7349d2fce1f08c01acc156829))
+
+* refactor: move queue to a separate folder ([`438887d`](https://github.com/kantord/SeaGOAT/commit/438887d22569c0e59cf6353893881227a2cd04ee))
+
+### Test
+
+* test: fix flaky test ([`528e639`](https://github.com/kantord/SeaGOAT/commit/528e63979fc60622846a643c6fc8ee8a2c8373ac))
+
+
 ## v0.17.1 (2023-08-31)
 
 ### Chore
