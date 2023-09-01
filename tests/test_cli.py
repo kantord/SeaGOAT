@@ -1,4 +1,3 @@
-import itertools
 from typing import List
 
 import pytest
@@ -103,7 +102,6 @@ def test_seagoat_warns_on_incomplete_accuracy(
     mocker.patch("requests.get", return_value=mock_response(mock_status_response))
     mocker.patch("seagoat.cli.get_server_info_file")
     mocker.patch("seagoat.cli.load_server_info", return_value=(None, None, None, ""))
-    mocker.patch("seagoat.cli.display_results", return_value=[])
 
     query = "some random query"
     result = runner_with_error.invoke(seagoat, [query, "--no-color"])
@@ -147,11 +145,20 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner):
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize(
-    "max_length, command_option",
-    list(itertools.product([0, 1, 2, 20], ["--max-results", "-l"])),
+    "max_length, command_option, expected_length",
+    [
+        (20, "-l", 20),
+        (0, "-l", 3),
+        (1, "--max-results", 3),
+        (3, "--max-results", 3),
+        (4, "--max-results", 5),
+        (6, "-l", 7),
+        (2, "-l", 3),
+    ],
 )
+# pylint: disable-next=too-many-arguments
 def test_limit_output_length(
-    repo, max_length, command_option, mock_server_factory, runner
+    repo, max_length, command_option, mock_server_factory, runner, expected_length
 ):
     mock_server_factory(
         [
@@ -170,8 +177,8 @@ def test_limit_output_length(
         [query, repo.working_dir, "--no-color", command_option, str(max_length)],
     )
 
-    assert result.output.splitlines() == result.output.splitlines()[:max_length]
-    assert len(result.output.splitlines()) == min(max_length, 15)
+    assert len(result.output.splitlines()) == min(expected_length, 15)
+    assert result.output.splitlines() == result.output.splitlines()[:expected_length]
     assert result.exit_code == 0
 
 
@@ -254,7 +261,14 @@ def test_limit_does_not_apply_to_context_lines(repo, mock_server_factory, runner
         [
             ["hello.txt", ["foo", "a context line", "baz"]],
             ["foobar.py", ["def hello():", "    print('world')"]],
-            ["foobar2.py", ["def hola():", "    print('mundo') # I am a context line"]],
+            [
+                "foobar2.py",
+                [
+                    "def hola():",
+                    "    print('mundo') # I am a context line",
+                    "# screaming: context!",
+                ],
+            ],
             ["foobar3.py", ["def bonjour():", "    print('monde')"]],
             [
                 "foobar.fake",
@@ -270,10 +284,10 @@ def test_limit_does_not_apply_to_context_lines(repo, mock_server_factory, runner
     query = "JavaScript"
     result = runner.invoke(
         seagoat,
-        [query, repo.working_dir, "--no-color", "-l3", "--context=3"],
+        [query, repo.working_dir, "--no-color", "-l5", "--context=3"],
     )
 
-    assert len(result.output.splitlines()) > 3
+    assert len(result.output.splitlines()) > 5
     assert result.exit_code == 0
 
 

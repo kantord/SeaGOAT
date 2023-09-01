@@ -301,18 +301,20 @@ def mock_server_factory(mocker, repo, init_server_mock):
             result = {
                 "path": filename,
                 "fullPath": Path(repo.working_dir) / filename,
-                "blocks": [{"lines": []}],
+                "blocks": [{"lines": [], "lineTypeCount": {"result": 0, "context": 0}}],
             }
             for i, line_text in enumerate(lines):
+                is_context_line = "context line" in line_text
                 result["blocks"][0]["lines"].append(
                     {
                         "line": i + 1,
                         "lineText": line_text,
-                        "resultTypes": ["result"]
-                        if "context line" not in line_text
-                        else ["context"],
+                        "resultTypes": ["result"] if is_context_line else ["context"],
                     }
                 )
+                result["blocks"][0]["lineTypeCount"][
+                    "context" if is_context_line else "result"
+                ] += 1
 
             results.append(result)
 

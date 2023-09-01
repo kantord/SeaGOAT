@@ -64,7 +64,7 @@ This is automatically enabled when used as part of a bash pipeline.
 seagoat "myQuery" --no-color
 ```
 
-### `-l, --max-results`: Limit number of results
+### `-l, --max-results`: Limit number of result lines
 
 This limits the number of result lines displayed.
 Useful if you only care about the best results.
@@ -73,11 +73,18 @@ Useful if you only care about the best results.
 seagoat "myQuery" --max-results=5
 ```
 
-Note that the line number limit is only applied to actual result lines.
-If you include context lines, those lines will not be counted as part of the
-limit and will be displayed regardless. When the last last result line of the
-last result file is displayed, all following context lines until the next
-result line (or the end of the file) are displayed.
+!!! note "SeaGOAT is oriented around code blocks, not individual lines"
+
+    In SeaGOAT, code is displayed in full, continous blocks rather than
+    individual lines. It'll always show at least one full block,
+    even if your limit is 0.
+
+    If you set a limit, SeaGOAT ensures that complete blocks are shown as long
+    as they fit in your limit. For example, with a 5-line limit,
+    it can show a 3-line and a 2-line block, but not two 3-line blocks.
+
+    Also, this limit only counts the actual code, not any extra context lines
+    you might request.
 
 ### `--version`: Print version number
 
