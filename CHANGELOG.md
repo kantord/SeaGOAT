@@ -2,6 +2,17 @@
 
 
 
+## v0.18.0 (2023-09-01)
+
+### Feature
+
+* feat: only display full code blocks in result ([`e2767f9`](https://github.com/kantord/SeaGOAT/commit/e2767f98ece3023e01ec4a6d95cd14701b11f842))
+
+### Refactor
+
+* refactor: count line types for each block ([`aa13645`](https://github.com/kantord/SeaGOAT/commit/aa1364569541205696930663ae34543ea5353dcc))
+
+
 ## v0.17.2 (2023-09-01)
 
 ### Fix
