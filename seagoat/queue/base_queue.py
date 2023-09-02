@@ -49,6 +49,7 @@ class BaseQueue:
         self._worker_process.join()
 
     def _handle_task(self, context, task: Task):
+        logging.info("Handling task: %s", task.name)
         handler_name = f"handle_{task.name}"
         handler = getattr(self, handler_name, None)
         if handler:
