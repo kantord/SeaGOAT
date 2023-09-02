@@ -2,6 +2,19 @@
 
 
 
+## v0.19.1 (2023-09-02)
+
+### Chore
+
+* chore: log when a task on the queue is being handled ([`55321ba`](https://github.com/kantord/SeaGOAT/commit/55321ba252da05f0fe833ba9fcfb8217231b8630))
+
+* chore(deps): update dependency syrupy to v4.5.0 ([`d1d6700`](https://github.com/kantord/SeaGOAT/commit/d1d670016853708eaec7d5c86035d9323f3b02ad))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.34 ([`0548a84`](https://github.com/kantord/SeaGOAT/commit/0548a84d96e06e9202014b6f82a07e951c7abc6e))
+
+
 ## v0.19.0 (2023-09-01)
 
 ### Chore
