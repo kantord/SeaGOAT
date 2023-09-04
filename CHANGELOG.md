@@ -2,6 +2,33 @@
 
 
 
+## v0.19.2 (2023-09-04)
+
+### Chore
+
+* chore(deps): update actions/checkout action to v4 ([`56934cb`](https://github.com/kantord/SeaGOAT/commit/56934cb2da053cd59deb0da038060cf8b3bd4013))
+
+* chore(deps): update dependency pre-commit to v3.4.0 ([`0dfd947`](https://github.com/kantord/SeaGOAT/commit/0dfd9473dc7f53055e669c9920dbcbc0449e2e11))
+
+* chore(deps): update dependency mkdocs-material to v9.2.7 ([`ead0117`](https://github.com/kantord/SeaGOAT/commit/ead01173b2f0620c7e33a754e87a074b04923fd5))
+
+* chore(deps): update dependency pytest to v7.4.1 ([`8479a16`](https://github.com/kantord/SeaGOAT/commit/8479a1673a78bfbc1860c151653e652eabbeda8f))
+
+### Performance
+
+* perf: use a faster json deserialization tool ([`090e8d5`](https://github.com/kantord/SeaGOAT/commit/090e8d5e106487635638a8651fc37386b0770064))
+
+* perf: avoid double deserlization ([`6e1ecc4`](https://github.com/kantord/SeaGOAT/commit/6e1ecc40bec81ba211959707ecc176f5c658d932))
+
+* perf: use a faster JSON serialization tool ([`3187315`](https://github.com/kantord/SeaGOAT/commit/31873152ae936f6925f8569f18026b6aea2d9250))
+
+* perf: avoid double serialization ([`981532a`](https://github.com/kantord/SeaGOAT/commit/981532af82541768b891f29b5a9423ffab3910f0))
+
+* perf: remove redundant code ([`8752892`](https://github.com/kantord/SeaGOAT/commit/87528920fe11e1cfda5cbfdf42503a847055759a))
+
+* perf: avoid overfetching results ([`c0c1c6c`](https://github.com/kantord/SeaGOAT/commit/c0c1c6c494a48bab71a8ac5ca871b22180fe71c0))
+
+
 ## v0.19.1 (2023-09-02)
 
 ### Chore
