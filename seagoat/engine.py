@@ -172,7 +172,7 @@ class Engine:
 
         return normalize
 
-    def get_results(self):
+    def get_results(self, hard_count_limit: int = 1000):
         merged_results = {}
 
         for result_item in self._results:
@@ -205,4 +205,4 @@ class Engine:
                     + 0.3 * normalize_file_position(top_files[x.path])
                 ),
             )
-        )
+        )[:hard_count_limit]
