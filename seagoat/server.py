@@ -48,10 +48,6 @@ def create_app(repo_path):
             limit_clue=limit_clue,
         )
 
-        for result in results:
-            if context_above:
-                result.add_context_lines(-int(context_above))
-
         return {
             "results": [result.to_json(query) for result in results],
             "version": __version__,
