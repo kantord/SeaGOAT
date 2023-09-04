@@ -54,6 +54,7 @@ def query_server(
             sys.exit(ExitCode.SERVER_ERROR)
 
         response.raise_for_status()
+        return response_data["results"]
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,
@@ -64,8 +65,6 @@ def query_server(
             f"seagoat-server start {repo_path}\n"
         )
         sys.exit(ExitCode.SERVER_NOT_RUNNING)
-
-    return response.json()["results"]
 
 
 @click.command()
