@@ -33,8 +33,8 @@ from seagoat.server import start_server
 from seagoat.server import wait_for
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
-from seagoat.utils.server import get_server_info_file
-from seagoat.utils.server import load_server_info
+from seagoat.utils.server import get_server_info
+from seagoat.utils.server import get_server_info_file_path
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -217,12 +217,10 @@ def _start_server(repo):
         )
         server_process.start()
 
-        server_info_file = get_server_info_file(repo.working_dir)
+        server_info_file = get_server_info_file_path(repo.working_dir)
         wait_for(lambda: os.path.exists(server_info_file), 120)
 
-        _, __, ___, server_address = load_server_info(
-            get_server_info_file(repo.working_dir)
-        )
+        _, __, ___, server_address = get_server_info(repo.working_dir)
 
         retries = Retry(total=5, backoff_factor=0.1)
 
@@ -268,11 +266,8 @@ def _server(start_server):
 def init_server_mock(mocker):
     def _init_server_mock():
         mocker.patch(
-            "seagoat.cli.load_server_info",
+            "seagoat.cli.get_server_info",
             return_value=(None, None, None, "fake_server_address"),
-        )
-        mocker.patch(
-            "seagoat.cli.get_server_info_file", return_value="fake_server_info_file"
         )
         mocker.patch("os.isatty", return_value=True)
 

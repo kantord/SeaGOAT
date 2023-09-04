@@ -8,8 +8,8 @@ from flask import json
 
 from seagoat import __version__
 from seagoat.cli import seagoat
-from seagoat.server import get_server_info_file
 from seagoat.utils.cli_display import is_bat_installed
+from seagoat.utils.server import get_server_info_file_path
 from tests.conftest import MagicMock
 
 
@@ -291,8 +291,7 @@ def test_seagoat_warns_on_incomplete_accuracy(
     }
 
     mocker.patch("requests.get", return_value=mock_response(mock_status_response))
-    mocker.patch("seagoat.cli.get_server_info_file")
-    mocker.patch("seagoat.cli.load_server_info", return_value=(None, None, None, ""))
+    mocker.patch("seagoat.cli.get_server_info", return_value=(None, None, None, None))
 
     query = "some random query"
     result = runner_with_error.invoke(seagoat, [query, "--no-color"])
@@ -401,7 +400,7 @@ def test_version_option(runner):
 )
 def test_server_is_not_running_error(mocker, repo_path, snapshot):
     runner = CliRunner()
-    server_info_file = get_server_info_file(repo_path)
+    server_info_file = get_server_info_file_path(repo_path)
     with open(server_info_file, "w", encoding="utf-8") as file:
         json.dump({"host": "localhost", "port": 345435, "pid": 234234}, file)
     mocker.patch("os.isatty", return_value=True)

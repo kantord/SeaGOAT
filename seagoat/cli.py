@@ -8,8 +8,7 @@ import requests
 
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
-from seagoat.utils.server import get_server_info_file
-from seagoat.utils.server import load_server_info
+from seagoat.utils.server import get_server_info
 
 
 # pylint: disable-next=too-few-public-methods
@@ -119,8 +118,7 @@ def seagoat(
     In order to use seagoat in your repository, you need to run a server
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
-    server_info_file = get_server_info_file(repo_path)
-    _, __, ___, server_address = load_server_info(server_info_file)
+    _, __, ___, server_address = get_server_info(repo_path)
 
     if context is not None:
         context_above = context
