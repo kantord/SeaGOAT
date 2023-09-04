@@ -17,6 +17,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import appdirs
+import orjson
 import pytest
 import requests
 from click.testing import CliRunner
@@ -341,7 +342,7 @@ def mock_server_error_factory(mocker, init_server_mock):
 
         mocked_response = MagicMock()
 
-        mocked_response.json.return_value = error_response
+        mocked_response.text = orjson.dumps(error_response)
 
         return mocked_response
 

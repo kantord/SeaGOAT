@@ -1,5 +1,6 @@
 from typing import List
 
+import orjson
 import pytest
 import requests
 from click.testing import CliRunner
@@ -194,7 +195,7 @@ def lots_of_fake_results(mocker):
     }
 
     mock_response = MagicMock()
-    mock_response.json.return_value = mock_results
+    mock_response.text = orjson.dumps(mock_results)
     mocker.patch("requests.get", return_value=mock_response)
 
     return mock_results
@@ -220,7 +221,7 @@ def get_request_args_from_cli_call_(mock_server_factory, mocker, runner, repo):
 
         def fake_requests(*args, **kwargs):
             mock_response = mocker.Mock()
-            mock_response.json.return_value = {"results": []}
+            mock_response.text = '{"results": []}'
 
             request_args["url"] = args[0]
             request_args["params"] = kwargs.get("params", {})
@@ -248,7 +249,7 @@ def mock_response_(mocker):
     def _mock_response(json_data, status_code=200):
         mock_resp = mocker.Mock(spec=requests.Response)
         mock_resp.status_code = status_code
-        mock_resp.json = mocker.Mock(return_value=json_data)
+        mock_resp.text = orjson.dumps(json_data)
         return mock_resp
 
     return _mock_response

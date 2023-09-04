@@ -3,6 +3,7 @@ import os
 import sys
 
 import click
+import orjson
 import requests
 
 from seagoat import __version__
@@ -21,7 +22,7 @@ def display_accuracy_warning(server_address):
     response = requests.get(
         f"{server_address}/status",
     )
-    response_data = response.json()
+    response_data = orjson.loads(response.text)
     accuracy = response_data["stats"]["accuracy"]["percentage"]
 
     if accuracy < 100:
@@ -48,7 +49,7 @@ def query_server(
             },
         )
 
-        response_data = response.json()
+        response_data = orjson.loads(response.text)
         if "error" in response_data:
             click.echo(response_data["error"]["message"], err=True)
             sys.exit(ExitCode.SERVER_ERROR)
