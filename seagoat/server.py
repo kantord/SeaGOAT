@@ -40,18 +40,13 @@ def create_app(repo_path):
                 "Invalid limitClue value. Must be an integer."
             ) from exception
 
-        results = current_app.extensions["task_queue"].enqueue_high_prio(
+        return current_app.extensions["task_queue"].enqueue_high_prio(
             "query",
             query=query,
             context_below=int(context_below),
             context_above=int(context_above),
             limit_clue=limit_clue,
         )
-
-        return {
-            "results": [result.to_json(query) for result in results],
-            "version": __version__,
-        }
 
     @app.route("/status")
     def status_():

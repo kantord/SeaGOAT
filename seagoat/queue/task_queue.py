@@ -2,6 +2,7 @@
 import logging
 import math
 
+from seagoat import __version__
 from seagoat.queue.base_queue import BaseQueue
 from seagoat.queue.base_queue import Task
 
@@ -82,7 +83,12 @@ class TaskQueue(BaseQueue):
             context_above=int(kwargs["context_above"]),
             context_below=int(kwargs["context_below"]),
         )
-        return context["seagoat_engine"].get_results(kwargs["limit_clue"])
+        results = context["seagoat_engine"].get_results(kwargs["limit_clue"])
+
+        return {
+            "results": [result.to_json(kwargs["query"]) for result in results],
+            "version": __version__,
+        }
 
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
