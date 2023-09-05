@@ -13,6 +13,7 @@ from werkzeug.serving import run_simple
 
 from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
+from seagoat.utils.server import get_server_info
 from seagoat.utils.server import get_server_info_file
 from seagoat.utils.server import is_server_running
 from seagoat.utils.server import load_server_info
@@ -126,9 +127,9 @@ def get_server(repo_path, custom_port=None):
 
     wait_for(lambda: os.path.exists(server_info_file), timeout=60)
 
-    _, port, __, server_address = load_server_info(server_info_file)
-    click.echo(f"Server started at {server_address}")
-    return server_address
+    server_info = get_server_info(repo_path)
+    click.echo(f"Server started at {server_info['address']}")
+    return server_info["address"]
 
 
 @click.group()

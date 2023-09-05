@@ -23,7 +23,10 @@ def load_server_info(server_info_file):
 
 
 def get_server_info(repo_path: str):
-    return get_json_file_contents(get_server_info_file(repo_path))
+    server_info = get_json_file_contents(get_server_info_file(repo_path))
+    server_info["address"] = f"http://{server_info['host']}:{server_info['port']}"
+
+    return server_info
 
 
 def is_server_running(repo_path: str):
