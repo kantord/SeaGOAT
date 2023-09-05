@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import socket
 from multiprocessing import Process
 
 import click
@@ -13,6 +12,7 @@ from werkzeug.serving import run_simple
 
 from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
+from seagoat.utils.server import get_free_port
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import get_server_info_file
 from seagoat.utils.server import is_server_running
@@ -76,15 +76,6 @@ def create_app(repo_path):
         return jsonify(res), 500
 
     return app
-
-
-def get_free_port():
-    socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket_obj.bind(("", 0))
-    _, port = socket_obj.getsockname()
-    socket_obj.close()
-
-    return port
 
 
 def start_server(repo_path, custom_port=None):
