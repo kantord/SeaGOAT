@@ -3,7 +3,7 @@ import socket
 
 import appdirs
 
-from seagoat.utils.json import get_json_file_contents
+from seagoat.utils.json_file import get_json_file_contents
 
 
 def get_server_info_file(repo_path):
@@ -22,8 +22,11 @@ def load_server_info(server_info_file):
     return host, port, pid, server_address
 
 
+def get_server_info(repo_path: str):
+    return get_json_file_contents(get_server_info_file(repo_path))
+
+
 def is_server_running(repo_path: str):
-    server_info_file = get_server_info_file(repo_path)
-    host, port, _, __ = load_server_info(server_info_file)
+    server_info = get_server_info(repo_path)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_obj:
-        return socket_obj.connect_ex((host, port)) == 0
+        return socket_obj.connect_ex((server_info["host"], server_info["port"])) == 0
