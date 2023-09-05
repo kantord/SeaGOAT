@@ -13,8 +13,8 @@ import requests
 from seagoat import __version__
 from seagoat.server import get_status_data
 from seagoat.server import server as seagoat_server
+from seagoat.utils.server import get_server_info
 from seagoat.utils.server import get_server_info_file
-from seagoat.utils.server import load_server_info
 from seagoat.utils.wait import wait_for
 
 
@@ -252,5 +252,6 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         wait_for(lambda: os.path.exists(get_server_info_file(repo.working_dir)), 8)
 
-        _, _, _, server_address = load_server_info(repo.working_dir)
+        server_info = get_server_info(repo.working_dir)
+        server_address = server_info["address"]
         assert str(custom_port) in server_address
