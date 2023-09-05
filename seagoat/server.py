@@ -16,7 +16,6 @@ from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import get_server_info_file
 from seagoat.utils.server import is_server_running
-from seagoat.utils.server import load_server_info
 from seagoat.utils.wait import wait_for
 
 
@@ -111,7 +110,8 @@ def get_server(repo_path, custom_port=None):
     port = None
 
     if os.path.exists(server_info_file):
-        _, port, __, server_address = load_server_info(repo_path)
+        server_info = get_server_info(repo_path)
+        server_address = server_info["address"]
 
         if is_server_running(repo_path):
             click.echo(f"Server is already running at {server_address}")
@@ -158,7 +158,9 @@ def get_status_data(repo_path):
     status_info = {"isRunning": False, "url": None}
 
     if os.path.exists(server_info_file):
-        _, __, pid, server_address = load_server_info(repo_path)
+        server_info = get_server_info(repo_path)
+        server_address = server_info["address"]
+        pid = server_info["pid"]
 
         if is_server_running(repo_path):
             status_info = {"isRunning": True, "url": server_address, "pid": pid}

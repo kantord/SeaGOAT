@@ -13,15 +13,6 @@ def get_server_info_file(repo_path):
     return os.path.join(user_cache_dir, f"{repo_id}.json")
 
 
-def load_server_info(repo_path: str):
-    server_info = get_json_file_contents(get_server_info_file(repo_path))
-    host = server_info["host"]
-    port = server_info["port"]
-    pid = server_info.get("pid")
-    server_address = f"http://{host}:{port}"
-    return host, port, pid, server_address
-
-
 def get_server_info(repo_path: str):
     server_info = get_json_file_contents(get_server_info_file(repo_path))
     server_info["address"] = f"http://{server_info['host']}:{server_info['port']}"
