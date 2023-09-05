@@ -111,7 +111,7 @@ def get_server(repo_path, custom_port=None):
     port = None
 
     if os.path.exists(server_info_file):
-        _, port, __, server_address = load_server_info(server_info_file)
+        _, port, __, server_address = load_server_info(repo_path)
 
         if is_server_running(repo_path):
             click.echo(f"Server is already running at {server_address}")
@@ -158,7 +158,7 @@ def get_status_data(repo_path):
     status_info = {"isRunning": False, "url": None}
 
     if os.path.exists(server_info_file):
-        _, __, pid, server_address = load_server_info(server_info_file)
+        _, __, pid, server_address = load_server_info(repo_path)
 
         if is_server_running(repo_path):
             status_info = {"isRunning": True, "url": server_address, "pid": pid}
