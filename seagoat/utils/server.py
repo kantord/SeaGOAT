@@ -1,8 +1,8 @@
-import json
 import os
 import socket
 
 import appdirs
+import orjson
 
 
 def get_server_info_file(repo_path):
@@ -14,7 +14,7 @@ def get_server_info_file(repo_path):
 
 def load_server_info(server_info_file):
     with open(server_info_file, "r", encoding="utf-8") as file:
-        server_info = json.load(file)
+        server_info = orjson.loads(file.read())
     host = server_info["host"]
     port = server_info["port"]
     pid = server_info.get("pid")
