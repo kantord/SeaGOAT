@@ -14,6 +14,7 @@ from werkzeug.serving import run_simple
 from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import is_server_running
 from seagoat.utils.server import load_server_info
 from seagoat.utils.wait import wait_for
 
@@ -102,11 +103,6 @@ def start_server(repo_path, custom_port=None):
     server_info_file = get_server_info_file(repo_path)
     with open(server_info_file, "w", encoding="utf-8") as file:
         json.dump({"host": "localhost", "port": port, "pid": process.pid}, file)
-
-
-def is_server_running(host, port):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_obj:
-        return socket_obj.connect_ex((host, port)) == 0
 
 
 def get_server(repo_path, custom_port=None):

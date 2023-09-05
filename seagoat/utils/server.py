@@ -1,5 +1,6 @@
 import json
 import os
+import socket
 
 import appdirs
 
@@ -19,3 +20,8 @@ def load_server_info(server_info_file):
     pid = server_info.get("pid")
     server_address = f"http://{host}:{port}"
     return host, port, pid, server_address
+
+
+def is_server_running(host, port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_obj:
+        return socket_obj.connect_ex((host, port)) == 0
