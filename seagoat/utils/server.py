@@ -22,6 +22,8 @@ def load_server_info(server_info_file):
     return host, port, pid, server_address
 
 
-def is_server_running(host, port):
+def is_server_running(repo_path: str):
+    server_info_file = get_server_info_file(repo_path)
+    host, port, _, __ = load_server_info(server_info_file)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_obj:
         return socket_obj.connect_ex((host, port)) == 0
