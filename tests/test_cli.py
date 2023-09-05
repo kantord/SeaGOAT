@@ -291,8 +291,7 @@ def test_seagoat_warns_on_incomplete_accuracy(
     }
 
     mocker.patch("requests.get", return_value=mock_response(mock_status_response))
-    mocker.patch("seagoat.cli.get_server_info_file")
-    mocker.patch("seagoat.cli.load_server_info", return_value=(None, None, None, ""))
+    mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
 
     query = "some random query"
     result = runner_with_error.invoke(seagoat, [query, "--no-color"])

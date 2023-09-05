@@ -252,6 +252,5 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         wait_for(lambda: os.path.exists(get_server_info_file(repo.working_dir)), 8)
 
-        server_info_file = get_server_info_file(repo.working_dir)
-        _, _, _, server_address = load_server_info(server_info_file)
+        _, _, _, server_address = load_server_info(repo.working_dir)
         assert str(custom_port) in server_address
