@@ -2,6 +2,13 @@
 
 
 
+## v0.19.4 (2023-09-06)
+
+### Performance
+
+* perf: avoid wasting time processing irrelevant results ([`b03b936`](https://github.com/kantord/SeaGOAT/commit/b03b9364550977c70dd88241ba41b3217994069a))
+
+
 ## v0.19.3 (2023-09-06)
 
 ### Chore
