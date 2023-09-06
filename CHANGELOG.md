@@ -2,6 +2,37 @@
 
 
 
+## v0.19.3 (2023-09-06)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.2.8 ([`2f23318`](https://github.com/kantord/SeaGOAT/commit/2f233184f64692d632968ac183b88532f2bd3a25))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.9 ([`9ec0b6a`](https://github.com/kantord/SeaGOAT/commit/9ec0b6acf6af29d7caffa0a141815e5fc8eae2a6))
+
+### Refactor
+
+* refactor: move get_free_port to utils ([`9caefa9`](https://github.com/kantord/SeaGOAT/commit/9caefa9170d81144f38cc6fe1e9c74b80c351915))
+
+* refactor: remove load_server_info ([`be71e62`](https://github.com/kantord/SeaGOAT/commit/be71e6269012097775f69012f43b3d8bb0d25938))
+
+* refactor: simplify load_server_info ([`ec6e501`](https://github.com/kantord/SeaGOAT/commit/ec6e5015456b6e3e217b87bfcfdd0798f43e8518))
+
+* refactor: add address to get_server_info ([`e8e33b6`](https://github.com/kantord/SeaGOAT/commit/e8e33b6d706c21c17f990e3f57e4cb885bcfdbe1))
+
+* refactor: create get_server_info() ([`963a6d5`](https://github.com/kantord/SeaGOAT/commit/963a6d573a73d682c643ae93a4958b1a248abc44))
+
+* refactor: extract get_json_file_contents ([`48264b9`](https://github.com/kantord/SeaGOAT/commit/48264b906093cd18862d20d7f47639bca46db642))
+
+* refactor: use orjson in utils ([`6bd61e4`](https://github.com/kantord/SeaGOAT/commit/6bd61e4e9883cbbd0db6868e9474ff6978d5f7ee))
+
+* refactor: simplify args of is_server_running() ([`f9c2b4b`](https://github.com/kantord/SeaGOAT/commit/f9c2b4b6041083448219c45ce25c24562df5353c))
+
+* refactor: move is_server_running to utils ([`a9004c9`](https://github.com/kantord/SeaGOAT/commit/a9004c9a6eaca8c497216d78cc9865c461cd6a0f))
+
+
 ## v0.19.2 (2023-09-04)
 
 ### Chore
