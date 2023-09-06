@@ -351,13 +351,13 @@ numpy = "*"
 
 [[package]]
 name = "chromadb"
-version = "0.4.8"
+version = "0.4.9"
 description = "Chroma."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "chromadb-0.4.8-py3-none-any.whl", hash = "sha256:74f9af92e12e22677fe65201acd75e98d8efdd7613ec4084f914868555a3b09f"},
-    {file = "chromadb-0.4.8.tar.gz", hash = "sha256:441f53ab474b684075de85e637ddcf691946a1dba06ea7b8859b914ab4cd9ea0"},
+    {file = "chromadb-0.4.9-py3-none-any.whl", hash = "sha256:d96f9e8b442054b316ddb4666b0a5bf761a7f1169ba88eb76e2159204f17c77b"},
+    {file = "chromadb-0.4.9.tar.gz", hash = "sha256:5bf800f064cd0158f27368850897c417913650f1c1c9decaad3cb36ba1950a87"},
 ]
 
 [package.dependencies]
@@ -365,7 +365,7 @@ bcrypt = ">=4.0.1"
 chroma-hnswlib = "0.7.2"
 fastapi = ">=0.95.2,<0.100.0"
 importlib-resources = "*"
-numpy = ">=1.21.6"
+numpy = {version = ">=1.22.5", markers = "python_version >= \"3.8\""}
 onnxruntime = ">=1.14.1"
 overrides = ">=7.3.1"
 posthog = ">=2.4.0"
