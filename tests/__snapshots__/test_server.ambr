@@ -6,7 +6,7 @@
         'blocks': list([
           dict({
             'lineTypeCount': dict({
-              'result': 2,
+              'result': 3,
             }),
             'lines': list([
               dict({
@@ -18,7 +18,14 @@
               }),
               dict({
                 'line': 2,
-                'lineText': 'This is an example Markdown file. Updated.',
+                'lineText': 'This is an example Markdown file. Updated. ',
+                'resultTypes': list([
+                  'result',
+                ]),
+              }),
+              dict({
+                'line': 3,
+                'lineText': "HTML is for markup, but it's complicated. Markdown is simpler.",
                 'resultTypes': list([
                   'result',
                 ]),
@@ -40,7 +47,7 @@
         'percentage': 100,
       }),
       'chunks': dict({
-        'analyzed': 5,
+        'analyzed': 6,
         'unanalyzed': 0,
       }),
       'queue': dict({

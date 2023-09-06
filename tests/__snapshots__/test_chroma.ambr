@@ -1,0 +1,25 @@
+# serializer version: 1
+# name: test_gets_data_using_vector_embeddings
+  list([
+    dict({
+      'blocks': list([
+        dict({
+          'lineTypeCount': dict({
+            'result': 1,
+          }),
+          'lines': list([
+            dict({
+              'line': 3,
+              'lineText': "HTML is for markup, but it's complicated. Markdown is simpler.",
+              'resultTypes': list([
+                'result',
+              ]),
+            }),
+          ]),
+        }),
+      ]),
+      'fullPath': '/path/to/repo/file1.md',
+      'path': 'file1.md',
+    }),
+  ])
+# ---
