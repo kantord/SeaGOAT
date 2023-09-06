@@ -1,9 +1,21 @@
 # pylint: disable=protected-access
+import copy
 from unittest.mock import patch
 
 import pytest
 
 from seagoat.engine import Engine
+
+
+def normalize_full_paths(data, repo):
+    real_repo_path = repo.working_dir
+    fake_repo_path = "/path/to/repo"
+    deep_copy_of_data = copy.deepcopy(data)
+    deep_copy_of_data["fullPath"] = deep_copy_of_data["fullPath"].replace(
+        real_repo_path, fake_repo_path
+    )
+
+    return deep_copy_of_data
 
 
 @pytest.fixture(autouse=True)
@@ -22,7 +34,7 @@ def test_requires_fetching_data(repo):
 
 
 @pytest.mark.asyncio
-async def test_gets_data_using_vector_embeddings(repo):
+async def test_gets_data_using_vector_embeddings(repo, snapshot):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "lightweight markup language"
@@ -38,7 +50,10 @@ async def test_gets_data_using_vector_embeddings(repo):
     )
 
     # Tests that file lines are included for each result
-    assert all(1 in result.get_lines(my_query) for result in seagoat.get_results())
+    assert [
+        normalize_full_paths(result.to_json(my_query), repo)
+        for result in seagoat.get_results()
+    ] == snapshot
 
 
 def test_allows_fetching_data_synchronously(repo):
@@ -72,7 +87,7 @@ def test_allows_fetching_data_synchronously(repo):
 @pytest.mark.asyncio
 async def test_considers_filename_in_results(repo):
     repo.add_file_change_commit(
-        file_name="recipes.txt",
+        file_name="cooking_recipes.txt",
         contents="motorbike, ford, mercedes\n",
         author=repo.actors["John Doe"],
         commit_message=".",
@@ -91,11 +106,11 @@ async def test_considers_filename_in_results(repo):
     )
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
-    my_query = "tomato pizza"
+    my_query = "dish_recipe.txt"
     seagoat.query(my_query)
     await seagoat.fetch()
 
-    assert seagoat.get_results()[0].path == "recipes.txt"
+    assert seagoat.get_results()[0].path == "cooking_recipes.txt"
 
 
 @pytest.mark.asyncio
@@ -185,7 +200,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     await seagoat.fetch()
 
     assert seagoat.get_results()[0].path == "devices.txt"
-    assert set(seagoat.get_results()[0].get_lines(my_query)) == {1, 2, 4, 5, 6, 7, 8, 9}
+    assert set(seagoat.get_results()[0].get_lines(my_query)) == {1, 2, 4, 6, 7, 8, 9}
 
 
 @pytest.mark.asyncio
@@ -267,7 +282,7 @@ async def test_respects_limit_in_chromadb(repo):
     for i in range(100):
         repo.add_file_change_commit(
             file_name="devices2.txt",
-            contents="food",
+            contents="food from an orchard, but not a banana or pear. It's red",
             author=repo.actors["John Doe"],
             commit_message=f"commit {i}",
         )
@@ -275,7 +290,7 @@ async def test_respects_limit_in_chromadb(repo):
     repo.tick_fake_date(days=1)
     repo.add_file_change_commit(
         file_name="devices.txt",
-        contents="""banana
+        contents="""banana, fruit, red, Macintosh, iPhone
         """
         * 6,
         author=repo.actors["John Doe"],

@@ -62,7 +62,10 @@ class MockRepo(Repo):
                 "name": "file1.md",
                 "contents": [
                     "# Markdown file\nThis is an example Markdown file.",
-                    "# Markdown file\nThis is an example Markdown file. Updated.",
+                    (
+                        "# Markdown file\nThis is an example Markdown file. Updated. \n"
+                        + "HTML is for markup, but it's complicated. Markdown is simpler."
+                    ),
                 ],
                 "authors": [
                     self.actors["John Doe"],

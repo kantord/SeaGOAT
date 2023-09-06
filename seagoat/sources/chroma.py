@@ -23,10 +23,15 @@ def initialize(repository: Repository):
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
-        n_results = (limit + 1) * 2
+        maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
+        worst_distance_to_display = 1.5
+        n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
 
         chromadb_results = [
-            chroma_collection.query(query_texts=[query_text], n_results=n_results)
+            chroma_collection.query(
+                query_texts=[query_text],
+                n_results=n_results,
+            )
         ]
         metadata_with_distance = (
             list(
@@ -42,6 +47,8 @@ def initialize(repository: Repository):
         files = {}
 
         for metadata, distance in metadata_with_distance:
+            if distance > worst_distance_to_display:
+                break
             path = str(metadata["path"])
             line = int(metadata["line"])
 
