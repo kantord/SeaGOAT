@@ -17,6 +17,16 @@ class ExitCode:
     SERVER_ERROR = 4
 
 
+def warn_if_update_available():
+    response = requests.get("https://pypi.org/pypi/seagoat/json")
+    latest_version = orjson.loads(response.text)["info"]["version"]
+    if latest_version != __version__:
+        click.echo(
+            f"Warning: An updated version {latest_version} of SeaGOAT is available. You have {__version__}.",
+            err=True,
+        )
+
+
 def display_accuracy_warning(server_address):
     response = requests.get(
         f"{server_address}/status",
@@ -139,6 +149,7 @@ def seagoat(
     display_results(results, max_results, color_enabled)
 
     display_accuracy_warning(server_address)
+    warn_if_update_available()
 
 
 if __name__ == "__main__":
