@@ -547,3 +547,8 @@ def bat_calls(mocker):
     mocker.patch("subprocess.run", side_effect=mock_bat)
 
     return calls
+
+
+@pytest.fixture(autouse=True)
+def mock_warn_if_update_available(mocker):
+    return mocker.patch("seagoat.cli.warn_if_update_available")

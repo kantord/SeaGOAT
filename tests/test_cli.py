@@ -8,6 +8,7 @@ from flask import json
 
 from seagoat import __version__
 from seagoat.cli import seagoat
+from seagoat.cli import warn_if_update_available
 from seagoat.server import get_server_info_file
 from seagoat.utils.cli_display import is_bat_installed
 from tests.conftest import MagicMock
@@ -314,13 +315,17 @@ def test_forwards_limit_clue_to_server(max_length, get_request_args_from_cli_cal
 
 
 @pytest.mark.usefixtures("server", "mock_accuracy_warning", "bat_not_available")
-def test_integration_test_with_color(snapshot, repo, mocker, runner):
+def test_integration_test_with_color(
+    snapshot, repo, mocker, runner, mock_warn_if_update_available
+):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
     result = runner.invoke(seagoat, [query, repo.working_dir])
 
     assert result.output == snapshot
     assert result.exit_code == 0
+
+    assert mock_warn_if_update_available.call_count == 1
 
 
 @pytest.mark.usefixtures(
@@ -592,3 +597,32 @@ def test_bat_not_installed_2(mocker):
     mock_run = mocker.patch("seagoat.utils.cli_display.subprocess.run")
     mock_run.return_value.returncode = 1
     assert is_bat_installed() is False
+
+
+@pytest.mark.parametrize("newer_version", ["4243.3424.2", "99992.0.0"])
+def test_warn_if_update_available_shows_warning(
+    mocker, capsys, mock_response, newer_version
+):
+    mock_version_response = {"info": {"version": newer_version}}
+
+    mocker.patch("requests.get", return_value=mock_response(mock_version_response))
+
+    warn_if_update_available()
+    captured = capsys.readouterr()
+
+    assert (
+        f"Warning: An updated version {newer_version} of SeaGOAT is available. You have {__version__}."
+        in captured.err
+    )
+
+
+def test_warn_if_update_available_no_warning(mocker, capsys, mock_response):
+    same_version = __version__
+    mock_version_response = {"info": {"version": same_version}}
+
+    mocker.patch("requests.get", return_value=mock_response(mock_version_response))
+
+    warn_if_update_available()
+    captured = capsys.readouterr()
+
+    assert "Warning" not in captured.err
