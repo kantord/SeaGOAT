@@ -242,17 +242,14 @@ def _start_server(repo):
                 if response.status_code == 500:
                     print("Server responded with a 500 error:")
                     print(response.text)
-            server_process.terminate()
-            server_process.join()
+            server_process.kill()
             raise
         except:
-            server_process.terminate()
-            server_process.join()
+            server_process.kill()
             raise
 
         def _stop():
-            server_process.terminate()
-            server_process.join()
+            server_process.kill()
 
         return server_address, _stop
 

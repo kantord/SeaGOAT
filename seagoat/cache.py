@@ -9,7 +9,7 @@ import appdirs
 
 T = TypeVar("T")
 
-CACHE_FORMAT_VERSION = 20
+CACHE_FORMAT_VERSION = 21
 
 
 class Cache(Generic[T]):

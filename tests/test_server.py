@@ -72,6 +72,7 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot):
 def test_status_endpoint_with_some_files_not_analyzed(server):
     url = f"{server}/status"
     response = requests.get(url)
+    data = response.json()
 
     assert response.status_code == 200, response.text
 
