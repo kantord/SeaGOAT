@@ -1,4 +1,5 @@
 import logging
+import time
 from dataclasses import dataclass
 from dataclasses import field
 from multiprocessing import Manager
@@ -44,6 +45,9 @@ class BaseQueue:
 
         return None
 
+    def handle_maintenance(self, context):
+        pass
+
     def shutdown(self):
         self._task_queue.put(Task(name="shutdown", args=(), kwargs={}))
         self._worker_process.join()
@@ -68,6 +72,11 @@ class BaseQueue:
             while self._task_queue.qsize() == 0 and low_priority_queue.qsize() > 0:
                 task = low_priority_queue.get()
                 self._handle_task(context, task)
+
+            if self._task_queue.qsize() == 0:
+                self.handle_maintenance(context)
+                time.sleep(1)
+                continue
 
             task = self._task_queue.get()
 

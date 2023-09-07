@@ -39,7 +39,21 @@ class TaskQueue(BaseQueue):
         from seagoat.engine import Engine
 
         seagoat_engine = Engine(self.kwargs["repo_path"])
-        remaining_chunks_to_analyze = seagoat_engine.analyze_codebase(
+
+        context.update(
+            {
+                "seagoat_engine": seagoat_engine,
+            }
+        )
+
+        return context
+
+    def handle_maintenance(self, context):
+        if not context["low_priority_queue"].empty():
+            return
+
+        logging.info("Checking repository for new changes")
+        remaining_chunks_to_analyze = context["seagoat_engine"].analyze_codebase(
             self.kwargs["minimum_chunks_to_analyze"]
         )
 
@@ -49,23 +63,16 @@ class TaskQueue(BaseQueue):
                 "Note, %s chunks need to be analyzed for optimum performance.",
                 len(remaining_chunks_to_analyze),
             )
+
+            for chunk in remaining_chunks_to_analyze:
+                logging.info("Processing chunk %s...", chunk)
+                context["low_priority_queue"].put(
+                    Task(name="analyze_chunk", args=(chunk,), kwargs={})
+                )
         else:
             logging.info(
                 "Analyzed all chunks!",
             )
-
-        for chunk in remaining_chunks_to_analyze:
-            context["low_priority_queue"].put(
-                Task(name="analyze_chunk", args=(chunk,), kwargs={})
-            )
-
-        context.update(
-            {
-                "seagoat_engine": seagoat_engine,
-            }
-        )
-
-        return context
 
     def handle_analyze_chunk(self, context, chunk):
         logging.info(
