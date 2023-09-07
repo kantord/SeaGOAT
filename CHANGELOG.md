@@ -2,6 +2,15 @@
 
 
 
+## v0.20.0 (2023-09-07)
+
+### Feature
+
+* feat: show a warning when SeaGOAT is outdated
+
+fixes #171 ([`6c64239`](https://github.com/kantord/SeaGOAT/commit/6c6423926a49ea343e7d45faad9a5beb51174607))
+
+
 ## v0.19.5 (2023-09-07)
 
 ### Fix
