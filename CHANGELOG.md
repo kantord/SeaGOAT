@@ -2,6 +2,29 @@
 
 
 
+## v0.20.1 (2023-09-07)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.326 ([`2d3ec94`](https://github.com/kantord/SeaGOAT/commit/2d3ec94476a340821d9cd04dbc488c36f6c6ba7a))
+
+### Ci
+
+* ci: enable testing for windows ([`1edae8e`](https://github.com/kantord/SeaGOAT/commit/1edae8e4b9272906300046cf99bb5de8fd4256aa))
+
+* ci: enable testing for mac os ([`6033e9e`](https://github.com/kantord/SeaGOAT/commit/6033e9ea7c7fca95ee716d58db39f68fce053e63))
+
+### Documentation
+
+* docs: update project description in readme ([`d0a268a`](https://github.com/kantord/SeaGOAT/commit/d0a268a388299a0bedba86971f58740154489c68))
+
+* docs: add faq section ([`e02bb1b`](https://github.com/kantord/SeaGOAT/commit/e02bb1badeca0b2289dc6e6ac045f2d7edf97c9f))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.35 ([`282cba4`](https://github.com/kantord/SeaGOAT/commit/282cba4e95fbf4cc5a276265fc51b0c3b90ba10f))
+
+
 ## v0.20.0 (2023-09-07)
 
 ### Feature
