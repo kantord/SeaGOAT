@@ -117,3 +117,53 @@ environment. For example to test the development version of the
 ```bash
 poetry run seagoat-server ~/path/an/example/repository
 ```
+
+## FAQ
+
+The points in this FAQ are indications of how SeaGOAT works, but are not
+a legal contract. SeaGOAT is licensed under an open source license and if you
+are in doubt about the privacy/safety/etc implications of SeaGOAT, you are
+welcome to examine the source code,
+[raise your concerns](https://github.com/kantord/SeaGOAT/issues/new),
+or create a pull request to fix a problem.
+
+### How does SeaGOAT work? Does it send my data to ChatGPT?
+
+SeaGOAT does not rely on 3rd party APIs or any remote APIs and executes all
+functionality locally using the SeaGOAT server that you are able to run on
+your own machine.
+
+Instead of relying on APIs or "connecting to ChatGPT", it uses the vector
+database called ChromaDB, with a local vector embedding engine and
+telemetry disabled by default.
+
+Apart from that, SeaGOAT also uses ripgrep, a regular-expression based code
+search engine in order to provider regular expression/keyword based matches
+in addition to the "AI-based" matches.
+
+While the current version of SeaGOAT does not send your data to remote
+servers, it might be possible that in the future there will be **optional**
+features that do so, if any further improvement can be gained from that.
+
+### Why does SeaGOAT need a server?
+
+SeaGOAT needs a server in order to provide a speedy response. SeaGOAT heavily
+relies on vector embeddings and vector databases, which at the moment cannot
+be replace with an architecture that processes files on the fly.
+
+It's worth noting that _you are able to run SeaGOAT server entirely locally_,
+and it works even if you don't have an internet connection. This use case
+does not require you to share data with a remote server, you are able to use
+your own SeaGOAT server locally, albeit it's also possible to run a SeaGOAT
+server and allow other computers to connect to it, if you so wish.
+
+### Does SeaGOAT create AI-derived work? Is SeaGOAT ethical?
+
+If you are concerned about the ethical implications of using AI tools keep in
+mind that SeaGOAT is not a code generator but a code search engine, therefore
+it does not create AI derived work.
+
+That being said, a language model _is_ being used to generate vector
+embeddings. At the moment SeaGOAT uses ChromaDB's default model for
+calculating vector embeddings, and I am not aware of this being an ethical
+concern.
