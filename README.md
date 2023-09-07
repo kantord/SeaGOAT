@@ -7,8 +7,8 @@
   </p>
 </h1>
 
-A code search engine for the AI age. SeaGOAT leverages vector
-embeddings to enable to search your codebase semantically.
+A code search engine for the AI age. SeaGOAT is a local search tool that
+leverages vector embeddings to enable to search your codebase semantically.
 
 ![&nbsp;](assets/demo.gif)
 
