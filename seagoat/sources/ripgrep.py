@@ -14,6 +14,7 @@ def _fetch(query_text: str, path: str, limit: int):
     for result in (
         Ripgrepy(query_text, path)
         .max_count(limit)
+        .ignore_case()
         .max_filesize("200K")
         .json()
         .run()
