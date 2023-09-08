@@ -2,6 +2,21 @@
 
 
 
+## v0.22.0 (2023-09-08)
+
+### Documentation
+
+* docs: fix too long lines in SECURITY.md ([`73c8d0b`](https://github.com/kantord/SeaGOAT/commit/73c8d0b3977c0ecd9459b32014215d2ad24f206a))
+
+### Feature
+
+* feat: make regular expressions case insensitive ([`868c5f5`](https://github.com/kantord/SeaGOAT/commit/868c5f528b4f1f5cfbbdd047d5bd823a3d97b9db))
+
+### Unknown
+
+* Create SECURITY.md ([`013af0d`](https://github.com/kantord/SeaGOAT/commit/013af0d4b6a5408a5bcf35b44aa242d000430c3f))
+
+
 ## v0.21.0 (2023-09-08)
 
 ### Feature
