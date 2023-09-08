@@ -2,6 +2,13 @@
 
 
 
+## v0.21.0 (2023-09-08)
+
+### Feature
+
+* feat: automatically update database if codebase changes ([`1218f2c`](https://github.com/kantord/SeaGOAT/commit/1218f2c5bf929349198493fefae1ca5d3343f7d3))
+
+
 ## v0.20.2 (2023-09-08)
 
 ### Chore
