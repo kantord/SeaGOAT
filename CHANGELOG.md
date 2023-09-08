@@ -2,6 +2,13 @@
 
 
 
+## v0.22.1 (2023-09-08)
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.7 ([`43b963c`](https://github.com/kantord/SeaGOAT/commit/43b963c98fd5c5d24a5571c4abfea4948bbc4185))
+
+
 ## v0.22.0 (2023-09-08)
 
 ### Documentation
