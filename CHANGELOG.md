@@ -2,6 +2,17 @@
 
 
 
+## v0.20.2 (2023-09-08)
+
+### Chore
+
+* chore(deps): update dependency pytest to v7.4.2 ([`499c433`](https://github.com/kantord/SeaGOAT/commit/499c433fbc006d47ea478b710328cef4ab57e9e3))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.6 ([`7dd57be`](https://github.com/kantord/SeaGOAT/commit/7dd57be96b3bedcbf1185af9c8d6e694a7a50a2b))
+
+
 ## v0.20.1 (2023-09-07)
 
 ### Chore
