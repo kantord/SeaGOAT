@@ -11,3 +11,15 @@ for cast_file in *.cast; do
 done
 
 echo "All exported and copied!"
+
+
+# Generate slideshow
+
+gifsicle --loop --colors 256 \
+  ../assets/explain_what_you_want.gif \
+  ../assets/describe_what_you_are_looking_for.gif \
+  ../assets/incorporate_regex.gif \
+  > ../assets/demo-slideshow.gif
+
+cp -f ../assets/demo-slideshow.gif ../docs/demo-slideshow.gif
+cp -f ../assets/demo-slideshow.gif ../docs/assets/demo-slideshow.gif

@@ -11,7 +11,7 @@ A code search engine for the AI age. SeaGOAT is a local search tool that
 leverages vector embeddings to enable to search your codebase semantically.
 
 <p align="center">
-  <img src="assets/explain_what_you_want.gif" alt="" />
+  <img src="assets/demo-slideshow.gif" alt="" />
 </p>
 
 ## Getting started
