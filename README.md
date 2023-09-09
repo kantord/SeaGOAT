@@ -23,7 +23,7 @@ dependencies already installed on your computer:
 
 - Python 3.11 or newer
 - ripgrep
-- [https://github.com/sharkdp/bat](bat) (**optional**)
+- [https://github.com/sharkdp/bat](bat) (**optional**, highly recommended)
 
 When `bat` is [installed](https://github.com/sharkdp/bat#on-ubuntu-using-apt),
 it is used to display results as long as color is enabled. When SeaGOAT is
@@ -36,6 +36,18 @@ To install SeaGOAT using `pipx`, use the following command:
 ```bash
 pipx install seagoat
 ```
+
+### System requirements
+
+#### Hardware
+
+Should work on any decent laptop.
+
+#### Oporating system
+
+SeaGOAT is designed to work on Linux (*tested* ✅),
+macOS ([**help needed**](https://github.com/kantord/SeaGOAT/issues/178) 🙏)
+and Windows ([**help needed**](https://github.com/kantord/SeaGOAT/issues/179) 🙏).
 
 ### Start SeaGOAT server
 
@@ -150,7 +162,7 @@ SeaGOAT needs a server in order to provide a speedy response. SeaGOAT heavily
 relies on vector embeddings and vector databases, which at the moment cannot
 be replace with an architecture that processes files on the fly.
 
-It's worth noting that _you are able to run SeaGOAT server entirely locally_,
+It's worth noting that *you are able to run SeaGOAT server entirely locally*,
 and it works even if you don't have an internet connection. This use case
 does not require you to share data with a remote server, you are able to use
 your own SeaGOAT server locally, albeit it's also possible to run a SeaGOAT
@@ -162,7 +174,7 @@ If you are concerned about the ethical implications of using AI tools keep in
 mind that SeaGOAT is not a code generator but a code search engine, therefore
 it does not create AI derived work.
 
-That being said, a language model _is_ being used to generate vector
+That being said, a language model *is* being used to generate vector
 embeddings. At the moment SeaGOAT uses ChromaDB's default model for
 calculating vector embeddings, and I am not aware of this being an ethical
 concern.
