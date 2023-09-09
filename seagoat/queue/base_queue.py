@@ -1,5 +1,4 @@
 import logging
-import multiprocessing
 import time
 from dataclasses import dataclass
 from dataclasses import field
@@ -9,8 +8,6 @@ from multiprocessing import Queue
 from typing import Any
 from typing import Dict
 from typing import Tuple
-
-multiprocessing.set_start_method("fork")
 
 
 @dataclass
