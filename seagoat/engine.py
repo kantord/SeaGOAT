@@ -32,6 +32,7 @@ RepositoryData = TypedDict(
         "file_data": Dict[str, File],
         "sorted_files": List[str],
         "chunks_already_analyzed": Set[str],
+        "chunks_not_yet_analyzed": Set[str],
     },
 )
 
@@ -62,6 +63,7 @@ class Engine:
                 "file_data": {},
                 "sorted_files": [],
                 "chunks_already_analyzed": set(),
+                "chunks_not_yet_analyzed": set(),
             },
         )
         self.cache.load()
@@ -91,6 +93,10 @@ class Engine:
 
         self._add_to_collection(chunk)
         self.cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
+
+        if chunk.chunk_id in self.cache.data["chunks_not_yet_analyzed"]:
+            self.cache.data["chunks_not_yet_analyzed"].remove(chunk.chunk_id)
+
         self.cache.persist()
 
     def _create_vector_embeddings(self, minimum_chunks_to_analyze=None):
@@ -100,6 +106,7 @@ class Engine:
             for chunk in file.get_chunks():
                 if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
                     chunks_to_process.append(chunk)
+                    self.cache.data["chunks_not_yet_analyzed"].add(chunk.chunk_id)
 
         if minimum_chunks_to_analyze is None:
             minimum_chunks_to_analyze = min(

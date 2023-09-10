@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 # Change this whenever a new version is released that requires files to be
 # re-analyzed
-CACHE_FORMAT_VERSION = 22
+CACHE_FORMAT_VERSION = 24
 
 
 class Cache(Generic[T]):

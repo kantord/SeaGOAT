@@ -31,13 +31,12 @@ def task_queue_(repo):
 def test_handle_get_stats(task_queue, chunks_analyzed, unanalyzed, expected_accuracy):
     context = {
         "seagoat_engine": Mock(),
-        "low_priority_queue": Mock(),
     }
 
     context["seagoat_engine"].cache.data = {
-        "chunks_already_analyzed": [None] * chunks_analyzed
+        "chunks_already_analyzed": set(range(chunks_analyzed)),
+        "chunks_not_yet_analyzed": set(range(unanalyzed)),
     }
-    context["low_priority_queue"].qsize.return_value = unanalyzed
 
     stats = task_queue.handle_get_stats(context)
     task_queue.shutdown()
