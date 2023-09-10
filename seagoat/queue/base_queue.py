@@ -16,22 +16,24 @@ class Task:
     kwargs: Dict[str, Any] = field(default_factory=dict)
 
 
+manager = Manager()
+
+
 class BaseQueue:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
-        self.manager = Manager()
-        self._task_queue = self.manager.Queue()
+        self._task_queue = manager.Queue()
         self._worker_process = Process(target=self._worker_function)
         self._worker_process.start()
 
     def _get_context(self) -> Dict[str, Any]:
-        low_priority_queue = self.manager.Queue()
+        low_priority_queue = manager.Queue()
         return {
             "low_priority_queue": low_priority_queue,
         }
 
     def enqueue_high_prio(self, task_name, *args, wait_for_result=True, **kwargs):
-        result_queue = self.manager.Queue()
+        result_queue = manager.Queue()
         task = Task(
             name=task_name, args=args, kwargs={**kwargs, "__result_queue": result_queue}
         )

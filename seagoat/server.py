@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from multiprocessing import set_start_method
 
 import click
 from flask import current_app
@@ -186,4 +187,5 @@ def stop(repo_path):
 
 
 if __name__ == "__main__":
+    set_start_method("spawn")
     server()
