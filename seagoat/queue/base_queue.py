@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from multiprocessing import Manager
 from multiprocessing import Process
-from multiprocessing import Queue
 from typing import Any
 from typing import Dict
 from typing import Tuple
@@ -18,31 +17,27 @@ class Task:
 
 
 class BaseQueue:
-    def __init__(
-        self,
-        **kwargs,
-    ):
+    def __init__(self, **kwargs):
         self.kwargs = kwargs
-        self._task_queue = Queue()
+        self.manager = Manager()
+        self._task_queue = self.manager.Queue()
         self._worker_process = Process(target=self._worker_function)
         self._worker_process.start()
 
     def _get_context(self) -> Dict[str, Any]:
-        low_priority_queue = Queue()
-
+        low_priority_queue = self.manager.Queue()
         return {
             "low_priority_queue": low_priority_queue,
         }
 
     def enqueue_high_prio(self, task_name, *args, wait_for_result=True, **kwargs):
-        result_queue = Manager().Queue()
+        result_queue = self.manager.Queue()
         task = Task(
             name=task_name, args=args, kwargs={**kwargs, "__result_queue": result_queue}
         )
         self._task_queue.put(task)
         if wait_for_result:
             return result_queue.get()
-
         return None
 
     def handle_maintenance(self, context):
