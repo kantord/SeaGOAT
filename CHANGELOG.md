@@ -2,6 +2,13 @@
 
 
 
+## v0.23.1 (2023-09-10)
+
+### Fix
+
+* fix: use a Queue type that works on Mac OS ([`d6d6761`](https://github.com/kantord/SeaGOAT/commit/d6d67616aaf7012c8019477541f3b56ab971f3be))
+
+
 ## v0.23.0 (2023-09-10)
 
 ### Chore
