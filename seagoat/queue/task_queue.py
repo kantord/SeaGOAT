@@ -65,7 +65,6 @@ class TaskQueue(BaseQueue):
             )
 
             for chunk in remaining_chunks_to_analyze:
-                logging.info("Processing chunk %s...", chunk)
                 context["low_priority_queue"].put(
                     Task(name="analyze_chunk", args=(chunk,), kwargs={})
                 )
