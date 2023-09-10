@@ -2,6 +2,37 @@
 
 
 
+## v0.23.0 (2023-09-10)
+
+### Chore
+
+* chore(deps): update dependency black to v23.9.0 ([`8b82efc`](https://github.com/kantord/SeaGOAT/commit/8b82efc3dcafa16c5471e6fcf6bc50fa2f111d9a))
+
+### Documentation
+
+* docs: add info about system requirements ([`4cf71fa`](https://github.com/kantord/SeaGOAT/commit/4cf71faeb8738e1a01a48bc2560a2628c83da585))
+
+* docs: add titles to slideshow gif ([`c581e36`](https://github.com/kantord/SeaGOAT/commit/c581e3660938c9f9bbb0654a0b039f891f73208b))
+
+* docs: use a slideshow for the demo gif ([`0e8c510`](https://github.com/kantord/SeaGOAT/commit/0e8c5107e098c676915b153305ef8bc91e772cb3))
+
+* docs: change gif theme ([`a9b76ad`](https://github.com/kantord/SeaGOAT/commit/a9b76adc4c21418fbf5709ae9440d71841412af6))
+
+* docs: improve gif quality
+
+.
+
+.
+
+docs: update asciinema cast
+
+docs: update dmoe gif ([`3c7a96a`](https://github.com/kantord/SeaGOAT/commit/3c7a96abcfa57aee14dcbd1c32b665622c98b677))
+
+### Feature
+
+* feat: use waitress as an HTTP server ([`16b31c2`](https://github.com/kantord/SeaGOAT/commit/16b31c244056d29d6d90d5e6c6b4348c53cffe9e))
+
+
 ## v0.22.1 (2023-09-08)
 
 ### Fix
