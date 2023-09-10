@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import datetime
@@ -215,8 +216,9 @@ def real_chromadb():
 @pytest.fixture(name="start_server")
 def _start_server(repo):
     def _start():
-        server_process = multiprocessing.Process(
-            target=start_server, args=(repo.working_dir,)
+        context = multiprocessing.get_context("spawn")
+        server_process = context.Process(
+            target=start_server, args=(repo.working_dir,), daemon=True
         )
         server_process.start()
 
@@ -234,7 +236,7 @@ def _start_server(repo):
 
         response = None
         try:
-            response = session.get(f"{server_address}/query/test", timeout=1)
+            response = session.get(f"{server_address}/status", timeout=1)
             response.raise_for_status()
         except requests.HTTPError:
             # Make it easier to debug problems by printing error messages
@@ -259,6 +261,7 @@ def _start_server(repo):
 @pytest.fixture(name="server")
 def _server(start_server):
     server_address, stop_server = start_server()
+    time.sleep(1)
     yield server_address
     stop_server()
 

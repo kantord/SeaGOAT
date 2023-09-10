@@ -6,7 +6,7 @@ import orjson
 
 from seagoat import __version__
 from seagoat.queue.base_queue import BaseQueue
-from seagoat.queue.base_queue import Task
+from seagoat.queue.base_queue import LOW_PRIORITY
 
 
 def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
@@ -34,22 +34,16 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
 
 class TaskQueue(BaseQueue):
     def _get_context(self):
-        context = dict(super()._get_context())
+        context = super()._get_context()
 
         from seagoat.engine import Engine
 
         seagoat_engine = Engine(self.kwargs["repo_path"])
-
-        context.update(
-            {
-                "seagoat_engine": seagoat_engine,
-            }
-        )
-
+        context["seagoat_engine"] = seagoat_engine
         return context
 
     def handle_maintenance(self, context):
-        if not context["low_priority_queue"].empty():
+        if self._task_queue.qsize() > 0:
             return
 
         logging.info("Checking repository for new changes")
@@ -65,24 +59,19 @@ class TaskQueue(BaseQueue):
             )
 
             for chunk in remaining_chunks_to_analyze:
-                context["low_priority_queue"].put(
-                    Task(name="analyze_chunk", args=(chunk,), kwargs={})
+                self.enqueue(
+                    "analyze_chunk", chunk, priority=LOW_PRIORITY, wait_for_result=False
                 )
         else:
-            logging.info(
-                "Analyzed all chunks!",
-            )
+            logging.info("Analyzed all chunks!")
 
     def handle_analyze_chunk(self, context, chunk):
-        logging.info(
-            "Note, %s chunks left to analyze.", context["low_priority_queue"].qsize()
-        )
+        logging.info("Note, %s tasks left in the queue.", self._task_queue.qsize())
         logging.info("Processing chunk %s...", chunk)
         context["seagoat_engine"].process_chunk(chunk)
-        if context["low_priority_queue"].empty():
-            logging.info(
-                "Analyzed all chunks!",
-            )
+
+        if self._task_queue.qsize() == 0:
+            logging.info("Analyzed all chunks!")
 
     def handle_query(self, context, **kwargs):
         context["seagoat_engine"].query(kwargs["query"])
@@ -102,14 +91,13 @@ class TaskQueue(BaseQueue):
 
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
-        low_priority_queue = context["low_priority_queue"]
         analyzed_count = len(engine.cache.data["chunks_already_analyzed"])
-        unanalyzed_count = low_priority_queue.qsize()
+        unanalyzed_count = len(engine.cache.data["chunks_not_yet_analyzed"])
         total_chunks = analyzed_count + unanalyzed_count
 
         return {
             "queue": {
-                "size": unanalyzed_count + self._task_queue.qsize(),
+                "size": self._task_queue.qsize(),
             },
             "chunks": {
                 "analyzed": analyzed_count,
