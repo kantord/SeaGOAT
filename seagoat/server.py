@@ -1,14 +1,13 @@
 import json
 import logging
 import os
-from multiprocessing import Process
 
 import click
 from flask import current_app
 from flask import Flask
 from flask import jsonify
 from flask import request
-from werkzeug.serving import run_simple
+from waitress import serve
 
 from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
@@ -86,14 +85,11 @@ def start_server(repo_path, custom_port=None):
     if port is None:
         port = get_free_port()
 
-    process = Process(
-        target=run_simple, args=("localhost", port, app), kwargs={"use_reloader": False}
-    )
-    process.start()
-
     server_info_file = get_server_info_file(repo_path)
     with open(server_info_file, "w", encoding="utf-8") as file:
-        json.dump({"host": "localhost", "port": port, "pid": process.pid}, file)
+        json.dump({"host": "localhost", "port": port, "pid": os.getpid()}, file)
+
+    serve(app, host="0.0.0.0", port=port, threads=1)
 
 
 def get_server(repo_path, custom_port=None):
