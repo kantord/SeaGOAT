@@ -2,6 +2,19 @@
 
 
 
+## v0.23.2 (2023-09-11)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.3.0 ([`fa540bc`](https://github.com/kantord/SeaGOAT/commit/fa540bc7576e61b72bad09b35fe58045d534fdac))
+
+* chore(deps): update dependency black to v23.9.1 ([`d414da7`](https://github.com/kantord/SeaGOAT/commit/d414da7d2219f6bb72d6d212f3a76495723cb366))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v68.2.1 ([`54cfc12`](https://github.com/kantord/SeaGOAT/commit/54cfc128c2fc66764724ae9f1701ea868bd10540))
+
+
 ## v0.23.1 (2023-09-10)
 
 ### Fix
