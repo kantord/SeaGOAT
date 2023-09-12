@@ -2,6 +2,19 @@
 
 
 
+## v0.23.3 (2023-09-12)
+
+### Ci
+
+* ci: run all tests on Mac OS ([`68cb84a`](https://github.com/kantord/SeaGOAT/commit/68cb84a6c02d07dc667688485de43099d08f93fc))
+
+* ci: run more tests for Mac OS ([`b3f8406`](https://github.com/kantord/SeaGOAT/commit/b3f84065210dd844536c2a843e96d6616d480b51))
+
+### Fix
+
+* fix: fix tests in mac os ([`9f215fd`](https://github.com/kantord/SeaGOAT/commit/9f215fdafa5b8ef33e8e8eaddeed70d14c70b74a))
+
+
 ## v0.23.2 (2023-09-11)
 
 ### Chore
