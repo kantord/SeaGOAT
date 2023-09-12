@@ -64,6 +64,9 @@ def iterate_result_blocks(results, max_results: Optional[int]):
 
 
 def display_results_using_bat(results, max_results):
+    if not results:
+        return
+
     current_result = None
     blocks = []
 
