@@ -46,7 +46,7 @@ Should work on any decent laptop.
 #### Oporating system
 
 SeaGOAT is designed to work on Linux (*tested* ✅),
-macOS ([**help needed**](https://github.com/kantord/SeaGOAT/issues/178) 🙏)
+macOS ([partly tested, **help**](https://github.com/kantord/SeaGOAT/issues/178) 🙏)
 and Windows ([**help needed**](https://github.com/kantord/SeaGOAT/issues/179) 🙏).
 
 ### Start SeaGOAT server
