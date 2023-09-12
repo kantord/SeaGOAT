@@ -2,6 +2,15 @@
 
 
 
+## v0.23.4 (2023-09-12)
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.36 ([`48c9a18`](https://github.com/kantord/SeaGOAT/commit/48c9a181d8955fbc4de333b1797b404322edf823))
+
+* fix(deps): update dependency chromadb to v0.4.10 ([`837443e`](https://github.com/kantord/SeaGOAT/commit/837443ef8c648ebc7e0736e822a564d422897f4f))
+
+
 ## v0.23.3 (2023-09-12)
 
 ### Ci
