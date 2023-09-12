@@ -73,7 +73,7 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot):
 @pytest.mark.usefixtures("repo_with_more_files")
 def test_status_endpoint_with_some_files_not_analyzed(server):
     url = f"{server}/status"
-    time.sleep(2)
+    time.sleep(3)
     response = requests.get(url)
     data = response.json()
 
@@ -259,3 +259,13 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
         server_info = get_server_info(repo.working_dir)
         server_address = server_info["address"]
         assert str(custom_port) in server_address
+
+
+def test_query_codebase_no_results(server, snapshot):
+    query_text = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
+    url = f"{server}/query/{query_text}"
+    response = requests.get(url)
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert not data["results"]
+    assert normalize_version(data) == snapshot

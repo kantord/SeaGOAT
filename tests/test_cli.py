@@ -626,3 +626,17 @@ def test_warn_if_update_available_no_warning(mocker, capsys, mock_response):
     captured = capsys.readouterr()
 
     assert "Warning" not in captured.err
+
+
+@pytest.mark.usefixtures(
+    "server",
+    "mock_accuracy_warning",
+    "bat_available",
+    "mock_warn_if_update_available",
+)
+def test_integration_test_no_results(snapshot, repo, mocker, runner):
+    mocker.patch("os.isatty", return_value=True)
+    query = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
+    result = runner.invoke(seagoat, [query, repo.working_dir])
+    assert result.output == snapshot
+    assert result.exit_code == 0

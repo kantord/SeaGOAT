@@ -40,6 +40,13 @@
     'version': '0.0.0-test',
   })
 # ---
+# name: test_query_codebase_no_results
+  dict({
+    'results': list([
+    ]),
+    'version': '0.0.0-test',
+  })
+# ---
 # name: test_status_endpoint_with_all_files_analyzed
   dict({
     'stats': dict({
