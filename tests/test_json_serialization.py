@@ -9,8 +9,9 @@ from seagoat.result import ResultLineType
 
 def test_to_result_line_correct_output_example1():
     line = ResultLine(1, 0.5, "some line text", {ResultLineType.RESULT})
-    result_dict = line.to_json()
+    result_dict = line.to_json("")
     assert result_dict == {
+        "score": 0.25,
         "line": 1,
         "lineText": "some line text",
         "resultTypes": ["result"],
@@ -19,8 +20,9 @@ def test_to_result_line_correct_output_example1():
 
 def test_to_result_line_correct_output_example2():
     line = ResultLine(2, 0.2, "another line of text", {ResultLineType.RESULT})
-    result_dict = line.to_json()
+    result_dict = line.to_json("")
     assert result_dict == {
+        "score": 0.1,
         "line": 2,
         "lineText": "another line of text",
         "resultTypes": ["result"],
@@ -46,8 +48,18 @@ def test_to_result_json_correct_output_example1():
                 {
                     "lineTypeCount": {"result": 2},
                     "lines": [
-                        {"line": 1, "lineText": "Line 1", "resultTypes": ["result"]},
-                        {"line": 2, "lineText": "Line 2", "resultTypes": ["result"]},
+                        {
+                            "score": 0.25,
+                            "line": 1,
+                            "lineText": "Line 1",
+                            "resultTypes": ["result"],
+                        },
+                        {
+                            "score": 0.15,
+                            "line": 2,
+                            "lineText": "Line 2",
+                            "resultTypes": ["result"],
+                        },
                     ],
                 },
             ],
@@ -74,6 +86,7 @@ def test_to_result_json_correct_output_example2():
                     "lineTypeCount": {"result": 1},
                     "lines": [
                         {
+                            "score": 0.25,
                             "line": 1,
                             "lineText": "This is line 1",
                             "resultTypes": ["result"],
@@ -84,6 +97,7 @@ def test_to_result_json_correct_output_example2():
                     "lineTypeCount": {"result": 1},
                     "lines": [
                         {
+                            "score": 0.05,
                             "line": 3,
                             "lineText": "This is line 3",
                             "resultTypes": ["result"],

@@ -15,6 +15,7 @@
                 'resultTypes': list([
                   'result',
                 ]),
+                'score': 0.6000000000000001,
               }),
               dict({
                 'line': 2,
@@ -22,6 +23,7 @@
                 'resultTypes': list([
                   'result',
                 ]),
+                'score': 0.6000000000000001,
               }),
               dict({
                 'line': 3,
@@ -29,6 +31,7 @@
                 'resultTypes': list([
                   'result',
                 ]),
+                'score': 0.6000000000000001,
               }),
             ]),
           }),

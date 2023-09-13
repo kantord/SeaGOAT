@@ -38,8 +38,9 @@ class ResultLine:
     def add_type(self, type_: ResultLineType) -> None:
         self.types.add(type_)
 
-    def to_json(self):
+    def to_json(self, query: str):
         return {
+            "score": self.get_score(query),
             "line": self.line,
             "lineText": self.line_text,
             "resultTypes": list(sorted(set(str(t) for t in self.types))),
@@ -59,9 +60,9 @@ class ResultBlock:
 
         return dict(counts)
 
-    def to_json(self):
+    def to_json(self, query: str):
         return {
-            "lines": [line.to_json() for line in self.lines],
+            "lines": [line.to_json(query) for line in self.lines],
             "lineTypeCount": self._get_line_count_per_type(),
         }
 
@@ -145,7 +146,7 @@ class Result:
             "path": self.path,
             "fullPath": str(self.full_path),
             "score": self.get_best_score(query),
-            "blocks": [block.to_json() for block in self.get_result_blocks(query)],
+            "blocks": [block.to_json(query) for block in self.get_result_blocks(query)],
         }
 
     def add_context_lines(self, lines: int):
