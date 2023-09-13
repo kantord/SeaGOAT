@@ -47,6 +47,7 @@ def test_get_lines_without_context(create_result, repo):
                 "lineTypeCount": {"result": 1},
                 "lines": [
                     {
+                        "score": 0.5,
                         "line": 40,
                         "lineText": "lorem ipsum",
                         "resultTypes": [
@@ -86,6 +87,7 @@ def test_add_context_above_1(create_result, repo):
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
+                        "score": 0.0,
                         "line": 39,
                         "lineText": "fake line 39",
                         "resultTypes": [
@@ -93,6 +95,7 @@ def test_add_context_above_1(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.5,
                         "line": 40,
                         "lineText": "fake line 40",
                         "resultTypes": [
@@ -121,6 +124,7 @@ def test_add_context_above_2(create_result, repo):
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
+                        "score": 0.0,
                         "line": 19,
                         "lineText": "fake line 19",
                         "resultTypes": [
@@ -128,6 +132,7 @@ def test_add_context_above_2(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.5,
                         "line": 20,
                         "lineText": "fake line 20",
                         "resultTypes": [
@@ -140,6 +145,7 @@ def test_add_context_above_2(create_result, repo):
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
+                        "score": 0.0,
                         "line": 39,
                         "lineText": "fake line 39",
                         "resultTypes": [
@@ -147,6 +153,7 @@ def test_add_context_above_2(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.5,
                         "line": 40,
                         "lineText": "fake line 40",
                         "resultTypes": [
@@ -174,6 +181,7 @@ def test_add_context_below_1(create_result, repo):
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
+                        "score": 0.5,
                         "line": 40,
                         "lineText": "fake line 40",
                         "resultTypes": [
@@ -181,6 +189,7 @@ def test_add_context_below_1(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.0,
                         "line": 41,
                         "lineText": "fake line 41",
                         "resultTypes": [
@@ -210,6 +219,7 @@ def test_add_context_below_2(create_result, repo):
                 "lineTypeCount": {"context": 3, "result": 3},
                 "lines": [
                     {
+                        "score": 0.5,
                         "line": 40,
                         "lineText": "fake line 40",
                         "resultTypes": [
@@ -217,6 +227,7 @@ def test_add_context_below_2(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.5,
                         "line": 41,
                         "lineText": "fake line 41",
                         "resultTypes": [
@@ -225,6 +236,7 @@ def test_add_context_below_2(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.5,
                         "line": 42,
                         "lineText": "fake line 42",
                         "resultTypes": [
@@ -233,6 +245,7 @@ def test_add_context_below_2(create_result, repo):
                         ],
                     },
                     {
+                        "score": 0.0,
                         "line": 43,
                         "lineText": "fake line 43",
                         "resultTypes": [
