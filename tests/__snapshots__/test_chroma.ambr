@@ -27,6 +27,7 @@
       ]),
       'fullPath': '/path/to/repo/file1.md',
       'path': 'file1.md',
+      'score': 1.2000000000000002,
     }),
   ])
 # ---

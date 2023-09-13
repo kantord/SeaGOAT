@@ -144,6 +144,7 @@ class Result:
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
+            "score": self.get_best_score(query),
             "blocks": [block.to_json() for block in self.get_result_blocks(query)],
         }
 
