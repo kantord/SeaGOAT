@@ -2,6 +2,17 @@
 
 
 
+## v0.25.0 (2023-09-13)
+
+### Feature
+
+* feat: make scores rounded to 4 digits ([`80c4ec2`](https://github.com/kantord/SeaGOAT/commit/80c4ec2b6800b09714a32480af83e7a38fef596f))
+
+* feat: include score for result lines ([`868d01f`](https://github.com/kantord/SeaGOAT/commit/868d01fa7f25b01255beeb1207f77327e152f632))
+
+* feat: include score in results ([`2cde673`](https://github.com/kantord/SeaGOAT/commit/2cde67396b7e97302091883dbe8bf68169811aec))
+
+
 ## v0.24.0 (2023-09-13)
 
 ### Feature
