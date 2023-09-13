@@ -221,6 +221,7 @@ def _start_server(repo):
             target=start_server, args=(repo.working_dir,), daemon=True
         )
         server_process.start()
+        time.sleep(0.5)
 
         server_info_file = get_server_info_file(repo.working_dir)
         wait_for(lambda: os.path.exists(server_info_file), 120)

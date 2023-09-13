@@ -15,7 +15,7 @@
                 'resultTypes': list([
                   'result',
                 ]),
-                'score': 0.6000000000000001,
+                'score': 0.6,
               }),
               dict({
                 'line': 2,
@@ -23,7 +23,7 @@
                 'resultTypes': list([
                   'result',
                 ]),
-                'score': 0.6000000000000001,
+                'score': 0.6,
               }),
               dict({
                 'line': 3,
@@ -31,14 +31,14 @@
                 'resultTypes': list([
                   'result',
                 ]),
-                'score': 0.6000000000000001,
+                'score': 0.6,
               }),
             ]),
           }),
         ]),
         'fullPath': '/path/to/repo/file1.md',
         'path': 'file1.md',
-        'score': 0.6000000000000001,
+        'score': 0.6,
       }),
     ]),
     'version': '0.0.0-test',
