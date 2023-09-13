@@ -40,7 +40,7 @@ class ResultLine:
 
     def to_json(self, query: str):
         return {
-            "score": self.get_score(query),
+            "score": round(self.get_score(query), 4),
             "line": self.line,
             "lineText": self.line_text,
             "resultTypes": list(sorted(set(str(t) for t in self.types))),
@@ -145,7 +145,7 @@ class Result:
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "score": self.get_best_score(query),
+            "score": round(self.get_best_score(query), 4),
             "blocks": [block.to_json(query) for block in self.get_result_blocks(query)],
         }
 

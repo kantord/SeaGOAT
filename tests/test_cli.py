@@ -1,4 +1,3 @@
-import time
 from typing import List
 
 import orjson
@@ -639,6 +638,5 @@ def test_integration_test_no_results(snapshot, repo, mocker, runner):
     mocker.patch("os.isatty", return_value=True)
     query = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
     result = runner.invoke(seagoat, [query, repo.working_dir])
-    time.sleep(0.5)
     assert result.output == snapshot
     assert result.exit_code == 0
