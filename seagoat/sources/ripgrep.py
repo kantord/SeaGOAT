@@ -6,6 +6,7 @@ from ripgrepy import Ripgrepy
 from seagoat.common import SUPPORTED_FILE_TYPES
 from seagoat.repository import Repository
 from seagoat.result import Result
+from seagoat.sources.chroma import MAXIMUM_VECTOR_DISTANCE
 
 
 def _fetch(query_text: str, path: str, limit: int):
@@ -31,7 +32,8 @@ def _fetch(query_text: str, path: str, limit: int):
         if relative_path not in files:
             files[relative_path] = Result(str(relative_path), absolute_path)
 
-        files[relative_path].add_line(line_number, 0.0)
+        # This is so that ripgrep results are on comparable levels with chroma results
+        files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
 
     return files.values()
 
