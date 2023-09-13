@@ -5,9 +5,16 @@
       'blocks': list([
         dict({
           'lineTypeCount': dict({
-            'result': 1,
+            'result': 2,
           }),
           'lines': list([
+            dict({
+              'line': 2,
+              'lineText': 'This is an example Markdown file. Updated. ',
+              'resultTypes': list([
+                'result',
+              ]),
+            }),
             dict({
               'line': 3,
               'lineText': "HTML is for markup, but it's complicated. Markdown is simpler.",

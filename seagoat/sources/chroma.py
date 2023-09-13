@@ -9,6 +9,9 @@ from seagoat.repository import Repository
 from seagoat.result import Result
 
 
+MAXIMUM_VECTOR_DISTANCE = 1.5
+
+
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
 
@@ -24,7 +27,6 @@ def initialize(repository: Repository):
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
         maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
-        worst_distance_to_display = 1.5
         n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
 
         chromadb_results = [
@@ -47,7 +49,7 @@ def initialize(repository: Repository):
         files = {}
 
         for metadata, distance in metadata_with_distance:
-            if distance > worst_distance_to_display:
+            if distance > MAXIMUM_VECTOR_DISTANCE:
                 break
             path = str(metadata["path"])
             line = int(metadata["line"])
