@@ -2,6 +2,13 @@
 
 
 
+## v0.24.0 (2023-09-13)
+
+### Feature
+
+* feat: make grep vs chroma results more balanced ([`c802358`](https://github.com/kantord/SeaGOAT/commit/c8023586ffcd92d0c0d3b74aa00e819f615ad03d))
+
+
 ## v0.23.6 (2023-09-13)
 
 ### Documentation
