@@ -2,6 +2,19 @@
 
 
 
+## v0.23.6 (2023-09-13)
+
+### Documentation
+
+* docs: update macos call to action in README ([`ad53cad`](https://github.com/kantord/SeaGOAT/commit/ad53cad2013fb4b822c01f6183b4fcfd004b57d4))
+
+### Fix
+
+* fix: avoid crashing when there are no results
+
+test: test what happens when there are no results ([`49d28a2`](https://github.com/kantord/SeaGOAT/commit/49d28a2cd768633868199400673c70ba2095e6e6))
+
+
 ## v0.23.5 (2023-09-12)
 
 ### Fix
