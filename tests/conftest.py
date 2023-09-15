@@ -31,11 +31,10 @@ from seagoat.engine import Engine
 from seagoat.result import Result
 from seagoat.server import create_app
 from seagoat.server import start_server
-from seagoat.server import wait_for
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
 from seagoat.utils.server import get_server_info
-from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import ServerDoesNotExist
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -223,10 +222,14 @@ def _start_server(repo):
         server_process.start()
         time.sleep(0.5)
 
-        server_info_file = get_server_info_file(repo.working_dir)
-        wait_for(lambda: os.path.exists(server_info_file), 120)
+        try:
+            server_info = get_server_info(repo.working_dir)
+        except ServerDoesNotExist as error:
+            server_process.kill()
+            raise ServerDoesNotExist(
+                f"Server info for {repo.working_dir} not found."
+            ) from error
 
-        server_info = get_server_info(repo.working_dir)
         server_address = server_info["address"]
 
         retries = Retry(total=5, backoff_factor=0.1)

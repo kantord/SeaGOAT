@@ -1,7 +1,6 @@
 # pylint: disable=no-member
 import copy
 import json
-import os
 import re
 import subprocess
 import time
@@ -15,7 +14,7 @@ from seagoat import __version__
 from seagoat.server import get_status_data
 from seagoat.server import server as seagoat_server
 from seagoat.utils.server import get_server_info
-from seagoat.utils.server import get_server_info_file
+from seagoat.utils.server import is_server_running
 from seagoat.utils.wait import wait_for
 
 
@@ -239,7 +238,7 @@ def test_version_option(runner):
     assert result.output.strip() == f"seagoat, version {__version__}"
 
 
-@pytest.mark.parametrize("custom_port", [7483, 99081])
+@pytest.mark.parametrize("custom_port", [7483, 9981])
 def test_start_server_on_specific_port(custom_port, repo, mocker, managed_process):
     mocker.patch("seagoat.server.TaskQueue")
 
@@ -254,7 +253,7 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
     ]
 
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-        wait_for(lambda: os.path.exists(get_server_info_file(repo.working_dir)), 8)
+        wait_for(lambda: is_server_running(repo.working_dir), 8)
 
         server_info = get_server_info(repo.working_dir)
         server_address = server_info["address"]
