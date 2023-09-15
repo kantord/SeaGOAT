@@ -13,8 +13,10 @@ from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.server import get_free_port
 from seagoat.utils.server import get_server_info
-from seagoat.utils.server import get_server_info_file
 from seagoat.utils.server import is_server_running
+from seagoat.utils.server import remove_server_info
+from seagoat.utils.server import ServerDoesNotExist
+from seagoat.utils.server import update_server_info
 from seagoat.utils.wait import wait_for
 
 
@@ -85,25 +87,22 @@ def start_server(repo_path, custom_port=None):
     if port is None:
         port = get_free_port()
 
-    server_info_file = get_server_info_file(repo_path)
-    with open(server_info_file, "w", encoding="utf-8") as file:
-        json.dump({"host": "localhost", "port": port, "pid": os.getpid()}, file)
-
+    new_server_data = {"host": "localhost", "port": port, "pid": os.getpid()}
+    update_server_info(repo_path, new_server_data)
     serve(app, host="0.0.0.0", port=port, threads=1)
 
 
 def get_server(repo_path, custom_port=None):
-    server_info_file = get_server_info_file(repo_path)
     port = None
-
-    if os.path.exists(server_info_file):
+    try:
         server_info = get_server_info(repo_path)
         server_address = server_info["address"]
 
         if is_server_running(repo_path):
             click.echo(f"Server is already running at {server_address}")
             return server_address
-        os.remove(server_info_file)
+    except ServerDoesNotExist:
+        pass
 
     if custom_port is not None:
         port = custom_port
@@ -112,7 +111,7 @@ def get_server(repo_path, custom_port=None):
 
     start_server(str(repo_path), custom_port=port)
 
-    wait_for(lambda: os.path.exists(server_info_file), timeout=60)
+    wait_for(lambda: get_server_info(repo_path), timeout=60)
 
     server_info = get_server_info(repo_path)
     click.echo(f"Server started at {server_info['address']}")
@@ -141,16 +140,18 @@ def start(repo_path, port):
 
 def get_status_data(repo_path):
     """Return the status data of the server."""
-    server_info_file = get_server_info_file(repo_path)
-    status_info = {"isRunning": False, "url": None}
+    status_info = {"isRunning": False, "url": None, "pid": None}
 
-    if os.path.exists(server_info_file):
+    try:
         server_info = get_server_info(repo_path)
         server_address = server_info["address"]
-        pid = server_info["pid"]
+        pid = server_info.get("pid", None)
 
         if is_server_running(repo_path):
             status_info = {"isRunning": True, "url": server_address, "pid": pid}
+
+    except ServerDoesNotExist:
+        pass
 
     return status_info
 
@@ -175,10 +176,13 @@ def status(repo_path, use_json_format):
 @click.argument("repo_path")
 def stop(repo_path):
     """Stops the server."""
-    server_info_file = get_server_info_file(repo_path)
-
-    if os.path.exists(server_info_file):
-        os.remove(server_info_file)
+    try:
+        remove_server_info(repo_path)
+    except ServerDoesNotExist:
+        click.echo(
+            f"No server information found for {repo_path}. It might not be running or was never started."
+        )
+        return
 
     click.echo(
         "Server stopped. If it was running, it will stop after finishing current tasks."
