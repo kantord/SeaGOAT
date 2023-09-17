@@ -2,6 +2,21 @@
 
 
 
+## v0.25.1 (2023-09-17)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.327 ([`ffcc519`](https://github.com/kantord/SeaGOAT/commit/ffcc519342fef9cffabb783b0887dc823b84c234))
+
+### Fix
+
+* fix(deps): update dependency nest-asyncio to v1.5.8 ([`7483c99`](https://github.com/kantord/SeaGOAT/commit/7483c99540d364bb4023a5280307a2223f442853))
+
+### Refactor
+
+* refactor: use a single file for all server info ([`76471bb`](https://github.com/kantord/SeaGOAT/commit/76471bb9f22245868e27c9d48bda5c0ff34677eb))
+
+
 ## v0.25.0 (2023-09-13)
 
 ### Feature
