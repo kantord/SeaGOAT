@@ -48,11 +48,13 @@ You will receive a response similar to this:
     "version": "0.5.3",
     "servers": {
         "/path/to/repository/1": {
+            "isRunning": true,
             "host": "127.0.0.1",
             "port": "8080",
             "address": "http://127.0.0.1:8080"
         },
-        "/path/to/repository/1": {
+        "/path/to/repository/2": {
+            "isRunning": false,
             "host": "127.0.0.1",
             "port": "8081",
             "address": "http://127.0.0.1:8081"

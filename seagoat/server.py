@@ -196,8 +196,9 @@ def _server_info():
     servers_info = get_servers_info()
     formatted_servers_info = {}
 
-    for server_name, info in servers_info.items():
-        formatted_servers_info[server_name] = {
+    for normalized_repo_path, info in servers_info.items():
+        formatted_servers_info[normalized_repo_path] = {
+            "isRunning": is_server_running(normalized_repo_path),
             "host": info["host"],
             "port": info["port"],
             "address": f"http://{info['host']}:{info['port']}",
