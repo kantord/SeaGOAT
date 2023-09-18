@@ -2,6 +2,13 @@
 
 
 
+## v0.26.0 (2023-09-18)
+
+### Feature
+
+* feat: allow getting list of servers as JSON ([`21ff638`](https://github.com/kantord/SeaGOAT/commit/21ff638f517f64256460ca37c9c09dc20898dbec))
+
+
 ## v0.25.1 (2023-09-17)
 
 ### Chore
