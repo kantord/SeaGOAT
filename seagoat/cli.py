@@ -9,6 +9,7 @@ import requests
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.server import get_server_info
+from seagoat.utils.server import ServerDoesNotExist
 
 
 # pylint: disable-next=too-few-public-methods
@@ -45,36 +46,23 @@ def display_accuracy_warning(server_address):
         )
 
 
-def query_server(
-    query, server_address, repo_path, max_results, context_above, context_below
-):
-    try:
-        response = requests.get(
-            f"{server_address}/query/{query}",
-            params={
-                "limitClue": max_results,
-                "contextAbove": context_above,
-                "contextBelow": context_below,
-            },
-        )
+def query_server(query, server_address, max_results, context_above, context_below):
+    response = requests.get(
+        f"{server_address}/query/{query}",
+        params={
+            "limitClue": max_results,
+            "contextAbove": context_above,
+            "contextBelow": context_below,
+        },
+    )
 
-        response_data = orjson.loads(response.text)
-        if "error" in response_data:
-            click.echo(response_data["error"]["message"], err=True)
-            sys.exit(ExitCode.SERVER_ERROR)
+    response_data = orjson.loads(response.text)
+    if "error" in response_data:
+        click.echo(response_data["error"]["message"], err=True)
+        sys.exit(ExitCode.SERVER_ERROR)
 
-        response.raise_for_status()
-        return response_data["results"]
-    except (
-        requests.exceptions.ConnectionError,
-        requests.exceptions.RequestException,
-    ):
-        click.echo(
-            f"The SeaGOAT server is not running. "
-            f"Please start the server using the following command:\n\n"
-            f"seagoat-server start {repo_path}\n"
-        )
-        sys.exit(ExitCode.SERVER_NOT_RUNNING)
+    response.raise_for_status()
+    return response_data["results"]
 
 
 @click.command()
@@ -128,28 +116,39 @@ def seagoat(
     In order to use seagoat in your repository, you need to run a server
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
-    server_info = get_server_info(repo_path)
-    server_address = server_info["address"]
+    try:
+        server_info = get_server_info(repo_path)
+        server_address = server_info["address"]
 
-    if context is not None:
-        context_above = context
-        context_below = context
+        if context is not None:
+            context_above = context
+            context_below = context
 
-    results = query_server(
-        query,
-        server_address,
-        repo_path,
-        max_results,
-        context_above or 0,
-        context_below or 0,
-    )
+        results = query_server(
+            query,
+            server_address,
+            max_results,
+            context_above or 0,
+            context_below or 0,
+        )
 
-    color_enabled = os.isatty(0) and not no_color
+        color_enabled = os.isatty(0) and not no_color
 
-    display_results(results, max_results, color_enabled)
+        display_results(results, max_results, color_enabled)
 
-    display_accuracy_warning(server_address)
-    warn_if_update_available()
+        display_accuracy_warning(server_address)
+        warn_if_update_available()
+    except (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.RequestException,
+        ServerDoesNotExist,
+    ):
+        click.echo(
+            f"The SeaGOAT server is not running. "
+            f"Please start the server using the following command:\n\n"
+            f"seagoat-server start {repo_path}\n"
+        )
+        sys.exit(ExitCode.SERVER_NOT_RUNNING)
 
 
 if __name__ == "__main__":
