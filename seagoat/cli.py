@@ -9,6 +9,7 @@ import requests
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.server import get_server_info
+from seagoat.utils.server import ServerDoesNotExist
 
 
 # pylint: disable-next=too-few-public-methods
@@ -68,6 +69,7 @@ def query_server(
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,
+        ServerDoesNotExist,
     ):
         click.echo(
             f"The SeaGOAT server is not running. "

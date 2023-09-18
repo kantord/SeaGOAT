@@ -13,6 +13,7 @@ from seagoat import __version__
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.server import get_free_port
 from seagoat.utils.server import get_server_info
+from seagoat.utils.server import get_servers_info
 from seagoat.utils.server import is_server_running
 from seagoat.utils.server import remove_server_info
 from seagoat.utils.server import ServerDoesNotExist
@@ -87,7 +88,12 @@ def start_server(repo_path, custom_port=None):
     if port is None:
         port = get_free_port()
 
-    new_server_data = {"host": "localhost", "port": port, "pid": os.getpid()}
+    new_server_data = {
+        "host": "localhost",
+        "port": port,
+        "pid": os.getpid(),
+        "repoPath": repo_path,
+    }
     update_server_info(repo_path, new_server_data)
     serve(app, host="0.0.0.0", port=port, threads=1)
 
@@ -187,6 +193,27 @@ def stop(repo_path):
     click.echo(
         "Server stopped. If it was running, it will stop after finishing current tasks."
     )
+
+
+@server.command(name="server-info")
+def _server_info():
+    """Returns information about all SeaGOAT servers in JSON format."""
+    servers_info = get_servers_info()
+    formatted_servers_info = {}
+
+    for server_name, info in servers_info.items():
+        formatted_servers_info[server_name] = {
+            "host": info["host"],
+            "port": info["port"],
+            "address": f"http://{info['host']}:{info['port']}",
+        }
+
+    info = {
+        "version": __version__,
+        "servers": formatted_servers_info,
+    }
+
+    click.echo(json.dumps(info))
 
 
 if __name__ == "__main__":

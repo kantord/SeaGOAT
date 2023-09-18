@@ -27,7 +27,13 @@ def get_servers_info() -> dict:
     if not os.path.exists(path):
         write_to_json_file(path, {})
 
-    return get_json_file_contents(path)
+    contents = get_json_file_contents(path)
+
+    for key, value in list(contents.items()):
+        if not os.path.exists(value["repoPath"]):
+            del contents[key]
+
+    return contents
 
 
 def update_server_info(repo_path: str, new_server_data: dict) -> None:
@@ -67,7 +73,7 @@ def is_server_running(repo_path: str):
             return (
                 socket_obj.connect_ex((server_info["host"], server_info["port"])) == 0
             )
-    except ServerDoesNotExist:
+    except (ServerDoesNotExist, OverflowError):
         return False
 
 

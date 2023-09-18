@@ -220,7 +220,7 @@ def _start_server(repo):
             target=start_server, args=(repo.working_dir,), daemon=True
         )
         server_process.start()
-        time.sleep(0.5)
+        time.sleep(4.5)
 
         try:
             server_info = get_server_info(repo.working_dir)

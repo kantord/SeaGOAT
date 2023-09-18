@@ -114,7 +114,7 @@ def test_status_2(repo):
 
 
 @pytest.mark.usefixtures("server")
-def test_stop(repo):
+def test_stop(repo, runner):
     subprocess.run(
         ["python", "-m", "seagoat.server", "stop", repo.working_dir],
         capture_output=True,
@@ -129,6 +129,13 @@ def test_stop(repo):
     )
     assert result.returncode == 0
     assert "Server is not running" in result.stdout
+
+    result_info = runner.invoke(seagoat_server, ["server-info"])
+    assert result_info.exit_code == 0
+
+    servers_data = json.loads(result_info.output)
+    assert repo.working_dir in servers_data["servers"]
+    assert servers_data["servers"][repo.working_dir]["isRunning"] is False
 
 
 def test_status_with_json_when_server_not_running(repo):
@@ -147,7 +154,7 @@ def test_status_with_json_when_server_not_running(repo):
 
 
 @pytest.mark.usefixtures("server")
-def test_status_with_json_when_server_running(repo):
+def test_status_with_json_when_server_running(repo, runner):
     result = subprocess.run(
         ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
         capture_output=True,
@@ -161,6 +168,13 @@ def test_status_with_json_when_server_running(repo):
     assert json_result.get("isRunning") is True
     url = json_result.get("url")
     assert re.match(r"http://localhost:\d+", url) is not None
+
+    result_info = runner.invoke(seagoat_server, ["server-info"])
+    assert result_info.exit_code == 0
+
+    servers_data = json.loads(result_info.output)
+    assert repo.working_dir in servers_data["servers"]
+    assert servers_data["servers"][repo.working_dir]["isRunning"] is True
 
 
 def assert_server_status(repo, running):
@@ -268,3 +282,28 @@ def test_query_codebase_no_results(server, snapshot):
     data = response.json()
     assert not data["results"]
     assert normalize_version(data) == snapshot
+
+
+@pytest.mark.usefixtures("server")
+def test_servers_info_includes_version_and_server_details(runner, repo):
+    result = runner.invoke(seagoat_server, ["server-info"])
+
+    assert result.exit_code == 0
+
+    servers_data = json.loads(result.output)
+    assert servers_data["version"] == __version__
+    assert "servers" in servers_data
+
+    for server in servers_data["servers"].values():
+        assert "host" in server
+        assert "port" in server
+        assert "address" in server
+        assert server["address"].startswith("http://")
+        assert str(server["port"]) in server["address"]
+        assert server["host"] in server["address"]
+
+    assert any(
+        server_item["isRunning"] for server_item in servers_data["servers"].values()
+    ), "Expected at least one server to be running"
+
+    assert repo.working_dir in servers_data["servers"]

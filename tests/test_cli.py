@@ -405,10 +405,16 @@ def test_version_option(runner):
 def test_server_is_not_running_error(mocker, repo_path, snapshot):
     runner = CliRunner()
 
-    new_server_data = {"host": "localhost", "port": 345435, "pid": 234234}
+    new_server_data = {
+        "host": "localhost",
+        "port": 65030,
+        "pid": 234234,
+        "repoPath": repo_path,
+    }
     update_server_info(repo_path, new_server_data)
 
     mocker.patch("os.isatty", return_value=True)
+    mocker.patch("seagoat.server.is_server_running", return_value=False)
     query = "JavaScript"
     result = runner.invoke(seagoat, [query, repo_path])
 
