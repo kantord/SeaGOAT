@@ -91,7 +91,7 @@ def test_status_endpoint_with_some_files_not_analyzed(server):
     assert 0 < data["stats"]["accuracy"]["percentage"] < 100
 
 
-def test_status_1(repo):
+def test_status_1(repo, runner):
     result = subprocess.run(
         ["python", "-m", "seagoat.server", "status", repo.working_dir],
         capture_output=True,
@@ -100,6 +100,14 @@ def test_status_1(repo):
     )
     assert result.returncode == 0
     assert "Server is not running" in result.stdout
+
+    result = runner.invoke(seagoat_server, ["server-info"])
+    servers_data = json.loads(result.output)
+    current_repo = normalize_repo_path(repo.working_dir)
+    assert (
+        current_repo not in servers_data["servers"]
+        or servers_data["servers"][current_repo]["isRunning"]
+    )
 
 
 @pytest.mark.usefixtures("server")
@@ -187,10 +195,22 @@ def simulate_server_dying(repo):
 
 
 @pytest.mark.usefixtures("server")
-def test_server_status_not_running_if_process_does_not_exist(repo):
+def test_server_status_not_running_if_process_does_not_exist(repo, runner):
+    current_repo = normalize_repo_path(repo.working_dir)
+
     assert_server_status(repo, running=True)
+
+    result1 = runner.invoke(seagoat_server, ["server-info"])
+    servers_data1 = json.loads(result1.output)
+    assert servers_data1["servers"][current_repo]["isRunning"]
+
     simulate_server_dying(repo)
+
     assert_server_status(repo, running=False)
+
+    result2 = runner.invoke(seagoat_server, ["server-info"])
+    servers_data2 = json.loads(result2.output)
+    assert not servers_data2["servers"][current_repo]["isRunning"]
 
 
 @pytest.mark.parametrize("limit_value", [1, 3, 7])
@@ -288,6 +308,9 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
         assert server["address"].startswith("http://")
         assert str(server["port"]) in server["address"]
         assert server["host"] in server["address"]
+        assert server["isRunning"] in {False, True}
 
     assert len(servers_data["servers"]) >= 1
-    assert normalize_repo_path(repo.working_dir) in servers_data["servers"]
+    current_repo = normalize_repo_path(repo.working_dir)
+    assert current_repo in servers_data["servers"]
+    assert servers_data["servers"][current_repo]["isRunning"]
