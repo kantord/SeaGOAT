@@ -2,6 +2,13 @@
 
 
 
+## v0.27.0 (2023-09-18)
+
+### Feature
+
+* feat: include isRunning for server-info ([`023ea85`](https://github.com/kantord/SeaGOAT/commit/023ea85ca4f7c40b5c27fb609b45a3612e2e661f))
+
+
 ## v0.26.0 (2023-09-18)
 
 ### Feature
