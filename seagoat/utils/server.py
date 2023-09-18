@@ -18,8 +18,8 @@ def _get_server_data_file_path() -> Path:
     return user_cache_dir / "serverData.json"
 
 
-def _get_repo_id(repo_path: str) -> str:
-    return str(Path(repo_path).resolve())
+def normalize_repo_path(repo_path: str) -> str:
+    return str(os.path.normpath(Path(repo_path).expanduser().resolve()))
 
 
 def get_servers_info() -> dict:
@@ -27,12 +27,18 @@ def get_servers_info() -> dict:
     if not os.path.exists(path):
         write_to_json_file(path, {})
 
-    return get_json_file_contents(path)
+    contents = get_json_file_contents(path)
+
+    for key in list(contents.keys()):
+        if not os.path.exists(key):
+            del contents[key]
+
+    return contents
 
 
 def update_server_info(repo_path: str, new_server_data: dict) -> None:
     servers_info = get_servers_info()
-    repo_id = _get_repo_id(repo_path)
+    repo_id = normalize_repo_path(repo_path)
     servers_info[repo_id] = new_server_data
 
     write_to_json_file(_get_server_data_file_path(), servers_info)
@@ -40,7 +46,7 @@ def update_server_info(repo_path: str, new_server_data: dict) -> None:
 
 def remove_server_info(repo_path: str) -> None:
     servers_info = get_servers_info()
-    repo_id = _get_repo_id(repo_path)
+    repo_id = normalize_repo_path(repo_path)
     if repo_id in servers_info:
         servers_info.pop(repo_id)
         write_to_json_file(_get_server_data_file_path(), servers_info)
@@ -50,7 +56,7 @@ def remove_server_info(repo_path: str) -> None:
 
 def get_server_info(repo_path: str) -> dict:
     servers_info = get_servers_info()
-    repo_id = _get_repo_id(repo_path)
+    repo_id = normalize_repo_path(repo_path)
 
     if repo_id not in servers_info:
         raise ServerDoesNotExist(f"Server for {repo_path} does not exist.")

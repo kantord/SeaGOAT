@@ -15,6 +15,7 @@ from seagoat.server import get_status_data
 from seagoat.server import server as seagoat_server
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import is_server_running
+from seagoat.utils.server import normalize_repo_path
 from seagoat.utils.wait import wait_for
 
 
@@ -268,3 +269,25 @@ def test_query_codebase_no_results(server, snapshot):
     data = response.json()
     assert not data["results"]
     assert normalize_version(data) == snapshot
+
+
+@pytest.mark.usefixtures("server")
+def test_servers_info_includes_version_and_server_details(runner, repo):
+    result = runner.invoke(seagoat_server, ["server-info"])
+
+    assert result.exit_code == 0
+
+    servers_data = json.loads(result.output)
+    assert servers_data["version"] == __version__
+    assert "servers" in servers_data
+
+    for server in servers_data["servers"].values():
+        assert "host" in server
+        assert "port" in server
+        assert "address" in server
+        assert server["address"].startswith("http://")
+        assert str(server["port"]) in server["address"]
+        assert server["host"] in server["address"]
+
+    assert len(servers_data["servers"]) >= 1
+    assert normalize_repo_path(repo.working_dir) in servers_data["servers"]
