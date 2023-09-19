@@ -2,6 +2,17 @@
 
 
 
+## v0.27.1 (2023-09-19)
+
+### Documentation
+
+* docs: document query API ([`08f8cee`](https://github.com/kantord/SeaGOAT/commit/08f8cee0998ecd86ce55f19a235ad5c577297a25))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.11 ([`a2f494c`](https://github.com/kantord/SeaGOAT/commit/a2f494ceaad9481f8aa22d9fd37c03e3c53d4aa0))
+
+
 ## v0.27.0 (2023-09-18)
 
 ### Feature
