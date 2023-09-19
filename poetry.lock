@@ -375,13 +375,13 @@ numpy = "*"
 
 [[package]]
 name = "chromadb"
-version = "0.4.10"
+version = "0.4.11"
 description = "Chroma."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "chromadb-0.4.10-py3-none-any.whl", hash = "sha256:69e8c627cebb093cb211cd2e33959ec6edf66c9cdfcddf9f30902bd3c9bd23ac"},
-    {file = "chromadb-0.4.10.tar.gz", hash = "sha256:1bbb72f5f69b7a0fa9c7f1d74c6ca6197d2991a4333598aa97fd90d89a8bd112"},
+    {file = "chromadb-0.4.11-py3-none-any.whl", hash = "sha256:e4f466d711f48542f4ee215b700f21a766ef90d4484be8cd3ddec4cb1a431f64"},
+    {file = "chromadb-0.4.11.tar.gz", hash = "sha256:5076c63ba87d56fb416421746b54f72e1821a2aa2d23178d761fb6474a69c3ea"},
 ]
 
 [package.dependencies]
@@ -399,6 +399,7 @@ pypika = ">=0.48.9"
 requests = ">=2.28"
 tokenizers = ">=0.13.2"
 tqdm = ">=4.65.0"
+typer = ">=0.9.0"
 typing-extensions = ">=4.5.0"
 uvicorn = {version = ">=0.18.3", extras = ["standard"]}
 
@@ -2654,6 +2655,27 @@ files = [
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
+
+[[package]]
+name = "typer"
+version = "0.9.0"
+description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "typer-0.9.0-py3-none-any.whl", hash = "sha256:5d96d986a21493606a358cae4461bd8cdf83cbf33a5aa950ae629ca3b51467ee"},
+    {file = "typer-0.9.0.tar.gz", hash = "sha256:50922fd79aea2f4751a8e0408ff10d2662bd0c8bbfa84755a699f3bada2978b2"},
+]
+
+[package.dependencies]
+click = ">=7.1.1,<9.0.0"
+typing-extensions = ">=3.7.4.3"
+
+[package.extras]
+all = ["colorama (>=0.4.3,<0.5.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
+dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)", "pre-commit (>=2.17.0,<3.0.0)"]
+doc = ["cairosvg (>=2.5.2,<3.0.0)", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "pillow (>=9.3.0,<10.0.0)"]
+test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.0.0)", "mypy (==0.910)", "pytest (>=4.4.0,<8.0.0)", "pytest-cov (>=2.10.0,<5.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "pytest-xdist (>=1.32.0,<4.0.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
 
 [[package]]
 name = "typing-extensions"
