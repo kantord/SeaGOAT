@@ -103,10 +103,13 @@ class Engine:
         chunks_to_process = []
 
         for file, _ in self.repository.top_files():
-            for chunk in file.get_chunks():
-                if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
-                    chunks_to_process.append(chunk)
-                    self.cache.data["chunks_not_yet_analyzed"].add(chunk.chunk_id)
+            try:
+                for chunk in file.get_chunks():
+                    if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
+                        chunks_to_process.append(chunk)
+                        self.cache.data["chunks_not_yet_analyzed"].add(chunk.chunk_id)
+            except Exception as e:
+                print(f"Failed to read file {file.path} => Skipping it ({e})")
 
         if minimum_chunks_to_analyze is None:
             minimum_chunks_to_analyze = min(
