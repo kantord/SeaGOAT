@@ -194,7 +194,7 @@ formats:
 - **Markdown** (`*.md`)
 - **Python** (`*.py`)
 - **C** (`*.c`, `*.h`)
-- **C++** (`*.cpp`, `*.cc`, `*.hpp`)
+- **C++** (`*.cpp`, `*.cc`, `*.cxx`, `*.hpp`)
 - **TypeScript** (`*.ts`, `*.tsx`)
 - **JavaScript** (`*.js`, `*.jsx`)
 - **HTML** (`*.html`)

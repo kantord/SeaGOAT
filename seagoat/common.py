@@ -7,6 +7,7 @@ SUPPORTED_FILE_TYPES = {
     ".c",
     ".cc",
     ".cpp",
+    ".cxx",
     ".h",
     ".hpp",
     ".ts",
