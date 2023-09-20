@@ -2,6 +2,48 @@
 
 
 
+## v0.28.0 (2023-09-20)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.1.1 (#219)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`1b581e3`](https://github.com/kantord/SeaGOAT/commit/1b581e32546321d2ed04bd8c030b355c1fa3ac01))
+
+* chore(deps): update dependency mkdocs-material to v9.3.2 (#217)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`c444f9e`](https://github.com/kantord/SeaGOAT/commit/c444f9edfd496872b80d1e4d665596d77e5db8b3))
+
+### Documentation
+
+* docs: fix URL for Bat (#221) ([`55c3ab3`](https://github.com/kantord/SeaGOAT/commit/55c3ab3bb3f2130e4b213656cc27b906dd31279d))
+
+* docs: add notice about me looking for a job
+
+* Update README.md
+
+* docs: small grammar fix ([`05b4805`](https://github.com/kantord/SeaGOAT/commit/05b4805765b293b0c3b8a2caa14c3124da113bf0))
+
+### Feature
+
+* feat: support more programming languages
+
+this is an empty commit to trigger a release
+after this malformed commit message:
+https://github.com/kantord/SeaGOAT/commit/5b33c3eff26e6d8c157c6cac6d2524fc9bc8f06a ([`634b129`](https://github.com/kantord/SeaGOAT/commit/634b129f2e38ed58c57697842cfa08299bd4d07c))
+
+### Unknown
+
+* Support more programming languages (#223)
+
+* feat: extend set of supported languages
+
+To support at least this list:
+https://huggingface.co/datasets/code_search_net#languages
+
+* docs: document list of supported languages ([`5b33c3e`](https://github.com/kantord/SeaGOAT/commit/5b33c3eff26e6d8c157c6cac6d2524fc9bc8f06a))
+
+
 ## v0.27.2 (2023-09-20)
 
 ### Fix
