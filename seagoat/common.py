@@ -1,4 +1,5 @@
 IGNORED_BRANCHES = {"gh-pages"}
+
 SUPPORTED_FILE_TYPES = {
     ".txt",
     ".md",
@@ -12,4 +13,8 @@ SUPPORTED_FILE_TYPES = {
     ".tsx",
     ".jsx",
     ".html",
+    ".go",
+    ".java",
+    ".php",
+    ".rb",
 }

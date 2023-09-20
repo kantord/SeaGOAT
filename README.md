@@ -184,3 +184,21 @@ That being said, a language model *is* being used to generate vector
 embeddings. At the moment SeaGOAT uses ChromaDB's default model for
 calculating vector embeddings, and I am not aware of this being an ethical
 concern.
+
+### What programming langauges are supported?
+
+Currently SeaGOAT is hardcoded to only process files in the following
+formats:
+
+- **Text Files** (`*.txt`)
+- **Markdown** (`*.md`)
+- **Python** (`*.py`)
+- **C** (`*.c`, ``*.h`)
+- **C++** (`*.cpp`, `*.hpp`)
+- **TypeScript** (`*.ts`, `*.tsx`)
+- **JavaScript** (`*.js`, `*.jsx`)
+- **HTML** (`*.html`)
+- **Go** (`*.go`)
+- **Java** (`*.java`)
+- **PHP** (`*.php`)
+- **Ruby** (`*.rb`)
