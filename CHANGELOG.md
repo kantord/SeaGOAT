@@ -2,6 +2,19 @@
 
 
 
+## v0.29.0 (2023-09-20)
+
+### Feature
+
+* feat: support .cc and .cxx files
+
+* added support for alternative C++ extension (cc)
+
+* modified readme to reflect that .cc extension is supported
+
+* .cxx for C++ also ([`8ebd516`](https://github.com/kantord/SeaGOAT/commit/8ebd516b456d6655c7ba07b575bfdb19e919c5a5))
+
+
 ## v0.28.0 (2023-09-20)
 
 ### Chore
