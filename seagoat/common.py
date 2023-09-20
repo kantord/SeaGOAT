@@ -5,6 +5,7 @@ SUPPORTED_FILE_TYPES = {
     ".md",
     ".py",
     ".c",
+    ".cc",
     ".cpp",
     ".h",
     ".hpp",
