@@ -2,6 +2,13 @@
 
 
 
+## v0.27.2 (2023-09-20)
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.12 ([`73f7826`](https://github.com/kantord/SeaGOAT/commit/73f78265aad6c75974697c300a67f6352d425902))
+
+
 ## v0.27.1 (2023-09-19)
 
 ### Documentation
