@@ -9,7 +9,7 @@ from seagoat.file import File
 
 
 def parse_commit_info(raw_line: str):
-    commit_hash, date_str, author, commit_subject = raw_line.split(":::")
+    commit_hash, date_str, author, commit_subject = raw_line.split(":::", 3)
 
     commit_date = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z").date()
     today = datetime.date.today()
