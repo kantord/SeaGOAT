@@ -23,7 +23,7 @@ dependencies already installed on your computer:
 
 - Python 3.11 or newer
 - ripgrep
-- [https://github.com/sharkdp/bat](bat) (**optional**, highly recommended)
+- [bat](https://github.com/sharkdp/bat) (**optional**, highly recommended)
 
 When `bat` is [installed](https://github.com/sharkdp/bat#on-ubuntu-using-apt),
 it is used to display results as long as color is enabled. When SeaGOAT is
