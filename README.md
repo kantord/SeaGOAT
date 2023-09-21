@@ -49,7 +49,7 @@ pipx install seagoat
 
 Should work on any decent laptop.
 
-#### Oporating system
+#### Operating system
 
 SeaGOAT is designed to work on Linux (*tested* ✅),
 macOS ([partly tested, **help**](https://github.com/kantord/SeaGOAT/issues/178) 🙏)
