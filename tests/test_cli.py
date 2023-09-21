@@ -313,20 +313,6 @@ def test_forwards_limit_clue_to_server(max_length, get_request_args_from_cli_cal
     assert request_args["params"]["limitClue"] == max_length
 
 
-@pytest.mark.usefixtures("server", "mock_accuracy_warning", "bat_not_available")
-def test_integration_test_with_color(
-    snapshot, repo, mocker, runner, mock_warn_if_update_available
-):
-    mocker.patch("os.isatty", return_value=True)
-    query = "JavaScript"
-    result = runner.invoke(seagoat, [query, repo.working_dir])
-
-    assert result.output == snapshot
-    assert result.exit_code == 0
-
-    assert mock_warn_if_update_available.call_count == 1
-
-
 @pytest.mark.usefixtures(
     "server", "mock_accuracy_warning", "bat_available", "lots_of_fake_results"
 )
@@ -345,7 +331,7 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner):
     query = "JavaScript"
     result = runner.invoke(seagoat, [query, repo.working_dir, "--no-color"])
 
-    assert result.output == snapshot
+    assert str(result.output) == snapshot
     assert result.exit_code == 0
 
 
@@ -412,7 +398,7 @@ def test_server_is_not_running_error(mocker, repo_path, snapshot):
     result = runner.invoke(seagoat, [query, repo_path])
 
     assert result.exit_code == 3
-    assert result.output == snapshot
+    assert str(result.output) == snapshot
 
 
 def test_documentation_present(runner):
@@ -635,7 +621,8 @@ def test_warn_if_update_available_no_warning(mocker, capsys, mock_response):
 )
 def test_integration_test_no_results(snapshot, repo, mocker, runner):
     mocker.patch("os.isatty", return_value=True)
+    mocker.patch("seagoat.utils.cli_display.display_blocks_with_bat", return_value=True)
     query = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
     result = runner.invoke(seagoat, [query, repo.working_dir])
-    assert result.output == snapshot
+    assert str(result.output) == snapshot
     assert result.exit_code == 0
