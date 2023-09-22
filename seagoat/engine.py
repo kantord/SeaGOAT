@@ -103,6 +103,7 @@ class Engine:
         chunks_to_process = []
 
         for file, _ in self.repository.top_files():
+            if file.get_encoding() == 'bin': continue
             for chunk in file.get_chunks():
                 if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
                     chunks_to_process.append(chunk)
