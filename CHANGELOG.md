@@ -2,6 +2,31 @@
 
 
 
+## v0.29.1 (2023-09-22)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.4.0 (#235)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`4b6e74a`](https://github.com/kantord/SeaGOAT/commit/4b6e74a06bf8ff02c0ca2a4e0c4df963d42636ea))
+
+### Documentation
+
+* docs: document why SeaGOAT is not maxing out CPU (#233) ([`2499b6b`](https://github.com/kantord/SeaGOAT/commit/2499b6b2e1965299b1b514dbebd40b47906e198e))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.37 (#237)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`28e3c2d`](https://github.com/kantord/SeaGOAT/commit/28e3c2d21b601feb66cdf808fe0c7f79768cfc04))
+
+### Unknown
+
+* Update README.md (#230)
+
+fixing typo about Operating Systems ([`51ae32c`](https://github.com/kantord/SeaGOAT/commit/51ae32c845365e64226f49d031769c6b47673bb1))
+
+
 ## v0.29.0 (2023-09-20)
 
 ### Feature
