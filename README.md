@@ -132,7 +132,7 @@ environment. For example to test the development version of the
 `seagoat-server` command, you can run:
 
 ```bash
-poetry run seagoat-server ~/path/an/example/repository
+poetry run seagoat-server start ~/path/an/example/repository
 ```
 
 ## FAQ
