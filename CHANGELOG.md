@@ -2,6 +2,19 @@
 
 
 
+## v0.29.3 (2023-09-23)
+
+### Chore
+
+* chore(deps): update actions/checkout digest to 8ade135 (#242)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`6e774aa`](https://github.com/kantord/SeaGOAT/commit/6e774aad53d29eae0bb289554db4d1d6578ee17f))
+
+### Fix
+
+* fix: support Windows file paths (#234) ([`fe11547`](https://github.com/kantord/SeaGOAT/commit/fe11547432240fa6d0dab41894bee34fc054cf6a))
+
+
 ## v0.29.2 (2023-09-23)
 
 ### Chore
