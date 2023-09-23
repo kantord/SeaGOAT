@@ -2,6 +2,66 @@
 
 
 
+## v0.29.2 (2023-09-23)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.4.1 (#239)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`3af3112`](https://github.com/kantord/SeaGOAT/commit/3af311251506f5d99f319b493f20a258e2625e4c))
+
+### Fix
+
+* fix: support commit messages that contain :::
+
+* Fix exception in repositories with commits containing &#39;:::&#39; in commit message
+
+Setting [maxsplit](https://docs.python.org/3/library/stdtypes.html#str.split).
+
+The following exception was thrown:
+
+```
+Exception in thread Thread-1 (_worker_function):
+Traceback (most recent call last):
+  File &#34;/home/user/.local/pipx/venvs/seagoat/lib/python3.11/site-packages/seagoat/queue/base_queue.py&#34;, line 76, in _worker_function
+    task = self._task_queue.get(timeout=1)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &#34;/usr/lib/python3.11/queue.py&#34;, line 179, in get
+    raise Empty
+_queue.Empty
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File &#34;/usr/lib/python3.11/threading.py&#34;, line 1038, in _bootstrap_inner
+    self.run()
+  File &#34;/usr/lib/python3.11/threading.py&#34;, line 975, in run
+    self._target(*self._args, **self._kwargs)
+  File &#34;/home/user/.local/pipx/venvs/seagoat/lib/python3.11/site-packages/seagoat/queue/base_queue.py&#34;, line 81, in _worker_function
+    self.handle_maintenance(context)
+  File &#34;/home/user/.local/pipx/venvs/seagoat/lib/python3.11/site-packages/seagoat/queue/task_queue.py&#34;, line 50, in handle_maintenance
+    remaining_chunks_to_analyze = context[&#34;seagoat_engine&#34;].analyze_codebase(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &#34;/home/user/.local/pipx/venvs/seagoat/lib/python3.11/site-packages/seagoat/engine.py&#34;, line 82, in analyze_codebase
+    self.repository.analyze_files()
+  File &#34;/home/user/.local/pipx/venvs/seagoat/lib/python3.11/site-packages/seagoat/repository.py&#34;, line 46, in analyze_files
+    current_commit_info = parse_commit_info(line)
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File &#34;/home/user/.local/pipx/venvs/seagoat/lib/python3.11/site-packages/seagoat/repository.py&#34;, line 12, in parse_commit_info
+    commit_hash, date_str, author, commit_subject = raw_line.split(&#34;:::&#34;)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 4)
+```
+
+* Test commit messages with three or more colons
+
+* style: fix code style issues
+
+---------
+
+Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`2a2df42`](https://github.com/kantord/SeaGOAT/commit/2a2df42cd84ebd4be9484a1c2a2c87903d7304b1))
+
+
 ## v0.29.1 (2023-09-22)
 
 ### Chore
