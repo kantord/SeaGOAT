@@ -2,6 +2,7 @@ import hashlib
 from typing import Dict
 from typing import List
 from typing import Literal
+
 from chardet.universaldetector import UniversalDetector
 
 
@@ -23,17 +24,14 @@ class File:
 
     def get_encoding(self) -> str | None:
         detector = UniversalDetector()
-        file_bin = open(self.absolute_path, "rb")
+        with open(self.absolute_path, "rb") as input_file:
+            for line in input_file:
+                detector.feed(line)
+                if detector.done:
+                    break
 
-        for line in file_bin:
-            detector.feed(line)
-            if detector.done: break
         detector.close()
-        if detector.result['confidence'] < 0.4:
-            return 'bin'
-        else:
-            return detector.result['encoding']
-
+        return detector.result["encoding"]
 
     def get_metadata(self):
         commit_messages = "\n-".join(sorted(self.commit_messages))
@@ -43,7 +41,9 @@ class File:
 {commit_messages}"""
 
     def _get_file_lines(self) -> Dict[int, str]:
-        with open(self.absolute_path, "r", encoding=self.get_encoding()) as source_code_file:
+        with open(
+            self.absolute_path, "r", encoding=self.get_encoding()
+        ) as source_code_file:
             lines = {
                 (i + 1): line
                 for i, line in enumerate(source_code_file.read().splitlines())
