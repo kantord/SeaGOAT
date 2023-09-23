@@ -210,7 +210,7 @@ class Engine:
                 results_to_sort,
                 key=lambda x: (
                     0.7 * normalize_score(x.get_best_score(self.query_string))
-                    + 0.3 * normalize_file_position(top_files[x.path])
+                    + 0.3 * normalize_file_position(top_files[Path(x.path).as_posix()])
                 ),
             )
         )[:hard_count_limit]

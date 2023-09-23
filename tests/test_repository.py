@@ -81,6 +81,25 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
     assert seagoat.repository.top_files()[0][0].path == "new_file.txt"
 
 
+def test_commit_messages_with_three_or_more_colons(repo):
+    seagoat = Engine(repo.working_dir)
+    commit_messages = set()
+    for i in range(5):
+        message = "add my file" + ":" * i + "!"
+        commit_messages.add(message)
+        repo.add_file_change_commit(
+            file_name="file.txt",
+            contents=f"{i}",
+            author=repo.actors["John Doe"],
+            commit_message=message,
+        )
+    seagoat.analyze_codebase()
+
+    assert (
+        set(seagoat.repository.get_file("file.txt").commit_messages) == commit_messages
+    )
+
+
 def test_ignores_certain_branches(repo):
     seagoat = Engine(repo.working_dir)
     main = repo.active_branch
