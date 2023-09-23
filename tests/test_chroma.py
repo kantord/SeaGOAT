@@ -59,9 +59,10 @@ async def test_gets_data_using_vector_embeddings(repo, snapshot):
 def test_allows_fetching_data_synchronously(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
-        contents="Italian food recipes, spaghetti, pomodoro, pepperoni\n",
+        contents="ékezetes, Italian food recipes, spaghetti, pomodoro, pepperoni\n",
         author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
+        encoding="windows-1250",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
