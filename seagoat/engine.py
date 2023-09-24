@@ -204,12 +204,20 @@ class Engine:
         normalize_score = self._get_normalization_function(scores, min_=0.0)
         normalize_file_position = self._get_normalization_function(top_files.values())
 
+        def get_file_position(path: str):
+            normalized_path = Path(path).as_posix()
+
+            if normalized_path not in top_files:
+                return 0
+
+            return top_files[normalized_path]
+
         return list(
             sorted(
                 results_to_sort,
                 key=lambda x: (
                     0.7 * normalize_score(x.get_best_score(self.query_string))
-                    + 0.3 * normalize_file_position(top_files[Path(x.path).as_posix()])
+                    + 0.3 * normalize_file_position(get_file_position(x.path))
                 ),
             )
         )[:hard_count_limit]
