@@ -2,6 +2,15 @@
 
 
 
+## v0.30.1 (2023-09-24)
+
+### Fix
+
+* fix: avoid crashing when file no longer exists (#247)
+
+fixes #245 ([`d85231a`](https://github.com/kantord/SeaGOAT/commit/d85231a9647052c773fb7c38dc618b3e46298f81))
+
+
 ## v0.30.0 (2023-09-24)
 
 ### Feature
