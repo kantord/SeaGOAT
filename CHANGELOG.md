@@ -2,6 +2,13 @@
 
 
 
+## v0.31.0 (2023-09-24)
+
+### Feature
+
+* feat: include cache folders in server info JSON (#249) ([`3bdc226`](https://github.com/kantord/SeaGOAT/commit/3bdc226f5ec0909ed875f57573c3e9d04b193f2a))
+
+
 ## v0.30.2 (2023-09-24)
 
 ### Fix
