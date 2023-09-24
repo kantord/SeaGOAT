@@ -14,6 +14,17 @@ T = TypeVar("T")
 CACHE_FORMAT_VERSION = 24
 
 
+def get_cache_root():
+    if "RUNNER_TEMP" in os.environ:
+        return Path(os.environ["RUNNER_TEMP"])
+
+    return Path(
+        appdirs.user_cache_dir(
+            "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
+        )
+    )
+
+
 class Cache(Generic[T]):
     def __init__(self, cache_name: str, path: Path, initial_value: T):
         self._path = path
@@ -35,20 +46,10 @@ class Cache(Generic[T]):
         return self.get_cache_folder() / self._cache_name
 
     def get_cache_folder(self):
-        cache_folder = self._get_cache_root() / self._get_project_hash()
+        cache_folder = get_cache_root() / self._get_project_hash()
         cache_folder.mkdir(parents=True, exist_ok=True)
 
         return cache_folder
-
-    def _get_cache_root(self):
-        if "RUNNER_TEMP" in os.environ:
-            return Path(os.environ["RUNNER_TEMP"])
-
-        return Path(
-            appdirs.user_cache_dir(
-                "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
-            )
-        )
 
     def _get_project_hash(self):
         normalized_path = Path(self._path).expanduser().resolve()

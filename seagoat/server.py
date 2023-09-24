@@ -10,6 +10,8 @@ from flask import request
 from waitress import serve
 
 from seagoat import __version__
+from seagoat.cache import Cache
+from seagoat.cache import get_cache_root
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.server import get_free_port
 from seagoat.utils.server import get_server_info
@@ -198,6 +200,12 @@ def _server_info():
 
     for normalized_repo_path, info in servers_info.items():
         formatted_servers_info[normalized_repo_path] = {
+            "repoPath": normalized_repo_path,
+            "cacheLocation": {
+                "chroma": str(
+                    Cache("chroma", normalized_repo_path, {}).get_cache_folder()
+                ),
+            },
             "isRunning": is_server_running(normalized_repo_path),
             "host": info["host"],
             "port": info["port"],
@@ -207,6 +215,7 @@ def _server_info():
     info = {
         "version": __version__,
         "servers": formatted_servers_info,
+        "globalCache": str(get_cache_root()),
     }
 
     click.echo(json.dumps(info))
