@@ -53,9 +53,13 @@ def initialize(repository: Repository):
                 break
             path = str(metadata["path"])
             line = int(metadata["line"])
+            full_path = Path(repository.path) / path
+
+            if not full_path.exists():
+                continue
 
             if path not in files:
-                files[path] = Result(path, Path(repository.path) / path)
+                files[path] = Result(path, full_path)
             files[path].add_line(line, distance)
 
         return files.values()

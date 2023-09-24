@@ -1,5 +1,6 @@
 # pylint: disable=protected-access
 import copy
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -315,3 +316,23 @@ async def test_respects_limit_in_chromadb(repo):
         assert len(result_for_devices_txt.get_lines(my_query)) == 6
     else:
         raise AssertionError("File 'devices.txt' not found in results.")
+
+
+@pytest.mark.asyncio
+async def test_does_not_crash_repo_when_files_are_deleted(repo):
+    repo.add_file_change_commit(
+        file_name="cooking_recipes.txt",
+        contents="motorbike, ford, mercedes\n",
+        author=repo.actors["John Doe"],
+        commit_message=".",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "dish_recipe.txt"
+    seagoat.query(my_query)
+    await seagoat.fetch()
+    (Path(repo.working_dir) / "cooking_recipes.txt").unlink()
+
+    seagoat.analyze_codebase()
+    seagoat.query(my_query)
+    await seagoat.fetch()
