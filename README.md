@@ -216,3 +216,8 @@ it's processing your files!** When you make a query, and the files are not
 processed yet, you will receive a warning with an esimation of the accuracy
 of your results. Also, regular expression/full text search based results
 will be displayed from the very beginning!
+
+### What character encodings are supported?
+
+The preferred character encoding is UTF-8. Most other character encodings
+should also work. Only text files are supported, SeaGOAT ignores binary files.
