@@ -8,6 +8,8 @@ from typing import Dict
 from typing import List
 from typing import Set
 
+from seagoat.utils.file_reader import FileReader
+
 
 class ResultLineType(Enum):
     RESULT = "result"
@@ -81,7 +83,7 @@ class Result:
         self.lines.update(other.lines)
 
     def _read_lines(self):
-        with open(self.full_path, encoding="utf-8") as source_code_file:
+        with FileReader(self.full_path) as source_code_file:
             return source_code_file.read().splitlines()
 
     def add_line(self, line: int, vector_distance: float) -> None:

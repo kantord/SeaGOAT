@@ -127,15 +127,17 @@ class MockRepo(Repo):
                 )
                 self.tick_fake_date(days=1)
 
+    # pylint: disable=too-many-arguments
     def add_file_change_commit(
         self,
         file_name,
         contents,
         author,
         commit_message,
+        encoding="utf-8",
     ):
         with open(
-            os.path.join(self.working_dir, file_name), "w", encoding="utf-8"
+            os.path.join(self.working_dir, file_name), "w", encoding=encoding
         ) as output_file:
             output_file.write(contents)
 
