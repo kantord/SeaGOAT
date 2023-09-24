@@ -2,6 +2,29 @@
 
 
 
+## v0.30.0 (2023-09-24)
+
+### Feature
+
+* feat: detect file encoding to support encodings other than UTF-8
+
+* Try to ignore binary files
+
+* Fix typo in README
+
+* fix: always detect a file encoding
+
+* test: test that other encodings are supported
+
+* add FileReader
+
+* docs: document list of supported character encodings
+
+---------
+
+Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`3b889bc`](https://github.com/kantord/SeaGOAT/commit/3b889bc43a5464f457a461b321f3bf851e75d6cc))
+
+
 ## v0.29.3 (2023-09-23)
 
 ### Chore
