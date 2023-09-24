@@ -2,6 +2,15 @@
 
 
 
+## v0.30.2 (2023-09-24)
+
+### Fix
+
+* fix: don&#39;t crash when ripgrep finds an uncached file (#248)
+
+partially or fully fixes #226 ([`4fe3c60`](https://github.com/kantord/SeaGOAT/commit/4fe3c60095240e5a7d7b1d2617ef33c219dd2a36))
+
+
 ## v0.30.1 (2023-09-24)
 
 ### Fix
