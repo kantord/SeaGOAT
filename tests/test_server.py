@@ -1,6 +1,7 @@
 # pylint: disable=no-member
 import copy
 import json
+import os
 import re
 import subprocess
 import time
@@ -301,7 +302,7 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
     assert servers_data["version"] == __version__
     assert "servers" in servers_data
 
-    for server in servers_data["servers"].values():
+    for repo_path, server in servers_data["servers"].items():
         assert "host" in server
         assert "port" in server
         assert "address" in server
@@ -309,6 +310,10 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
         assert str(server["port"]) in server["address"]
         assert server["host"] in server["address"]
         assert server["isRunning"] in {False, True}
+        assert server["repoPath"] == repo_path
+        assert os.path.isdir(server["cacheLocation"]["chroma"])
+        parent_folder_of_repo_cache = os.path.dirname(server["cacheLocation"]["chroma"])
+        assert parent_folder_of_repo_cache == servers_data["globalCache"]
 
     assert len(servers_data["servers"]) >= 1
     current_repo = normalize_repo_path(repo.working_dir)

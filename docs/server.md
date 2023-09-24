@@ -46,14 +46,21 @@ You will receive a response similar to this:
 ```json
 {
     "version": "0.5.3",
+    "globalCache": "/home/myuser/.cache/seagoat",
     "servers": {
         "/path/to/repository/1": {
+            "cacheLocation": {
+              "chroma": "/home/myuser/.cache/seagoat/bfe8133b9e871ea1c8498a0"
+            },
             "isRunning": true,
             "host": "127.0.0.1",
             "port": "8080",
             "address": "http://127.0.0.1:8080"
         },
         "/path/to/repository/2": {
+            "cacheLocation": {
+              "chroma": "/home/myuser/.cache/seagoat/fbee39c83bd47a75e2f839"
+            },
             "isRunning": false,
             "host": "127.0.0.1",
             "port": "8081",
@@ -62,6 +69,12 @@ You will receive a response similar to this:
     }
 }
 ```
+
+In this output, you can also see information about where databases/caches
+related to your projects are stored. `globalCache` is the parent folder of
+all the cache directories, and withing each server, you can find an attribute
+called `cacheLocation` which contains the path to the cache directory for
+each different type of cache associated with that project.
 
 ### Making queries using the API
 

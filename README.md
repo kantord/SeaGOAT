@@ -221,3 +221,9 @@ will be displayed from the very beginning!
 
 The preferred character encoding is UTF-8. Most other character encodings
 should also work. Only text files are supported, SeaGOAT ignores binary files.
+
+### Where does SeaGOAT store it's database/cache?
+
+Where SeaGOAT stores databases and cache depends on your operating system.
+For your convenience, you can use the `seagoat-server server-info`
+command to find out where these files are stored on your system.
