@@ -3,10 +3,10 @@ from pathlib import Path
 
 from ripgrepy import Ripgrepy
 
-from seagoat.common import SUPPORTED_FILE_TYPES
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.sources.chroma import MAXIMUM_VECTOR_DISTANCE
+from seagoat.utils.file_types import is_file_type_supported
 
 
 def _fetch(query_text: str, path: str, limit: int):
@@ -26,7 +26,7 @@ def _fetch(query_text: str, path: str, limit: int):
         relative_path = Path(absolute_path).relative_to(path)
         line_number = int(result_data["line_number"])
 
-        if relative_path.suffix not in SUPPORTED_FILE_TYPES:
+        if not is_file_type_supported(relative_path):
             continue
 
         if relative_path not in files:

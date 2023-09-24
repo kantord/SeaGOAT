@@ -115,6 +115,27 @@ class MockRepo(Repo):
                     "Second update to JavaScript file",
                 ],
             },
+            {
+                "name": "file4.md",
+                "contents": [
+                    "// This is an example JavaScript file",
+                    "// This is an example JavaScript file 2",
+                    "// This is an updated example JavaScript file",
+                    "// This is a second updated example JavaScript file",
+                ],
+                "authors": [
+                    self.actors["John Doe"],
+                    self.actors["John Doe"],
+                    self.actors["Alice Smith"],
+                    self.actors["Charlie Brown"],
+                ],
+                "commit_messages": [
+                    "Initial commit for JavaScript file",
+                    "Initial commit for JavaScript file 2",
+                    "Update to JavaScript file",
+                    "Second update to JavaScript file",
+                ],
+            },
         ]
 
         for file_change in file_changes:

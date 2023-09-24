@@ -40,7 +40,7 @@ def test_get_lines_without_context(create_result, repo):
     actual_lines = result.get_lines(query)
     assert actual_lines == [40]
     assert result.to_json(query) == {
-        "score": 0.5,
+        "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
@@ -80,7 +80,7 @@ def test_add_context_above_1(create_result, repo):
     actual_lines = result.get_lines(query)
     assert actual_lines == [39, 40]
     assert result.to_json(query) == {
-        "score": 0.5,
+        "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
@@ -117,7 +117,7 @@ def test_add_context_above_2(create_result, repo):
     actual_lines = result.get_lines(query)
     assert actual_lines == [19, 20, 39, 40]
     assert result.to_json(query) == {
-        "score": 0.5,
+        "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
@@ -174,7 +174,7 @@ def test_add_context_below_1(create_result, repo):
     actual_lines = result.get_lines(query)
     assert actual_lines == [40, 41]
     assert result.to_json(query) == {
-        "score": 0.5,
+        "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
@@ -212,7 +212,7 @@ def test_add_context_below_2(create_result, repo):
     actual_lines = result.get_lines(query)
     assert actual_lines == [40, 41, 42, 43]
     assert result.to_json(query) == {
-        "score": 0.5,
+        "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
