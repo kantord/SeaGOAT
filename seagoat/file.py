@@ -3,7 +3,7 @@ from typing import Dict
 from typing import List
 from typing import Literal
 
-from chardet.universaldetector import UniversalDetector
+from seagoat.utils.file_reader import FileReader
 
 
 class File:
@@ -22,17 +22,6 @@ class File:
     def add_commit(self, commit_hash: str):
         self.commit_hashes.add(commit_hash)
 
-    def get_encoding(self) -> str | None:
-        detector = UniversalDetector()
-        with open(self.absolute_path, "rb") as input_file:
-            for line in input_file:
-                detector.feed(line)
-                if detector.done:
-                    break
-
-        detector.close()
-        return detector.result["encoding"]
-
     def get_metadata(self):
         commit_messages = "\n-".join(sorted(self.commit_messages))
         return f"""###
@@ -41,9 +30,7 @@ class File:
 {commit_messages}"""
 
     def _get_file_lines(self) -> Dict[int, str]:
-        with open(
-            self.absolute_path, "r", encoding=self.get_encoding()
-        ) as source_code_file:
+        with FileReader(self.absolute_path) as source_code_file:
             lines = {
                 (i + 1): line
                 for i, line in enumerate(source_code_file.read().splitlines())
