@@ -9,6 +9,7 @@ from typing import List
 from typing import Set
 
 from seagoat.utils.file_reader import FileReader
+from seagoat.utils.file_types import get_file_penalty_factor
 
 
 class ResultLineType(Enum):
@@ -104,10 +105,14 @@ class Result:
         )
 
     def get_best_score(self, query: str) -> float:
-        return min(
+        best_score = min(
             (x for x in self.lines.values() if ResultLineType.RESULT in x.types),
             key=lambda item: item.get_score(query),
         ).get_score(query)
+
+        best_score *= get_file_penalty_factor(self.full_path)
+
+        return best_score
 
     def get_lines(self, query: str):
         best_score = self.get_best_score(query)

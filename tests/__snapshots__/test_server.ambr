@@ -38,7 +38,7 @@
         ]),
         'fullPath': '/path/to/repo/file1.md',
         'path': 'file1.md',
-        'score': 0.6,
+        'score': 0.9,
       }),
     ]),
     'version': '0.0.0-test',
@@ -58,7 +58,7 @@
         'percentage': 100,
       }),
       'chunks': dict({
-        'analyzed': 6,
+        'analyzed': 7,
         'unanalyzed': 0,
       }),
       'queue': dict({

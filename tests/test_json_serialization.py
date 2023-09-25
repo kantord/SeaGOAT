@@ -41,7 +41,7 @@ def test_to_result_json_correct_output_example1():
 
         result_dict = result.to_json("")
         assert result_dict == {
-            "score": 0.15,
+            "score": 0.225,
             "path": "example1.txt",
             "fullPath": file_path,
             "blocks": [
@@ -78,7 +78,7 @@ def test_to_result_json_correct_output_example2():
 
         result_dict = result.to_json("")
         assert result_dict == {
-            "score": 0.05,
+            "score": 0.075,
             "path": "example2.txt",
             "fullPath": file_path,
             "blocks": [

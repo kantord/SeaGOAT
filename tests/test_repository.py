@@ -16,6 +16,7 @@ def test_returns_file_list_1(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
     }
     assert set(seagoat.repository.get_file("file1.md").commit_messages) == {
         "Initial commit for Markdown file",
@@ -38,6 +39,7 @@ def test_returns_file_list_2(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
         "new_file.cpp",
     }
     assert set(seagoat.repository.get_file("new_file.cpp").commit_messages) == {
@@ -132,6 +134,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
     }
 
 
@@ -153,6 +156,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
     }
 
 
@@ -171,6 +175,7 @@ def test_damaged_cache_doesnt_crash_app_2(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
     }
 
 
@@ -190,6 +195,7 @@ def test_only_returns_supported_file_types(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
     }
     assert set(seagoat.repository.get_file("file1.md").commit_messages) == {
         "Initial commit for Markdown file",
@@ -256,6 +262,7 @@ def test_does_not_crash_because_of_non_existent_files(repo):
         "file2.py",
         "file3.py",
         "file4.js",
+        "file4.md",
     }
 
 

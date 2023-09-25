@@ -4,8 +4,8 @@ import subprocess
 from collections import defaultdict
 from pathlib import Path
 
-from seagoat.common import SUPPORTED_FILE_TYPES
 from seagoat.file import File
+from seagoat.utils.file_types import is_file_type_supported
 
 
 def parse_commit_info(raw_line: str):
@@ -47,7 +47,7 @@ class Repository:
                 elif line:
                     filename = line
 
-                    if Path(filename).suffix not in SUPPORTED_FILE_TYPES:
+                    if not is_file_type_supported(filename):
                         continue
 
                     if not (self.path / filename).exists():
