@@ -2,6 +2,7 @@ import copy
 import os
 from pathlib import Path
 
+import appdirs
 import jsonschema
 import yaml
 from deepmerge import always_merger
@@ -20,6 +21,13 @@ CONFIG_SCHEMA = {
         }
     },
 }
+
+GLOBAL_CONFIG_DIR = Path(
+    appdirs.user_cache_dir(
+        "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
+    )
+)
+GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.yml"
 
 
 def validate_config_file(config_file: str):
@@ -40,9 +48,12 @@ def extend_config_with_file(base_config, config_file):
 
 def get_config(repo_path: Path):
     config = copy.deepcopy(DEFAULT_CONFIG)
-    global_config_file = repo_path / ".seagoat.yml"
+    repo_config_file = repo_path / ".seagoat.yml"
 
-    if global_config_file.exists():
-        config = extend_config_with_file(config, global_config_file)
+    if repo_config_file.exists():
+        config = extend_config_with_file(config, repo_config_file)
+
+    if GLOBAL_CONFIG_FILE.exists():
+        config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
 
     return config
