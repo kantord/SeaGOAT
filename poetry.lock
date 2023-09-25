@@ -386,26 +386,26 @@ numpy = "*"
 
 [[package]]
 name = "chromadb"
-version = "0.4.12"
+version = "0.4.13"
 description = "Chroma."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "chromadb-0.4.12-py3-none-any.whl", hash = "sha256:2a9d99945c25049ce8b8d2896ef296909f42ba2f5dca983a496adae0a0deb64a"},
-    {file = "chromadb-0.4.12.tar.gz", hash = "sha256:430585725e1f2f43f51ef3d0d7a41d99d0cdc4635264e75aaf1e303ab48ae616"},
+    {file = "chromadb-0.4.13-py3-none-any.whl", hash = "sha256:6959dc4aaa6278c7491dd1911724981a0e46816b19e9f86945b9bd875e6a252a"},
+    {file = "chromadb-0.4.13.tar.gz", hash = "sha256:99d330b9ac8f2ec81f4b34798d34f2ea9f4656bef1da951efa7e93957ef7e706"},
 ]
 
 [package.dependencies]
 bcrypt = ">=4.0.1"
 chroma-hnswlib = "0.7.3"
-fastapi = ">=0.95.2,<0.100.0"
+fastapi = ">=0.95.2"
 importlib-resources = "*"
 numpy = {version = ">=1.22.5", markers = "python_version >= \"3.8\""}
 onnxruntime = ">=1.14.1"
 overrides = ">=7.3.1"
 posthog = ">=2.4.0"
 pulsar-client = ">=3.1.0"
-pydantic = ">=1.9,<2.0"
+pydantic = ">=1.9"
 pypika = ">=0.48.9"
 requests = ">=2.28"
 tokenizers = ">=0.13.2"
