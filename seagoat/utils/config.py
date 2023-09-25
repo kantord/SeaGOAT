@@ -50,10 +50,10 @@ def get_config(repo_path: Path):
     config = copy.deepcopy(DEFAULT_CONFIG)
     repo_config_file = repo_path / ".seagoat.yml"
 
-    if repo_config_file.exists():
-        config = extend_config_with_file(config, repo_config_file)
-
     if GLOBAL_CONFIG_FILE.exists():
         config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
+
+    if repo_config_file.exists():
+        config = extend_config_with_file(config, repo_config_file)
 
     return config
