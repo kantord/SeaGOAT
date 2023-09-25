@@ -2,6 +2,25 @@
 
 
 
+## v0.32.1 (2023-09-25)
+
+### Chore
+
+* chore(deps): update dependency pylint to v2.17.6 (#254)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b04a361`](https://github.com/kantord/SeaGOAT/commit/b04a361bc46978a604526d22f6f1da7bf97cc7b5))
+
+* chore(deps): update dependency mkdocs-material to v9.4.2 (#253)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`559ba1d`](https://github.com/kantord/SeaGOAT/commit/559ba1d4c9b32126cd58639afe3bd4e8cbc2098d))
+
+### Fix
+
+* fix: avoid crashing because of misdetected encoding (#255)
+
+fixes #250 ([`5d471ea`](https://github.com/kantord/SeaGOAT/commit/5d471eabcb0959762513e72901b35308c7906fa1))
+
+
 ## v0.32.0 (2023-09-25)
 
 ### Feature
