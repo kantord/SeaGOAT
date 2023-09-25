@@ -3,7 +3,7 @@ from typing import Dict
 from typing import List
 from typing import Literal
 
-from seagoat.utils.file_reader import FileReader
+from seagoat.utils.file_reader import read_file_with_correct_encoding
 
 
 class File:
@@ -30,11 +30,12 @@ class File:
 {commit_messages}"""
 
     def _get_file_lines(self) -> Dict[int, str]:
-        with FileReader(self.absolute_path) as source_code_file:
-            lines = {
-                (i + 1): line
-                for i, line in enumerate(source_code_file.read().splitlines())
-            }
+        lines = {
+            (i + 1): line
+            for i, line in enumerate(
+                read_file_with_correct_encoding(self.absolute_path).splitlines()
+            )
+        }
 
         return lines
 

@@ -8,7 +8,7 @@ from typing import Dict
 from typing import List
 from typing import Set
 
-from seagoat.utils.file_reader import FileReader
+from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import get_file_penalty_factor
 
 
@@ -75,17 +75,13 @@ class Result:
         self.path: str = path
         self.full_path: Path = full_path
         self.lines: Dict[int, ResultLine] = {}
-        self.line_texts = self._read_lines()
+        self.line_texts = read_file_with_correct_encoding(self.full_path).splitlines()
 
     def __repr__(self) -> str:
         return f"Result(path={self.path})"
 
     def extend(self, other) -> None:
         self.lines.update(other.lines)
-
-    def _read_lines(self):
-        with FileReader(self.full_path) as source_code_file:
-            return source_code_file.read().splitlines()
 
     def add_line(self, line: int, vector_distance: float) -> None:
         types = set()
