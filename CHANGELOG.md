@@ -2,6 +2,15 @@
 
 
 
+## v0.32.2 (2023-09-25)
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.13 (#257)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`3b8fdb5`](https://github.com/kantord/SeaGOAT/commit/3b8fdb516c081effc59cee202226e8bec20ecb97))
+
+
 ## v0.32.1 (2023-09-25)
 
 ### Chore
