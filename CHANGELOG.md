@@ -2,6 +2,13 @@
 
 
 
+## v0.32.0 (2023-09-25)
+
+### Feature
+
+* feat: penalize text files compared to code files (#252) ([`c79a6fa`](https://github.com/kantord/SeaGOAT/commit/c79a6fa2e06921fca68781e3d553899effb10829))
+
+
 ## v0.31.0 (2023-09-24)
 
 ### Feature
