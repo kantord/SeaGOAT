@@ -48,9 +48,13 @@ class Repository:
                     filename = line
 
                     if not is_file_type_supported(filename):
+                        print(f"Skipping {filename} because it is not supported")
                         continue
 
                     if not (self.path / filename).exists():
+                        print(
+                            f"Skipping {self.path/filename} because it does not exist"
+                        )
                         continue
 
                     self.file_changes[filename].append(current_commit_info)
@@ -67,6 +71,7 @@ class Repository:
             self.frecency_scores[file] = score
 
     def top_files(self):
+        print("Got top files from", self.frecency_scores)
         return [
             (self.get_file(filename), score)
             for filename, score in sorted(
