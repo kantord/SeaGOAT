@@ -102,7 +102,7 @@ server:
   port: 31134  # Specify server port
 ```
 
-[Check out the documentation](https://kantord.github.io/SeaGOAT/latest/documentation/)
+[Check out the documentation](https://kantord.github.io/SeaGOAT/latest/configuration/)
 for more details!
 
 ## Development
