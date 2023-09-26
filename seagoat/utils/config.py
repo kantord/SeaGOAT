@@ -23,7 +23,7 @@ CONFIG_SCHEMA = {
 }
 
 GLOBAL_CONFIG_DIR = Path(
-    appdirs.user_cache_dir(
+    appdirs.user_config_dir(
         "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
     )
 )
@@ -34,9 +34,7 @@ def validate_config_file(config_file: str):
     if os.path.exists(config_file):
         content = read_file_with_correct_encoding(config_file)
         new_config = yaml.safe_load(content) or {}
-        jsonschema.validate(
-            instance=new_config, schema=CONFIG_SCHEMA
-        )  # Validate the loaded configuration
+        jsonschema.validate(instance=new_config, schema=CONFIG_SCHEMA)
         return new_config
     return {}
 

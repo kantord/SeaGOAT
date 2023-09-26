@@ -18,6 +18,7 @@ from seagoat.utils.server import get_server_info
 from seagoat.utils.server import is_server_running
 from seagoat.utils.server import normalize_repo_path
 from seagoat.utils.wait import wait_for
+from tests.conftest import GLOBAL_CONFIG_FILE
 
 
 def normalize_full_paths(data, repo):
@@ -301,6 +302,7 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
     servers_data = json.loads(result.output)
     assert servers_data["version"] == __version__
     assert "servers" in servers_data
+    assert servers_data["globalConfigFile"] == str(GLOBAL_CONFIG_FILE)
 
     for repo_path, server in servers_data["servers"].items():
         assert "host" in server
@@ -319,3 +321,32 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
     current_repo = normalize_repo_path(repo.working_dir)
     assert current_repo in servers_data["servers"]
     assert servers_data["servers"][current_repo]["isRunning"]
+
+
+@pytest.mark.parametrize("custom_port", [7483, 9981])
+def test_start_server_on_custom_port_using_config_files(
+    custom_port, repo, mocker, managed_process, create_config_file
+):
+    create_config_file(
+        {
+            "server": {
+                "port": custom_port,
+            }
+        }
+    )
+    mocker.patch("seagoat.server.TaskQueue")
+
+    server_cmd = [
+        "python",
+        "-m",
+        "seagoat.server",
+        "start",
+        repo.working_dir,
+    ]
+
+    with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+        wait_for(lambda: is_server_running(repo.working_dir), 8)
+
+        server_info = get_server_info(repo.working_dir)
+        server_address = server_info["address"]
+        assert str(custom_port) in server_address

@@ -47,6 +47,7 @@ You will receive a response similar to this:
 {
     "version": "0.5.3",
     "globalCache": "/home/myuser/.cache/seagoat",
+    "globalConfigFile": "/home/myuser/.config/seagoat/config.yml",
     "servers": {
         "/path/to/repository/1": {
             "cacheLocation": {
@@ -75,6 +76,11 @@ related to your projects are stored. `globalCache` is the parent folder of
 all the cache directories, and withing each server, you can find an attribute
 called `cacheLocation` which contains the path to the cache directory for
 each different type of cache associated with that project.
+
+If you want to create a configuration file, you can see the path for it
+in the `globalConfigFile` attribute. This depends on your operating system.
+You can also create a configuration file for your project. See
+[the configuration documentation](configuration.md) for more information.
 
 ### Making queries using the API
 

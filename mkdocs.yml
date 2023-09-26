@@ -35,3 +35,4 @@ nav:
     - Getting Started: index.md
     - Usage Reference: usage.md
     - SeaGOAT Server: server.md
+    - Configuring SeaGOAT: configuration.md
