@@ -21,6 +21,7 @@ import appdirs
 import orjson
 import pytest
 import requests
+import yaml
 from click.testing import CliRunner
 from git.repo import Repo
 from git.util import Actor
@@ -33,6 +34,7 @@ from seagoat.server import create_app
 from seagoat.server import start_server
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
+from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import ServerDoesNotExist
 
@@ -243,7 +245,7 @@ def _start_server(repo):
             target=start_server, args=(repo.working_dir,), daemon=True
         )
         server_process.start()
-        time.sleep(0.5)
+        time.sleep(0.75)
 
         try:
             server_info = get_server_info(repo.working_dir)
@@ -579,3 +581,27 @@ def bat_calls(mocker):
 @pytest.fixture(autouse=True)
 def mock_warn_if_update_available(mocker):
     return mocker.patch("seagoat.cli.warn_if_update_available")
+
+
+@pytest.fixture
+def create_config_file(repo):
+    created_files = []
+
+    def write_config(content, global_config=False):
+        if global_config:
+            config_file_path = GLOBAL_CONFIG_FILE
+        else:
+            config_file_path = Path(repo.working_dir) / ".seagoat.yml"
+
+        os.makedirs(config_file_path.parent, exist_ok=True)
+
+        with open(config_file_path, "w", encoding="utf-8") as file:
+            yaml.dump(content, file)
+
+        created_files.append(config_file_path)
+
+    yield write_config
+
+    for file_path in created_files:
+        if file_path.exists():
+            file_path.unlink()

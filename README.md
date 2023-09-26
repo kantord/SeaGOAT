@@ -89,6 +89,22 @@ You can stop the running server using the following command:
 seagoat-server stop /path/to/your/repo
 ```
 
+### Configuring SeaGOAT
+
+SeaGOAT can be tailored to your needs through YAML configuration files,
+either globally or project-specifically with a `.seagoat.yml` file.
+For instance:
+
+```yaml
+# .seagoat.yml
+
+server:
+  port: 31134  # Specify server port
+```
+
+[Check out the documentation](https://kantord.github.io/SeaGOAT/latest/documentation/)
+for more details!
+
 ## Development
 
 **Requirements**:

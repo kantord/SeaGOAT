@@ -30,6 +30,9 @@ psutil = "^5.9.5"
 orjson = "^3.9.5"
 waitress = "^2.1.2"
 chardet = "^5.2.0"
+pyyaml = "^6.0.1"
+jsonschema = "^4.19.1"
+deepmerge = "^1.1.0"
 
 [virtualenvs]
 in-project = true
