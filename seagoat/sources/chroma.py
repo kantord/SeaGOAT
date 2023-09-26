@@ -1,13 +1,14 @@
 from pathlib import Path
+from typing import List
 
 import chromadb
 from chromadb.config import Settings
 from chromadb.errors import IDAlreadyExistsError
+from llama_cpp import Llama
 
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
-
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
 
@@ -15,6 +16,27 @@ MAXIMUM_VECTOR_DISTANCE = 1.5
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
 
+    llm = Llama(
+        model_path="/Users/alecf/github/llama.cpp/models/codellama-7b-instruct.Q5_K_M.gguf",
+        n_ctx=2048,
+        embedding=True,
+    )
+
+    def llama_embed(inputs: List[str]):
+        print("Embedding strings of lengths ", [len(s) for s in inputs])
+        result: List[float] = []
+        for s in inputs:
+            try:
+                embed = llm.embed(s)
+                result.append(embed)
+            except ValueError as e:
+                print("Error embedding ", s, ": ", e)
+                result.append([0] * 4096)
+
+        print("Produced embeddings of length ", [len(s) for s in result])
+        return result
+
+    print("Cache folder in ", cache.get_cache_folder())
     chroma_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
         settings=Settings(
@@ -22,7 +44,9 @@ def initialize(repository: Repository):
         ),
     )
 
-    chroma_collection = chroma_client.get_or_create_collection(name="code_data")
+    chroma_collection = chroma_client.get_or_create_collection(
+        name="code_data", embedding_function=llama_embed
+    )
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
