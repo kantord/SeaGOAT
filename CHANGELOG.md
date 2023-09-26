@@ -2,6 +2,27 @@
 
 
 
+## v0.33.0 (2023-09-26)
+
+### Chore
+
+* chore(deps): update dependency python-semantic-release to v8.1.1 (#258)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b077c39`](https://github.com/kantord/SeaGOAT/commit/b077c39ef8f57db90ad2e5bb59d7d2ff10ee9118))
+
+### Feature
+
+* feat: support config files
+
+* feat: allow users to create repo-wide configuration
+
+* feat: support global config files
+
+* feat: allow overriding global config from repo config
+
+* feat: allow configuring port via config file ([`6f337ce`](https://github.com/kantord/SeaGOAT/commit/6f337cec49a4b1d242d8d0fa14f1ede78a0b90b1))
+
+
 ## v0.32.2 (2023-09-25)
 
 ### Fix
