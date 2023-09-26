@@ -338,6 +338,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#configuring-seagoat" class="md-nav__link">
+    Configuring SeaGOAT
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -512,6 +519,25 @@
   
 
     
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuring SeaGOAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -595,6 +621,13 @@
           <li class="md-nav__item">
   <a href="#stopping-the-server" class="md-nav__link">
     Stopping the server
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-seagoat" class="md-nav__link">
+    Configuring SeaGOAT
   </a>
   
 </li>
@@ -814,6 +847,17 @@ in your queries, for example</p>
 <p>You can stop the running server using the following command:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>seagoat-server<span class="w"> </span>stop<span class="w"> </span>/path/to/your/repo
 </span></code></pre></div>
+<h3 id="configuring-seagoat">Configuring SeaGOAT</h3>
+<p>SeaGOAT can be tailored to your needs through YAML configuration files,
+either globally or project-specifically with a <code>.seagoat.yml</code> file.
+For instance:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># .seagoat.yml</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nt">server</span><span class="p">:</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">31134</span><span class="w">  </span><span class="c1"># Specify server port</span>
+</span></code></pre></div>
+<p><a href="https://kantord.github.io/SeaGOAT/latest/documentation/">Check out the documentation</a>
+for more details!</p>
 <h2 id="development">Development</h2>
 <p><strong>Requirements</strong>:</p>
 <ul>
@@ -823,23 +867,23 @@ in your queries, for example</p>
 </ul>
 <h3 id="install-dependencies">Install dependencies</h3>
 <p>After cloning the repository, install dependencies using the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>poetry<span class="w"> </span>install
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>install
 </span></code></pre></div>
 <h3 id="running-tests">Running tests</h3>
 <h4 id="watch-mode-recommended">Watch mode (recommended)</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ptw
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ptw
 </span></code></pre></div>
 <h4 id="test-changed-files">Test changed files</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
 </span></code></pre></div>
 <h4 id="test-all-files">Test all files</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
 </span></code></pre></div>
 <h3 id="manual-testing">Manual testing</h3>
 <p>You can test any SeaGOAT command manually in your local development
 environment. For example to test the development version of the
 <code>seagoat-server</code> command, you can run:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>start<span class="w"> </span>~/path/an/example/repository
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>start<span class="w"> </span>~/path/an/example/repository
 </span></code></pre></div>
 <h2 id="faq">FAQ</h2>
 <p>The points in this FAQ are indications of how SeaGOAT works, but are not
