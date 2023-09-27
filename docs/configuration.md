@@ -25,6 +25,11 @@ This is an example of a configuration file:
 
 server:
   port: 31134  # A port number to run the server on
+
+client:
+  # Connect the CLI to a remove server
+  host: https://example.com/seagoat-instance/
+
 ```
 
 ## Available configuration options
@@ -37,3 +42,14 @@ config files.
 The following values can be configured:
 
 * `port`: The port number the server will run on
+
+### Client
+
+Configuration for the CLI (`gt` command) resides under the `client` attribute.
+
+The following values can be configured:
+
+* `host`: The URL of the SeaGOAT instance to connect to. This is only
+needed when you are hosting your SeaGOAT server on a remote computer. *It is
+recommended to set this value in your project configuration file, so that
+you are still able to use the local server for different projects.*

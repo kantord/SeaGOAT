@@ -243,3 +243,18 @@ should also work. Only text files are supported, SeaGOAT ignores binary files.
 Where SeaGOAT stores databases and cache depends on your operating system.
 For your convenience, you can use the `seagoat-server server-info`
 command to find out where these files are stored on your system.
+
+### Can I host SeaGOAT server on a different computer?
+
+Yes, if you would like to use SeaGOAT without having to run the server on
+the same computer, you can simply self-host SeaGOAT server on a different
+computer or in the cloud, and
+[configure](https://kantord.github.io/SeaGOAT/latest/configuration/)
+the `seagoat`/`gt` command to connect to this remote server through the
+internet.
+
+Keep in mind that SeaGOAT itself does not enforce any security as it is
+primarily designed to run locally. If you have private code that you do not
+wish to leak, you will have to make sure that only trusted people have
+access to the SeaGOAT server. This could be done by making it only available
+through a VPN that only your teammates can access.

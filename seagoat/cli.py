@@ -1,6 +1,7 @@
 # pylint: disable=too-many-arguments
 import os
 import sys
+from pathlib import Path
 
 import click
 import orjson
@@ -8,6 +9,7 @@ import requests
 
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
+from seagoat.utils.config import get_config
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import ServerDoesNotExist
 
@@ -116,9 +118,14 @@ def seagoat(
     In order to use seagoat in your repository, you need to run a server
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
+    config = get_config(Path(repo_path))
+
     try:
-        server_info = get_server_info(repo_path)
-        server_address = server_info["address"]
+        if config["client"]["host"] is None:
+            server_info = get_server_info(repo_path)
+            server_address = server_info["address"]
+        else:
+            server_address = config["client"]["host"]
 
         if context is not None:
             context_above = context
