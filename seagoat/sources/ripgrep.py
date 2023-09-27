@@ -1,7 +1,8 @@
 import re
+import subprocess
 from pathlib import Path
 
-from ripgrepy import Ripgrepy
+import orjson
 
 from seagoat.repository import Repository
 from seagoat.result import Result
@@ -12,28 +13,41 @@ from seagoat.utils.file_types import is_file_type_supported
 def _fetch(query_text: str, path: str, limit: int):
     query_text = re.sub(r"\s+", "|", query_text)
     files = {}
-    for result in (
-        Ripgrepy(query_text, path)
-        .max_count(limit)
-        .ignore_case()
-        .max_filesize("200K")
-        .json()
-        .run()
-        .as_dict
-    ):
-        result_data = result["data"]
-        absolute_path = result_data["path"]["text"]
-        relative_path = Path(absolute_path).relative_to(path)
-        line_number = int(result_data["line_number"])
 
-        if not is_file_type_supported(relative_path):
-            continue
+    cmd = [
+        "rg",
+        "--json",
+        "--max-count",
+        str(limit),
+        "--ignore-case",
+        "--max-filesize",
+        "200K",
+        query_text,
+        path,
+    ]
 
-        if relative_path not in files:
-            files[relative_path] = Result(str(relative_path), absolute_path)
+    try:
+        rg_output = subprocess.check_output(cmd, encoding="utf-8")
+    except subprocess.CalledProcessError as exception:
+        rg_output = exception.output
 
-        # This is so that ripgrep results are on comparable levels with chroma results
-        files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
+    for line in rg_output.splitlines():
+        result = orjson.loads(line)
+
+        if result.get("type") == "match":
+            result_data = result["data"]
+            absolute_path = result_data["path"]["text"]
+            relative_path = Path(absolute_path).relative_to(path)
+            line_number = int(result_data["line_number"])
+
+            if not is_file_type_supported(relative_path):
+                continue
+
+            if relative_path not in files:
+                files[relative_path] = Result(str(relative_path), absolute_path)
+
+            # This is so that ripgrep results are on comparable levels with chroma results
+            files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
 
     return files.values()
 
