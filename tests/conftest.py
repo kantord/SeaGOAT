@@ -7,7 +7,6 @@ import shutil
 import signal
 import subprocess
 import tempfile
-import time
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import datetime
@@ -39,6 +38,13 @@ from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import ServerDoesNotExist
 from seagoat.utils.wait import wait_for
+
+try:
+    from pytest_cov.embed import cleanup_on_sigterm
+except ImportError:
+    pass
+else:
+    cleanup_on_sigterm()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -274,6 +280,14 @@ def _start_server(repo):
         session.mount("http://", HTTPAdapter(max_retries=retries))
         session.mount("https://", HTTPAdapter(max_retries=retries))
 
+        def _stop():
+            try:
+                if server_process.pid is not None:
+                    os.kill(server_process.pid, signal.SIGTERM)
+                server_process.join()
+            except ProcessLookupError:
+                pass
+
         response = None
         try:
             response = session.get(f"{server_address}/status", timeout=1)
@@ -284,19 +298,11 @@ def _start_server(repo):
                 if response.status_code == 500:
                     print("Server responded with a 500 error:")
                     print(response.text)
-            server_process.kill()
+            _stop()
             raise
         except:
-            server_process.kill()
+            _stop()
             raise
-
-        def _stop():
-            try:
-                if server_process.pid is not None:
-                    os.kill(server_process.pid, signal.SIGTERM)
-                server_process.join()
-            except ProcessLookupError:
-                pass
 
         return server_address, _stop
 
@@ -306,7 +312,6 @@ def _start_server(repo):
 @pytest.fixture(name="server")
 def _server(start_server):
     server_address, stop_server = start_server()
-    time.sleep(1)
     yield server_address
     stop_server()
 

@@ -57,7 +57,7 @@ def test_query_codebase(server, snapshot, repo):
 
 def test_status_endpoint_with_all_files_analyzed(server, snapshot):
     url = f"{server}/status"
-    time.sleep(2)
+    time.sleep(3)
     response = requests.get(url)
 
     assert response.status_code == 200, response.text
