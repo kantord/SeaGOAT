@@ -28,6 +28,8 @@ def get_servers_info() -> dict:
         write_to_json_file(path, {})
 
     contents = get_json_file_contents(path)
+    if contents is None:
+        contents = {}
 
     for key in list(contents.keys()):
         if not os.path.exists(key):

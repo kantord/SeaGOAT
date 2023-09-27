@@ -37,6 +37,7 @@ from seagoat.sources import ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import ServerDoesNotExist
+from seagoat.utils.wait import wait_for
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -245,7 +246,16 @@ def _start_server(repo):
             target=start_server, args=(repo.working_dir,), daemon=True
         )
         server_process.start()
-        time.sleep(0.75)
+
+        def make_sure_server_is_running():
+            try:
+                get_server_info(repo.working_dir)
+                return True
+            # pylint: disable-next=broad-except
+            except Exception:
+                return False
+
+        wait_for(make_sure_server_is_running, timeout=3.0)
 
         try:
             server_info = get_server_info(repo.working_dir)
