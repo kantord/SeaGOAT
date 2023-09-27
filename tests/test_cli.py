@@ -626,3 +626,15 @@ def test_integration_test_no_results(snapshot, repo, mocker, runner):
     result = runner.invoke(seagoat, [query, repo.working_dir])
     assert str(result.output) == snapshot
     assert result.exit_code == 0
+
+
+@pytest.mark.usefixtures("mock_accuracy_warning")
+@pytest.mark.parametrize(
+    "remote_host", ["http://example.com/potato", "https://ejemplo.es/nose/seagoat"]
+)
+def test_configure_remote_server_address(
+    remote_host, get_request_args_from_cli_call, create_config_file
+):
+    create_config_file({"client": {"host": remote_host}})
+    request_args = get_request_args_from_cli_call([])
+    assert request_args["url"].startswith(remote_host)

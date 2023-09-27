@@ -9,7 +9,7 @@ from deepmerge import always_merger
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 
-DEFAULT_CONFIG = {"server": {"port": None}}
+DEFAULT_CONFIG = {"server": {"port": None}, "client": {"host": None}}
 
 CONFIG_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",

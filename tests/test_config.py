@@ -7,6 +7,13 @@ from seagoat.utils.config import get_config
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 
 
+base_expected_config = {**DEFAULT_CONFIG}
+
+
+def _(config):
+    return {**base_expected_config, **config}
+
+
 def test_no_config_files(repo):
     final_config = get_config(Path(repo.working_dir))
     assert final_config == DEFAULT_CONFIG
@@ -15,8 +22,8 @@ def test_no_config_files(repo):
 @pytest.mark.parametrize(
     "config_content,expected_config",
     [
-        ({"server": {"port": 6060}}, {"server": {"port": 6060}}),
-        ({"server": {"port": 7070}}, {"server": {"port": 7070}}),
+        ({"server": {"port": 6060}}, _({"server": {"port": 6060}})),
+        ({"server": {"port": 7070}}, _({"server": {"port": 7070}})),
     ],
 )
 def test_local_config_override(
@@ -31,8 +38,8 @@ def test_local_config_override(
 @pytest.mark.parametrize(
     "global_config_content,expected_config",
     [
-        ({"server": {"port": 6061}}, {"server": {"port": 6061}}),
-        ({"server": {"port": 7072}}, {"server": {"port": 7072}}),
+        ({"server": {"port": 6061}}, _({"server": {"port": 6061}})),
+        ({"server": {"port": 7072}}, _({"server": {"port": 7072}})),
     ],
 )
 def test_global_config_override(
@@ -69,4 +76,4 @@ def test_local_overrides_global(
     create_config_file(local_config_content, global_config=False)
 
     final_config = get_config(Path(repo.working_dir))
-    assert final_config == expected_config
+    assert final_config == _(expected_config)
