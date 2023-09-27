@@ -4,6 +4,7 @@ import multiprocessing
 import os
 import re
 import shutil
+import signal
 import subprocess
 import tempfile
 import time
@@ -290,7 +291,12 @@ def _start_server(repo):
             raise
 
         def _stop():
-            server_process.kill()
+            try:
+                if server_process.pid is not None:
+                    os.kill(server_process.pid, signal.SIGTERM)
+                server_process.join()
+            except ProcessLookupError:
+                pass
 
         return server_address, _stop
 
