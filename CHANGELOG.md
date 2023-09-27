@@ -2,6 +2,23 @@
 
 
 
+## v0.34.0 (2023-09-27)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.328 ([`03d49bf`](https://github.com/kantord/SeaGOAT/commit/03d49bfd00b2ebc74e778dc03bdef86994634459))
+
+### Documentation
+
+* docs: fix configuration docs link in readme.md ([`0d61332`](https://github.com/kantord/SeaGOAT/commit/0d613325b0e37abfdb7279741e7633d3ea70ca44))
+
+### Feature
+
+* feat: allow cli to connect to a remote server (#262)
+
+fixes #236 ([`86b12e9`](https://github.com/kantord/SeaGOAT/commit/86b12e9bc8130cd551ef34b9a8974749d1df8259))
+
+
 ## v0.33.0 (2023-09-26)
 
 ### Chore
