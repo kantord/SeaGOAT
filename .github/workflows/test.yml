@@ -55,4 +55,10 @@ jobs:
 
             - name: Run pytest
               run: |
-                  poetry run pytest . -vvs --timeout=60
+                  poetry run pytest . -vvs --timeout=60 --cov seagoat --cov-report=xml
+
+            - name: Upload coverage reports to Codecov
+              uses: codecov/codecov-action@v4-beta
+              if: matrix.os == 'ubuntu-latest'
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
