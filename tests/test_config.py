@@ -1,53 +1,49 @@
 from pathlib import Path
 
 import pytest
+from deepmerge import always_merger
 
 from seagoat.utils.config import DEFAULT_CONFIG
-from seagoat.utils.config import get_config
+from seagoat.utils.config import get_config_values
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 
 
-base_expected_config = {**DEFAULT_CONFIG}
-
-
 def _(config):
-    return {**base_expected_config, **config}
+    return always_merger.merge({**DEFAULT_CONFIG}, {**config})
 
 
 def test_no_config_files(repo):
-    final_config = get_config(Path(repo.working_dir))
+    final_config = get_config_values(Path(repo.working_dir))
     assert final_config == DEFAULT_CONFIG
 
 
 @pytest.mark.parametrize(
-    "config_content,expected_config",
+    "config_content,expected_port",
     [
-        ({"server": {"port": 6060}}, _({"server": {"port": 6060}})),
-        ({"server": {"port": 7070}}, _({"server": {"port": 7070}})),
+        ({"server": {"port": 6060}}, 6060),
+        ({"server": {"port": 7070}}, 7070),
     ],
 )
-def test_local_config_override(
-    repo, config_content, expected_config, create_config_file
-):
+def test_local_config_override(repo, config_content, expected_port, create_config_file):
     GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
     create_config_file(config_content, global_config=False)
-    final_config = get_config(Path(repo.working_dir))
-    assert final_config == expected_config
+    final_config = get_config_values(Path(repo.working_dir))
+    assert final_config["server"]["port"] == expected_port
 
 
 @pytest.mark.parametrize(
-    "global_config_content,expected_config",
+    "global_config_content,expected_port",
     [
-        ({"server": {"port": 6061}}, _({"server": {"port": 6061}})),
-        ({"server": {"port": 7072}}, _({"server": {"port": 7072}})),
+        ({"server": {"port": 6061}}, 6061),
+        ({"server": {"port": 7072}}, 7072),
     ],
 )
 def test_global_config_override(
-    repo, global_config_content, expected_config, create_config_file
+    repo, global_config_content, expected_port, create_config_file
 ):
     create_config_file(global_config_content, global_config=True)
-    final_config = get_config(Path(repo.working_dir))
-    assert final_config == expected_config
+    final_config = get_config_values(Path(repo.working_dir))
+    assert final_config["server"]["port"] == expected_port
 
 
 @pytest.mark.parametrize(
@@ -75,5 +71,5 @@ def test_local_overrides_global(
     create_config_file(global_config_content, global_config=True)
     create_config_file(local_config_content, global_config=False)
 
-    final_config = get_config(Path(repo.working_dir))
+    final_config = get_config_values(Path(repo.working_dir))
     assert final_config == _(expected_config)

@@ -14,7 +14,7 @@ from seagoat import __version__
 from seagoat.cache import Cache
 from seagoat.cache import get_cache_root
 from seagoat.queue.task_queue import TaskQueue
-from seagoat.utils.config import get_config
+from seagoat.utils.config import get_config_values
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import get_free_port
 from seagoat.utils.server import get_server_info
@@ -140,7 +140,7 @@ def server():
 @click.option("--port", type=int, help="The port to start the server on", default=None)
 def start(repo_path, port):
     """Starts the server."""
-    config = get_config(Path(repo_path))
+    config = get_config_values(Path(repo_path))
     port = port if port is not None else config["server"]["port"]
 
     get_server(repo_path, custom_port=port)

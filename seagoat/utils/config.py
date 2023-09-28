@@ -9,7 +9,10 @@ from deepmerge import always_merger
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 
-DEFAULT_CONFIG = {"server": {"port": None}, "client": {"host": None}}
+DEFAULT_CONFIG = {
+    "server": {"port": None, "ignorePatterns": []},
+    "client": {"host": None},
+}
 
 CONFIG_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -44,7 +47,7 @@ def extend_config_with_file(base_config, config_file):
     return always_merger.merge(base_config, new_config) if new_config else base_config
 
 
-def get_config(repo_path: Path):
+def get_config_values(repo_path: Path):
     config = copy.deepcopy(DEFAULT_CONFIG)
     repo_config_file = repo_path / ".seagoat.yml"
 

@@ -258,3 +258,10 @@ primarily designed to run locally. If you have private code that you do not
 wish to leak, you will have to make sure that only trusted people have
 access to the SeaGOAT server. This could be done by making it only available
 through a VPN that only your teammates can access.
+
+### Can I ignore files/directories?
+
+SeaGOAT already ignores all files/directories ignored in your `.gitignore`.
+If you wish to ignore additional files but keep them in git, you can use the
+`ignorePatterns` attribute from the server configuration.
+[Learn more](https://kantord.github.io/SeaGOAT/latest/configuration/)

@@ -21,6 +21,7 @@ from seagoat.file import File
 from seagoat.repository import Repository
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
+from seagoat.utils.config import get_config_values
 
 
 RepositoryData = TypedDict(
@@ -51,7 +52,6 @@ class Engine:
         """
         self.path = path
         self.query_string = ""
-        self._results_from_chromadb = []
         self._results = []
         self.cache = Cache[RepositoryData](
             "cache",
@@ -68,6 +68,7 @@ class Engine:
         )
         self.cache.load()
         self.repository = Repository(path)
+        self.config = get_config_values(Path(path))
 
         self._fetchers = {
             "async": [
@@ -87,6 +88,13 @@ class Engine:
         for source in chain(*self._fetchers.values()):
             source["cache_chunk"](chunk)
 
+    def _is_file_ignored(self, path: str):
+        for pattern in self.config["server"]["ignorePatterns"]:
+            if Path(path).match(pattern):
+                return True
+
+        return False
+
     def process_chunk(self, chunk):
         if chunk.chunk_id in self.cache.data["chunks_already_analyzed"]:
             return
@@ -103,6 +111,8 @@ class Engine:
         chunks_to_process = []
 
         for file, _ in self.repository.top_files():
+            if self._is_file_ignored(file.path):
+                continue
             for chunk in file.get_chunks():
                 if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
                     chunks_to_process.append(chunk)
@@ -183,6 +193,9 @@ class Engine:
         merged_results = {}
 
         for result_item in self._results:
+            if self._is_file_ignored(result_item.path):
+                continue
+
             if result_item.path not in merged_results:
                 merged_results[result_item.path] = result_item
                 continue
