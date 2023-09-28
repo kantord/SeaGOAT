@@ -68,6 +68,20 @@ def query_server(query, server_address, max_results, context_above, context_belo
     return response_data["results"]
 
 
+def rewrite_full_paths_to_use_local_path(repo_path, results):
+    return [
+        {
+            **result,
+            "fullPath": str((Path(repo_path) / result["path"]).expanduser().resolve()),
+        }
+        for result in results
+    ]
+
+
+def remove_results_from_unavailable_files(results):
+    return [result for result in results if Path(result["fullPath"]).exists()]
+
+
 @click.command()
 @click.argument("query")
 @click.argument("repo_path", required=False, default=os.getcwd())
@@ -140,16 +154,8 @@ def seagoat(
             context_below or 0,
         )
 
-        results = [
-            {
-                **result,
-                "fullPath": str(
-                    (Path(repo_path) / result["path"]).expanduser().resolve()
-                ),
-            }
-            for result in results
-        ]
-        results = [result for result in results if Path(result["fullPath"]).exists()]
+        results = rewrite_full_paths_to_use_local_path(repo_path, results)
+        results = remove_results_from_unavailable_files(results)
 
         color_enabled = os.isatty(0) and not no_color
 

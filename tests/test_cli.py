@@ -637,7 +637,7 @@ def test_configure_remote_server_address(
 
 @pytest.mark.usefixtures("mock_accuracy_warning", "bat_available")
 def test_connecting_to_remote_server(
-    snapshot, repo, mocker, runner, temporary_cd, server, create_config_file, bat_calls
+    repo, mocker, runner, temporary_cd, server, create_config_file, bat_calls, snapshot
 ):
     """
     When the user requests data from a remote server,
@@ -677,11 +677,13 @@ def test_connecting_to_remote_server(
             result = runner.invoke(seagoat, [query, "."])
 
     assert result.exit_code == 0
-    assert [
-        re.sub(r"/tmp/[^/]+/", "/normalized_path/", call) for call in bat_calls
-    ] == snapshot
 
     for bat_call in bat_calls:
         assert "example_should_not_exist_in_copy.txt" not in str(bat_call)
+
+    assert [
+        re.sub(r" .*repo_copy[/|\\]", " normalized_repo_path/", call)
+        for call in bat_calls
+    ] == snapshot
 
     assert len(bat_calls) == 2
