@@ -74,7 +74,7 @@ def display_results_using_bat(results, max_results):
         if current_result is None:
             current_result = result
 
-        if result["fullPath"] != current_result["fullPath"]:
+        if result["path"] != current_result["path"]:
             display_blocks_with_bat(current_result, blocks)
             current_result = result
             blocks = []

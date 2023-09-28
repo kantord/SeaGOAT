@@ -1,3 +1,8 @@
+# pylint: disable=too-many-arguments
+import os
+import re
+import shutil
+import tempfile
 from typing import List
 
 import orjson
@@ -6,6 +11,7 @@ import requests
 from click.testing import CliRunner
 
 from seagoat import __version__
+from seagoat.cli import query_server
 from seagoat.cli import seagoat
 from seagoat.cli import warn_if_update_available
 from seagoat.utils.cli_display import is_bat_installed
@@ -311,18 +317,6 @@ def test_seagoat_warns_on_incomplete_accuracy(
 def test_forwards_limit_clue_to_server(max_length, get_request_args_from_cli_call):
     request_args = get_request_args_from_cli_call(["--max-results", str(max_length)])
     assert request_args["params"]["limitClue"] == max_length
-
-
-@pytest.mark.usefixtures(
-    "server", "mock_accuracy_warning", "bat_available", "lots_of_fake_results"
-)
-def test_integration_test_with_color_and_bat(snapshot, repo, mocker, runner, bat_calls):
-    mocker.patch("os.isatty", return_value=True)
-    query = "JavaScript"
-    result = runner.invoke(seagoat, [query, repo.working_dir])
-
-    assert bat_calls == snapshot
-    assert result.exit_code == 0
 
 
 @pytest.mark.usefixtures("server", "mock_accuracy_warning")
@@ -639,3 +633,55 @@ def test_configure_remote_server_address(
     create_config_file({"client": {"host": remote_host}})
     request_args = get_request_args_from_cli_call([])
     assert request_args["url"].startswith(remote_host)
+
+
+@pytest.mark.usefixtures("mock_accuracy_warning", "bat_available")
+def test_connecting_to_remote_server(
+    snapshot, repo, mocker, runner, temporary_cd, server, create_config_file, bat_calls
+):
+    """
+    When the user requests data from a remote server,
+    the display logic should not rely on full path
+    as the full path might be different on the remote server
+    than locally
+
+    Also the same files might not always exist.
+
+    This test also tests that results are correctly displayed with bat
+    """
+
+    create_config_file({"client": {"host": server}})
+    mocker.patch("os.isatty", return_value=True)
+    query = "JavaScript"
+
+    def query_server_side_effect(*args, **kwargs):
+        results = query_server(*args, **kwargs)
+
+        results = [{**result, "fullPath": "/non/existent/path/"} for result in results]
+
+        return results
+
+    mocker.patch("seagoat.cli.query_server", side_effect=query_server_side_effect)
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        shutil.copytree(
+            repo.working_dir, os.path.join(tmpdirname, "repo_copy"), dirs_exist_ok=True
+        )
+        repo.add_file_change_commit(
+            file_name="example_should_not_exist_in_copy.txt",
+            contents="""JavaScript is an amazing programming language""",
+            author=repo.actors["John Doe"],
+            commit_message="Add fruits data",
+        )
+        with temporary_cd(os.path.join(tmpdirname, "repo_copy")):
+            result = runner.invoke(seagoat, [query, "."])
+
+    assert result.exit_code == 0
+    assert [
+        re.sub(r"/tmp/[^/]+/", "/normalized_path/", call) for call in bat_calls
+    ] == snapshot
+
+    for bat_call in bat_calls:
+        assert "example_should_not_exist_in_copy.txt" not in str(bat_call)
+
+    assert len(bat_calls) == 2
