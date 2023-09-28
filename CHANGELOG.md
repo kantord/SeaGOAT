@@ -2,6 +2,39 @@
 
 
 
+## v0.35.0 (2023-09-28)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.329 ([`b4f81c1`](https://github.com/kantord/SeaGOAT/commit/b4f81c16932bcb9d373b67feb7e517062ffa214b))
+
+### Ci
+
+* ci: set up code coverage (#263) ([`12b4145`](https://github.com/kantord/SeaGOAT/commit/12b41458edf415e147eb0cd793f1676a69afeb74))
+
+### Feature
+
+* feat: support ignoring files that are not gitignored ([`bb6e53f`](https://github.com/kantord/SeaGOAT/commit/bb6e53f64ce61db442b0860855c72717761fe055))
+
+### Fix
+
+* fix: make config file checking more accurate ([`92167b7`](https://github.com/kantord/SeaGOAT/commit/92167b7b8f8c822813df60a627631355077654c1))
+
+### Refactor
+
+* refactor: remove ripgrepy as a dependency ([`b9a5847`](https://github.com/kantord/SeaGOAT/commit/b9a5847db11352caa2e8776c2c3f8e8257ba6b65))
+
+### Test
+
+* test: normalize path in seagoat to support &#39;.&#39;
+
+tests #125 ([`f035203`](https://github.com/kantord/SeaGOAT/commit/f035203f498d1bc4a9873e306c5f2e96acbf0f75))
+
+* test: remove redundant sleep() ([`6c48425`](https://github.com/kantord/SeaGOAT/commit/6c484258fab9504d603b07bb587a3fbe77c1bf0d))
+
+* test: join server processes ([`b63865b`](https://github.com/kantord/SeaGOAT/commit/b63865b62f8d21701a72f1f976444662581c3f96))
+
+
 ## v0.34.0 (2023-09-27)
 
 ### Chore
