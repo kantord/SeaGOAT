@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import jsonschema
 import pytest
 from deepmerge import always_merger
 
@@ -73,3 +74,19 @@ def test_local_overrides_global(
 
     final_config = get_config_values(Path(repo.working_dir))
     assert final_config == _(expected_config)
+
+
+@pytest.mark.parametrize(
+    "invalid_config_content",
+    [
+        ({"server": {"port": "invalid_port"}}),
+        ({"foobar": {"asdf": None}}),
+    ],
+)
+def test_invalid_config_throws_exception(
+    repo, invalid_config_content, create_config_file
+):
+    create_config_file(invalid_config_content, global_config=False)  # or True if needed
+
+    with pytest.raises(jsonschema.exceptions.ValidationError):  # type: ignore
+        get_config_values(Path(repo.working_dir))
