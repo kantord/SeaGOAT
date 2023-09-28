@@ -64,6 +64,7 @@ def query_server(query, server_address, max_results, context_above, context_belo
         sys.exit(ExitCode.SERVER_ERROR)
 
     response.raise_for_status()
+
     return response_data["results"]
 
 
@@ -138,6 +139,17 @@ def seagoat(
             context_above or 0,
             context_below or 0,
         )
+
+        results = [
+            {
+                **result,
+                "fullPath": str(
+                    (Path(repo_path) / result["path"]).expanduser().resolve()
+                ),
+            }
+            for result in results
+        ]
+        results = [result for result in results if Path(result["fullPath"]).exists()]
 
         color_enabled = os.isatty(0) and not no_color
 

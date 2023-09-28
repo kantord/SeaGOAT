@@ -2,7 +2,6 @@
 import logging
 import multiprocessing
 import os
-import re
 import shutil
 import signal
 import subprocess
@@ -206,7 +205,7 @@ def generate_repo():
 
     for directory in directories_to_delete:
         try:
-            shutil.rmtree(directory)
+            shutil.rmtree(directory, ignore_errors=True)
         except PermissionError:
             pass
 
@@ -586,11 +585,7 @@ def bat_calls(mocker):
     def mock_bat(*args, **kwargs):
         if args[0] and args[0][0] == "bat":
             command_str = " ".join(args[0])
-            normalized_command = re.sub(
-                r"/tmp/[^/]+/", "/normalized_path/", command_str
-            )
-
-            calls.append(normalized_command)
+            calls.append(command_str)
 
             class MockResult:
                 returncode = 0
