@@ -17,11 +17,21 @@ DEFAULT_CONFIG = {
 CONFIG_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
+    "additionalProperties": False,
     "properties": {
         "server": {
             "type": "object",
-            "properties": {"port": {"type": "integer", "minimum": 1, "maximum": 65535}},
-        }
+            "additionalProperties": False,
+            "properties": {
+                "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+                "ignorePatterns": {"type": "array", "items": {"type": "string"}},
+            },
+        },
+        "client": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {"host": {"type": "string"}},
+        },
     },
 }
 
