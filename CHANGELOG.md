@@ -2,6 +2,17 @@
 
 
 
+## v0.35.1 (2023-09-28)
+
+### Fix
+
+* fix: display files correctly when remote server is divergent ([`f852e06`](https://github.com/kantord/SeaGOAT/commit/f852e069193effa387f49566abe31f3f14ee1bb3))
+
+### Refactor
+
+* refactor: extract result filtering to separate functions ([`ea0cf79`](https://github.com/kantord/SeaGOAT/commit/ea0cf79f8019cbb5c1472178f6e8172530a775ca))
+
+
 ## v0.35.0 (2023-09-28)
 
 ### Chore
