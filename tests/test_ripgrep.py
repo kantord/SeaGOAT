@@ -144,3 +144,32 @@ async def test_does_not_cause_an_error_when_an_unanalized_file_is_found(repo):
     await seagoat.fetch()
 
     assert seagoat.get_results()[0].path == "events.txt"
+
+
+@pytest.mark.asyncio
+async def test_ripgrep_respects_custom_ignore_patterns(repo, create_config_file):
+    create_config_file({"server": {"ignorePatterns": ["**/events.txt"]}})
+
+    repo.add_file_change_commit(
+        file_name="history/files/events.txt",
+        contents="Battle of Waterloo 1815",
+        author=repo.actors["John Doe"],
+        commit_message="commit",
+    )
+
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="Moon landing 1969",
+        author=repo.actors["John Doe"],
+        commit_message="Add historical events",
+    )
+
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "1"
+    seagoat.query(my_query)
+    await seagoat.fetch()
+
+    results_files = set(result.path for result in seagoat.get_results())
+    assert "history/files/events.txt" not in results_files
+    assert "events.txt" in results_files

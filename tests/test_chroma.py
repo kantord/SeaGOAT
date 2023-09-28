@@ -336,3 +336,35 @@ async def test_does_not_crash_repo_when_files_are_deleted(repo):
     seagoat.analyze_codebase()
     seagoat.query(my_query)
     await seagoat.fetch()
+
+
+@pytest.mark.asyncio
+async def test_custom_ignore_patterns(repo, create_config_file):
+    create_config_file(
+        {
+            "server": {"ignorePatterns": ["**/devices2.txt"]},
+        }
+    )
+    repo.add_file_change_commit(
+        file_name="foo/devices2.txt",
+        contents="food from an orchard, but not a banana or pear. It's red",
+        author=repo.actors["John Doe"],
+        commit_message="commit",
+    )
+    repo.add_file_change_commit(
+        file_name="devices.txt",
+        contents="""banana, fruit, red, Macintosh, iPhone
+        """
+        * 6,
+        author=repo.actors["John Doe"],
+        commit_message="Add italian food recipes",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "apple"
+    seagoat.query(my_query)
+    await seagoat.fetch(limit_clue=5)
+
+    results_files = set(result.path for result in seagoat.get_results())
+
+    assert "foo/devices2.txt" not in results_files

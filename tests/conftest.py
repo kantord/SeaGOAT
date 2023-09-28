@@ -167,6 +167,11 @@ class MockRepo(Repo):
         commit_message,
         encoding="utf-8",
     ):
+        # Create parent directory if it doesn't exist:
+        parent_folder = os.path.dirname(os.path.join(self.working_dir, file_name))
+        if parent_folder:
+            os.makedirs(parent_folder, exist_ok=True)
+
         with open(
             os.path.join(self.working_dir, file_name), "w", encoding=encoding
         ) as output_file:

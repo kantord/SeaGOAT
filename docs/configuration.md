@@ -26,6 +26,11 @@ This is an example of a configuration file:
 server:
   port: 31134  # A port number to run the server on
 
+  # globs to ignore in addition to .gitignore
+  ignorePatterns:
+    - "**/locales/*" # Ignore all files inside 'locales' directories
+    - "**/*.po"     # Ignore all gettext translation files
+
 client:
   # Connect the CLI to a remove server
   host: https://example.com/seagoat-instance/
@@ -42,6 +47,11 @@ config files.
 The following values can be configured:
 
 * `port`: The port number the server will run on
+* `ignorePatterns`: A list of glob patterns to ignore. Keep in mind that all
+files ignored by `.gitignore` are already ignored. You probably should not
+need to configure this value. It is only useful if there are some files that
+you wish to keep in git, but you wish to hide from from SeaGOAT.
+[Learn more about globs](https://en.wikipedia.org/wiki/Glob_(programming))
 
 ### Client
 

@@ -9,7 +9,7 @@ import requests
 
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
-from seagoat.utils.config import get_config
+from seagoat.utils.config import get_config_values
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import ServerDoesNotExist
 
@@ -118,7 +118,7 @@ def seagoat(
     In order to use seagoat in your repository, you need to run a server
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
-    config = get_config(Path(repo_path))
+    config = get_config_values(Path(repo_path))
 
     try:
         if config["client"]["host"] is None:
