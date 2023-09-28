@@ -626,3 +626,17 @@ def create_config_file(repo):
     for file_path in created_files:
         if file_path.exists():
             file_path.unlink()
+
+
+@pytest.fixture
+def temporary_cd():
+    @contextmanager
+    def _temporary_cd(path):
+        old_dir = os.getcwd()
+        os.chdir(path)
+        try:
+            yield
+        finally:
+            os.chdir(old_dir)
+
+    return _temporary_cd

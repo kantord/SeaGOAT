@@ -326,10 +326,11 @@ def test_integration_test_with_color_and_bat(snapshot, repo, mocker, runner, bat
 
 
 @pytest.mark.usefixtures("server", "mock_accuracy_warning")
-def test_integration_test_without_color(snapshot, repo, mocker, runner):
+def test_integration_test_without_color(snapshot, repo, mocker, runner, temporary_cd):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
-    result = runner.invoke(seagoat, [query, repo.working_dir, "--no-color"])
+    with temporary_cd(repo.working_dir):
+        result = runner.invoke(seagoat, [query, ".", "--no-color"])
 
     assert str(result.output) == snapshot
     assert result.exit_code == 0
