@@ -36,3 +36,4 @@ nav:
     - Usage Reference: usage.md
     - SeaGOAT Server: server.md
     - Configuring SeaGOAT: configuration.md
+    - Developer Documentation: developer.md
