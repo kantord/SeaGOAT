@@ -201,7 +201,7 @@ embeddings. At the moment SeaGOAT uses ChromaDB's default model for
 calculating vector embeddings, and I am not aware of this being an ethical
 concern.
 
-### What programming langauges are supported?
+### What programming languages are supported?
 
 Currently SeaGOAT is hardcoded to only process files in the following
 formats:
