@@ -22,7 +22,7 @@ The following dependencies need to be installed:
 
 ### Step 3: Clone the repository
 
-Use Git to close the repository:
+Use Git to clone the repository:
 
 ```bash
 git clone git@github.com:kantord/SeaGOAT.git
