@@ -6,6 +6,7 @@ from typing import TypedDict
 from typing import Union
 
 import appdirs
+import psutil
 
 from seagoat.utils.json_file import get_json_file_contents
 from seagoat.utils.json_file import write_to_json_file
@@ -26,7 +27,6 @@ def _get_server_data_file_path() -> Path:
     user_cache_dir = Path(appdirs.user_cache_dir("seagoat-servers"))
     user_cache_dir.mkdir(parents=True, exist_ok=True)
     return user_cache_dir / "serverData.json"
-
 
 def normalize_repo_path(repo_path: Union[str, Path]) -> str:
     return str(os.path.normpath(Path(repo_path).expanduser().resolve()))
@@ -62,6 +62,12 @@ def remove_server_info(repo_path: Union[str, Path]) -> None:
     servers_info = get_servers_info()
     repo_id = normalize_repo_path(repo_path)
     if repo_id in servers_info:
+        server_info = servers_info[repo_id]
+        process = psutil.Process(server_info["pid"])
+        
+        process.terminate()
+        process.wait()
+
         servers_info.pop(repo_id)
         write_to_json_file(_get_server_data_file_path(), servers_info)
     else:

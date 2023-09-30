@@ -126,6 +126,8 @@ def test_status_2(repo):
 
 @pytest.mark.usefixtures("server")
 def test_stop(repo):
+    server_info = get_server_info(repo.working_dir)
+
     subprocess.run(
         ["python", "-m", "seagoat.server", "stop", repo.working_dir],
         capture_output=True,
@@ -139,6 +141,7 @@ def test_stop(repo):
         check=False,
     )
     assert result.returncode == 0
+    assert not psutil.pid_exists(server_info["pid"])
     assert "Server is not running" in result.stdout
 
 
