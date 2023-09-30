@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD041 -->
 ## Contributing to SeaGOAT
 
 Welcome to SeaGOAT!
@@ -37,3 +38,4 @@ and follow these brief guidelines.
    request until it is finally approved. After your changes are approved and
    merged, they will be released automatically if there are any user facing
    changes.
+<!-- markdownlint-enable MD041 -->
