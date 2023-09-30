@@ -384,8 +384,15 @@ def test_version_option(runner):
     ],
 )
 def test_server_is_not_running_error(mocker, repo_path, snapshot):
-    new_server_data = {"host": "localhost", "port": 345435, "pid": 234234}
-    update_server_info(repo_path, new_server_data)
+    update_server_info(
+        repo_path,
+        {
+            "host": "localhost",
+            "port": 345435,
+            "pid": 234234,
+            "address": "http://example.com",
+        },
+    )
     runner = CliRunner()
 
     mocker.patch("os.isatty", return_value=True)
