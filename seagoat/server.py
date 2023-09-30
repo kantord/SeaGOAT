@@ -93,8 +93,15 @@ def start_server(repo_path, custom_port=None):
     if port is None:
         port = get_free_port()
 
-    new_server_data = {"host": "localhost", "port": port, "pid": os.getpid()}
-    update_server_info(repo_path, new_server_data)
+    update_server_info(
+        repo_path,
+        {
+            "host": "localhost",
+            "port": port,
+            "address": f"http://localhost:{port}",
+            "pid": os.getpid(),
+        },
+    )
     serve(app, host="0.0.0.0", port=port, threads=1)
 
 
@@ -209,7 +216,7 @@ def _server_info():
             "repoPath": normalized_repo_path,
             "cacheLocation": {
                 "chroma": str(
-                    Cache("chroma", normalized_repo_path, {}).get_cache_folder()
+                    Cache("chroma", Path(normalized_repo_path), {}).get_cache_folder()
                 ),
             },
             "isRunning": is_server_running(normalized_repo_path),
