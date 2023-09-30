@@ -38,4 +38,9 @@ and follow these brief guidelines.
    request until it is finally approved. After your changes are approved and
    merged, they will be released automatically if there are any user facing
    changes.
+
+*By contributing to SeaGOAT you agree to release your contributions
+under the same license SeaGOAT is licensed to, including future
+relicensing or double licensing of the codebase*
+
 <!-- markdownlint-enable MD041 -->
