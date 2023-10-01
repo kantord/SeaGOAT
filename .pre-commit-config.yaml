@@ -1,56 +1,55 @@
----
 repos:
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.4.0
-      hooks:
-          - id: trailing-whitespace
-            exclude: __snapshots__
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-added-large-files
-            exclude: ^(docs/assets/.*|assets/.*)$
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: __snapshots__
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        exclude: ^(docs/assets/.*|assets/.*)$
 
-    - repo: https://github.com/asottile/reorder-python-imports
-      rev: v3.10.0
-      hooks:
-          - id: reorder-python-imports
+  - repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.10.0
+    hooks:
+      - id: reorder-python-imports
 
-    - repo: https://github.com/psf/black
-      rev: 23.7.0
-      hooks:
-          - id: black
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
 
-    - repo: https://github.com/PyCQA/pylint
-      rev: v3.0.0a6
-      hooks:
-          - id: pylint
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.0.0a6
+    hooks:
+      - id: pylint
 
-    - repo: https://github.com/RobertCraigie/pyright-python
-      rev: v1.1.318
-      exclude: ^typings/
-      hooks:
-          - id: pyright
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.318
+    exclude: ^typings/
+    hooks:
+      - id: pyright
 
-    - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: v0.35.0
-      hooks:
-          - id: markdownlint
-          - id: markdownlint-fix
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.35.0
+    hooks:
+      - id: markdownlint
+      - id: markdownlint-fix
 
-    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 0.2.3
-      hooks:
-          - id: yamlfmt
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.3
+    hooks:
+      - id: yamlfmt
 
-    - repo: https://github.com/dhruvmanila/remove-print-statements
-      rev: v0.5.2
-      hooks:
-          - id: remove-print-statements
-            args:
-                - --verbose
-                - --ignore=tests/conftest.py
+  - repo: https://github.com/dhruvmanila/remove-print-statements
+    rev: v0.5.2
+    hooks:
+      - id: remove-print-statements
+        args:
+          - --verbose
+          - --ignore=tests/conftest.py
 
-    - repo: https://github.com/adrienverge/yamllint
-      rev: v1.26.3
-      hooks:
-          - id: yamllint
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.26.3
+    hooks:
+      - id: yamllint
