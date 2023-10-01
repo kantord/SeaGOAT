@@ -131,4 +131,21 @@ with `poetry run`:
 poetry run ipython
 ```
 
+### Automatic checks (linting) and automatic formatting
+
+This repository uses `pre-commit` to run automatic checks and fixes on the
+codebase in addition to automatic and manual testing.
+
+If you have
+[set up commit hooks](http://localhost:8000/developer/#step-6-optional-set-up-pre-commit-hooks)
+(recommended), then these checks and fixes are automatically executed
+each time you attempt to make a commit.
+
+If you don't like commit hooks, or *if you want to run the checks for all
+files, not just changed files* then you can run the following command:
+
+```bash
+pre-commit run --all-files
+```
+
 {!../CONTRIBUTING.md!}
