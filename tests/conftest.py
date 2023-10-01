@@ -249,9 +249,9 @@ def real_chromadb():
     chromadb_patcher.start()
 
 def _start_forked_server(repo):
-    if os.fork() != 0: 
-        return 
-    start_server(repo) 
+    if os.fork() != 0:
+        return
+    start_server(repo)
 
 @pytest.fixture(name="start_server")
 def _start_server(repo):
