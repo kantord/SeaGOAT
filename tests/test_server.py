@@ -140,8 +140,8 @@ def test_stop(repo):
         text=True,
         check=False,
     )
-    assert result.returncode == 0
     assert not psutil.pid_exists(server_info["pid"])
+    assert result.returncode == 0
     assert "Server is not running" in result.stdout
 
 

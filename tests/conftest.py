@@ -248,13 +248,17 @@ def real_chromadb():
     yield
     chromadb_patcher.start()
 
+def _start_forked_server(repo):
+    if os.fork() != 0: 
+        return 
+    start_server(repo) 
 
 @pytest.fixture(name="start_server")
 def _start_server(repo):
     def _start():
         context = multiprocessing.get_context("spawn")
         server_process = context.Process(
-            target=start_server, args=(repo.working_dir,), daemon=True
+            target=_start_forked_server, args=(repo.working_dir,), daemon=True
         )
         server_process.start()
 

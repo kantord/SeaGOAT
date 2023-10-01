@@ -47,7 +47,6 @@ def get_servers_info() -> Dict[str, ServerInfo]:
 
     return contents
 
-
 def update_server_info(
     repo_path: Union[str, Path], new_server_data: ServerInfo
 ) -> None:
@@ -58,18 +57,18 @@ def update_server_info(
     write_to_json_file(_get_server_data_file_path(), servers_info)
 
 
-def remove_server_info(repo_path: Union[str, Path]) -> None:
+def stop_server(repo_path: Union[str, Path]) -> None:
     servers_info = get_servers_info()
     repo_id = normalize_repo_path(repo_path)
     if repo_id in servers_info:
         server_info = servers_info[repo_id]
         process = psutil.Process(server_info["pid"])
-        
-        process.terminate()
-        process.wait()
 
         servers_info.pop(repo_id)
         write_to_json_file(_get_server_data_file_path(), servers_info)
+
+        process.terminate()
+        process.wait()
     else:
         raise ServerDoesNotExist(f"Server for {repo_path} does not exist.")
 
