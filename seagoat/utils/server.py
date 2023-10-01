@@ -28,6 +28,7 @@ def _get_server_data_file_path() -> Path:
     user_cache_dir.mkdir(parents=True, exist_ok=True)
     return user_cache_dir / "serverData.json"
 
+
 def normalize_repo_path(repo_path: Union[str, Path]) -> str:
     return str(os.path.normpath(Path(repo_path).expanduser().resolve()))
 
@@ -46,6 +47,7 @@ def get_servers_info() -> Dict[str, ServerInfo]:
             del contents[key]
 
     return contents
+
 
 def update_server_info(
     repo_path: Union[str, Path], new_server_data: ServerInfo
