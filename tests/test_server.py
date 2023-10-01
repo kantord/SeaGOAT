@@ -128,6 +128,8 @@ def test_status_2(repo):
 def test_stop(repo):
     server_info = get_server_info(repo.working_dir)
 
+    assert psutil.pid_exists(server_info["pid"])
+
     subprocess.run(
         ["python", "-m", "seagoat.server", "stop", repo.working_dir],
         capture_output=True,
