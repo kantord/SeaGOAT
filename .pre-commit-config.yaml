@@ -37,9 +37,11 @@ repos:
       - id: markdownlint-fix
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-    rev: 0.2.3
-    hooks:
-      - id: yamlfmt
+  rev: 0.2.3
+  hooks:
+    - id: yamlfmt
+      args:
+        - --line-length=80
 
   - repo: https://github.com/dhruvmanila/remove-print-statements
     rev: v0.5.2
