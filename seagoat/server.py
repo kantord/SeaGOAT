@@ -20,8 +20,8 @@ from seagoat.utils.server import get_free_port
 from seagoat.utils.server import get_server_info
 from seagoat.utils.server import get_servers_info
 from seagoat.utils.server import is_server_running
-from seagoat.utils.server import remove_server_info
 from seagoat.utils.server import ServerDoesNotExist
+from seagoat.utils.server import stop_server
 from seagoat.utils.server import update_server_info
 from seagoat.utils.wait import wait_for
 
@@ -193,7 +193,7 @@ def status(repo_path, use_json_format):
 def stop(repo_path):
     """Stops the server."""
     try:
-        remove_server_info(repo_path)
+        stop_server(repo_path)
     except ServerDoesNotExist:
         click.echo(
             f"No server information found for {repo_path}. It might not be running or was never started."
