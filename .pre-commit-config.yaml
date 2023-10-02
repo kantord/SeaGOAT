@@ -37,6 +37,13 @@ repos:
           - id: markdownlint
           - id: markdownlint-fix
 
+    - repo: https://github.com/adrienverge/yamllint.git
+      rev: v1.26.3
+      hooks:
+        - id: yamllint
+          args: [--format, parsable, --strict]
+
+
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
       rev: 0.2.3
       hooks:
