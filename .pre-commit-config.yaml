@@ -55,5 +55,3 @@ repos:
     rev: v1.26.3
     hooks:
       - id: yamllint
-        args:
-          - --width 80
