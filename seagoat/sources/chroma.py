@@ -15,27 +15,7 @@ MAXIMUM_VECTOR_DISTANCE = 1.5
 
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
-
-    llm = Llama(
-        model_path="/Users/alecf/github/llama.cpp/models/codellama-7b-instruct.Q5_K_M.gguf",
-        n_ctx=2048,
-        embedding=True,
-        n_gpu_layers=1,
-    )
-
-    def llama_embed(inputs: List[str]):
-        print("Embedding strings of lengths ", [len(s) for s in inputs])
-        result: List[float] = []
-        for s in inputs:
-            try:
-                embed = llm.embed(s)
-                result.append(embed)
-            except ValueError as e:
-                print("Error embedding ", s, ": ", e)
-                result.append([0] * 4096)
-
-        print("Produced embeddings of length ", [len(s) for s in result])
-        return result
+    embedding_function = get_embedding_function(repository)
 
     chroma_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
@@ -45,7 +25,7 @@ def initialize(repository: Repository):
     )
 
     chroma_collection = chroma_client.get_or_create_collection(
-        name="code_data", embedding_function=llama_embed
+        name="code_data", embedding_function=embedding_function
     )
 
     def fetch(query_text: str, limit: int):
@@ -102,3 +82,32 @@ def initialize(repository: Repository):
         "fetch": fetch,
         "cache_chunk": cache_chunk,
     }
+
+
+def get_embedding_function(repository: Repository):
+    if not repository.model_path:
+        print("No model path specified, using default embedding function")
+        return
+    print("Using llama at ", repository.model_path)
+    llm = Llama(
+        model_path=repository.model_path,
+        n_ctx=2048,
+        embedding=True,
+        n_gpu_layers=1,
+    )
+
+    def llama_embed(inputs: List[str]):
+        print("Embedding strings of lengths ", [len(s) for s in inputs])
+        result: List[float] = []
+        for s in inputs:
+            try:
+                embed = llm.embed(s)
+                result.append(embed)
+            except ValueError as e:
+                print("Error embedding ", s, ": ", e)
+                result.append([0] * 4096)
+
+        print("Produced embeddings of length ", [len(s) for s in result])
+        return result
+
+    return llama_embed

@@ -19,10 +19,11 @@ def parse_commit_info(raw_line: str):
 
 
 class Repository:
-    def __init__(self, repo_path: str):
+    def __init__(self, repo_path: str, model_path: str = None):
         self.path = Path(repo_path)
         self.file_changes = defaultdict(list)
         self.frecency_scores = {}
+        self.model_path = model_path
 
     def analyze_files(self):
         cmd = [
@@ -71,7 +72,6 @@ class Repository:
             self.frecency_scores[file] = score
 
     def top_files(self):
-        print("Got top files from", self.frecency_scores)
         return [
             (self.get_file(filename), score)
             for filename, score in sorted(
