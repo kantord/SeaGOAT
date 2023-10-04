@@ -20,6 +20,7 @@ def initialize(repository: Repository):
         model_path="/Users/alecf/github/llama.cpp/models/codellama-7b-instruct.Q5_K_M.gguf",
         n_ctx=2048,
         embedding=True,
+        n_gpu_layers=1,
     )
 
     def llama_embed(inputs: List[str]):
@@ -36,7 +37,6 @@ def initialize(repository: Repository):
         print("Produced embeddings of length ", [len(s) for s in result])
         return result
 
-    print("Cache folder in ", cache.get_cache_folder())
     chroma_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
         settings=Settings(
