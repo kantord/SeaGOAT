@@ -31,6 +31,7 @@ CONFIG_SCHEMA = {
             "type": "object",
             "additionalProperties": False,
             "properties": {"host": {"type": "string"}},
+            "provider": "object",
         },
     },
 }

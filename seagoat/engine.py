@@ -75,7 +75,7 @@ class Engine:
                 ripgrep.initialize(self.repository),
             ],
             "sync": [
-                chroma.initialize(self.repository, self.config["client"]),
+                chroma.initialize(self.repository, self.config["client"]["providers"]),
             ],
         }
 
