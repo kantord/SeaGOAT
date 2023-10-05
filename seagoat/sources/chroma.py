@@ -13,7 +13,7 @@ from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 MAXIMUM_VECTOR_DISTANCE = 1.5
 
 
-def initialize(repository: Repository):
+def initialize(repository: Repository, providers):
     cache = Cache("chroma", Path(repository.path), {})
 
     chroma_client = chromadb.PersistentClient(
@@ -23,7 +23,9 @@ def initialize(repository: Repository):
         ),
     )
 
-    chroma_collection = chroma_client.get_or_create_collection(name="code_data", embedding_function=ONNXMiniLM_L6_V2(preferred_providers=["OpenVINOExecutionProvider"]))
+    if providers is not None:
+        print(providers)
+        chroma_collection = chroma_client.get_or_create_collection(name="code_data", embedding_function=ONNXMiniLM_L6_V2(preferred_providers=["OpenVINOExecutionProvider"]))
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
