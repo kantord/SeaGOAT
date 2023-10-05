@@ -30,7 +30,7 @@ CONFIG_SCHEMA = {
         "client": {
             "type": "object",
             "additionalProperties": False,
-            "properties": {"host": {"type": "string"}, "provider": {"type": "string"},
+            "properties": {"host": {"type": "string"}, "provider": {"type": "string"}},
         },
     },
 }
