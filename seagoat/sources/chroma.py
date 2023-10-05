@@ -23,7 +23,7 @@ def initialize(repository: Repository, provider):
         ),
     )
 
-    if providers is not None:
+    if provider is not None:
         print(provider)
         chroma_collection = chroma_client.get_or_create_collection(name="code_data", embedding_function=ONNXMiniLM_L6_V2(preferred_providers=[provider]))
     else:
