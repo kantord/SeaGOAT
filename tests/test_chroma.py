@@ -369,6 +369,7 @@ async def test_custom_ignore_patterns(repo, create_config_file):
 
     assert "foo/devices2.txt" not in results_files
 
+
 async def test_user_defined_execution_provider(repo, create_config_file):
     create_config_file(
         {

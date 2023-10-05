@@ -1,14 +1,14 @@
 from pathlib import Path
 
 import chromadb
+import onnxruntime
 from chromadb.config import Settings
 from chromadb.errors import IDAlreadyExistsError
+from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
-from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
-import onnxruntime
 
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
@@ -26,7 +26,10 @@ def initialize(repository: Repository, provider: str):
 
     # Check that the user defined provider is in the list of ONNX execution providers
     if provider is not None and provider in onnxruntime.get_all_providers():
-        chroma_collection = chroma_client.get_or_create_collection(name="code_data", embedding_function=ONNXMiniLM_L6_V2(preferred_providers=[provider]))
+        chroma_collection = chroma_client.get_or_create_collection(
+            name="code_data",
+            embedding_function=ONNXMiniLM_L6_V2(preferred_providers=[provider]),
+        )
     else:
         chroma_collection = chroma_client.get_or_create_collection(name="code_data")
 
