@@ -26,7 +26,6 @@ def initialize(repository: Repository, provider: str):
 
     # Check that the user defined provider is in the list of ONNX execution providers
     if provider is not None and provider in onnxruntime.get_all_providers():
-        print(provider)
         chroma_collection = chroma_client.get_or_create_collection(name="code_data", embedding_function=ONNXMiniLM_L6_V2(preferred_providers=[provider]))
     else:
         chroma_collection = chroma_client.get_or_create_collection(name="code_data")

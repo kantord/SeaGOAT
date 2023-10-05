@@ -368,3 +368,14 @@ async def test_custom_ignore_patterns(repo, create_config_file):
     results_files = set(result.path for result in seagoat.get_results())
 
     assert "foo/devices2.txt" not in results_files
+
+async def test_user_defined_execution_provider(repo, create_config_file):
+    create_config_file(
+        {
+            "client": {"provider": "OpenVINOExecutionProvider"},
+        }
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "apple"
+    seagoat.query(my_query)

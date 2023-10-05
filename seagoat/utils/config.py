@@ -11,7 +11,7 @@ from seagoat.utils.file_reader import read_file_with_correct_encoding
 
 DEFAULT_CONFIG = {
     "server": {"port": None, "ignorePatterns": []},
-    "client": {"host": None},
+    "client": {"host": None, "provider": None},
 }
 
 CONFIG_SCHEMA = {

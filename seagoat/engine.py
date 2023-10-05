@@ -69,9 +69,7 @@ class Engine:
         self.cache.load()
         self.repository = Repository(path)
         self.config = get_config_values(Path(path))
-        self.provider = None
-        if self.config["client"]["provider"] is not None:
-            self.provider = self.config["client"]["provider"]
+        self.provider = self.config["client"]["provider"]
 
         self._fetchers = {
             "async": [
