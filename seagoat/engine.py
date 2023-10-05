@@ -69,14 +69,13 @@ class Engine:
         self.cache.load()
         self.repository = Repository(path)
         self.config = get_config_values(Path(path))
-        self.provider = self.config["client"]["provider"]
 
         self._fetchers = {
             "async": [
                 ripgrep.initialize(self.repository),
             ],
             "sync": [
-                chroma.initialize(self.repository, self.provider),
+                chroma.initialize(self.repository, self.config["client"]["provider"]),
             ],
         }
 
