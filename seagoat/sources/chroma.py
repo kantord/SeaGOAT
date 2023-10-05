@@ -7,6 +7,7 @@ from chromadb.errors import IDAlreadyExistsError
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
+from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
@@ -22,7 +23,7 @@ def initialize(repository: Repository):
         ),
     )
 
-    chroma_collection = chroma_client.get_or_create_collection(name="code_data")
+    chroma_collection = chroma_client.get_or_create_collection(name="code_data", embedding_function=ONNXMiniLM_L6_V2(preferred_providers=["OpenVINOExecutionProvider"]))
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
