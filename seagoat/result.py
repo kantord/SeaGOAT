@@ -1,4 +1,5 @@
 # pylint: disable=too-few-public-methods
+import functools
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -10,6 +11,19 @@ from typing import Set
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import get_file_penalty_factor
+
+
+SPLITTER_PATTERN = re.compile(r"\s+")
+
+
+@functools.cache
+def get_number_of_exact_matches(line: str, query: str):
+    terms = re.split(SPLITTER_PATTERN, query)
+    pattern = ".*".join(map(re.escape, terms))
+
+    if re.search(pattern, line, re.IGNORECASE):
+        return 1
+    return 0
 
 
 class ResultLineType(Enum):
@@ -27,16 +41,10 @@ class ResultLine:
     line_text: str
     types: Set[ResultLineType]
 
-    def _get_number_of_exact_matches(self, query: str) -> int:
-        terms = re.split(r"\s+", query)
-        pattern = ".*".join(map(re.escape, terms))
-
-        if re.search(pattern, self.line_text, re.IGNORECASE):
-            return 1
-        return 0
-
     def get_score(self, query: str) -> float:
-        return self.vector_distance / (1 + self._get_number_of_exact_matches(query))
+        return self.vector_distance / (
+            1 + get_number_of_exact_matches(self.line_text, query)
+        )
 
     def add_type(self, type_: ResultLineType) -> None:
         self.types.add(type_)
