@@ -2,6 +2,85 @@
 
 
 
+## v0.35.2 (2023-10-06)
+
+### Chore
+
+* chore(deps): update dependency pylint to v3.0.1 ([`511f01f`](https://github.com/kantord/SeaGOAT/commit/511f01fd56b49dae55b69d36b0e83a2a206466f4))
+
+* chore(deps): update dependency mkdocs-material to v9.4.4 ([`7d52d54`](https://github.com/kantord/SeaGOAT/commit/7d52d54388b70abd9f722bb33484e258b200deba))
+
+* chore(deps): update dependency pylint to v3 ([`6b7f288`](https://github.com/kantord/SeaGOAT/commit/6b7f288d2ad131f9bebb16e3c326e5034db712de))
+
+* chore(deps): update dependency mkdocs-material to v9.4.3 (#288)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`153a127`](https://github.com/kantord/SeaGOAT/commit/153a127cc532364b84768f740a0ef040c80922ce))
+
+* chore(deps): update dependency ipython to v8.16.1 ([`33a0323`](https://github.com/kantord/SeaGOAT/commit/33a0323aa83fb8d9bcf3974bdd1197146445b5aa))
+
+* chore(deps): update dependency pylint to v2.17.7 ([`947ae04`](https://github.com/kantord/SeaGOAT/commit/947ae0456809cbb493d2c90b3534fd2c803b0815))
+
+* chore(deps): update dependency ipython to v8.16.0 ([`88d471f`](https://github.com/kantord/SeaGOAT/commit/88d471f863a6c7439d0101fde36abf5c10135319))
+
+### Documentation
+
+* docs: document auto formatting ([`6aa4663`](https://github.com/kantord/SeaGOAT/commit/6aa46631dc8420296b1a63b18297cb99db3a3a7a))
+
+* docs: add social image ([`b5756ec`](https://github.com/kantord/SeaGOAT/commit/b5756ec53378bd3310d656ac9925fe9cf5acc54f))
+
+* docs: fix typo in readme
+
+langauges -&gt; languages ([`6a86568`](https://github.com/kantord/SeaGOAT/commit/6a86568ea9e1366d6bf4e41d8dc6bf24c30773c0))
+
+* docs: add note about contribution licensing ([`aff116b`](https://github.com/kantord/SeaGOAT/commit/aff116bee7397466165a9cf31f4689978b321c2f))
+
+* docs: fix typo (#279) ([`a4be2e2`](https://github.com/kantord/SeaGOAT/commit/a4be2e260fb3ae279f868c00fa28e9fa4f8a38f7))
+
+* docs: remove duplicated contributig section (#278) ([`ed0fd5b`](https://github.com/kantord/SeaGOAT/commit/ed0fd5b63c29a98662f2fd8d22c377565dea8d07))
+
+* docs: add CONTRIBUTING.md ([`44ab255`](https://github.com/kantord/SeaGOAT/commit/44ab255369783fb963ea3107e47f67cb49090fd7))
+
+* docs: add contribution info to developer docs (#276) ([`b52b565`](https://github.com/kantord/SeaGOAT/commit/b52b565297b08e8021c03a8eb7846497cf09a2e1))
+
+* docs: add developer documentation ([`0356687`](https://github.com/kantord/SeaGOAT/commit/0356687f2cebd9a14c834d0a11ce9f12f77e60b9))
+
+* docs: add CODE_OF_CONDUCT.md ([`02cd682`](https://github.com/kantord/SeaGOAT/commit/02cd6826a43f5c03caaea1527fa71094fcff6c71))
+
+### Performance
+
+* perf: improve performance for larger repositories
+
+* chore: decrease queue get timeout
+
+* perf: avoid checking for new files too often
+
+* perf: cache regex-based sorting ([`585729e`](https://github.com/kantord/SeaGOAT/commit/585729e667fce63a8bc46eb662b784588680cc16))
+
+### Refactor
+
+* refactor: add type checking to server info logic ([`e042617`](https://github.com/kantord/SeaGOAT/commit/e0426173f947f956838177e76449ace0d43d172e))
+
+### Unknown
+
+* fix : kill the process when stopping server (#284)
+
+Fixes #210
+
+* fix : kill the process when stopping server
+
+* Fix process problem
+
+* Improve test
+
+* Fix format
+
+* Run pre-commit
+
+* Change multiprocessing context in tests
+
+* Add a conditional branch for multiprocessing context ([`26bcee6`](https://github.com/kantord/SeaGOAT/commit/26bcee67f8bc8d7f4757a266110cc99acbc1a9ba))
+
+
 ## v0.35.1 (2023-09-28)
 
 ### Fix
