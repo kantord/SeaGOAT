@@ -9,13 +9,16 @@ from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
+from seagoat.utils.config import get_config_values
 
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
 
 
-def initialize(repository: Repository, provider: str):
+def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
+    config = get_config_values(Path(repository.path))
+    provider = config["client"]["provider"]
 
     chroma_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
