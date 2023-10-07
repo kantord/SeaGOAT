@@ -2,6 +2,13 @@
 
 
 
+## v0.35.3 (2023-10-07)
+
+### Performance
+
+* perf: further optimization of result formatting (#298) ([`8cb5574`](https://github.com/kantord/SeaGOAT/commit/8cb5574e41eb987b19e2eb5af5984844f2063df5))
+
+
 ## v0.35.2 (2023-10-06)
 
 ### Chore
