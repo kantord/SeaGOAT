@@ -49,3 +49,4 @@ repos:
             args:
                 - --verbose
                 - --ignore=tests/conftest.py
+                - --ignore=seagoat/utils/debug.py
