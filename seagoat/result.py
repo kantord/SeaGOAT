@@ -16,14 +16,33 @@ from seagoat.utils.file_types import get_file_penalty_factor
 SPLITTER_PATTERN = re.compile(r"\s+")
 
 
-@functools.cache
-def get_number_of_exact_matches(line: str, query: str):
+@functools.lru_cache(maxsize=100)
+def compile_regex_pattern(query: str):
     terms = re.split(SPLITTER_PATTERN, query)
     pattern = ".*".join(map(re.escape, terms))
 
-    if re.search(pattern, line, re.IGNORECASE):
+    return re.compile(pattern, re.IGNORECASE)
+
+
+@functools.lru_cache(maxsize=10_000)
+def get_number_of_exact_matches(line: str, query: str):
+    pattern = compile_regex_pattern(query)
+
+    if re.search(pattern, line):
         return 1
     return 0
+
+
+@functools.lru_cache(maxsize=10_000)
+def get_best_score(result, query: str) -> float:
+    best_score = min(
+        (x for x in result.lines.values() if ResultLineType.RESULT in x.types),
+        key=lambda item: item.get_score(query),
+    ).get_score(query)
+
+    best_score *= get_file_penalty_factor(result.full_path)
+
+    return best_score
 
 
 class ResultLineType(Enum):
@@ -108,18 +127,8 @@ class Result:
             types,
         )
 
-    def get_best_score(self, query: str) -> float:
-        best_score = min(
-            (x for x in self.lines.values() if ResultLineType.RESULT in x.types),
-            key=lambda item: item.get_score(query),
-        ).get_score(query)
-
-        best_score *= get_file_penalty_factor(self.full_path)
-
-        return best_score
-
     def get_lines(self, query: str):
-        best_score = self.get_best_score(query)
+        best_score = get_best_score(self, query)
 
         return list(
             sorted(
@@ -156,7 +165,7 @@ class Result:
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "score": round(self.get_best_score(query), 4),
+            "score": round(get_best_score(self, query), 4),
             "blocks": [block.to_json(query) for block in self.get_result_blocks(query)],
         }
 
