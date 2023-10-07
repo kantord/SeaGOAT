@@ -2,6 +2,27 @@
 
 
 
+## v0.35.4 (2023-10-07)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.330 (#299)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`f48405f`](https://github.com/kantord/SeaGOAT/commit/f48405ffc2a45b235b26e1fb5d72e5846e25e9f7))
+
+### Performance
+
+* perf: speed up initial scan
+
+Speed up initial scan by exiting from the loop early
+if the line already contains more than 3 alphanumerical
+characters. ([`ff0e31e`](https://github.com/kantord/SeaGOAT/commit/ff0e31e1b1a0c116736d75b63baf6b0fafedc07f))
+
+### Test
+
+* test: add tool for timing parts of the code ([`1037051`](https://github.com/kantord/SeaGOAT/commit/10370513f8890f96a01182ecdd327a2fab7a9df8))
+
+
 ## v0.35.3 (2023-10-07)
 
 ### Performance
