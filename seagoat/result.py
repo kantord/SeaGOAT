@@ -33,7 +33,6 @@ def get_number_of_exact_matches(line: str, query: str):
     return 0
 
 
-@functools.lru_cache(maxsize=10_000)
 def get_best_score(result, query: str) -> float:
     best_score = min(
         (x for x in result.lines.values() if ResultLineType.RESULT in x.types),
@@ -142,10 +141,11 @@ class Result:
         )
 
     def get_result_blocks(self, query):
+        self_lines = self.get_lines(query)
         lines_to_include = [
             line
             for line in sorted(self.lines.values(), key=lambda item: item.line)
-            if line.line in self.get_lines(query)
+            if line.line in self_lines
         ]
         blocks = []
 
