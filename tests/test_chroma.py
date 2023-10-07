@@ -234,7 +234,7 @@ async def test_exact_matches_have_higher_score(repo):
     await seagoat.fetch()
 
     assert seagoat.get_results()[0].path == "devices.txt"
-    assert set(seagoat.get_results()[0].get_lines(my_query)) == {7, 8}
+    assert set(seagoat.get_results()[0].get_lines(my_query)) == {7, 8, 12}
 
 
 @pytest.mark.asyncio

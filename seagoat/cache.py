@@ -49,7 +49,7 @@ class Cache(Generic[T]):
         cache_folder = get_cache_root() / self._get_project_hash()
         cache_folder.mkdir(parents=True, exist_ok=True)
 
-        return cache_folder
+        return (cache_folder).resolve()
 
     def _get_project_hash(self):
         normalized_path = Path(self._path).expanduser().resolve()

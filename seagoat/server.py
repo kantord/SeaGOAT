@@ -216,7 +216,10 @@ def _server_info():
             "repoPath": normalized_repo_path,
             "cacheLocation": {
                 "chroma": str(
-                    Cache("chroma", Path(normalized_repo_path), {}).get_cache_folder()
+                    Cache("chroma", Path(normalized_repo_path), {}).get_cache_folder(),
+                ),
+                "ripgrep": str(
+                    Cache("ripgrep", Path(normalized_repo_path), {}).get_cache_folder(),
                 ),
             },
             "isRunning": is_server_running(normalized_repo_path),

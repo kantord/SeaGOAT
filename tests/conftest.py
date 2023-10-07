@@ -516,10 +516,12 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
         mock_ripgrep.return_value = {
             "fetch": create_mock_fetch(repo, ripgrep_lines),
             "cache_chunk": noop,
+            "cache_repo": noop,
         }
         mock_chroma.return_value = {
             "fetch": create_mock_fetch(repo, chroma_lines),
             "cache_chunk": noop,
+            "cache_repo": noop,
         }
         yield
 
