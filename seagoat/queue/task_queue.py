@@ -94,13 +94,16 @@ class TaskQueue(BaseQueue):
             context_below=int(kwargs["context_below"]),
         )
         results = context["seagoat_engine"].get_results(kwargs["limit_clue"])
+        formatted_results = [result.to_json(kwargs["query"]) for result in results]
 
-        return orjson.dumps(
+        serialized_results = orjson.dumps(
             {
-                "results": [result.to_json(kwargs["query"]) for result in results],
+                "results": formatted_results,
                 "version": __version__,
             }
         )
+
+        return serialized_results
 
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]

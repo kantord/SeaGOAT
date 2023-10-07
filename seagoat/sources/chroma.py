@@ -74,7 +74,12 @@ def initialize(repository: Repository):
         except IDAlreadyExistsError:
             pass
 
+    def cache_repo():
+        # chromadb does not need any repo cache action
+        pass
+
     return {
         "fetch": fetch,
         "cache_chunk": cache_chunk,
+        "cache_repo": cache_repo,
     }

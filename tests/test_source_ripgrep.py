@@ -7,7 +7,11 @@ from tests.test_ripgrep import pytest
 def _initialize_source():
     def _initalize(repo):
         path = repo.working_dir
-        source = initialize(Repository(path))
+        my_repo = Repository(path)
+        my_repo.analyze_files()
+        source = initialize(my_repo)
+
+        source["cache_repo"]()
 
         return source["fetch"]
 

@@ -83,6 +83,9 @@ class Engine:
     def analyze_codebase(self, minimum_chunks_to_analyze=None):
         self.repository.analyze_files()
 
+        for fetcher in self._fetchers["async"] + self._fetchers["sync"]:
+            fetcher["cache_repo"]()
+
         return self._create_vector_embeddings(minimum_chunks_to_analyze)
 
     def _add_to_collection(self, chunk):
