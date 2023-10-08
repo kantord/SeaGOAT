@@ -2,6 +2,19 @@
 
 
 
+## v0.35.6 (2023-10-08)
+
+### Fix
+
+* fix(deps): update dependency flask to v3 ([`21a633c`](https://github.com/kantord/SeaGOAT/commit/21a633c8d554c640540280f592d1fd1d8a17db8c))
+
+### Refactor
+
+* refactor: extract _generate_cache_lines ([`2a96ad6`](https://github.com/kantord/SeaGOAT/commit/2a96ad6ac829e77ac202ca0ba659594ff2a67b3d))
+
+* refactor: extract _iterate_lines_to_cache ([`47d1357`](https://github.com/kantord/SeaGOAT/commit/47d13579dda3281435b1212ea0552b53579cb54e))
+
+
 ## v0.35.5 (2023-10-08)
 
 ### Chore
