@@ -45,13 +45,16 @@ class RipGrepCache(str):
             for line_number, line in enumerate(file_contents.splitlines(), start=1):
                 yield file, line_number, line
 
+    def _generate_cache_lines(self):
+        for file, line_number, line in self._iterate_lines_to_cache():
+            yield f"{file.path}:{line_number}:{line}\n"
+
     def _build_cache_file(self):
         total_estimated_cache_size = 0
         line_count = 0
 
         with open(self.file_path, "w", encoding="utf-8") as cache_file:
-            for file, line_number, line in self._iterate_lines_to_cache():
-                formattted_cache_line = f"{file.path}:{line_number}:{line}\n"
+            for formattted_cache_line in self._generate_cache_lines():
                 cache_file.write(formattted_cache_line)
                 total_estimated_cache_size += len(formattted_cache_line)
                 line_count += 1
