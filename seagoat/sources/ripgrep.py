@@ -30,22 +30,31 @@ class RipGrepCache(str):
         self.is_initialized = False
         self._data = ""
 
+    def _iterate_files_to_cache(self):
+        for file, _ in self.repository.top_files():
+            yield file
+
+    def _iterate_lines_to_cache(self):
+        for file in self._iterate_files_to_cache():
+            file_contents = read_file_with_correct_encoding(file.absolute_path)
+
+            if len(file_contents) > MAX_FILE_SIZE:
+                logging.warning("Warning: file %s is too large to cache", file.path)
+                continue
+
+            for line_number, line in enumerate(file_contents.splitlines(), start=1):
+                yield file, line_number, line
+
     def _build_cache_file(self):
         total_estimated_cache_size = 0
         line_count = 0
 
         with open(self.file_path, "w", encoding="utf-8") as cache_file:
-            for file, _ in self.repository.top_files():
-                file_contents = read_file_with_correct_encoding(file.absolute_path)
-                if len(file_contents) > MAX_FILE_SIZE:
-                    logging.warning("Warning: file %s is too large to cache", file.path)
-                    continue
-
-                for line_number, line in enumerate(file_contents.splitlines(), start=1):
-                    formattted_cache_line = f"{file.path}:{line_number}:{line}\n"
-                    cache_file.write(formattted_cache_line)
-                    total_estimated_cache_size += len(formattted_cache_line)
-                    line_count += 1
+            for file, line_number, line in self._iterate_lines_to_cache():
+                formattted_cache_line = f"{file.path}:{line_number}:{line}\n"
+                cache_file.write(formattted_cache_line)
+                total_estimated_cache_size += len(formattted_cache_line)
+                line_count += 1
 
                 if total_estimated_cache_size > MAX_MMAP_SIZE_BYTES:
                     logging.warning(
