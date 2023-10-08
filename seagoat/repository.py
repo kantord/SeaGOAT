@@ -19,10 +19,11 @@ def parse_commit_info(raw_line: str):
 
 
 class Repository:
-    def __init__(self, repo_path: str):
+    def __init__(self, repo_path: str, model_path: str = None):
         self.path = Path(repo_path)
         self.file_changes = defaultdict(list)
         self.frecency_scores = {}
+        self.model_path = model_path
 
     def analyze_files(self):
         cmd = [
@@ -48,9 +49,13 @@ class Repository:
                     filename = line
 
                     if not is_file_type_supported(filename):
+                        print(f"Skipping {filename} because it is not supported")
                         continue
 
                     if not (self.path / filename).exists():
+                        print(
+                            f"Skipping {self.path/filename} because it does not exist"
+                        )
                         continue
 
                     self.file_changes[filename].append(current_commit_info)

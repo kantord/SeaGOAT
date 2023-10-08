@@ -25,6 +25,7 @@ CONFIG_SCHEMA = {
             "properties": {
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
                 "ignorePatterns": {"type": "array", "items": {"type": "string"}},
+                "model_path": {"type": "string"},
             },
         },
         "client": {

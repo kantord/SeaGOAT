@@ -68,8 +68,8 @@ class Engine:
             },
         )
         self.cache.load()
-        self.repository = Repository(path)
         self.config = get_config_values(Path(path))
+        self.repository = Repository(path, self.config["server"]["model_path"])
 
         self._fetchers = {
             "async": [
