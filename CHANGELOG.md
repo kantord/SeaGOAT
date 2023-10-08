@@ -2,6 +2,57 @@
 
 
 
+## v0.35.5 (2023-10-08)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.330 (#314)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`8dfa755`](https://github.com/kantord/SeaGOAT/commit/8dfa75517afdccbc96206468868ffde746e5b67b))
+
+* chore(deps): update dependency pyright to v1.1.330 (#313)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`300e5b2`](https://github.com/kantord/SeaGOAT/commit/300e5b25862d9fd7cef97a67c4145bd57a78052b))
+
+* chore(deps): update dependency pyright to v1.1.330 (#312)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`6d21da3`](https://github.com/kantord/SeaGOAT/commit/6d21da39dfb40c2de6eb241b12b424a3c1ca7198))
+
+* chore(deps): update dependency pyright to v1.1.330 (#311)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`0de8cef`](https://github.com/kantord/SeaGOAT/commit/0de8cef2bff7f4fcb95f0008eeb0c4b5b5e4f786))
+
+* chore(deps): update dependency pytest-timeout to v2.2.0 (#310)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`8d4bd84`](https://github.com/kantord/SeaGOAT/commit/8d4bd84591fc9399ef256553a63cf0e3fe1b7ce3))
+
+* chore(deps): update dependency pyright to v1.1.330 (#309)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`e7caea4`](https://github.com/kantord/SeaGOAT/commit/e7caea44ba7facb94fb14aa985e7dde59c4d85e2))
+
+* chore(deps): update dependency pyright to v1.1.330 (#307)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`401641e`](https://github.com/kantord/SeaGOAT/commit/401641e351d9d8c8247733b49267046c2c5fbab1))
+
+* chore(deps): update dependency pyright to v1.1.330 (#306)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`fb9a076`](https://github.com/kantord/SeaGOAT/commit/fb9a0764e93914a1224ce4e823755776bc819856))
+
+* chore(deps): update dependency pyright to v1.1.330 (#305)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`58a2325`](https://github.com/kantord/SeaGOAT/commit/58a2325f5e2419dfc7aa9a84b26bb5c11a5ddb98))
+
+### Performance
+
+* perf: cache files for ripgrep and avoid parsing JSON ([`5fc14fc`](https://github.com/kantord/SeaGOAT/commit/5fc14fcd2aa05a254d516d53000bab3f220a21c8))
+
+* perf: reduce the need for lru_cache ([`0968c50`](https://github.com/kantord/SeaGOAT/commit/0968c5019e210ceeccd38be08ba56d00cc0a8ecd))
+
+### Test
+
+* test: allow counting total time with timed_block ([`be9c046`](https://github.com/kantord/SeaGOAT/commit/be9c046fa562ed875a066282be46bd8e384cb3fe))
+
+
 ## v0.35.4 (2023-10-07)
 
 ### Chore
