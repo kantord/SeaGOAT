@@ -16,11 +16,11 @@ def get_metadata_and_distance_from_chromadb_result(chromadb_results):
     return (
         list(
             zip(
-                chromadb_results[0]["metadatas"][0],
-                chromadb_results[0]["distances"][0],
+                chromadb_results["metadatas"][0],
+                chromadb_results["distances"][0],
             )
         )
-        if chromadb_results[0]["metadatas"] and chromadb_results[0]["distances"]
+        if chromadb_results["metadatas"] and chromadb_results["distances"]
         else None
     ) or []
 
@@ -34,7 +34,6 @@ def initialize(repository: Repository):
             anonymized_telemetry=False,
         ),
     )
-
     chroma_collection = chroma_client.get_or_create_collection(name="code_data")
 
     def fetch(query_text: str, limit: int):
@@ -42,12 +41,10 @@ def initialize(repository: Repository):
         maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
         n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
 
-        chromadb_results = [
-            chroma_collection.query(
-                query_texts=[query_text],
-                n_results=n_results,
-            )
-        ]
+        chromadb_results = chroma_collection.query(
+            query_texts=[query_text],
+            n_results=n_results,
+        )
 
         files = {}
 
