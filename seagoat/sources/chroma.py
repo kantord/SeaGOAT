@@ -25,6 +25,28 @@ def get_metadata_and_distance_from_chromadb_result(chromadb_results):
     ) or []
 
 
+def format_results(repository, chromadb_results):
+    files = {}
+
+    for metadata, distance in get_metadata_and_distance_from_chromadb_result(
+        chromadb_results
+    ):
+        if distance > MAXIMUM_VECTOR_DISTANCE:
+            break
+        path = str(metadata["path"])
+        line = int(metadata["line"])
+        full_path = Path(repository.path) / path
+
+        if not full_path.exists():
+            continue
+
+        if path not in files:
+            files[path] = Result(path, full_path)
+        files[path].add_line(line, distance)
+
+    return files.values()
+
+
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
 
@@ -46,25 +68,7 @@ def initialize(repository: Repository):
             n_results=n_results,
         )
 
-        files = {}
-
-        for metadata, distance in get_metadata_and_distance_from_chromadb_result(
-            chromadb_results
-        ):
-            if distance > MAXIMUM_VECTOR_DISTANCE:
-                break
-            path = str(metadata["path"])
-            line = int(metadata["line"])
-            full_path = Path(repository.path) / path
-
-            if not full_path.exists():
-                continue
-
-            if path not in files:
-                files[path] = Result(path, full_path)
-            files[path].add_line(line, distance)
-
-        return files.values()
+        return format_results(repository, chromadb_results)
 
     def cache_chunk(chunk):
         try:
