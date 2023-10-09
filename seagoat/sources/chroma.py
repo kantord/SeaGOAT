@@ -12,6 +12,19 @@ from seagoat.result import Result
 MAXIMUM_VECTOR_DISTANCE = 1.5
 
 
+def get_metadata_and_distance_from_chromadb_result(chromadb_results):
+    return (
+        list(
+            zip(
+                chromadb_results[0]["metadatas"][0],
+                chromadb_results[0]["distances"][0],
+            )
+        )
+        if chromadb_results[0]["metadatas"] and chromadb_results[0]["distances"]
+        else None
+    ) or []
+
+
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
 
@@ -35,20 +48,12 @@ def initialize(repository: Repository):
                 n_results=n_results,
             )
         ]
-        metadata_with_distance = (
-            list(
-                zip(
-                    chromadb_results[0]["metadatas"][0],
-                    chromadb_results[0]["distances"][0],
-                )
-            )
-            if chromadb_results[0]["metadatas"] and chromadb_results[0]["distances"]
-            else None
-        ) or []
 
         files = {}
 
-        for metadata, distance in metadata_with_distance:
+        for metadata, distance in get_metadata_and_distance_from_chromadb_result(
+            chromadb_results
+        ):
             if distance > MAXIMUM_VECTOR_DISTANCE:
                 break
             path = str(metadata["path"])
