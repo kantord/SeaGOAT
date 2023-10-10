@@ -2,6 +2,27 @@
 
 
 
+## v0.35.7 (2023-10-10)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.4.5 ([`5c7da06`](https://github.com/kantord/SeaGOAT/commit/5c7da06285714f6d987e5e6122f13a1c87f457da))
+
+* chore: add locustfile ([`cd52d44`](https://github.com/kantord/SeaGOAT/commit/cd52d44eed22811a9f553523db45b52c453bc460))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.14 ([`7a7679d`](https://github.com/kantord/SeaGOAT/commit/7a7679da722289e6fbcf3ed2fc95f9a8915ef102))
+
+### Refactor
+
+* refactor: extract format_results ([`8b78a2b`](https://github.com/kantord/SeaGOAT/commit/8b78a2b3bd7fe8401d4f7faf178a615405119a01))
+
+* refactor: remove unnecessary list ([`c26d985`](https://github.com/kantord/SeaGOAT/commit/c26d9856bd4d34607ced4ee9b146fc47022efb1d))
+
+* refactor: extract get_metadata_and_distance_from_chromadb_result ([`58b6594`](https://github.com/kantord/SeaGOAT/commit/58b65940d6e7148948582991adb5d549726a2048))
+
+
 ## v0.35.6 (2023-10-08)
 
 ### Fix
