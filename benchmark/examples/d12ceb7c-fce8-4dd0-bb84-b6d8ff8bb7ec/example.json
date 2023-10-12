@@ -1,0 +1,20 @@
+{
+    "uuid": "d12ceb7c-fce8-4dd0-bb84-b6d8ff8bb7ec",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "setup.py",
+        "lineNumber": 121
+    },
+    "queries": [
+        "How does the setup.py file contribute to the configuration and installation process of a Python package?",
+        "What are the different options that can be used with the python setup.py command?",
+        "What is the purpose of the setup.py file in a Python project?",
+        "configure and install Python package using setup.py",
+        "project setup file",
+        "python setup.py",
+        "setup.py file purpose and usage"
+    ]
+}

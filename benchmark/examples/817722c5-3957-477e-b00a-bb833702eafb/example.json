@@ -1,0 +1,20 @@
+{
+    "uuid": "817722c5-3957-477e-b00a-bb833702eafb",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/wishlists/migrations/0004_auto_20220328_0939.py",
+        "lineNumber": 12
+    },
+    "queries": [
+        "apply database schema changes for wishlists module in django-oscar",
+        "class Migration for wishlists module database migration in django-oscar project",
+        "django-oscar wishlists module database migration script",
+        "execute database migration for django-oscar wishlists module",
+        "file responsible for executing database migration for wishlists module in django-oscar project",
+        "find code line for database migration of wishlists module in django-oscar project",
+        "script to migrate database schema for wishlists module in django-oscar project"
+    ]
+}

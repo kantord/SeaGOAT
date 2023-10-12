@@ -1,0 +1,20 @@
+{
+    "uuid": "97e8ef54-ad54-4092-871b-aa67847b83f8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/partner/migrations/0006_auto_20190816_0910.py",
+        "lineNumber": 21
+    },
+    "queries": [
+        "altering 'date_created' field in 'partner' app's database table",
+        "python script for modifying 'date_created' field in 'partner' app's stockalert model",
+        "python script for setting index on 'date_created' field of 'stockalert' model in 'partner' app's database table",
+        "python script modifying date_created field in stockalert model",
+        "python script that modifies the structure and data of the database tables associated with the 'partner' app",
+        "script for automatically storing current date and time in 'date_created' field of 'partner' app's stockalert model",
+        "script written in Python that alters 'date_created' field of 'stockalert' model in 'partner' app's database table"
+    ]
+}

@@ -1,0 +1,4 @@
+The /benchmarks/examples folder contains files that are generated using a tool that uses
+OpenAI's GPT APIs to generate text.
+
+The query text examples in these  files are AI generated content, not human-written.

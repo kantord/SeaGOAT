@@ -1,0 +1,20 @@
+{
+    "uuid": "a47b0f37-f514-493b-a01e-f32569f58a54",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/expressions.py",
+        "lineNumber": 35
+    },
+    "queries": [
+        "Class in the 'catalogue' app that handles category queries",
+        "Class in the 'catalogue' app that overrides a base method",
+        "Implementation code for evaluating catalog expressions",
+        "Method in the first class of the SQLite database backend module",
+        "Method in the second class of the SQLite database backend module that generates SQL statements",
+        "Method in the second class of the SQLite database backend module that invokes a parent class with a SQLite-specific template",
+        "Python module for creating and managing catalogs"
+    ]
+}

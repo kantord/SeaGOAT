@@ -1,0 +1,16 @@
+{
+    "uuid": "35c637cd-58a5-4b88-ae93-def762dd8dac",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/checkout/test_session.py",
+        "lineNumber": 8
+    },
+    "queries": [
+        "File in Django-Oscar codebase for testing checkout functionality of digital goods",
+        "Python file with tests to ensure proper functioning of Django-Oscar checkout process for digital goods",
+        "Test file in Django-Oscar codebase that creates digital product for checkout process"
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "uuid": "d93c3e66-b5db-49a9-9f58-c3a0412de5b8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/communication/managers.py",
+        "lineNumber": 10
+    },
+    "queries": [
+        "Django Oscar e-commerce platform CommunicationTypeManager get_and_render",
+        "code file handle communication operations in Django Oscar e-commerce platform",
+        "communication file Django Oscar e-commerce platform custom manager class CommunicationTypeManager get_and_render method retrieve message dictionary",
+        "create new instance generate message contents communication type",
+        "custom manager class CommunicationTypeManager method get_and_render",
+        "generate message contents communication type not in database",
+        "retrieve rendered message dictionary communication type"
+    ]
+}

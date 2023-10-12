@@ -1,0 +1,21 @@
+{
+    "uuid": "cd4a72f7-451f-4a20-987b-ea9498e269d3",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/checkout/test_views.py",
+        "lineNumber": 39
+    },
+    "queries": [
+        "Django-Oscar checkout process integrated test file",
+        "code to simulate non-existent order in Django-Oscar checkout process",
+        "code to test analytics events triggering in Django-Oscar checkout process",
+        "code to test redirect behavior in Django-Oscar checkout process with invalid order ID",
+        "code to test redirect behavior in Django-Oscar checkout process with missing order ID",
+        "code to validate thank you page in Django-Oscar checkout process",
+        "test code for Django-Oscar checkout process views",
+        "test file for Django-Oscar checkout process functionality"
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "uuid": "71b80ffe-cb3d-4d19-9915-b3b80f908d56",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/test/factories/urls.py",
+        "lineNumber": 16
+    },
+    "queries": [
+        "Django-Oscar e-commerce project code",
+        "URL patterns for creating, listing, updating, and deleting bands code",
+        "code for generating test URLs",
+        "file in factories directory for creating test objects code",
+        "file that declares urlpatterns list for URL configurations and patterns code",
+        "file that defines URL patterns for specific views related to 'band' entity code",
+        "file that includes URL patterns in dashboard namespace using include function code"
+    ]
+}

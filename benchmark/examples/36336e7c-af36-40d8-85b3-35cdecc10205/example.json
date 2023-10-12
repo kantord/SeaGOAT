@@ -1,0 +1,20 @@
+{
+    "uuid": "36336e7c-af36-40d8-85b3-35cdecc10205",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/analytics/scores.py",
+        "lineNumber": 13
+    },
+    "queries": [
+        "Description of the Python file in 'oscar' project used for calculating product scores based on views, basket additions, and purchases",
+        "Python code in 'oscar' project for assigning scores to products in e-commerce domain",
+        "Python file in 'analytics' app of 'oscar' project for calculating product scores",
+        "Python file in 'analytics' app of 'oscar' project that defines the Calculator class for calculating product scores",
+        "Python file used for calculating and storing analytics scores related to e-commerce domain in 'oscar' project",
+        "class definition for Calculator in python code for e-commerce analytics",
+        "python code for calculating and storing analytics scores in e-commerce domain"
+    ]
+}

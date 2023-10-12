@@ -1,0 +1,20 @@
+{
+    "uuid": "e6a7ddb9-1abb-4dd4-a0a5-ddabf1a61c3c",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "setup.py",
+        "lineNumber": 62
+    },
+    "queries": [
+        "Python package development library",
+        "extras_require for documentation and testing",
+        "file in the project's root directory handling dependencies and metadata",
+        "file managing project dependencies",
+        "packages specified in the file, including Django, pillow, and django-haystack",
+        "role of the file in managing project requirements and package installation",
+        "specific version range for psycopg2-binary package"
+    ]
+}

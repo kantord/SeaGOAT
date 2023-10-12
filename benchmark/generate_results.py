@@ -1,0 +1,77 @@
+import collections
+import json
+import subprocess
+from pathlib import Path
+
+import click
+
+
+def generate_random_results(repo_dir, _):
+    command = r"""git grep -n --full-name '' -- '*\.rs' '*\.go' '*\.cpp' '*\.c' '*\.h' '*\.ts' '*\.js' '*\.jsx' '*\.tsx' '*\.py' | shuf -n 500"""
+
+    results = subprocess.check_output(command, shell=True, text=True, cwd=repo_dir)
+    return results
+
+
+def generate_seagoat_results(repo_dir, query_text):
+    query_text = query_text.replace("'", "'\\''")
+    return subprocess.check_output(
+        f"gt --no-color '{query_text}' {repo_dir}", shell=True
+    ).decode("utf-8")
+
+
+RESULT_TYPE_FUNCTIONS = {
+    "random": generate_random_results,
+    "seagoat": generate_seagoat_results,
+}
+
+
+def process_example(example, examples_path, repo_folder):
+    example_description = f"{example['repo']['name']}:{example['targetCode']['path']}:{example['targetCode']['lineNumber']}"
+    click.echo(f"Processing {example_description}")
+
+    results_folder = examples_path / example["uuid"] / "results"
+    results_folder.mkdir(parents=True, exist_ok=True)
+
+    for index, query in enumerate(example["queries"]):
+        query_results_folder = results_folder / str(index)
+        query_results_folder.mkdir(parents=True, exist_ok=True)
+
+        for result_type, result_type_function in RESULT_TYPE_FUNCTIONS.items():
+            result_type_results_file = query_results_folder / f"{result_type}.txt"
+            if result_type_results_file.exists():
+                continue
+
+            with open(result_type_results_file, "w", encoding="utf-8") as output_file:
+                output_file.write(result_type_function(repo_folder, query))
+
+
+@click.command()
+@click.argument(
+    "repositories_path", type=click.Path(exists=True, dir_okay=True, file_okay=False)
+)
+def generate_results(repositories_path):
+    examples_path = Path(__file__).parent / "examples"
+
+    if not examples_path.exists():
+        return
+
+    subfolders = [f for f in examples_path.iterdir() if f.is_dir()]
+
+    examples_grouped_by_project = collections.defaultdict(list)
+
+    for subfolder in subfolders:
+        with open(subfolder / "example.json", encoding="utf-8") as input_file:
+            example = json.load(input_file)
+            examples_grouped_by_project[example["repo"]["name"]].append(example)
+
+    for repo_name, examples in examples_grouped_by_project.items():
+        repo_folder = Path(repositories_path) / repo_name
+        click.echo(repo_folder)
+        for example in examples:
+            process_example(example, examples_path, repo_folder)
+
+
+if __name__ == "__main__":
+    # pylint: disable-next=no-value-for-parameter
+    generate_results()
