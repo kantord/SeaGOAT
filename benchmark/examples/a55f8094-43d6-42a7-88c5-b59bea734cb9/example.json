@@ -1,0 +1,20 @@
+{
+    "uuid": "a55f8094-43d6-42a7-88c5-b59bea734cb9",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/test_logging.py",
+        "lineNumber": 39
+    },
+    "queries": [
+        "integrated logging tests Django-Oscar",
+        "integration tests for logging feature in Django-Oscar",
+        "line to set args parameter to None in LogRecord Django-Oscar",
+        "log record formatting testcase Django-Oscar",
+        "logging tests sensitive data handling Django-Oscar",
+        "setting args parameter to None in LogRecord Django-Oscar",
+        "test case class for PCIFormatter in Django-Oscar"
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "uuid": "87b9aa9a-c6fc-4e99-8bc9-caba04a4d42d",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/dashboard/test_partner.py",
+        "lineNumber": 16
+    },
+    "queries": [
+        "Automated tests for creating a partner user in dashboard",
+        "Code implementation for testing the process of creating a new partner user in partner dashboard",
+        "File that executes tests for creating a new partner user in partner dashboard",
+        "Python file for testing partner user creation in partner dashboard",
+        "Python file used to automate and verify partner user creation in partner dashboard",
+        "Python test file for creating partner user in dashboard",
+        "Tests for creating a new partner user in partner dashboard"
+    ]
+}

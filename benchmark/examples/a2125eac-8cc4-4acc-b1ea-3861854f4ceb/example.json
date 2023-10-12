@@ -1,0 +1,21 @@
+{
+    "uuid": "a2125eac-8cc4-4acc-b1ea-3861854f4ceb",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/partner/test_selector_mixin.py",
+        "lineNumber": 15
+    },
+    "queries": [
+        "file used for integration testing of partner module",
+        "integration test file for partner module",
+        "purpose of file with select_stockrecord method tests",
+        "select_stockrecord method test in UseFirstStockRecordMixin",
+        "test case for no available stock records in select_stockrecord method",
+        "test cases for UseFirstStockRecordMixin",
+        "test cases to verify UseFirstStockRecordMixin class",
+        "verify functionality of select_stockrecord"
+    ]
+}

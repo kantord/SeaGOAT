@@ -1,0 +1,20 @@
+{
+    "uuid": "837b680c-c59d-45f8-bc03-7fef7147d385",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/catalogue/widgets.py",
+        "lineNumber": 11
+    },
+    "queries": [
+        "Python code defining classes for customized widgets in Django catalogue dashboard",
+        "Python code file defining SingleProductSelection and MultipleProductSelection classes for product selection in catalogue dashboard of django-oscar project",
+        "Python code file implementing SingleProductSelection and MultipleProductSelection classes with initialization method for creating specialized widgets in Django catalogue dashboard",
+        "Python code file implementing customized widgets for catalogue dashboard in Django e-commerce project called django-oscar",
+        "Python code for SingleProductSelection and MultipleProductSelection classes in Django e-commerce project",
+        "Python code implementing custom widgets for catalogue dashboard in django-oscar project",
+        "Python code overriding attributes and modifying HTML class for product selection widgets in Django e-commerce project"
+    ]
+}

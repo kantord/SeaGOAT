@@ -1,0 +1,20 @@
+{
+    "uuid": "e99d92d1-01fb-4be4-ab32-5bb5b8dfaa6d",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/model_tests_app/models.py",
+        "lineNumber": 97
+    },
+    "queries": [
+        "code file containing test implementations for model_tests_app in django-oscar",
+        "file used for writing tests to verify model functionality in django-oscar's model_tests_app",
+        "file with test implementations for model_tests_app in django-oscar",
+        "implementation code for testing model classes in django-oscar's model_tests_app",
+        "test classes for Django's models.Model in django-oscar",
+        "test classes that inherit from models.Model in django-oscar",
+        "test implementations for model_tests_app in django-oscar"
+    ]
+}

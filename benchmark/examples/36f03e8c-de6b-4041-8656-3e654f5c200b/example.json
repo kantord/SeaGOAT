@@ -1,0 +1,20 @@
+{
+    "uuid": "36f03e8c-de6b-4041-8656-3e654f5c200b",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/reports/apps.py",
+        "lineNumber": 13
+    },
+    "queries": [
+        "Code file related to managing reports dashboard in Django-Oscar e-commerce project",
+        "Code responsible for configuring reports dashboard in Django-Oscar e-commerce project",
+        "Default permissions for accessing reports dashboard in Django-Oscar",
+        "Django application for reports dashboard in e-commerce project",
+        "Django-Oscar e-commerce project",
+        "Python code defining configuration, views, and URLs for reports dashboard in Django-Oscar",
+        "Python code for reports dashboard configuration"
+    ]
+}

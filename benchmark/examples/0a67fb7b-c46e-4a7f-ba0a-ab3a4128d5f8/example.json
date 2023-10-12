@@ -1,0 +1,20 @@
+{
+    "uuid": "0a67fb7b-c46e-4a7f-ba0a-ab3a4128d5f8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/checkout/test_session.py",
+        "lineNumber": 20
+    },
+    "queries": [
+        "class CheckoutSessionData",
+        "code file for testing checkout session behavior during checkout process",
+        "code file to test checkout session",
+        "code file with CheckoutSessionData in integration testing environment",
+        "initialize CheckoutSessionData instance with SessionMiddleware",
+        "test class that creates mock request object and initializes CheckoutSessionData",
+        "test class with setup method and CheckoutSessionData"
+    ]
+}

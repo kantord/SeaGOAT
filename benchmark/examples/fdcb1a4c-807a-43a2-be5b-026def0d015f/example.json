@@ -1,0 +1,20 @@
+{
+    "uuid": "fdcb1a4c-807a-43a2-be5b-026def0d015f",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/customer/test_order_status.py",
+        "lineNumber": 14
+    },
+    "queries": [
+        "Django-Oscar test ability anonymous user view order status",
+        "conduct functional testing order status for anonymous user",
+        "file purpose functional testing order status anonymous user Django-Oscar project",
+        "file test order status functionality anonymous user Django-Oscar",
+        "implement HTTP GET request order status path anonymous user Django-Oscar",
+        "implementation involves retrieve URL order status page HTTP GET request path anonymous user Django-Oscar",
+        "specifically designed test ability view order status anonymous user HTTP GET request specified path Django-Oscar"
+    ]
+}

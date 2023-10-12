@@ -1,0 +1,21 @@
+{
+    "uuid": "d13e9607-3723-4f79-b26d-ee04b4310b30",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/migrations/0010_auto_20170420_0439.py",
+        "lineNumber": 24
+    },
+    "queries": [
+        "migration script add field ProductAttributeValue model alter fields ProductAttribute model",
+        "migration script django framework ProductAttributeValue model catalogue app Oscar project",
+        "migration script modify database schema ProductAttributeValue model catalogue app Oscar project add field ProductAttributeValue model alter fields ProductAttribute model",
+        "migration script modify foreign key relationship option_group field ProductAttribute model cascade delete ProductAttribute records",
+        "migration script modify foreign key relationship option_group field ProductAttribute model with AttributeOptionGroup model",
+        "modify database schema ProductAttributeValue model catalogue app Oscar project",
+        "modify foreign key relationship option_group field ProductAttribute model",
+        "modify foreign key relationship option_group field ProductAttribute model AttributeOptionGroup model"
+    ]
+}

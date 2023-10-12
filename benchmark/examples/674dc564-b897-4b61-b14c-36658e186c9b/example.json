@@ -1,0 +1,20 @@
+{
+    "uuid": "674dc564-b897-4b61-b14c-36658e186c9b",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/wishlists/formsets.py",
+        "lineNumber": 27
+    },
+    "queries": [
+        "Code for managing wishlists in Django-Oscar using Python. Includes formsets and models for WishList and WishListSharedEmail. How to render and validate email field in WishListSharedEmailForm? How to add and delete email addresses in the formset?",
+        "Example code for managing wishlists in Django-Oscar using Python",
+        "How to delete existing email in WishListSharedEmailForm?",
+        "How to implement wishlist management in Django-Oscar? What is the role of formsets in this process? Which models are used? How to handle the email field in WishListSharedEmailForm? How to add and remove email addresses in the formset?",
+        "How to manage wishlists in Django-Oscar using formset?",
+        "How to use formset with email field in WishListSharedEmailForm?",
+        "In Django-Oscar e-commerce framework, how to handle wishlists? How are formsets used? What models are involved? How to work with the email field in WishListSharedEmailForm? How to add and delete email addresses in the formset?"
+    ]
+}

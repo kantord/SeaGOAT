@@ -1,0 +1,20 @@
+{
+    "uuid": "a458ddb5-1b1e-4e48-911f-691969d3e393",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/customer/test_profile.py",
+        "lineNumber": 190
+    },
+    "queries": [
+        "Django-Oscar customer profile test",
+        "customer profile functional test",
+        "file for testing functionality of customer profile in Django-Oscar e-commerce project",
+        "functional test cases for customer profile in Django-Oscar using Python and Django testing framework",
+        "simulate user interactions with customer profile in Django-Oscar",
+        "test cases for handling basket maximum thresholds in customer profile",
+        "test cases for simulating user interactions with customer profile, including updating profile information and reordering previous orders"
+    ]
+}

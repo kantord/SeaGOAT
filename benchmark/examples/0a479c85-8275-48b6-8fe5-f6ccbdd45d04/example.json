@@ -1,0 +1,20 @@
+{
+    "uuid": "0a479c85-8275-48b6-8fe5-f6ccbdd45d04",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/partner/test_models.py",
+        "lineNumber": 91
+    },
+    "queries": [
+        "class TestPartnerAddress inherited from TestCase class in Django-Oscar project",
+        "class TestPartnerAddress setup method creating partner and country objects",
+        "class TestPartnerAddress testcase setup method test data preparation",
+        "file testing partner models Django-Oscar",
+        "file testing partner models Django-Oscar with automated integration testing functionality",
+        "test code validating partner-related features generating test data",
+        "test code verifying partner models accuracy and dependability Django-Oscar"
+    ]
+}

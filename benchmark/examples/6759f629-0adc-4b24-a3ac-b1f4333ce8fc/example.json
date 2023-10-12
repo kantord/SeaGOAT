@@ -1,0 +1,20 @@
+{
+    "uuid": "6759f629-0adc-4b24-a3ac-b1f4333ce8fc",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/management/commands/oscar_find_duplicate_emails.py",
+        "lineNumber": 37
+    },
+    "queries": [
+        "Code file for duplicate email address handling in Django-Oscar",
+        "Code file that checks for duplicate email addresses and prints associated user information in Django-Oscar",
+        "Code for retrieving, converting, and counting duplicate email addresses in Django-Oscar",
+        "Code that ensures each email address is unique and supports email functionality in the Django-Oscar project",
+        "Django-Oscar e-commerce project duplicate email addresses",
+        "Django-Oscar file responsible for identifying and handling duplicate email addresses",
+        "User model duplicate email address identification"
+    ]
+}
