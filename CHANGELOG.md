@@ -2,6 +2,17 @@
 
 
 
+## v0.35.9 (2023-10-13)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.331 ([`f5773ed`](https://github.com/kantord/SeaGOAT/commit/f5773ed357fc7d0902d939a5186a3b51d61c0c7d))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.9 ([`b807ae7`](https://github.com/kantord/SeaGOAT/commit/b807ae72bc594ef1895961fea4e5d3dd2dd60c41))
+
+
 ## v0.35.8 (2023-10-10)
 
 ### Fix
