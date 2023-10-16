@@ -26,11 +26,11 @@ RESULT_TYPE_FUNCTIONS = {
 }
 
 
-def process_example(example, examples_path, repo_folder):
+def process_example(example, examples_path, repo_folder, test_run_name):
     example_description = f"{example['repo']['name']}:{example['targetCode']['path']}:{example['targetCode']['lineNumber']}"
     click.echo(f"Processing {example_description}")
 
-    results_folder = examples_path / example["uuid"] / "results"
+    results_folder = examples_path / example["uuid"] / "results" / test_run_name
     results_folder.mkdir(parents=True, exist_ok=True)
 
     for index, query in enumerate(example["queries"]):
@@ -47,10 +47,11 @@ def process_example(example, examples_path, repo_folder):
 
 
 @click.command()
+@click.argument("test_run_name", type=str)
 @click.argument(
     "repositories_path", type=click.Path(exists=True, dir_okay=True, file_okay=False)
 )
-def generate_results(repositories_path):
+def generate_results(test_run_name, repositories_path):
     examples_path = Path(__file__).parent / "examples"
 
     if not examples_path.exists():
@@ -69,7 +70,7 @@ def generate_results(repositories_path):
         repo_folder = Path(repositories_path) / repo_name
         click.echo(repo_folder)
         for example in examples:
-            process_example(example, examples_path, repo_folder)
+            process_example(example, examples_path, repo_folder, test_run_name)
 
 
 if __name__ == "__main__":
