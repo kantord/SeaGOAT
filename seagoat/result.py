@@ -1,4 +1,5 @@
 # pylint: disable=too-few-public-methods
+import functools
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -10,6 +11,37 @@ from typing import Set
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import get_file_penalty_factor
+
+
+SPLITTER_PATTERN = re.compile(r"\s+")
+
+
+@functools.lru_cache(maxsize=100)
+def compile_regex_pattern(query: str):
+    terms = re.split(SPLITTER_PATTERN, query)
+    pattern = ".*".join(map(re.escape, terms))
+
+    return re.compile(pattern, re.IGNORECASE)
+
+
+@functools.lru_cache(maxsize=10_000)
+def get_number_of_exact_matches(line: str, query: str):
+    pattern = compile_regex_pattern(query)
+
+    if re.search(pattern, line):
+        return 1
+    return 0
+
+
+def get_best_score(result, query: str) -> float:
+    best_score = min(
+        (x for x in result.lines.values() if ResultLineType.RESULT in x.types),
+        key=lambda item: item.get_score(query),
+    ).get_score(query)
+
+    best_score *= get_file_penalty_factor(result.full_path)
+
+    return best_score
 
 
 class ResultLineType(Enum):
@@ -27,16 +59,10 @@ class ResultLine:
     line_text: str
     types: Set[ResultLineType]
 
-    def _get_number_of_exact_matches(self, query: str) -> int:
-        terms = re.split(r"\s+", query)
-        pattern = ".*".join(map(re.escape, terms))
-
-        if re.search(pattern, self.line_text, re.IGNORECASE):
-            return 1
-        return 0
-
     def get_score(self, query: str) -> float:
-        return self.vector_distance / (1 + self._get_number_of_exact_matches(query))
+        return self.vector_distance / (
+            1 + get_number_of_exact_matches(self.line_text, query)
+        )
 
     def add_type(self, type_: ResultLineType) -> None:
         self.types.add(type_)
@@ -100,18 +126,8 @@ class Result:
             types,
         )
 
-    def get_best_score(self, query: str) -> float:
-        best_score = min(
-            (x for x in self.lines.values() if ResultLineType.RESULT in x.types),
-            key=lambda item: item.get_score(query),
-        ).get_score(query)
-
-        best_score *= get_file_penalty_factor(self.full_path)
-
-        return best_score
-
     def get_lines(self, query: str):
-        best_score = self.get_best_score(query)
+        best_score = get_best_score(self, query)
 
         return list(
             sorted(
@@ -125,10 +141,11 @@ class Result:
         )
 
     def get_result_blocks(self, query):
+        self_lines = self.get_lines(query)
         lines_to_include = [
             line
             for line in sorted(self.lines.values(), key=lambda item: item.line)
-            if line.line in self.get_lines(query)
+            if line.line in self_lines
         ]
         blocks = []
 
@@ -148,7 +165,7 @@ class Result:
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "score": round(self.get_best_score(query), 4),
+            "score": round(get_best_score(self, query), 4),
             "blocks": [block.to_json(query) for block in self.get_result_blocks(query)],
         }
 

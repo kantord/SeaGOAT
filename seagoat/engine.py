@@ -19,6 +19,7 @@ from typing_extensions import TypedDict
 from seagoat.cache import Cache
 from seagoat.file import File
 from seagoat.repository import Repository
+from seagoat.result import get_best_score
 from seagoat.sources import chroma
 from seagoat.sources import ripgrep
 from seagoat.utils.config import get_config_values
@@ -81,6 +82,9 @@ class Engine:
 
     def analyze_codebase(self, minimum_chunks_to_analyze=None):
         self.repository.analyze_files()
+
+        for fetcher in self._fetchers["async"] + self._fetchers["sync"]:
+            fetcher["cache_repo"]()
 
         return self._create_vector_embeddings(minimum_chunks_to_analyze)
 
@@ -204,7 +208,7 @@ class Engine:
 
         results_to_sort = list(merged_results.values())
 
-        scores = [x.get_best_score(self.query_string) for x in results_to_sort]
+        scores = [get_best_score(x, self.query_string) for x in results_to_sort]
 
         if not scores:
             return []
@@ -229,7 +233,7 @@ class Engine:
             sorted(
                 results_to_sort,
                 key=lambda x: (
-                    0.7 * normalize_score(x.get_best_score(self.query_string))
+                    0.7 * normalize_score(get_best_score(x, self.query_string))
                     + 0.3 * normalize_file_position(get_file_position(x.path))
                 ),
             )

@@ -2,6 +2,216 @@
 
 
 
+## v0.35.9 (2023-10-13)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.331 ([`f5773ed`](https://github.com/kantord/SeaGOAT/commit/f5773ed357fc7d0902d939a5186a3b51d61c0c7d))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.9 ([`b807ae7`](https://github.com/kantord/SeaGOAT/commit/b807ae72bc594ef1895961fea4e5d3dd2dd60c41))
+
+
+## v0.35.8 (2023-10-10)
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.8 ([`5ea3e8b`](https://github.com/kantord/SeaGOAT/commit/5ea3e8beacbe8d1e0442a7de4395ffa844899a0d))
+
+
+## v0.35.7 (2023-10-10)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.4.5 ([`5c7da06`](https://github.com/kantord/SeaGOAT/commit/5c7da06285714f6d987e5e6122f13a1c87f457da))
+
+* chore: add locustfile ([`cd52d44`](https://github.com/kantord/SeaGOAT/commit/cd52d44eed22811a9f553523db45b52c453bc460))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.14 ([`7a7679d`](https://github.com/kantord/SeaGOAT/commit/7a7679da722289e6fbcf3ed2fc95f9a8915ef102))
+
+### Refactor
+
+* refactor: extract format_results ([`8b78a2b`](https://github.com/kantord/SeaGOAT/commit/8b78a2b3bd7fe8401d4f7faf178a615405119a01))
+
+* refactor: remove unnecessary list ([`c26d985`](https://github.com/kantord/SeaGOAT/commit/c26d9856bd4d34607ced4ee9b146fc47022efb1d))
+
+* refactor: extract get_metadata_and_distance_from_chromadb_result ([`58b6594`](https://github.com/kantord/SeaGOAT/commit/58b65940d6e7148948582991adb5d549726a2048))
+
+
+## v0.35.6 (2023-10-08)
+
+### Fix
+
+* fix(deps): update dependency flask to v3 ([`21a633c`](https://github.com/kantord/SeaGOAT/commit/21a633c8d554c640540280f592d1fd1d8a17db8c))
+
+### Refactor
+
+* refactor: extract _generate_cache_lines ([`2a96ad6`](https://github.com/kantord/SeaGOAT/commit/2a96ad6ac829e77ac202ca0ba659594ff2a67b3d))
+
+* refactor: extract _iterate_lines_to_cache ([`47d1357`](https://github.com/kantord/SeaGOAT/commit/47d13579dda3281435b1212ea0552b53579cb54e))
+
+
+## v0.35.5 (2023-10-08)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.330 (#314)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`8dfa755`](https://github.com/kantord/SeaGOAT/commit/8dfa75517afdccbc96206468868ffde746e5b67b))
+
+* chore(deps): update dependency pyright to v1.1.330 (#313)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`300e5b2`](https://github.com/kantord/SeaGOAT/commit/300e5b25862d9fd7cef97a67c4145bd57a78052b))
+
+* chore(deps): update dependency pyright to v1.1.330 (#312)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`6d21da3`](https://github.com/kantord/SeaGOAT/commit/6d21da39dfb40c2de6eb241b12b424a3c1ca7198))
+
+* chore(deps): update dependency pyright to v1.1.330 (#311)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`0de8cef`](https://github.com/kantord/SeaGOAT/commit/0de8cef2bff7f4fcb95f0008eeb0c4b5b5e4f786))
+
+* chore(deps): update dependency pytest-timeout to v2.2.0 (#310)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`8d4bd84`](https://github.com/kantord/SeaGOAT/commit/8d4bd84591fc9399ef256553a63cf0e3fe1b7ce3))
+
+* chore(deps): update dependency pyright to v1.1.330 (#309)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`e7caea4`](https://github.com/kantord/SeaGOAT/commit/e7caea44ba7facb94fb14aa985e7dde59c4d85e2))
+
+* chore(deps): update dependency pyright to v1.1.330 (#307)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`401641e`](https://github.com/kantord/SeaGOAT/commit/401641e351d9d8c8247733b49267046c2c5fbab1))
+
+* chore(deps): update dependency pyright to v1.1.330 (#306)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`fb9a076`](https://github.com/kantord/SeaGOAT/commit/fb9a0764e93914a1224ce4e823755776bc819856))
+
+* chore(deps): update dependency pyright to v1.1.330 (#305)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`58a2325`](https://github.com/kantord/SeaGOAT/commit/58a2325f5e2419dfc7aa9a84b26bb5c11a5ddb98))
+
+### Performance
+
+* perf: cache files for ripgrep and avoid parsing JSON ([`5fc14fc`](https://github.com/kantord/SeaGOAT/commit/5fc14fcd2aa05a254d516d53000bab3f220a21c8))
+
+* perf: reduce the need for lru_cache ([`0968c50`](https://github.com/kantord/SeaGOAT/commit/0968c5019e210ceeccd38be08ba56d00cc0a8ecd))
+
+### Test
+
+* test: allow counting total time with timed_block ([`be9c046`](https://github.com/kantord/SeaGOAT/commit/be9c046fa562ed875a066282be46bd8e384cb3fe))
+
+
+## v0.35.4 (2023-10-07)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.330 (#299)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`f48405f`](https://github.com/kantord/SeaGOAT/commit/f48405ffc2a45b235b26e1fb5d72e5846e25e9f7))
+
+### Performance
+
+* perf: speed up initial scan
+
+Speed up initial scan by exiting from the loop early
+if the line already contains more than 3 alphanumerical
+characters. ([`ff0e31e`](https://github.com/kantord/SeaGOAT/commit/ff0e31e1b1a0c116736d75b63baf6b0fafedc07f))
+
+### Test
+
+* test: add tool for timing parts of the code ([`1037051`](https://github.com/kantord/SeaGOAT/commit/10370513f8890f96a01182ecdd327a2fab7a9df8))
+
+
+## v0.35.3 (2023-10-07)
+
+### Performance
+
+* perf: further optimization of result formatting (#298) ([`8cb5574`](https://github.com/kantord/SeaGOAT/commit/8cb5574e41eb987b19e2eb5af5984844f2063df5))
+
+
+## v0.35.2 (2023-10-06)
+
+### Chore
+
+* chore(deps): update dependency pylint to v3.0.1 ([`511f01f`](https://github.com/kantord/SeaGOAT/commit/511f01fd56b49dae55b69d36b0e83a2a206466f4))
+
+* chore(deps): update dependency mkdocs-material to v9.4.4 ([`7d52d54`](https://github.com/kantord/SeaGOAT/commit/7d52d54388b70abd9f722bb33484e258b200deba))
+
+* chore(deps): update dependency pylint to v3 ([`6b7f288`](https://github.com/kantord/SeaGOAT/commit/6b7f288d2ad131f9bebb16e3c326e5034db712de))
+
+* chore(deps): update dependency mkdocs-material to v9.4.3 (#288)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`153a127`](https://github.com/kantord/SeaGOAT/commit/153a127cc532364b84768f740a0ef040c80922ce))
+
+* chore(deps): update dependency ipython to v8.16.1 ([`33a0323`](https://github.com/kantord/SeaGOAT/commit/33a0323aa83fb8d9bcf3974bdd1197146445b5aa))
+
+* chore(deps): update dependency pylint to v2.17.7 ([`947ae04`](https://github.com/kantord/SeaGOAT/commit/947ae0456809cbb493d2c90b3534fd2c803b0815))
+
+* chore(deps): update dependency ipython to v8.16.0 ([`88d471f`](https://github.com/kantord/SeaGOAT/commit/88d471f863a6c7439d0101fde36abf5c10135319))
+
+### Documentation
+
+* docs: document auto formatting ([`6aa4663`](https://github.com/kantord/SeaGOAT/commit/6aa46631dc8420296b1a63b18297cb99db3a3a7a))
+
+* docs: add social image ([`b5756ec`](https://github.com/kantord/SeaGOAT/commit/b5756ec53378bd3310d656ac9925fe9cf5acc54f))
+
+* docs: fix typo in readme
+
+langauges -&gt; languages ([`6a86568`](https://github.com/kantord/SeaGOAT/commit/6a86568ea9e1366d6bf4e41d8dc6bf24c30773c0))
+
+* docs: add note about contribution licensing ([`aff116b`](https://github.com/kantord/SeaGOAT/commit/aff116bee7397466165a9cf31f4689978b321c2f))
+
+* docs: fix typo (#279) ([`a4be2e2`](https://github.com/kantord/SeaGOAT/commit/a4be2e260fb3ae279f868c00fa28e9fa4f8a38f7))
+
+* docs: remove duplicated contributig section (#278) ([`ed0fd5b`](https://github.com/kantord/SeaGOAT/commit/ed0fd5b63c29a98662f2fd8d22c377565dea8d07))
+
+* docs: add CONTRIBUTING.md ([`44ab255`](https://github.com/kantord/SeaGOAT/commit/44ab255369783fb963ea3107e47f67cb49090fd7))
+
+* docs: add contribution info to developer docs (#276) ([`b52b565`](https://github.com/kantord/SeaGOAT/commit/b52b565297b08e8021c03a8eb7846497cf09a2e1))
+
+* docs: add developer documentation ([`0356687`](https://github.com/kantord/SeaGOAT/commit/0356687f2cebd9a14c834d0a11ce9f12f77e60b9))
+
+* docs: add CODE_OF_CONDUCT.md ([`02cd682`](https://github.com/kantord/SeaGOAT/commit/02cd6826a43f5c03caaea1527fa71094fcff6c71))
+
+### Performance
+
+* perf: improve performance for larger repositories
+
+* chore: decrease queue get timeout
+
+* perf: avoid checking for new files too often
+
+* perf: cache regex-based sorting ([`585729e`](https://github.com/kantord/SeaGOAT/commit/585729e667fce63a8bc46eb662b784588680cc16))
+
+### Refactor
+
+* refactor: add type checking to server info logic ([`e042617`](https://github.com/kantord/SeaGOAT/commit/e0426173f947f956838177e76449ace0d43d172e))
+
+### Unknown
+
+* fix : kill the process when stopping server (#284)
+
+Fixes #210
+
+* fix : kill the process when stopping server
+
+* Fix process problem
+
+* Improve test
+
+* Fix format
+
+* Run pre-commit
+
+* Change multiprocessing context in tests
+
+* Add a conditional branch for multiprocessing context ([`26bcee6`](https://github.com/kantord/SeaGOAT/commit/26bcee67f8bc8d7f4757a266110cc99acbc1a9ba))
+
+
 ## v0.35.1 (2023-09-28)
 
 ### Fix

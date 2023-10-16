@@ -14,6 +14,41 @@ from seagoat.utils.config import get_config_values
 MAXIMUM_VECTOR_DISTANCE = 1.5
 
 
+def get_metadata_and_distance_from_chromadb_result(chromadb_results):
+    return (
+        list(
+            zip(
+                chromadb_results["metadatas"][0],
+                chromadb_results["distances"][0],
+            )
+        )
+        if chromadb_results["metadatas"] and chromadb_results["distances"]
+        else None
+    ) or []
+
+
+def format_results(repository, chromadb_results):
+    files = {}
+
+    for metadata, distance in get_metadata_and_distance_from_chromadb_result(
+        chromadb_results
+    ):
+        if distance > MAXIMUM_VECTOR_DISTANCE:
+            break
+        path = str(metadata["path"])
+        line = int(metadata["line"])
+        full_path = Path(repository.path) / path
+
+        if not full_path.exists():
+            continue
+
+        if path not in files:
+            files[path] = Result(path, full_path)
+        files[path].add_line(line, distance)
+
+    return files.values()
+
+
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
     config = get_config_values(Path(repository.path))
@@ -24,7 +59,6 @@ def initialize(repository: Repository):
             anonymized_telemetry=False,
         ),
     )
-
     embedding_function_name = config["server"]["chroma"]["embeddingFunction"]["name"]
     embedding_function_kwargs = config["server"]["chroma"]["embeddingFunction"][
         "arguments"
@@ -41,40 +75,12 @@ def initialize(repository: Repository):
         maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
         n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
 
-        chromadb_results = [
-            chroma_collection.query(
-                query_texts=[query_text],
-                n_results=n_results,
-            )
-        ]
-        metadata_with_distance = (
-            list(
-                zip(
-                    chromadb_results[0]["metadatas"][0],
-                    chromadb_results[0]["distances"][0],
-                )
-            )
-            if chromadb_results[0]["metadatas"] and chromadb_results[0]["distances"]
-            else None
-        ) or []
+        chromadb_results = chroma_collection.query(
+            query_texts=[query_text],
+            n_results=n_results,
+        )
 
-        files = {}
-
-        for metadata, distance in metadata_with_distance:
-            if distance > MAXIMUM_VECTOR_DISTANCE:
-                break
-            path = str(metadata["path"])
-            line = int(metadata["line"])
-            full_path = Path(repository.path) / path
-
-            if not full_path.exists():
-                continue
-
-            if path not in files:
-                files[path] = Result(path, full_path)
-            files[path].add_line(line, distance)
-
-        return files.values()
+        return format_results(repository, chromadb_results)
 
     def cache_chunk(chunk):
         try:
@@ -86,7 +92,12 @@ def initialize(repository: Repository):
         except IDAlreadyExistsError:
             pass
 
+    def cache_repo():
+        # chromadb does not need any repo cache action
+        pass
+
     return {
         "fetch": fetch,
         "cache_chunk": cache_chunk,
+        "cache_repo": cache_repo,
     }

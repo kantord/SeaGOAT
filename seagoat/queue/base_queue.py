@@ -73,7 +73,7 @@ class BaseQueue:
 
         while True:
             try:
-                task = self._task_queue.get(timeout=1)
+                task = self._task_queue.get(timeout=0.1)
                 if task.name == "shutdown":
                     break
                 self._handle_task(context, task)

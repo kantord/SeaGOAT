@@ -1,12 +1,16 @@
 # pylint: disable=import-outside-toplevel
 import logging
 import math
+import time
 
 import orjson
 
 from seagoat import __version__
 from seagoat.queue.base_queue import BaseQueue
 from seagoat.queue.base_queue import LOW_PRIORITY
+
+
+SECONDS_BETWEEN_MAINTENANCE = 10
 
 
 def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
@@ -40,9 +44,18 @@ class TaskQueue(BaseQueue):
 
         seagoat_engine = Engine(self.kwargs["repo_path"])
         context["seagoat_engine"] = seagoat_engine
+        context["last_maintenance"] = None
         return context
 
     def handle_maintenance(self, context):
+        if (
+            context["last_maintenance"] is not None
+            and time.time() - context["last_maintenance"] < SECONDS_BETWEEN_MAINTENANCE
+        ):
+            return
+
+        context["last_maintenance"] = time.time()
+
         if self._task_queue.qsize() > 0:
             return
 
@@ -81,13 +94,16 @@ class TaskQueue(BaseQueue):
             context_below=int(kwargs["context_below"]),
         )
         results = context["seagoat_engine"].get_results(kwargs["limit_clue"])
+        formatted_results = [result.to_json(kwargs["query"]) for result in results]
 
-        return orjson.dumps(
+        serialized_results = orjson.dumps(
             {
-                "results": [result.to_json(kwargs["query"]) for result in results],
+                "results": formatted_results,
                 "version": __version__,
             }
         )
+
+        return serialized_results
 
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
