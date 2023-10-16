@@ -2,6 +2,23 @@ import json
 from pathlib import Path
 
 
+def get_list_of_test_runs() -> list:
+    script_dir = Path(__file__).parent
+    root = script_dir / "examples"
+
+    test_runs = set()
+
+    for child in root.iterdir():
+        if child.is_dir():
+            results_dir = child / "results"
+            if results_dir.exists():
+                for run_name in results_dir.iterdir():
+                    if run_name.is_dir():
+                        test_runs.add(run_name.name)
+
+    return sorted(list(test_runs))
+
+
 def evaluate_results(file_contents, example):
     lines = file_contents.split("\n")
 
@@ -21,9 +38,10 @@ def evaluate_results(file_contents, example):
     return None
 
 
-def load_results():
-    examples_path = Path(__file__).parent / "examples"
-    subfolders = [f for f in examples_path.iterdir() if f.is_dir()]
+def create_result_summary(test_run):
+    subfolders = [
+        f for f in (Path(__file__).parent / "examples").iterdir() if f.is_dir()
+    ]
     results = []
 
     for subfolder in subfolders:
@@ -36,7 +54,7 @@ def load_results():
             for index, query in enumerate(queries):
                 query_results = {}
                 for result_type in ["random", "seagoat"]:
-                    query_results_folder = subfolder / "results" / str(index)
+                    query_results_folder = subfolder / "results" / test_run / str(index)
                     result_type_results_file = (
                         query_results_folder / f"{result_type}.txt"
                     )
@@ -61,6 +79,10 @@ def load_results():
             )
 
     return results
+
+
+def load_results(test_run):
+    return create_result_summary(test_run)
 
 
 def get_percentage_of_queries_with_correct_results(results, engine):
