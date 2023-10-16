@@ -1,10 +1,9 @@
 from pathlib import Path
 
 import chromadb
-import onnxruntime
 from chromadb.config import Settings
 from chromadb.errors import IDAlreadyExistsError
-from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
+from chromadb.utils import embedding_functions
 
 from seagoat.cache import Cache
 from seagoat.repository import Repository
@@ -18,7 +17,6 @@ MAXIMUM_VECTOR_DISTANCE = 1.5
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
     config = get_config_values(Path(repository.path))
-    provider = config["client"]["provider"]
 
     chroma_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
@@ -27,14 +25,16 @@ def initialize(repository: Repository):
         ),
     )
 
-    # Check that the user defined provider is in the list of ONNX execution providers
-    if provider is not None and provider in onnxruntime.get_all_providers():
-        chroma_collection = chroma_client.get_or_create_collection(
-            name="code_data",
-            embedding_function=ONNXMiniLM_L6_V2(preferred_providers=[provider]),
-        )
-    else:
-        chroma_collection = chroma_client.get_or_create_collection(name="code_data")
+    embedding_function_name = config["server"]["chroma"]["embeddingFunction"]["name"]
+    embedding_function_kwargs = config["server"]["chroma"]["embeddingFunction"][
+        "arguments"
+    ]
+    embedding_function = getattr(embedding_functions, embedding_function_name)(
+        **embedding_function_kwargs
+    )
+    chroma_collection = chroma_client.get_or_create_collection(
+        name="code_data", embedding_function=embedding_function
+    )
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later

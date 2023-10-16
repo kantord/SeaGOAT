@@ -374,7 +374,14 @@ async def test_custom_ignore_patterns(repo, create_config_file):
 async def test_user_defined_execution_provider(repo, create_config_file):
     create_config_file(
         {
-            "client": {"provider": "CPUExecutionProvider"},
+            "server": {
+                "chroma": {
+                    "embeddingFunction": {
+                        "name": "ONNXMiniLM_L6_V2",
+                        "arguments": {"preferred_providers": ["CPUExecutionProvider"]},
+                    },
+                }
+            }
         }
     )
     seagoat = Engine(repo.working_dir)
