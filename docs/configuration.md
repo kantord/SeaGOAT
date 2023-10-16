@@ -52,6 +52,13 @@ files ignored by `.gitignore` are already ignored. You probably should not
 need to configure this value. It is only useful if there are some files that
 you wish to keep in git, but you wish to hide from from SeaGOAT.
 [Learn more about globs](https://en.wikipedia.org/wiki/Glob_(programming))
+* `chroma`: Configurations for the ChromaDB based features.
+  Has the following attributes:
+  * `embeddingFunction`:
+    * `name`: Name of the embedding function to use.
+    See [ChromaDB's docs for more](https://docs.trychroma.com/embeddings)
+    * `arguments`: Arguments to pass to the embedding function.
+    For example, use `preferred_providers` to control the execution provider
 
 ### Client
 

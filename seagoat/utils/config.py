@@ -10,8 +10,19 @@ from deepmerge import always_merger
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 
 DEFAULT_CONFIG = {
-    "server": {"port": None, "ignorePatterns": []},
-    "client": {"host": None},
+    "server": {
+        "port": None,
+        "ignorePatterns": [],
+        "chroma": {
+            "embeddingFunction": {
+                "name": "DefaultEmbeddingFunction",
+                "arguments": {},
+            },
+        },
+    },
+    "client": {
+        "host": None,
+    },
 }
 
 CONFIG_SCHEMA = {
@@ -25,12 +36,28 @@ CONFIG_SCHEMA = {
             "properties": {
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
                 "ignorePatterns": {"type": "array", "items": {"type": "string"}},
+                "chroma": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "embeddingFunction": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "properties": {
+                                "name": {"type": "string"},
+                                "arguments": {"type": "object"},
+                            },
+                        },
+                    },
+                },
             },
         },
         "client": {
             "type": "object",
             "additionalProperties": False,
-            "properties": {"host": {"type": "string"}},
+            "properties": {
+                "host": {"type": "string"},
+            },
         },
     },
 }

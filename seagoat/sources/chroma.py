@@ -3,10 +3,12 @@ from pathlib import Path
 import chromadb
 from chromadb.config import Settings
 from chromadb.errors import IDAlreadyExistsError
+from chromadb.utils import embedding_functions
 
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
+from seagoat.utils.config import get_config_values
 
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
@@ -49,6 +51,7 @@ def format_results(repository, chromadb_results):
 
 def initialize(repository: Repository):
     cache = Cache("chroma", Path(repository.path), {})
+    config = get_config_values(Path(repository.path))
 
     chroma_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
@@ -56,7 +59,16 @@ def initialize(repository: Repository):
             anonymized_telemetry=False,
         ),
     )
-    chroma_collection = chroma_client.get_or_create_collection(name="code_data")
+    embedding_function_name = config["server"]["chroma"]["embeddingFunction"]["name"]
+    embedding_function_kwargs = config["server"]["chroma"]["embeddingFunction"][
+        "arguments"
+    ]
+    embedding_function = getattr(embedding_functions, embedding_function_name)(
+        **embedding_function_kwargs
+    )
+    chroma_collection = chroma_client.get_or_create_collection(
+        name="code_data", embedding_function=embedding_function
+    )
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
