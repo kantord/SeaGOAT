@@ -2,6 +2,70 @@
 
 
 
+## v0.36.0 (2023-10-16)
+
+### Chore
+
+* chore(deps): update dependency psutil to v5.9.6 ([`72bf680`](https://github.com/kantord/SeaGOAT/commit/72bf68013527fd8aa151816125ce1ff0c9bddf29))
+
+* chore(deps): update dependency mkdocs-material to v9.4.6 ([`d69a831`](https://github.com/kantord/SeaGOAT/commit/d69a831fa2fb60bd9baf50b7afcf03ae8f0f45bc))
+
+* chore(deps): update dependency pre-commit to v3.5.0 ([`795ce28`](https://github.com/kantord/SeaGOAT/commit/795ce28f3fe2cb8c71bc2df6e74d03f59b4364f9))
+
+* chore(deps): update dependency python-semantic-release to v8.1.2 ([`bc160b5`](https://github.com/kantord/SeaGOAT/commit/bc160b519f7c2cd57699acb047bbe3e4ff3732ca))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.1.2 ([`c21b3ff`](https://github.com/kantord/SeaGOAT/commit/c21b3ffd2440913f24dee53090eca3f5495f7a61))
+
+### Feature
+
+* feat: allow users to customize the embedding function in chroma (#295)
+
+* init implementation testing OpenVINO ONNX execution provider
+
+* testing config value passing
+
+* Updated schema
+
+* fixed the schema
+
+* fixed json error
+
+* fixed typo
+
+* check if provider is set if it is pass the config value to the embedding function
+
+* fixed typo
+
+* check that provider is in onnx list of providers
+
+* fixed typo
+
+* check if provide provider exists
+
+* Test for user defined ONNX execution provider; Removed print statements;
+
+* linting
+
+* Removed instance variable to make CI/CD happy
+
+* Move to developer dependency
+
+* Load config in the chroma file, load test properly
+
+* feat: simplify config structure
+
+* docs: document embedding function configuration
+
+* removed dev dep
+
+* chore: fix lockfile
+
+---------
+
+Co-authored-by: Ashish Datta &lt;ashishdatta@Ashishs-MacBook-Air.local&gt;
+Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`fe2dfc8`](https://github.com/kantord/SeaGOAT/commit/fe2dfc83fa49b95c37b33cbe8023449a03fa8c79))
+
+
 ## v0.35.9 (2023-10-13)
 
 ### Chore
