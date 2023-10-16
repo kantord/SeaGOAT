@@ -58,7 +58,17 @@ you wish to keep in git, but you wish to hide from from SeaGOAT.
     * `name`: Name of the embedding function to use.
     See [ChromaDB's docs for more](https://docs.trychroma.com/embeddings)
     * `arguments`: Arguments to pass to the embedding function.
-    For example, use `preferred_providers` to control the execution provider
+    * Example if you wanted to use the `ONNXMiniLM_L6_V2` embedding model with TensorRT
+
+      ```yaml
+      server:
+      ...
+      chroma:
+        embedding_function:
+          "name": "ONNXMiniLM_L6_V2"
+          "arguments":
+            "preferred_providers": ["TensorrtExeuctionProvider"]
+      ```
 
 ### Client
 
