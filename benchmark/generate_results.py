@@ -6,17 +6,17 @@ from pathlib import Path
 import click
 
 
-def generate_random_results(repo_dir, _):
+def generate_random_results(repo_dir, _, __):
     command = r"""git grep -n --full-name '' -- '*\.rs' '*\.go' '*\.cpp' '*\.c' '*\.h' '*\.ts' '*\.js' '*\.jsx' '*\.tsx' '*\.py' | shuf -n 500"""
 
     results = subprocess.check_output(command, shell=True, text=True, cwd=repo_dir)
     return results
 
 
-def generate_seagoat_results(repo_dir, query_text):
+def generate_seagoat_results(repo_dir, query_text, seagoat_args):
     query_text = query_text.replace("'", "'\\''")
     return subprocess.check_output(
-        f"gt --no-color '{query_text}' {repo_dir}", shell=True
+        f"gt --no-color {seagoat_args} '{query_text}' {repo_dir}", shell=True
     ).decode("utf-8")
 
 
@@ -26,7 +26,7 @@ RESULT_TYPE_FUNCTIONS = {
 }
 
 
-def process_example(example, examples_path, repo_folder, test_run_name):
+def process_example(example, examples_path, repo_folder, test_run_name, seagoat_args):
     example_description = f"{example['repo']['name']}:{example['targetCode']['path']}:{example['targetCode']['lineNumber']}"
     click.echo(f"Processing {example_description}")
 
@@ -43,7 +43,9 @@ def process_example(example, examples_path, repo_folder, test_run_name):
                 continue
 
             with open(result_type_results_file, "w", encoding="utf-8") as output_file:
-                output_file.write(result_type_function(repo_folder, query))
+                output_file.write(
+                    result_type_function(repo_folder, query, seagoat_args)
+                )
 
 
 @click.command()
@@ -51,7 +53,10 @@ def process_example(example, examples_path, repo_folder, test_run_name):
 @click.argument(
     "repositories_path", type=click.Path(exists=True, dir_okay=True, file_okay=False)
 )
-def generate_results(test_run_name, repositories_path):
+@click.option(
+    "--seagoat-args", default="", type=str, help="Extra arguments to pass to SeaGOAT"
+)
+def generate_results(test_run_name, repositories_path, seagoat_args):
     examples_path = Path(__file__).parent / "examples"
 
     if not examples_path.exists():
@@ -70,7 +75,9 @@ def generate_results(test_run_name, repositories_path):
         repo_folder = Path(repositories_path) / repo_name
         click.echo(repo_folder)
         for example in examples:
-            process_example(example, examples_path, repo_folder, test_run_name)
+            process_example(
+                example, examples_path, repo_folder, test_run_name, seagoat_args
+            )
 
 
 if __name__ == "__main__":
