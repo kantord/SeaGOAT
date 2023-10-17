@@ -16,5 +16,6 @@
         "stopContainer test file with fake implementation of sequelize.close",
         "test cases for stopContainer function",
         "test file analyzing stopContainer function in Gladys server"
-    ]
+    ],
+    "qualityScore": 81
 }

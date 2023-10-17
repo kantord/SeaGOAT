@@ -16,5 +16,6 @@
         "code that updates the battery value of the Xiaomi Magnet Sensor device and the state of the magnet",
         "function for processing new value from Xiaomi Magnet Sensor device",
         "module for integrating and managing Xiaomi Magnet Sensors"
-    ]
+    ],
+    "qualityScore": 89
 }

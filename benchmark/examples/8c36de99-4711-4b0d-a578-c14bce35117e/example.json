@@ -16,5 +16,6 @@
         "file responsible for displaying form in Gladys settings",
         "form component in Gladys settings that conditionally renders Profile component with attributes editingOtherUser=true and language=en",
         "set editingOtherUser attribute to true in Profile component"
-    ]
+    ],
+    "qualityScore": 60
 }

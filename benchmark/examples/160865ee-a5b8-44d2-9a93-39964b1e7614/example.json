@@ -16,5 +16,6 @@
         "request queuing and processing when session is not ready",
         "triggers an event and executes queued API request functions",
         "uses pLimit package to initialize a request limiter"
-    ]
+    ],
+    "qualityScore": 56
 }

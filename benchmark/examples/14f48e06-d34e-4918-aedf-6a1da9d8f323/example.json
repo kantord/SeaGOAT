@@ -16,5 +16,6 @@
         "test cases for surcharges in checkout process that verify expected values",
         "test cases for surcharges in checkout with different scenarios",
         "tests for surcharges in checkout process"
-    ]
+    ],
+    "qualityScore": 48
 }

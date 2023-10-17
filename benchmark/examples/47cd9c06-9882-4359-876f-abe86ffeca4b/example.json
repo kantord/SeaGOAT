@@ -16,5 +16,6 @@
         "file for managing CORS requests in API server",
         "file responsible for Cross-Origin Resource Sharing in API server middleware stack",
         "middleware to handle CORS requests"
-    ]
+    ],
+    "qualityScore": 81
 }

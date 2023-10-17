@@ -16,5 +16,6 @@
         "file that defines and registers model classes for communication in Django-Oscar e-commerce framework",
         "implementation code in Django-Oscar for email communication",
         "implementation file for communication model classes in Django-Oscar e-commerce framework"
-    ]
+    ],
+    "qualityScore": 50
 }

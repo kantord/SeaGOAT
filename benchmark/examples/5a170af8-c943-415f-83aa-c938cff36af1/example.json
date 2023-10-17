@@ -16,5 +16,6 @@
         "test cases for PhoneNumberMixin",
         "tests for required and optional phone number fields with different input scenarios",
         "validation of phone number fields"
-    ]
+    ],
+    "qualityScore": 51
 }

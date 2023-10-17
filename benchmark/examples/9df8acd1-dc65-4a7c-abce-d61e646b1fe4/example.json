@@ -16,5 +16,6 @@
         "test file for object utility functions",
         "utilize Chai library to validate expected outcomes",
         "verify behavior of areObjectsEqual function"
-    ]
+    ],
+    "qualityScore": 58
 }

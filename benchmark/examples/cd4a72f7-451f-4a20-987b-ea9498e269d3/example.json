@@ -17,5 +17,6 @@
         "code to validate thank you page in Django-Oscar checkout process",
         "test code for Django-Oscar checkout process views",
         "test file for Django-Oscar checkout process functionality"
-    ]
+    ],
+    "qualityScore": 78
 }

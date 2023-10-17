@@ -16,5 +16,6 @@
         "implementation for adding a selector to an object property in javascript",
         "javascript file that adds a selector to an object using a unique identifier",
         "transform the value of an object property to meet a specific format"
-    ]
+    ],
+    "qualityScore": 85
 }

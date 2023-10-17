@@ -16,5 +16,6 @@
         "file responsible for managing product attributes in Django-Oscar e-commerce framework",
         "method for setting attribute values in Django-Oscar",
         "property indicating whether ProductAttributesContainer instance is initialized in Django-Oscar"
-    ]
+    ],
+    "qualityScore": 90
 }

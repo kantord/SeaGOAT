@@ -16,5 +16,6 @@
         "sets the initial values of input fields based on the user's preferences",
         "updates the input fields for a device based on user interaction",
         "usage of HTML input elements to create input fields for the device name and external ID in a specific platform"
-    ]
+    ],
+    "qualityScore": 85
 }

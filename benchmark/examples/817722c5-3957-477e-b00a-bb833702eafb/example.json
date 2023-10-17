@@ -16,5 +16,6 @@
         "file responsible for executing database migration for wishlists module in django-oscar project",
         "find code line for database migration of wishlists module in django-oscar project",
         "script to migrate database schema for wishlists module in django-oscar project"
-    ]
+    ],
+    "qualityScore": 83
 }

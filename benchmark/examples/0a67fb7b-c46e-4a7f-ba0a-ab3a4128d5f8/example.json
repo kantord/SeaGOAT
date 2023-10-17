@@ -16,5 +16,6 @@
         "initialize CheckoutSessionData instance with SessionMiddleware",
         "test class that creates mock request object and initializes CheckoutSessionData",
         "test class with setup method and CheckoutSessionData"
-    ]
+    ],
+    "qualityScore": 60
 }

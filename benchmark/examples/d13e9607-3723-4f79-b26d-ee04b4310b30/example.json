@@ -17,5 +17,6 @@
         "modify database schema ProductAttributeValue model catalogue app Oscar project",
         "modify foreign key relationship option_group field ProductAttribute model",
         "modify foreign key relationship option_group field ProductAttribute model AttributeOptionGroup model"
-    ]
+    ],
+    "qualityScore": 76
 }

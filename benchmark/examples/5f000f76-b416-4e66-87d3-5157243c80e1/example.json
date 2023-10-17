@@ -16,5 +16,6 @@
         "test scenario configuration for the destroy method",
         "unit test implementation for managing users' destroy method",
         "unit test implementation for the destroy method"
-    ]
+    ],
+    "qualityScore": 0
 }

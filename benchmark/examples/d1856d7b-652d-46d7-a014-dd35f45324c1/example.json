@@ -16,5 +16,6 @@
         "generate dynamic URL for integration category view in front-end",
         "handle rendering and user interactions for integration view",
         "implementation to generate dynamic URL for integration category based on current URL and integration type in front-end"
-    ]
+    ],
+    "qualityScore": 91
 }

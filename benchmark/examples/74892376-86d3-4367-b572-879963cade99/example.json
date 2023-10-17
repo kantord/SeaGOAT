@@ -16,5 +16,6 @@
         "Python file for generating test data of offers in Django-Oscar e-commerce project",
         "Python file in Django-Oscar e-commerce project containing factory classes for generating test data of offer functionality",
         "Python test file using Factory Boy to generate test data for offers in Django-Oscar e-commerce project"
-    ]
+    ],
+    "qualityScore": 46
 }

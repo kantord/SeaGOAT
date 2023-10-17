@@ -16,5 +16,6 @@
         "file that assigns view classes to attributes of RangesDashboardConfig class in dashboard ranges app of Django Oscar",
         "functionality for creating, updating, and deleting ranges in dashboard app of Django Oscar",
         "purpose of the file handling the configuration of the dashboard ranges app in Django Oscar"
-    ]
+    ],
+    "qualityScore": 73
 }

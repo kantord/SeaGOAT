@@ -16,5 +16,6 @@
         "implementation to calculate and return average humidity based on humidity sensor readings in a room",
         "query database for humidity sensor data and calculate average humidity",
         "retrieve relevant humidity sensor data and compute average value"
-    ]
+    ],
+    "qualityScore": 81
 }

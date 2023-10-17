@@ -16,5 +16,6 @@
         "function to validate translations for front-end CLI in Gladys codebase",
         "implementation code in Gladys codebase for validating translations in front-end CLI",
         "validation process for front-end CLI translations in Gladys codebase"
-    ]
+    ],
+    "qualityScore": 83
 }

@@ -16,5 +16,6 @@
         "test cases validating system shut down",
         "test suite for system shutdown process",
         "testing code for system shutdown"
-    ]
+    ],
+    "qualityScore": 53
 }

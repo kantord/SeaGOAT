@@ -16,5 +16,6 @@
         "django-oscar module test file",
         "python code file in django-oscar for generating CSV reports in offers module",
         "python file with two methods for generating CSV reports in offers module in django-oscar"
-    ]
+    ],
+    "qualityScore": 73
 }

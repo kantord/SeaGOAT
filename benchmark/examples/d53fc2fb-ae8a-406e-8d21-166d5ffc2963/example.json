@@ -16,5 +16,6 @@
         "function that initializes object with parameters for area chart configuration in Gladys project",
         "purpose of the file that configures area charts in Gladys project and its function implementation with y-axis label padding",
         "specific line of code that sets 4px padding for y-axis labels in area chart configuration in Gladys project"
-    ]
+    ],
+    "qualityScore": 65
 }

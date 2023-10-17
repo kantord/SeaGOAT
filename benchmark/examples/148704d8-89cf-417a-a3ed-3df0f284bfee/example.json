@@ -16,5 +16,6 @@
         "How to add a ManyToManyField 'value_multi_option' with related name 'multi_valued_attribute_values' in a migration script for the 'catalogue' app in the 'oscar' project?",
         "django migration for ProductAttributeValue model",
         "migration script for catalogue app in oscar project"
-    ]
+    ],
+    "qualityScore": 56
 }

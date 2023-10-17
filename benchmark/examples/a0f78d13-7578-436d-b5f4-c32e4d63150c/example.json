@@ -16,5 +16,6 @@
         "populating the 't_area' table with predefined area data",
         "script aids in populating the 't_area' table with a sample area record for testing purposes",
         "script for migrating the database"
-    ]
+    ],
+    "qualityScore": 86
 }

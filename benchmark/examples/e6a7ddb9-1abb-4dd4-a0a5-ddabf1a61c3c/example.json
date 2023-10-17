@@ -16,5 +16,6 @@
         "packages specified in the file, including Django, pillow, and django-haystack",
         "role of the file in managing project requirements and package installation",
         "specific version range for psycopg2-binary package"
-    ]
+    ],
+    "qualityScore": 85
 }

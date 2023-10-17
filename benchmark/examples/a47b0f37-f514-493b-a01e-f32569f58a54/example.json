@@ -16,5 +16,6 @@
         "Method in the second class of the SQLite database backend module that generates SQL statements",
         "Method in the second class of the SQLite database backend module that invokes a parent class with a SQLite-specific template",
         "Python module for creating and managing catalogs"
-    ]
+    ],
+    "qualityScore": 0
 }

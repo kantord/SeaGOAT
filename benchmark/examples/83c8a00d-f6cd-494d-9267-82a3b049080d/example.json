@@ -16,5 +16,6 @@
         "code that displays component for selecting trigger type in scene editing in Gladys project",
         "code that renders dropdown select for selecting trigger type in Gladys project",
         "code to select trigger type for scene editing in Gladys project"
-    ]
+    ],
+    "qualityScore": 58
 }

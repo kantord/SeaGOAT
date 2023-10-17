@@ -16,5 +16,6 @@
         "thoroughly test MELCloudService module that interacts with melcloud service",
         "utilize testing framework's beforeEach hook to reset sinon stubs and spies",
         "validate functionality of melcloud service test file"
-    ]
+    ],
+    "qualityScore": 73
 }

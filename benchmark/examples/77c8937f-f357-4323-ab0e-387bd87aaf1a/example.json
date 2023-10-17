@@ -16,5 +16,6 @@
         "Function to send IR codes using Broadlink device",
         "Gladys project control devices infrared codes",
         "Main function to build features for remote control using Broadlink devices"
-    ]
+    ],
+    "qualityScore": 80
 }

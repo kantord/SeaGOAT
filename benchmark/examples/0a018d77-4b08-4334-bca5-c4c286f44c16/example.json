@@ -16,5 +16,6 @@
         "Render user interface for Discover MQTT tab in Tasmota integration",
         "UI functionality for discovering MQTT devices in Tasmota integration of Gladys",
         "What is the purpose of the file responsible for providing UI functionality for discovering MQTT devices in the Tasmota integration of Gladys?"
-    ]
+    ],
+    "qualityScore": 0
 }

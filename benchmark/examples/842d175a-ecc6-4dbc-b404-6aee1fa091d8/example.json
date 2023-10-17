@@ -16,5 +16,6 @@
         "JavaScript file for rendering device page in BroadLink integration",
         "JavaScript file that contains a class component implemented using the Preact library for rendering the device page in the context of BroadLink integration",
         "Preact class component for rendering device page in BroadLink integration"
-    ]
+    ],
+    "qualityScore": 83
 }

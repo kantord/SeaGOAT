@@ -16,5 +16,6 @@
         "upload camera files to gateway test",
         "usage of sendCameraFileToGateway unit test in gladysGatewayClient",
         "validate successful camera file upload to gateway"
-    ]
+    ],
+    "qualityScore": 61
 }

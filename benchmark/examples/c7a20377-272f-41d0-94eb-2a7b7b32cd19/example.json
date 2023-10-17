@@ -16,5 +16,6 @@
         "file defining table class for dashboard app in django-oscar project",
         "implementation file for DashboardTable class in django-oscar project's dashboard app",
         "method overriding default behavior of Table class"
-    ]
+    ],
+    "qualityScore": 83
 }

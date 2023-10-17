@@ -16,5 +16,6 @@
         "file that declares urlpatterns list for URL configurations and patterns code",
         "file that defines URL patterns for specific views related to 'band' entity code",
         "file that includes URL patterns in dashboard namespace using include function code"
-    ]
+    ],
+    "qualityScore": 78
 }

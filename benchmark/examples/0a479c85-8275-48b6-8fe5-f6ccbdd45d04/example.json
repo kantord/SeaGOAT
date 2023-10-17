@@ -16,5 +16,6 @@
         "file testing partner models Django-Oscar with automated integration testing functionality",
         "test code validating partner-related features generating test data",
         "test code verifying partner models accuracy and dependability Django-Oscar"
-    ]
+    ],
+    "qualityScore": 70
 }

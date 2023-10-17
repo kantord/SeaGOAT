@@ -16,5 +16,6 @@
         "file that syncs calendar events",
         "handles starting and stopping of Caldav service",
         "service for calendav protocol"
-    ]
+    ],
+    "qualityScore": 53
 }

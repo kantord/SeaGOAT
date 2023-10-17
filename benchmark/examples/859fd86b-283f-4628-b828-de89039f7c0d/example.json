@@ -16,5 +16,6 @@
         "python script used in Django Oscar catalog app for migrating and updating category slugs in the database",
         "script for migrating data in the database for updating category slugs in Django Oscar catalog app",
         "script for migrating data in the database in Django Oscar catalog app"
-    ]
+    ],
+    "qualityScore": 20
 }

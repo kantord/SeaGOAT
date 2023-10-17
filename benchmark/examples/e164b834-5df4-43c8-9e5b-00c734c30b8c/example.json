@@ -16,5 +16,6 @@
         "maps and exposes features within Zigbee2mqtt service",
         "part of a larger codebase where the Zigbee2mqtt service is used to connect and control Zigbee devices",
         "returns the corresponding Gladys feature or `undefined` given device name, expose values, and parent type"
-    ]
+    ],
+    "qualityScore": 56
 }

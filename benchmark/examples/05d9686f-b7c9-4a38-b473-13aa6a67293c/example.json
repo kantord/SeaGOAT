@@ -16,5 +16,6 @@
         "JavaScript file for rendering search form component for Tasmota integrations",
         "Logic to handle inputs and state of search form component for Tasmota integrations",
         "Search form component for finding Tasmota integrations via HTTP"
-    ]
+    ],
+    "qualityScore": 81
 }

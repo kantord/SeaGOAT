@@ -16,5 +16,6 @@
         "function for setting image on camera device with validation and command sending",
         "function to configure camera device image",
         "image configuration for camera device"
-    ]
+    ],
+    "qualityScore": 84
 }

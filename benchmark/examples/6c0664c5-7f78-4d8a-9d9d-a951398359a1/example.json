@@ -16,5 +16,6 @@
         "django-oscar partner app implementation file import and registration of abstract models",
         "django-oscar partner app implementation file models imports",
         "django-oscar partner app implementation file models not registered add to __all__ list"
-    ]
+    ],
+    "qualityScore": 80
 }

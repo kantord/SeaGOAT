@@ -16,5 +16,6 @@
         "project setup file",
         "python setup.py",
         "setup.py file purpose and usage"
-    ]
+    ],
+    "qualityScore": 80
 }

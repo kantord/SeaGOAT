@@ -16,5 +16,6 @@
         "Function to create categories based on a sequence of names",
         "Python module for handling category management in an e-commerce website",
         "Python module for managing categories"
-    ]
+    ],
+    "qualityScore": 81
 }

@@ -16,5 +16,6 @@
         "Implementation code file in django-oscar templatetags folder for manipulating and displaying category information with depth and browsable filters in templates",
         "Method to retrieve category tree with maximum depth and browsing filter in django-oscar",
         "Retrieve category tree using Category model method"
-    ]
+    ],
+    "qualityScore": 78
 }

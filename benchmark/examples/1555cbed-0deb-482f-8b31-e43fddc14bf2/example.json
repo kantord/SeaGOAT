@@ -16,5 +16,6 @@
         "module in melcloud services in server for establishing connection with devices using properties and awaiting result",
         "module in melcloud services in server with initialization function that sets up service with properties and connects to devices asynchronously",
         "module responsible for initializing MelCloud service"
-    ]
+    ],
+    "qualityScore": 81
 }

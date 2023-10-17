@@ -16,5 +16,6 @@
         "parsing function correctness verification",
         "service parsing function test suite",
         "testing framework test case definition"
-    ]
+    ],
+    "qualityScore": 85
 }

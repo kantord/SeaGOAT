@@ -16,5 +16,6 @@
         "File used in Gladys frontend signup process to manage steps for creating Gladys gateway account with restore key",
         "Implementation of creating Gladys gateway account with restore key",
         "Set restore key for Gladys gateway account"
-    ]
+    ],
+    "qualityScore": 80
 }

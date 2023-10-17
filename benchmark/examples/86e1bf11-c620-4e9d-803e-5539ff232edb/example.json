@@ -16,5 +16,6 @@
         "migrations framework for altering field in partner model of django-oscar",
         "parameters to set properties for alterfield in partner model of django-oscar",
         "python script for overseeing migration of partner app in django-oscar"
-    ]
+    ],
+    "qualityScore": 85
 }

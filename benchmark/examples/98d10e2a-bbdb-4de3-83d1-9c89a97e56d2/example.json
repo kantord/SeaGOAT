@@ -16,5 +16,6 @@
         "function to restart container in Gladys server system",
         "function to restart specific container in Gladys server system with Promise implementation",
         "restart container in Gladys server system"
-    ]
+    ],
+    "qualityScore": 55
 }

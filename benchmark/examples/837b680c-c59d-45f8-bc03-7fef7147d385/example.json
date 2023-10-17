@@ -16,5 +16,6 @@
         "Python code for SingleProductSelection and MultipleProductSelection classes in Django e-commerce project",
         "Python code implementing custom widgets for catalogue dashboard in django-oscar project",
         "Python code overriding attributes and modifying HTML class for product selection widgets in Django e-commerce project"
-    ]
+    ],
+    "qualityScore": 62
 }

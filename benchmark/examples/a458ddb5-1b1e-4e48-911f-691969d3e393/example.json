@@ -16,5 +16,6 @@
         "simulate user interactions with customer profile in Django-Oscar",
         "test cases for handling basket maximum thresholds in customer profile",
         "test cases for simulating user interactions with customer profile, including updating profile information and reordering previous orders"
-    ]
+    ],
+    "qualityScore": 71
 }

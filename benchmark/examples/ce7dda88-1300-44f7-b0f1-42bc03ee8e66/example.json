@@ -16,5 +16,6 @@
         "Python code for handling surcharges in Django-Oscar",
         "Python file in Django-Oscar for surcharge handling and calculation",
         "Python file in Django-Oscar project with SurchargeList class and computed property for calculating total surcharge"
-    ]
+    ],
+    "qualityScore": 78
 }

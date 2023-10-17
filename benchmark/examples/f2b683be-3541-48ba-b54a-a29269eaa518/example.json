@@ -16,5 +16,6 @@
         "code file for handling and manipulating database queries and operations related to the catalog in Django Oscar",
         "code file in Django Oscar for efficiently handling attribute-based product filtering and query performance optimization",
         "concrete implementation code for managing database operations in Django Oscar"
-    ]
+    ],
+    "qualityScore": 85
 }

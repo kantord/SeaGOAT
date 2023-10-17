@@ -16,5 +16,6 @@
         "Django-Oscar e-commerce project",
         "Python code defining configuration, views, and URLs for reports dashboard in Django-Oscar",
         "Python code for reports dashboard configuration"
-    ]
+    ],
+    "qualityScore": 48
 }

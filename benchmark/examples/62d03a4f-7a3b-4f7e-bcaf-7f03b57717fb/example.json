@@ -17,5 +17,6 @@
         "function that receives a house object and saves it in the application's database",
         "function to persistently store a new house in the database",
         "module to save the details of a new house in the Gladys application"
-    ]
+    ],
+    "qualityScore": 55
 }

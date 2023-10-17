@@ -16,5 +16,6 @@
         "How to migrate a Django Oscar project",
         "What are the implementation details for managing communication events, emails, and notifications in the script file of a Django Oscar project",
         "What is the purpose of the script file in Django Oscar to define models for communication events, emails, and notifications"
-    ]
+    ],
+    "qualityScore": 60
 }

@@ -16,5 +16,6 @@
         "module for interacting with stored scene data",
         "retrieve scene by selector",
         "specific implementation code file for retrieving scenes from the database based on a provided selector"
-    ]
+    ],
+    "qualityScore": 56
 }

@@ -16,5 +16,6 @@
         "user management feature",
         "user profile and form for creating new users",
         "utilized within the settings area of Gladys to present the user profile and a form for creating new users"
-    ]
+    ],
+    "qualityScore": 88
 }

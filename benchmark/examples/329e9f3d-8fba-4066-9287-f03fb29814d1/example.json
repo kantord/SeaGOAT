@@ -16,5 +16,6 @@
         "code line to process Alexa commands and interact with device features",
         "code line to represent command from Alexa with 'status' property set to 'ACTIONS_STATUS.PENDING'",
         "code line to update values and emit events for triggered actions"
-    ]
+    ],
+    "qualityScore": 20
 }

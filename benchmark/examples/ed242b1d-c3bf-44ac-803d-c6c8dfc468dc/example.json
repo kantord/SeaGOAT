@@ -16,5 +16,6 @@
         "render output with a button and icon for each discovered device",
         "update discovered devices list in real-time and render it on the UI",
         "use preact-i18n library for localization in a React application"
-    ]
+    ],
+    "qualityScore": 58
 }

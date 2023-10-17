@@ -16,5 +16,6 @@
         "mqtt device interaction code for state change",
         "mqtt service function to alter device state",
         "mqtt update device state"
-    ]
+    ],
+    "qualityScore": 55
 }

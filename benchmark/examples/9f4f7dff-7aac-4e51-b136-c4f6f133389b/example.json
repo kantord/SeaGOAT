@@ -16,5 +16,6 @@
         "file used for validating scan functionality",
         "test cases using Mocha to validate LAN manager scan functionality",
         "test file for the LAN manager module scanning functionality using Mocha framework"
-    ]
+    ],
+    "qualityScore": 81
 }

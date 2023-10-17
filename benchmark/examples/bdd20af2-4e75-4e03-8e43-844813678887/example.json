@@ -16,5 +16,6 @@
         "file defining custom navigation component for preact-router",
         "file defining custom programmatic navigation component with preact-router",
         "preact component extending class for route redirection"
-    ]
+    ],
+    "qualityScore": 55
 }

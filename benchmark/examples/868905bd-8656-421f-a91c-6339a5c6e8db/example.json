@@ -16,5 +16,6 @@
         "function that retrieves a collection of matched events based on the filtering conditions",
         "function that searches for the current event in the calendar",
         "implementation of the function to identify the current event in the calendar using Sequelize library"
-    ]
+    ],
+    "qualityScore": 85
 }
