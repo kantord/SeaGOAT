@@ -1,0 +1,20 @@
+{
+    "uuid": "90ff91df-455c-4728-bf44-c372c070538e",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/mqtt/lib/setValue.js",
+        "lineNumber": 15
+    },
+    "queries": [
+        "code line responsible for updating MQTT device states",
+        "function to publish MQTT message for state change in device binary feature",
+        "implementation code in MQTT service for altering device binary feature",
+        "mqtt binary feature update function",
+        "mqtt device interaction code for state change",
+        "mqtt service function to alter device state",
+        "mqtt update device state"
+    ]
+}

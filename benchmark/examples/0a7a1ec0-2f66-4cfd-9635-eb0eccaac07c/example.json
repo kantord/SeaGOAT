@@ -1,0 +1,20 @@
+{
+    "uuid": "0a7a1ec0-2f66-4cfd-9635-eb0eccaac07c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/device/light/light.turnOff.js",
+        "lineNumber": 13
+    },
+    "queries": [
+        "async function for turning off light",
+        "code file for managing state of light device feature",
+        "code file to handle state and deactivation of light device feature",
+        "file that controls deactivation of light feature",
+        "function to deactivate specific device feature",
+        "implementation details of deactivating a specific device feature",
+        "javascript code to turn off light using device manager and event manager"
+    ]
+}

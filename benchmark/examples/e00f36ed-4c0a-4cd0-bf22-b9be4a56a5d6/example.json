@@ -1,0 +1,20 @@
+{
+    "uuid": "e00f36ed-4c0a-4cd0-bf22-b9be4a56a5d6",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/melcloud/index.test.js",
+        "lineNumber": 21
+    },
+    "queries": [
+        "file to test the behavior and correctness of MELCloudService module",
+        "test cases for MELCloudService module",
+        "test code for MELCloudService",
+        "test file for melcloud service",
+        "thoroughly test MELCloudService module that interacts with melcloud service",
+        "utilize testing framework's beforeEach hook to reset sinon stubs and spies",
+        "validate functionality of melcloud service test file"
+    ]
+}

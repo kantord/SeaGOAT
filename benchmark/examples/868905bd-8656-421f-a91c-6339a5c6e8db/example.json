@@ -1,0 +1,20 @@
+{
+    "uuid": "868905bd-8656-421f-a91c-6339a5c6e8db",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/calendar/calendar.findCurrentlyRunningEvent.js",
+        "lineNumber": 66
+    },
+    "queries": [
+        "Sequelize function to find the event matching the given name",
+        "asynchronous function to search and locate the current event in the calendar",
+        "code that establishes filtering conditions based on current time and selected calendars to find the matching event",
+        "function that filters events based on current time and selected calendars",
+        "function that retrieves a collection of matched events based on the filtering conditions",
+        "function that searches for the current event in the calendar",
+        "implementation of the function to identify the current event in the calendar using Sequelize library"
+    ]
+}

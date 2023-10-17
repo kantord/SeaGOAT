@@ -1,0 +1,20 @@
+{
+    "uuid": "cf3d6219-5bf8-493c-8d88-e928a69e2160",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/device/view/DeviceFeatures.jsx",
+        "lineNumber": 17
+    },
+    "queries": [
+        "Component for presenting device functionalities in Gladys project",
+        "How to render device functionalities in Gladys project using a JavaScript file",
+        "Implementation details of the JavaScript file that exports a functional component called DeviceFeatures for rendering device functionalities in the Gladys project",
+        "JavaScript file exporting a functional component named DeviceFeatures for rendering device functionalities",
+        "JavaScript file for displaying device functionality view in Gladys project",
+        "Purpose of the JavaScript file responsible for displaying the view of different functionalities of a device on the front-end in the Gladys project",
+        "Type and usage of the JavaScript file used as a component to present device functionalities in the Gladys project"
+    ]
+}

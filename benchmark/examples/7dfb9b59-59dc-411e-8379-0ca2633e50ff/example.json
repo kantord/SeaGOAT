@@ -1,0 +1,20 @@
+{
+    "uuid": "7dfb9b59-59dc-411e-8379-0ca2633e50ff",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/settings/settings-users/create-user/CreateUserPage.js",
+        "lineNumber": 31
+    },
+    "queries": [
+        "responsible for displaying the user creation page within the settings section of Gladys",
+        "settings section of Gladys",
+        "used exclusively for creating a new user in the user management feature of Gladys",
+        "user creation page",
+        "user management feature",
+        "user profile and form for creating new users",
+        "utilized within the settings area of Gladys to present the user profile and a form for creating new users"
+    ]
+}

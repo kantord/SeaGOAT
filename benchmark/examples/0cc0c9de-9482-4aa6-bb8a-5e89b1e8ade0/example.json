@@ -1,0 +1,20 @@
+{
+    "uuid": "0cc0c9de-9482-4aa6-bb8a-5e89b1e8ade0",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/google-actions/index.test.js",
+        "lineNumber": 6
+    },
+    "queries": [
+        "conduction of unit tests to ensure accuracy of Google Actions service",
+        "file dedicated to tests",
+        "file evaluating Google Actions service through tests",
+        "grouping mechanism using 'describe' function",
+        "test cases targeting Google Actions service functionality",
+        "tests focused on verifying Google Actions service initialization and termination",
+        "unit tests for Google Actions service"
+    ]
+}

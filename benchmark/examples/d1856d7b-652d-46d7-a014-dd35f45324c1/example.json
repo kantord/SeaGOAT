@@ -1,0 +1,20 @@
+{
+    "uuid": "d1856d7b-652d-46d7-a014-dd35f45324c1",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/IntegrationCategory.jsx",
+        "lineNumber": 8
+    },
+    "queries": [
+        "file for dynamic URL generation based on current URL and integration type in front-end",
+        "file that handles rendering and user interactions for a view related to integration category in front-end",
+        "file utilized in Gladys application front-end to generate seamless navigation URLs for integration category",
+        "generate dynamic URL for integration category in front-end",
+        "generate dynamic URL for integration category view in front-end",
+        "handle rendering and user interactions for integration view",
+        "implementation to generate dynamic URL for integration category based on current URL and integration type in front-end"
+    ]
+}

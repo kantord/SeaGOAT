@@ -1,0 +1,20 @@
+{
+    "uuid": "735f2f77-627f-4922-a767-015711dcfd98",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/xiaomi/lib/event/xiaomi.newValueMotionSensor.js",
+        "lineNumber": 18
+    },
+    "queries": [
+        "add a Xiaomi motion sensor to the system and enable features",
+        "emits events related to the battery value, motion detection, no-motion detection, and luminosity status",
+        "file serves as an implementation for handling new values received from a Xiaomi motion sensor in a system",
+        "implementation for handling new values received from a Xiaomi motion sensor",
+        "plays a crucial role in processing and managing the data received from the Xiaomi motion sensors within the larger codebase",
+        "purpose is to add a Xiaomi motion sensor to the system and enable features such as motion detection, battery level monitoring, and luminosity status",
+        "relies on the logger and constants from specific directories within the project"
+    ]
+}

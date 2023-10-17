@@ -1,0 +1,20 @@
+{
+    "uuid": "d53fc2fb-ae8a-406e-8d21-166d5ffc2963",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/chart/ApexChartAreaOptions.js",
+        "lineNumber": 52
+    },
+    "queries": [
+        "code implementation for configuring area charts using ApexCharts library",
+        "file responsible for defining options configuration for area charts using ApexCharts library in Gladys project",
+        "file that exports a function for configuring area charts in Gladys project and sets padding for y-axis labels",
+        "file used in front-end codebase of Gladys project for area chart customization",
+        "function that initializes object with parameters for area chart configuration in Gladys project",
+        "purpose of the file that configures area charts in Gladys project and its function implementation with y-axis label padding",
+        "specific line of code that sets 4px padding for y-axis labels in area chart configuration in Gladys project"
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "uuid": "8f432860-ceb5-4e30-be23-79296e366a07",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/philips-hue/controllers/getBridges.controller.test.js",
+        "lineNumber": 20
+    },
+    "queries": [
+        "async test case for getBridges controller function",
+        "checks if expected bridges are returned by the controller function",
+        "implementation of file includes test case for getBridges controller function",
+        "makes assertions on the result of calling the controller function",
+        "part of testing suite for Philips Hue service",
+        "test file for getBridges controller function",
+        "verifies if bridges are correctly retrieved"
+    ]
+}

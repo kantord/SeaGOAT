@@ -1,0 +1,20 @@
+{
+    "uuid": "db735982-512a-422d-a13b-d37730389d32",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/location/location.get.js",
+        "lineNumber": 46
+    },
+    "queries": [
+        "code implementation to get user's recent locations within a specified time range",
+        "code that queries database to retrieve user locations based on selection and time range",
+        "fetch user location data for a specific time period",
+        "file that retrieves user location data for a specific time period using query criteria",
+        "function that retrieves user locations within specified time range",
+        "implementation to fetch user location information between specified start and end dates",
+        "module exports function to fetch user location data between specified dates"
+    ]
+}

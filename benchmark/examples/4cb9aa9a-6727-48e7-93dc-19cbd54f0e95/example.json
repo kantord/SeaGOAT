@@ -1,0 +1,20 @@
+{
+    "uuid": "4cb9aa9a-6727-48e7-93dc-19cbd54f0e95",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/device/camera/camera.setImage.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "code for configuring camera device image in a server environment",
+        "code for setting image on camera device using base64",
+        "code that handles setting image on camera device with base64 image and camera selector",
+        "function for setting image on camera device",
+        "function for setting image on camera device with validation and command sending",
+        "function to configure camera device image",
+        "image configuration for camera device"
+    ]
+}

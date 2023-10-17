@@ -1,0 +1,20 @@
+{
+    "uuid": "01e367c9-2702-4b9a-ba40-54c8a82d4598",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/mqtt/device-page/DeviceForm.jsx",
+        "lineNumber": 44
+    },
+    "queries": [
+        "component called MqttDeviceForm responsible for rendering and updating the input fields for a device",
+        "component that handles device-related information for a specific platform",
+        "displays the most recent value received from the device in a user-friendly format",
+        "file located within a specific folder hierarchy that handles device-related information in an MQTT integration for a specific platform",
+        "sets the initial values of input fields based on the user's preferences",
+        "updates the input fields for a device based on user interaction",
+        "usage of HTML input elements to create input fields for the device name and external ID in a specific platform"
+    ]
+}

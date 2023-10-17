@@ -1,0 +1,20 @@
+{
+    "uuid": "05d9686f-b7c9-4a38-b473-13aa6a67293c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/tasmota/discover-http/SearchForm.jsx",
+        "lineNumber": 20
+    },
+    "queries": [
+        "Code line for capturing values entered in IP address input fields for Tasmota search form",
+        "Code logic for constructing HTTP request to discover Tasmota integrations by IP address range",
+        "File responsible for searching Tasmota devices by single IP address or range of IP addresses",
+        "Implementation details of JavaScript file for searching Tasmota integrations via HTTP",
+        "JavaScript file for rendering search form component for Tasmota integrations",
+        "Logic to handle inputs and state of search form component for Tasmota integrations",
+        "Search form component for finding Tasmota integrations via HTTP"
+    ]
+}

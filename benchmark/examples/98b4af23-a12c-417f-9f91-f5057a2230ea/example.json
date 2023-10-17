@@ -1,0 +1,20 @@
+{
+    "uuid": "98b4af23-a12c-417f-9f91-f5057a2230ea",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/scene/edit-scene/actions/CheckUserPresence.jsx",
+        "lineNumber": 149
+    },
+    "queries": [
+        "JavaScript code file in Gladys that renders form for selecting user, house, devices, and duration",
+        "JavaScript code for editing scene in Gladys",
+        "JavaScript code that retrieves data from server and sets options for presence sensor",
+        "JavaScript implementation in Gladys for editing scene with selectable form component",
+        "code file in Gladys that handles user presence form with selectable component and event management",
+        "code responsible for rendering form component for user presence in scene",
+        "code that updates corresponding properties when options are changed in form component"
+    ]
+}

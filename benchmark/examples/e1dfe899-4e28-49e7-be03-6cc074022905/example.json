@@ -1,0 +1,20 @@
+{
+    "uuid": "e1dfe899-4e28-49e7-be03-6cc074022905",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/scene/edit-scene/actions/UserPresence.jsx",
+        "lineNumber": 25
+    },
+    "queries": [
+        "JavaScript file for modifying user and house options in edit scene feature",
+        "JavaScript file in Gladys that caters specifically to the edit scene feature, allowing users to create and customize automation scenes, and contains the implementation for dynamically populating dropdown menus in the user presence section",
+        "JavaScript implementation for adjusting action properties based on user and house selections in edit scene feature of Gladys",
+        "code file in Gladys that determines the label for each house option in the dropdown menu based on the name property of the corresponding house object and generates an array of house options to populate the dropdown menu in the user presence section",
+        "code file in Gladys that handles actions related to user presence in the edit scene feature, modifies and updates user and house options, communicates with server to fetch available users and houses, populates dropdown menus, and adjusts action properties based on selections",
+        "code file responsible for dynamically populating dropdown menus in user presence section of edit scene feature in Gladys",
+        "file for user presence in edit scene feature of Gladys"
+    ]
+}

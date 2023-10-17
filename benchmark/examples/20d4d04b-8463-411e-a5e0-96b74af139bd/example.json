@@ -1,0 +1,20 @@
+{
+    "uuid": "20d4d04b-8463-411e-a5e0-96b74af139bd",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/signup/2-create-account-gladys-gateway/index.js",
+        "lineNumber": 114
+    },
+    "queries": [
+        "Code file for creating new Gladys gateway account in signup process",
+        "Code file responsible for creating a new Gladys gateway account in Gladys frontend signup routes",
+        "Code file that utilizes 'SetRestoreKey' component to set restore key for Gladys gateway account",
+        "Create Gladys gateway account",
+        "File used in Gladys frontend signup process to manage steps for creating Gladys gateway account with restore key",
+        "Implementation of creating Gladys gateway account with restore key",
+        "Set restore key for Gladys gateway account"
+    ]
+}

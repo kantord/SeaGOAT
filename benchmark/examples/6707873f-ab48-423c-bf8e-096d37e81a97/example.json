@@ -1,0 +1,20 @@
+{
+    "uuid": "6707873f-ab48-423c-bf8e-096d37e81a97",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/actions/dashboard/boxes/weather.js",
+        "lineNumber": 30
+    },
+    "queries": [
+        "action responsible for updating box status and data in the Redux store in a React app",
+        "asynchronous request to API to fetch weather data in Node.js",
+        "code file used in a dashboard application that displays weather data using React",
+        "constant representing the key associated with the 'Weather' box in a Redux store",
+        "error handling and updating box status in case of any error in a React application",
+        "file responsible for fetching weather data in a React app",
+        "function to retrieve and display weather data on a dashboard"
+    ]
+}
