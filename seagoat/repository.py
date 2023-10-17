@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import math
 import subprocess
 from collections import defaultdict
@@ -23,6 +24,20 @@ class Repository:
         self.path = Path(repo_path)
         self.file_changes = defaultdict(list)
         self.frecency_scores = {}
+
+    def _get_head_hash(self):
+        return subprocess.check_output(
+            ["git", "-C", str(self.path), "rev-parse", "HEAD"], text=True
+        ).strip()
+
+    def _get_working_tree_diff(self):
+        return subprocess.check_output(
+            ["git", "-C", str(self.path), "diff"], text=True
+        ).strip()
+
+    def get_status_hash(self):
+        combined = self._get_head_hash() + self._get_working_tree_diff()
+        return hashlib.sha256(combined.encode()).hexdigest()
 
     def analyze_files(self):
         cmd = [

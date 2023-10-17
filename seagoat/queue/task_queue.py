@@ -45,6 +45,7 @@ class TaskQueue(BaseQueue):
         seagoat_engine = Engine(self.kwargs["repo_path"])
         context["seagoat_engine"] = seagoat_engine
         context["last_maintenance"] = None
+        context["last_repo_state_hash"] = None
         return context
 
     def handle_maintenance(self, context):
@@ -54,6 +55,13 @@ class TaskQueue(BaseQueue):
         ):
             return
 
+        current_repo_state_hash = context["seagoat_engine"].repository.get_status_hash()
+
+        # Do not re-analyze repo if nothing changed
+        if context["last_repo_state_hash"] == current_repo_state_hash:
+            return
+
+        context["last_repo_state_hash"] = current_repo_state_hash
         context["last_maintenance"] = time.time()
 
         if self._task_queue.qsize() > 0:
