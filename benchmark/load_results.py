@@ -172,8 +172,8 @@ def get_best_position_of_correct_results(results, engine):
     return positions
 
 
-def get_average_position_of_a_correct_results(results, engine):
-    positions = get_positions_of_correct_results(results, engine)
+def get_average_position_of_a_correct_results(row):
+    positions = get_positions_of_correct_results(row["Data"], row["Engine"])
 
     if not positions:
         return None
@@ -228,3 +228,13 @@ def load_results_for_all_runs(minimum_example_quality):
         ]
         for test_run_name, results, engine in results
     ]
+
+
+def get_list_of_projects():
+    list_of_test_runs = get_list_of_test_runs()
+    projects = set()
+
+    for example in load_results(list_of_test_runs[0]):
+        projects.add(example["repo"]["name"])
+
+    return sorted(list(projects))
