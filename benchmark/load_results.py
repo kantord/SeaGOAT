@@ -9,6 +9,8 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
+MAXIMUM_NUMBER_OF_RESULT_LINES = 500
+
 
 def get_list_of_test_runs() -> list:
     script_dir = Path(__file__).parent
@@ -177,3 +179,24 @@ def get_average_position_of_a_correct_results(results, engine):
         return None
 
     return sum(positions) / len(positions)
+
+
+def get_chance_of_getting_correct_result_in_n_lines(results, engine):
+    positions = {(index + 1): 0 for index in range(MAXIMUM_NUMBER_OF_RESULT_LINES)}
+    total_queries = 0
+
+    for example in results:
+        for query in example["queries"]:
+            total_queries += 1
+            position = query["positionOfCorrectResult"][engine]
+
+            if position is None:
+                continue
+
+            for index in range(position, MAXIMUM_NUMBER_OF_RESULT_LINES + 1):
+                positions[index] += 1
+
+    return [
+        float(positions[index + 1]) / total_queries * 100
+        for index in range(MAXIMUM_NUMBER_OF_RESULT_LINES)
+    ]
