@@ -65,9 +65,9 @@ you wish to keep in git, but you wish to hide from from SeaGOAT.
       ...
       chroma:
         embedding_function:
-          "name": "ONNXMiniLM_L6_V2"
-          "arguments":
-            "preferred_providers": ["TensorrtExecutionProvider"]
+          name: "ONNXMiniLM_L6_V2"
+          arguments:
+            preferred_providers: ["TensorrtExecutionProvider"]
       ```
 
 ### Client
