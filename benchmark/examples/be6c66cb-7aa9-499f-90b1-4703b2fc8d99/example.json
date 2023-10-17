@@ -1,0 +1,20 @@
+{
+    "uuid": "be6c66cb-7aa9-499f-90b1-4703b2fc8d99",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/service/service.getUsage.test.js",
+        "lineNumber": 13
+    },
+    "queries": [
+        "file containing setup for testing getUsage function in service module",
+        "test suite dedicated to evaluating getUsage function in service module",
+        "test suite for functionality of getUsage in service module",
+        "test suite for getUsage function",
+        "test suite to assess different scenarios of getUsage implementation",
+        "test suite to verify implementation of getUsage function",
+        "validate accuracy of functionality in service module"
+    ]
+}

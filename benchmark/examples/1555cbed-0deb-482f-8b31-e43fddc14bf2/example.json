@@ -1,0 +1,20 @@
+{
+    "uuid": "1555cbed-0deb-482f-8b31-e43fddc14bf2",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/melcloud/lib/melcloud.init.js",
+        "lineNumber": 3
+    },
+    "queries": [
+        "JavaScript module in lib folder of melcloud services in server responsible for initializing and connecting to MelCloud devices",
+        "JavaScript module in lib folder of melcloud services responsible for connecting to devices",
+        "initialize MelCloud service",
+        "module in melcloud services for establishing connection with devices using provided properties",
+        "module in melcloud services in server for establishing connection with devices using properties and awaiting result",
+        "module in melcloud services in server with initialization function that sets up service with properties and connects to devices asynchronously",
+        "module responsible for initializing MelCloud service"
+    ]
+}

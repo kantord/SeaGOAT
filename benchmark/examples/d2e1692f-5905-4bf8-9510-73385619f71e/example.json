@@ -1,0 +1,20 @@
+{
+    "uuid": "d2e1692f-5905-4bf8-9510-73385619f71e",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/bluetooth/lib/config/bluetooth.saveConfiguration.test.js",
+        "lineNumber": 98
+    },
+    "queries": [
+        "asynchronous test case using 'it' function within testing framework",
+        "handle input scenarios for Bluetooth configuration",
+        "save configuration functionality of Bluetooth",
+        "save configuration with frequency parameter while maintaining default status of presence scanner",
+        "saveConfiguration method with frequency parameter",
+        "test file for Bluetooth configuration",
+        "validate handling of Bluetooth configuration scenarios in home assistant system"
+    ]
+}

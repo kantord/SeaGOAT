@@ -1,0 +1,20 @@
+{
+    "uuid": "cda551ef-b246-4325-b679-d5a5d7cf266e",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/nextcloud-talk/lib/bot/bot.poll.js",
+        "lineNumber": 57
+    },
+    "queries": [
+        "JavaScript code line for handling the case when the value of last retrieved message ID is empty in Nextcloud Talk bot polling",
+        "JavaScript code line for implementing bot poll feature in Nextcloud Talk service to fetch new messages",
+        "JavaScript code line for managing the mechanism to fetch new messages for bots in Nextcloud Talk",
+        "JavaScript code line for periodically checking new messages in Nextcloud Talk bot feature",
+        "JavaScript code line for periodically querying Nextcloud Talk chat API for new messages",
+        "JavaScript code line for triggering poll for new messages in Nextcloud Talk bot polling if bot is currently in polling state",
+        "JavaScript code line for updating last retrieved message ID for bot polling in Nextcloud Talk"
+    ]
+}

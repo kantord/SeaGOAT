@@ -1,0 +1,20 @@
+{
+    "uuid": "34cfa0c4-62d9-4685-8dd3-6fb0bdbca86c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/tp-link/api/tp-link.controller.js",
+        "lineNumber": 10
+    },
+    "queries": [
+        "code file used within Gladys home assistant project for TP-Link device integration",
+        "controller file for TP-Link device integration",
+        "endpoint to fetch devices from TP-Link API",
+        "file for TP-Link device integration",
+        "implementation code for TP-Link API integration in Gladys home assistant project",
+        "retrieve TP-Link devices",
+        "retrieve list of devices from TP-Link API in Gladys home assistant project"
+    ]
+}

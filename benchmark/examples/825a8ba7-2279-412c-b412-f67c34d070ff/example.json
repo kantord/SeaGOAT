@@ -1,0 +1,20 @@
+{
+    "uuid": "825a8ba7-2279-412c-b412-f67c34d070ff",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/device/humidity-sensor/humidity-sensor.getHumidityInRoom.js",
+        "lineNumber": 41
+    },
+    "queries": [
+        "calculate average humidity from sensor readings",
+        "code file to calculate average humidity in a room using humidity sensor readings from a database",
+        "function to calculate average humidity in a room from humidity sensor data",
+        "implementation that calculates average humidity based on sensors",
+        "implementation to calculate and return average humidity based on humidity sensor readings in a room",
+        "query database for humidity sensor data and calculate average humidity",
+        "retrieve relevant humidity sensor data and compute average value"
+    ]
+}

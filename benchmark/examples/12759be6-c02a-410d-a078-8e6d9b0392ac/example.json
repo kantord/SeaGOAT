@@ -1,0 +1,20 @@
+{
+    "uuid": "12759be6-c02a-410d-a078-8e6d9b0392ac",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/service/service.startAll.js",
+        "lineNumber": 40
+    },
+    "queries": [
+        "code file in lib directory that starts services in a specific order",
+        "code file responsible for initializing services in application",
+        "file in lib directory of Gladys application that starts services from the database",
+        "file in service module that starts all services in the application",
+        "function that retrieves list of services and starts them sequentially in a specific order",
+        "implementation code in Gladys server codebase that starts all services",
+        "module exports function to start services one by one in a specific order"
+    ]
+}

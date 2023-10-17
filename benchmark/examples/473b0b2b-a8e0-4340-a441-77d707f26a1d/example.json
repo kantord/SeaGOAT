@@ -1,0 +1,20 @@
+{
+    "uuid": "473b0b2b-a8e0-4340-a441-77d707f26a1d",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/bluetooth/lib/utils/bluetooth.subscribe.test.js",
+        "lineNumber": 75
+    },
+    "queries": [
+        "fake onNotify function",
+        "set up fake onNotify function in bluetooth test file",
+        "simulate onNotify function behavior in subscribe tests",
+        "simulate onNotify function in subscribe tests bluetooth utils",
+        "test file bluetooth subscribe",
+        "validate behavior subscribe function bluetooth utils",
+        "verify subscription functionality bluetooth test file"
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "uuid": "79bb3c14-429a-481a-b601-69f23c51c991",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/settings/settings-users/create-user/index.js",
+        "lineNumber": 110
+    },
+    "queries": [
+        "File in Gladys settings section responsible for creating a new user. It is a React component that extends the `preact.Component` class and renders a layout and form for creating a user with properties like first name, last name, email, role, language, password, birthdate, temperature unit preference, and distance unit preference. It initializes and cleans up the new user's data. It is part of the Gladys settings section and uses the `<SettingsLayout>` component for consistent layout.",
+        "Gladys settings React component for new user creation",
+        "Please locate the file responsible for creating a new user in the Gladys settings section. It is a React component that extends the `preact.Component` class and renders a layout and form for creating a user. The user can provide details such as first name, last name, email, role, language, password, birthdate, temperature unit preference, and distance unit preference. The component initializes and cleans up the new user's data. It is part of the Gladys settings section and uses the `<SettingsLayout>` component for consistent layout.",
+        "React component for creating new user in Gladys settings",
+        "React component handling new user creation in Gladys settings",
+        "React component in Gladys settings for new user creation",
+        "This file is a React component that extends from the `preact.Component` class in the Gladys settings section. It manages the creation of a new user by rendering a layout and form. The user can specify properties such as first name, last name, email, role, language, password, birthdate, temperature unit preference, and distance unit preference. The component takes care of initializing and cleaning up the user's data. It is a part of the Gladys settings section and utilizes the `<SettingsLayout>` component for consistent layout."
+    ]
+}

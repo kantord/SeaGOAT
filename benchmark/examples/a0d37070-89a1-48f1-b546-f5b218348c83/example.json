@@ -1,0 +1,20 @@
+{
+    "uuid": "a0d37070-89a1-48f1-b546-f5b218348c83",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/philips-hue/utils/parseExternalId.test.js",
+        "lineNumber": 5
+    },
+    "queries": [
+        "external ID parsing logic test file",
+        "import parsing function from codebase",
+        "invoke parsing function with sample external ID and assert",
+        "nested directory test file location",
+        "parsing function correctness verification",
+        "service parsing function test suite",
+        "testing framework test case definition"
+    ]
+}

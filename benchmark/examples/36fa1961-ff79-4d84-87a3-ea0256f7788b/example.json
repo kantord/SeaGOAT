@@ -1,0 +1,20 @@
+{
+    "uuid": "36fa1961-ff79-4d84-87a3-ea0256f7788b",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/service/service.stop.js",
+        "lineNumber": 10
+    },
+    "queries": [
+        "code to retrieve service from database, stop it, and update status",
+        "code to stop a service by its name and update status",
+        "component to manage services on server",
+        "file to halt a specific service on server and update its status",
+        "file to halt service on server",
+        "implementation file to stop service on server",
+        "stop service by name"
+    ]
+}

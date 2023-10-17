@@ -1,0 +1,20 @@
+{
+    "uuid": "7d5a4970-9ae4-41ca-b48d-13ddf21bc97b",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/utils/cache.js",
+        "lineNumber": 18
+    },
+    "queries": [
+        "cache utility for server-side applications",
+        "caching frequently accessed data to enhance performance in backend operations or modules",
+        "class exports caching functionality",
+        "class with methods to manage key-value pairs in memory store",
+        "deletion method using 'delete' keyword to remove specific key-value pair from cache",
+        "efficient storage and retrieval of data in memory",
+        "file for caching backend operations"
+    ]
+}

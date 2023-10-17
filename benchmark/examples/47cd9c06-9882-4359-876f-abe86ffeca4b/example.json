@@ -1,0 +1,20 @@
+{
+    "uuid": "47cd9c06-9882-4359-876f-abe86ffeca4b",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/api/middlewares/corsMiddleware.js",
+        "lineNumber": 8
+    },
+    "queries": [
+        "code implementation to facilitate Cross-Origin Resource Sharing (CORS) in API server middleware stack",
+        "code setting response headers for handling CORS requests in API server",
+        "code that allows requests from different origins and configures permitted HTTP methods and allowed headers for CORS in API server middleware stack",
+        "code to handle CORS requests by setting response headers and passing control to next middleware function in API server",
+        "file for managing CORS requests in API server",
+        "file responsible for Cross-Origin Resource Sharing in API server middleware stack",
+        "middleware to handle CORS requests"
+    ]
+}

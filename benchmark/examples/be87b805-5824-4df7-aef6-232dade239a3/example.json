@@ -1,0 +1,20 @@
+{
+    "uuid": "be87b805-5824-4df7-aef6-232dade239a3",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/mqtt/lib/updateContainer.test.js",
+        "lineNumber": 84
+    },
+    "queries": [
+        "assertion for calling gladys.variable.setValue with MQTT_MOSQUITTO_VERSION in Gladys project",
+        "checking Docker configuration, verifying container updates, and installing MQTT container using updateContainer function in MQTT library of Gladys project",
+        "confirming functionality of updateContainer function in MQTT library of Gladys project by updating MQTT container",
+        "file used for testing updateContainer function in MQTT library of Gladys project",
+        "test file for updateContainer function in MQTT library in Gladys project",
+        "test file for updating MQTT container using updateContainer function in Gladys project",
+        "updateContainer function test for MQTT library in Gladys project"
+    ]
+}

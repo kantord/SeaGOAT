@@ -1,0 +1,20 @@
+{
+    "uuid": "fe22f8ae-b59a-4e71-8d95-7899f8cde93c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/tuya/lib/device/tuya.convertDevice.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "Debug message logging the name and model of Tuya device during conversion",
+        "File responsible for integrating Tuya devices into Gladys home assistant platform",
+        "JavaScript file for converting Tuya devices into Gladys format by extracting information and grouping functions",
+        "JavaScript implementation to convert Tuya devices for integration with Gladys",
+        "convert Tuya device properties and features into Gladys format",
+        "function that extracts information from Tuya device and converts into Gladys feature",
+        "function to transform Tuya device into Gladys device"
+    ]
+}

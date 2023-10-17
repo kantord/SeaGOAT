@@ -1,0 +1,20 @@
+{
+    "uuid": "7c55718b-1767-48a8-a379-cf0db17dabba",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/scene/edit-scene/actions/UserPresence.jsx",
+        "lineNumber": 13
+    },
+    "queries": [
+        "class component to handle user presence at home",
+        "code file responsible for managing user presence actions during scene editing in a web application's front-end",
+        "component that retrieves user and house options asynchronously through API requests",
+        "file for managing user presence actions",
+        "form with dropdowns to select user and house",
+        "functions to update selected options and properties related to user and house",
+        "location of the file that defines UserSeenAtHome component used for handling user's presence in scene editing feature"
+    ]
+}

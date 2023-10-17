@@ -1,0 +1,20 @@
+{
+    "uuid": "58797d36-d22c-4eab-b021-94f9e9a2d55b",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/broadlink/lib/learn/broadlink.cancelLearn.js",
+        "lineNumber": 22
+    },
+    "queries": [
+        "asynchronous function cancel learning mode peripheral identifier device emit websocket message handle cancellation process Gladys server",
+        "cancel learning mode Broadlink device identifier peripheral websocket message",
+        "code file cancellation learning process Broadlink devices Gladys server",
+        "code file responsible handling cancellation learning process Broadlink devices Gladys server lib learn directory",
+        "implementation code JavaScript cancel learning mode peripheral identifier device websocket message Gladys server",
+        "implementation code JavaScript cancellation learning mode peripheral",
+        "lib directory code file cancellation learning mode Broadlink device Gladys server"
+    ]
+}

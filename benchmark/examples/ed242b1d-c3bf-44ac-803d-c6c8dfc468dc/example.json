@@ -1,0 +1,20 @@
+{
+    "uuid": "ed242b1d-c3bf-44ac-803d-c6c8dfc468dc",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/lan-manager/discover-page/LANManagerDiscoverTab.jsx",
+        "lineNumber": 46
+    },
+    "queries": [
+        "handle case when no devices are found during the scan",
+        "handle scanning and interacting with Bluetooth devices",
+        "implement functionality of Discover tab in React",
+        "include button with event handler for scanning Bluetooth devices on a mobile app",
+        "render output with a button and icon for each discovered device",
+        "update discovered devices list in real-time and render it on the UI",
+        "use preact-i18n library for localization in a React application"
+    ]
+}

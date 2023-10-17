@@ -1,0 +1,20 @@
+{
+    "uuid": "8202a10d-e2b4-4f9c-9d26-92c183672455",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tuya/lib/tuya.loadDevices.test.js",
+        "lineNumber": 47
+    },
+    "queries": [
+        "TuyaHandler class test loadDevices functionality",
+        "TuyaHandler class test retrieving devices",
+        "code fragment to test TuyaHandler loadDevices method for retrieving devices",
+        "code to validate TuyaHandler retrieves devices from Tuya API",
+        "implementation to check if TuyaHandler loadDevices method uses GET for HTTP request",
+        "test code for loadDevices method TuyaHandler",
+        "test code to verify loadDevices method retrieves devices"
+    ]
+}

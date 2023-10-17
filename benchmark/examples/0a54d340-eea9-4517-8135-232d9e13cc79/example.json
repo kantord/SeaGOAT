@@ -1,0 +1,20 @@
+{
+    "uuid": "0a54d340-eea9-4517-8135-232d9e13cc79",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/system/system.shutdown.test.js",
+        "lineNumber": 26
+    },
+    "queries": [
+        "file purpose: evaluate system shutdown process",
+        "file usage: testing system shutdown process",
+        "implementation: create simulated object for process.exit()",
+        "simulated object for process.exit() method",
+        "test cases validating system shut down",
+        "test suite for system shutdown process",
+        "testing code for system shutdown"
+    ]
+}

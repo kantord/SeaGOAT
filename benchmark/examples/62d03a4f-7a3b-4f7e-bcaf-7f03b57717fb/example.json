@@ -1,0 +1,21 @@
+{
+    "uuid": "62d03a4f-7a3b-4f7e-bcaf-7f03b57717fb",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/house/house.create.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "create a new house in the Gladys application",
+        "create a new house object with name, selector, latitude, and longitude",
+        "emit an event for the successful creation of a new house in the Gladys application",
+        "file in the backend system of the Gladys application for creating a new house",
+        "file responsible for handling the creation of a new house in the Gladys application",
+        "function that receives a house object and saves it in the application's database",
+        "function to persistently store a new house in the database",
+        "module to save the details of a new house in the Gladys application"
+    ]
+}
