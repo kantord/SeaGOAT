@@ -1,5 +1,6 @@
 ---
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 152
@@ -39,7 +40,8 @@
           lineNumber: 152
           path: tests/integration/offer/test_upsell_messages.py
       uuid: ede10062-908c-4678-a9b3-3d68626955bf
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -75,7 +77,8 @@
           lineNumber: 121
           path: setup.py
       uuid: d12ceb7c-fce8-4dd0-bb84-b6d8ff8bb7ec
-    - queries:
+    - qualityScore: 91
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 52
@@ -113,7 +116,8 @@
           lineNumber: 52
           path: src/oscar/apps/dashboard/partners/apps.py
       uuid: fe352f53-9c20-40ca-8b26-f5ead4b1279c
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -149,7 +153,8 @@
           lineNumber: 62
           path: setup.py
       uuid: e6a7ddb9-1abb-4dd4-a0a5-ddabf1a61c3c
-    - queries:
+    - qualityScore: 78
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -189,7 +194,8 @@
           lineNumber: 39
           path: tests/integration/checkout/test_views.py
       uuid: cd4a72f7-451f-4a20-987b-ea9498e269d3
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 12
@@ -225,7 +231,8 @@
           lineNumber: 12
           path: src/oscar/apps/wishlists/migrations/0004_auto_20220328_0939.py
       uuid: 817722c5-3957-477e-b00a-bb833702eafb
-    - queries:
+    - qualityScore: 28
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -261,7 +268,8 @@
           lineNumber: 13
           path: src/oscar/apps/analytics/scores.py
       uuid: 36336e7c-af36-40d8-85b3-35cdecc10205
-    - queries:
+    - qualityScore: 60
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -297,7 +305,8 @@
           lineNumber: 20
           path: tests/integration/checkout/test_session.py
       uuid: 0a67fb7b-c46e-4a7f-ba0a-ab3a4128d5f8
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 2
@@ -333,7 +342,8 @@
           lineNumber: 2
           path: src/oscar/apps/offer/migrations/0007_conditionaloffer_exclusive.py
       uuid: 97cd4d12-1bf3-4ae3-be45-fa12397152be
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -371,7 +381,8 @@
           lineNumber: 75
           path: src/oscar/apps/analytics/abstract_models.py
       uuid: d9cf94b4-f80a-4c80-8445-58fcec7a6235
-    - queries:
+    - qualityScore: 58
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -407,43 +418,8 @@
           lineNumber: 22
           path: src/oscar/test/factories/catalogue.py
       uuid: 9c79461b-91aa-4631-920b-a907b7fcbba9
-    - queries:
-          - positionOfCorrectResult:
-                random:
-                seagoat:
-            text: integrated logging tests Django-Oscar
-          - positionOfCorrectResult:
-                random:
-                seagoat:
-            text: integration tests for logging feature in Django-Oscar
-          - positionOfCorrectResult:
-                random:
-                seagoat:
-            text: line to set args parameter to None in LogRecord Django-Oscar
-          - positionOfCorrectResult:
-                random:
-                seagoat: 39
-            text: log record formatting testcase Django-Oscar
-          - positionOfCorrectResult:
-                random:
-                seagoat:
-            text: logging tests sensitive data handling Django-Oscar
-          - positionOfCorrectResult:
-                random:
-                seagoat:
-            text: setting args parameter to None in LogRecord Django-Oscar
-          - positionOfCorrectResult:
-                random:
-                seagoat:
-            text: test case class for PCIFormatter in Django-Oscar
-      repo:
-          description: Domain-driven e-commerce for Django
-          name: django-oscar
-      targetCode:
-          lineNumber: 39
-          path: tests/integration/test_logging.py
-      uuid: a55f8094-43d6-42a7-88c5-b59bea734cb9
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 27
@@ -482,7 +458,8 @@
           lineNumber: 27
           path: src/oscar/apps/wishlists/formsets.py
       uuid: 674dc564-b897-4b61-b14c-36658e186c9b
-    - queries:
+    - qualityScore: 53
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -520,7 +497,8 @@
           lineNumber: 39
           path: src/oscar/apps/offer/admin.py
       uuid: fd6d1348-48de-498c-ad51-1617c4c432d5
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -556,7 +534,8 @@
           lineNumber: 185
           path: tests/integration/voucher/test_models.py
       uuid: 0e717920-7a9c-4170-848f-835e2e3aebaa
-    - queries:
+    - qualityScore: 78
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -592,7 +571,8 @@
           lineNumber: 20
           path: src/oscar/apps/basket/migrations/0001_initial.py
       uuid: cf12cd9e-864e-48ad-9ea9-4acb879241c0
-    - queries:
+    - qualityScore: 51
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 10
@@ -629,7 +609,8 @@
           lineNumber: 10
           path: src/oscar/apps/communication/managers.py
       uuid: d93c3e66-b5db-49a9-9f58-c3a0412de5b8
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 16
@@ -665,7 +646,8 @@
           lineNumber: 16
           path: src/oscar/apps/partner/migrations/0003_auto_20150604_1450.py
       uuid: 86e1bf11-c620-4e9d-803e-5539ff232edb
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 35
@@ -701,7 +683,8 @@
           lineNumber: 35
           path: src/oscar/apps/catalogue/expressions.py
       uuid: a47b0f37-f514-493b-a01e-f32569f58a54
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 4
@@ -739,7 +722,8 @@
           lineNumber: 4
           path: src/oscar/apps/partner/models.py
       uuid: 6c0664c5-7f78-4d8a-9d9d-a951398359a1
-    - queries:
+    - qualityScore: 66
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -775,7 +759,8 @@
           lineNumber: 97
           path: tests/_site/model_tests_app/models.py
       uuid: e99d92d1-01fb-4be4-ab32-5bb5b8dfaa6d
-    - queries:
+    - qualityScore: 50
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -815,7 +800,8 @@
           lineNumber: 15
           path: tests/integration/partner/test_selector_mixin.py
       uuid: a2125eac-8cc4-4acc-b1ea-3861854f4ceb
-    - queries:
+    - qualityScore: 75
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -851,7 +837,8 @@
           lineNumber: 14
           path: tests/functional/customer/test_order_status.py
       uuid: fdcb1a4c-807a-43a2-be5b-026def0d015f
-    - queries:
+    - qualityScore: 57
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -887,7 +874,8 @@
           lineNumber: 74
           path: tests/integration/dashboard/test_reviews.py
       uuid: c85e3f39-fa59-4ea9-9967-324fee4fd238
-    - queries:
+    - qualityScore: 46
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -923,7 +911,8 @@
           lineNumber: 37
           path: src/oscar/test/factories/offer.py
       uuid: 74892376-86d3-4367-b572-879963cade99
-    - queries:
+    - qualityScore: 78
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 94
@@ -961,7 +950,8 @@
           lineNumber: 94
           path: src/oscar/templatetags/category_tags.py
       uuid: 07add7d1-15da-462f-bbcb-194da89d49ac
-    - queries:
+    - qualityScore: 62
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -999,7 +989,8 @@
           lineNumber: 11
           path: src/oscar/apps/dashboard/catalogue/widgets.py
       uuid: 837b680c-c59d-45f8-bc03-7fef7147d385
-    - queries:
+    - qualityScore: 48
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1035,7 +1026,8 @@
           lineNumber: 13
           path: src/oscar/apps/dashboard/reports/apps.py
       uuid: 36f03e8c-de6b-4041-8656-3e654f5c200b
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 19
@@ -1074,7 +1066,8 @@
           lineNumber: 19
           path: src/oscar/apps/catalogue/migrations/0010_auto_20170420_0439.py
       uuid: 148704d8-89cf-417a-a3ed-3df0f284bfee
-    - queries:
+    - qualityScore: 51
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 21
@@ -1110,7 +1103,8 @@
           lineNumber: 21
           path: tests/_site/apps/partner/migrations/0006_auto_20190816_0910.py
       uuid: 97e8ef54-ad54-4092-871b-aa67847b83f8
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 15
@@ -1146,7 +1140,8 @@
           lineNumber: 15
           path: src/oscar/forms/fields.py
       uuid: b2d83fd1-9fd6-4a3d-8520-5a2d0d660b52
-    - queries:
+    - qualityScore: 51
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1182,7 +1177,8 @@
           lineNumber: 90
           path: tests/integration/core/test_mixins.py
       uuid: 5a170af8-c943-415f-83aa-c938cff36af1
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1218,7 +1214,8 @@
           lineNumber: 16
           path: src/oscar/apps/catalogue/migrations/0008_auto_20160304_1652.py
       uuid: 6735dbfa-fd07-4e40-83d7-950c026b7dae
-    - queries:
+    - qualityScore: 78
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1254,7 +1251,8 @@
           lineNumber: 16
           path: src/oscar/test/factories/urls.py
       uuid: 71b80ffe-cb3d-4d19-9915-b3b80f908d56
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1290,7 +1288,8 @@
           lineNumber: 29
           path: src/oscar/apps/catalogue/managers.py
       uuid: f2b683be-3541-48ba-b54a-a29269eaa518
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1326,7 +1325,8 @@
           lineNumber: 16
           path: tests/functional/dashboard/test_partner.py
       uuid: 87b9aa9a-c6fc-4e99-8bc9-caba04a4d42d
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 162
@@ -1362,7 +1362,8 @@
           lineNumber: 162
           path: tests/integration/payment/test_forms.py
       uuid: 9ffc7200-d686-496d-9fa7-540e80a51acd
-    - queries:
+    - qualityScore: 26
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 15
@@ -1398,7 +1399,8 @@
           lineNumber: 15
           path: sandbox/urls.py
       uuid: ee8448d1-f71f-4bfd-9d36-6abc82cf2c54
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1434,7 +1436,8 @@
           lineNumber: 18
           path: src/oscar/apps/catalogue/categories.py
       uuid: 9c454c87-6306-40aa-81a3-8664b1b1cc83
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 16
@@ -1473,7 +1476,8 @@
           lineNumber: 16
           path: tests/integration/customer/test_alert.py
       uuid: d97065ab-cd16-40d8-8a48-b559ccfc587f
-    - queries:
+    - qualityScore: 73
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1509,7 +1513,8 @@
           lineNumber: 18
           path: tests/integration/offer/test_reports.py
       uuid: b24dfbd8-c15d-43cf-803b-ab07b3ca025c
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1529,7 +1534,8 @@
           lineNumber: 8
           path: tests/functional/checkout/test_session.py
       uuid: 35c637cd-58a5-4b88-ae93-def762dd8dac
-    - queries:
+    - qualityScore: 73
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 22
@@ -1565,7 +1571,8 @@
           lineNumber: 22
           path: src/oscar/apps/dashboard/ranges/apps.py
       uuid: 4dd6fbae-b1c1-4c4a-85c4-cb3e3c3a54f7
-    - queries:
+    - qualityScore: 78
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 2
@@ -1601,7 +1608,8 @@
           lineNumber: 2
           path: src/oscar/apps/checkout/applicator.py
       uuid: ce7dda88-1300-44f7-b0f1-42bc03ee8e66
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 37
@@ -1637,7 +1645,8 @@
           lineNumber: 37
           path: src/oscar/management/commands/oscar_find_duplicate_emails.py
       uuid: 6759f629-0adc-4b24-a3ac-b1f4333ce8fc
-    - queries:
+    - qualityScore: 76
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1673,7 +1682,8 @@
           lineNumber: 114
           path: src/oscar/apps/basket/utils.py
       uuid: 61a46e59-be39-42cb-9b3c-5ed765178433
-    - queries:
+    - qualityScore: 53
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1709,7 +1719,8 @@
           lineNumber: 24
           path: src/oscar/apps/search/views.py
       uuid: db73c3b1-e6f7-423c-a4db-1f34e0342313
-    - queries:
+    - qualityScore: 71
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1745,7 +1756,8 @@
           lineNumber: 190
           path: tests/functional/customer/test_profile.py
       uuid: a458ddb5-1b1e-4e48-911f-691969d3e393
-    - queries:
+    - qualityScore: 20
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1781,7 +1793,8 @@
           lineNumber: 23
           path: tests/_site/apps/catalogue/migrations/0003_data_migration_slugs.py
       uuid: 859fd86b-283f-4628-b828-de89039f7c0d
-    - queries:
+    - qualityScore: 70
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1817,7 +1830,8 @@
           lineNumber: 91
           path: tests/integration/partner/test_models.py
       uuid: 0a479c85-8275-48b6-8fe5-f6ccbdd45d04
-    - queries:
+    - qualityScore: 60
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1854,7 +1868,8 @@
           lineNumber: 54
           path: src/oscar/apps/communication/migrations/0001_initial.py
       uuid: 69eaf388-effc-4eea-a21b-88de86d3bab7
-    - queries:
+    - qualityScore: 76
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -1895,7 +1910,8 @@
           lineNumber: 24
           path: src/oscar/apps/catalogue/migrations/0010_auto_20170420_0439.py
       uuid: d13e9607-3723-4f79-b26d-ee04b4310b30
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 6
@@ -1931,7 +1947,8 @@
           lineNumber: 6
           path: src/oscar/apps/dashboard/tables.py
       uuid: c7a20377-272f-41d0-94eb-2a7b7b32cd19
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 13
@@ -1967,7 +1984,8 @@
           lineNumber: 13
           path: src/oscar/apps/dashboard/shipping/views.py
       uuid: 397d62a3-0a8e-432d-b3a1-05bc2362a6f2
-    - queries:
+    - qualityScore: 88
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2006,7 +2024,8 @@
           lineNumber: 45
           path: src/oscar/apps/dashboard/partners/apps.py
       uuid: d1055dbf-17e9-42da-98b2-6c397f50c4c2
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 10
@@ -2046,7 +2065,8 @@
           lineNumber: 10
           path: gulpfile.js/subtasks/scss.js
       uuid: c63af850-6d88-479a-9816-979e8f44d724
-    - queries:
+    - qualityScore: 50
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 9
@@ -2082,7 +2102,8 @@
           lineNumber: 9
           path: src/oscar/apps/communication/models.py
       uuid: 87cc50c3-f011-4d15-a570-ce43086261c6
-    - queries:
+    - qualityScore: 48
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 36
@@ -2118,7 +2139,8 @@
           lineNumber: 36
           path: tests/integration/checkout/test_surcharges.py
       uuid: 14f48e06-d34e-4918-aedf-6a1da9d8f323
-    - queries:
+    - qualityScore: 90
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2154,7 +2176,8 @@
           lineNumber: 38
           path: src/oscar/apps/catalogue/product_attributes.py
       uuid: 21c5cc84-87e4-42d6-bdd8-5038df9ca141
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 44
@@ -2190,7 +2213,8 @@
           lineNumber: 44
           path: front/src/routes/integration/all/mqtt/device-page/DeviceForm.jsx
       uuid: 01e367c9-2702-4b9a-ba40-54c8a82d4598
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 20
@@ -2226,7 +2250,8 @@
           lineNumber: 20
           path: front/src/routes/integration/all/tasmota/discover-http/SearchForm.jsx
       uuid: 05d9686f-b7c9-4a38-b473-13aa6a67293c
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 70
@@ -2264,7 +2289,8 @@
           lineNumber: 70
           path: front/src/routes/integration/all/tasmota/discover-mqtt/DiscoverTab.jsx
       uuid: 0a018d77-4b08-4334-bca5-c4c286f44c16
-    - queries:
+    - qualityScore: 53
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2300,7 +2326,8 @@
           lineNumber: 26
           path: server/test/lib/system/system.shutdown.test.js
       uuid: 0a54d340-eea9-4517-8135-232d9e13cc79
-    - queries:
+    - qualityScore: 30
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 13
@@ -2336,7 +2363,8 @@
           lineNumber: 13
           path: server/lib/device/light/light.turnOff.js
       uuid: 0a7a1ec0-2f66-4cfd-9635-eb0eccaac07c
-    - queries:
+    - qualityScore: 60
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 6
@@ -2372,7 +2400,8 @@
           lineNumber: 6
           path: server/test/services/google-actions/index.test.js
       uuid: 0cc0c9de-9482-4aa6-bb8a-5e89b1e8ade0
-    - queries:
+    - qualityScore: 57
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2408,7 +2437,8 @@
           lineNumber: 40
           path: server/lib/service/service.startAll.js
       uuid: 12759be6-c02a-410d-a078-8e6d9b0392ac
-    - queries:
+    - qualityScore: 51
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 44
@@ -2445,7 +2475,8 @@
           lineNumber: 44
           path: server/test/services/ewelink/mocks/ewelink-api-empty.mock.test.js
       uuid: 15170ed1-7d70-4cf5-9c37-58456b9e03c2
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 3
@@ -2481,7 +2512,8 @@
           lineNumber: 3
           path: server/services/melcloud/lib/melcloud.init.js
       uuid: 1555cbed-0deb-482f-8b31-e43fddc14bf2
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2517,7 +2549,8 @@
           lineNumber: 36
           path: front/src/utils/GatewayHttpClient.js
       uuid: 160865ee-a5b8-44d2-9a93-39964b1e7614
-    - queries:
+    - qualityScore: 53
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2553,7 +2586,8 @@
           lineNumber: 28
           path: server/services/caldav/index.js
       uuid: 1e06bf65-43a0-433b-89d9-04e5560ad1c9
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2589,7 +2623,8 @@
           lineNumber: 55
           path: server/test/controllers/camera/camera.controller.test.js
       uuid: 1e0b043d-08aa-4db3-88f7-16d3505a863f
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2625,7 +2660,8 @@
           lineNumber: 114
           path: front/src/routes/signup/2-create-account-gladys-gateway/index.js
       uuid: 20d4d04b-8463-411e-a5e0-96b74af139bd
-    - queries:
+    - qualityScore: 20
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2661,7 +2697,8 @@
           lineNumber: 127
           path: server/services/alexa/lib/alexa.onExecute.js
       uuid: 329e9f3d-8fba-4066-9287-f03fb29814d1
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2697,7 +2734,8 @@
           lineNumber: 10
           path: server/services/tp-link/api/tp-link.controller.js
       uuid: 34cfa0c4-62d9-4685-8dd3-6fb0bdbca86c
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 25
@@ -2735,7 +2773,8 @@
           lineNumber: 25
           path: server/lib/scene/scene.get.js
       uuid: 36d54ba5-0d93-426b-bd0b-752e8e1ec3b7
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2771,7 +2810,8 @@
           lineNumber: 10
           path: server/lib/service/service.stop.js
       uuid: 36fa1961-ff79-4d84-87a3-ea0256f7788b
-    - queries:
+    - qualityScore: 61
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2807,7 +2847,8 @@
           lineNumber: 48
           path: server/test/services/rtsp-camera/rtspCamera.sendCameraFileToGateway.test.js
       uuid: 3f8beae2-4d5a-41a2-8b79-490ba9482927
-    - queries:
+    - qualityScore: 58
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -2843,7 +2884,8 @@
           lineNumber: 52
           path: server/services/xiaomi/lib/event/xiaomi.onMessage.js
       uuid: 427f3cd2-cdcb-4ae9-b572-d1fd9309d4cd
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 12
@@ -2879,7 +2921,8 @@
           lineNumber: 12
           path: front/cli/check_translations.js
       uuid: 45636423-7e15-458e-8fca-ce39303ff6ef
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 75
@@ -2915,7 +2958,8 @@
           lineNumber: 75
           path: server/test/services/bluetooth/lib/utils/bluetooth.subscribe.test.js
       uuid: 473b0b2b-a8e0-4340-a441-77d707f26a1d
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 8
@@ -2952,7 +2996,8 @@
           lineNumber: 8
           path: server/api/middlewares/corsMiddleware.js
       uuid: 47cd9c06-9882-4359-876f-abe86ffeca4b
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 2
@@ -2988,7 +3033,8 @@
           lineNumber: 2
           path: server/services/tasmota/lib/tasmota.poll.js
       uuid: 4c38dff7-2c14-4ac6-bb02-da6581ce4888
-    - queries:
+    - qualityScore: 84
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 9
@@ -3024,7 +3070,8 @@
           lineNumber: 9
           path: server/lib/device/camera/camera.setImage.js
       uuid: 4cb9aa9a-6727-48e7-93dc-19cbd54f0e95
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3060,7 +3107,8 @@
           lineNumber: 22
           path: server/services/broadlink/lib/learn/broadlink.cancelLearn.js
       uuid: 58797d36-d22c-4eab-b021-94f9e9a2d55b
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 14
@@ -3096,7 +3144,8 @@
           lineNumber: 14
           path: server/test/lib/user/user.destroy.test.js
       uuid: 5f000f76-b416-4e66-87d3-5157243c80e1
-    - queries:
+    - qualityScore: 26
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3132,7 +3181,8 @@
           lineNumber: 36
           path: server/test/services/bluetooth/lib/commands/bluetooth.stopScanPresence.test.js
       uuid: 616a56d5-9fb4-4bd1-918d-f3c0866cfea8
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3172,7 +3222,8 @@
           lineNumber: 9
           path: server/lib/house/house.create.js
       uuid: 62d03a4f-7a3b-4f7e-bcaf-7f03b57717fb
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3208,7 +3259,8 @@
           lineNumber: 30
           path: front/src/actions/dashboard/boxes/weather.js
       uuid: 6707873f-ab48-423c-bf8e-096d37e81a97
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 25
@@ -3244,7 +3296,8 @@
           lineNumber: 25
           path: server/lib/scene/scene.getBySelector.js
       uuid: 6a55f651-08e2-46b8-b70a-24fc16493e87
-    - queries:
+    - qualityScore: 86
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 18
@@ -3281,7 +3334,8 @@
           lineNumber: 18
           path: server/services/xiaomi/lib/event/xiaomi.newValueMotionSensor.js
       uuid: 735f2f77-627f-4922-a767-015711dcfd98
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 12
@@ -3317,7 +3371,8 @@
           lineNumber: 12
           path: server/utils/addSelector.js
       uuid: 756e0670-0fee-4c03-8d88-c8136b5c3611
-    - queries:
+    - qualityScore: 54
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 26
@@ -3353,7 +3408,8 @@
           lineNumber: 26
           path: server/test/services/tasmota/lib/tasmota.connect.test.js
       uuid: 771b224e-832f-45ff-bb8a-18bd4102c338
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3389,7 +3445,8 @@
           lineNumber: 72
           path: server/services/broadlink/lib/commands/features/broadlink.remote.js
       uuid: 77c8937f-f357-4323-ab0e-387bd87aaf1a
-    - queries:
+    - qualityScore: 64
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3434,7 +3491,8 @@
           lineNumber: 110
           path: front/src/routes/settings/settings-users/create-user/index.js
       uuid: 79bb3c14-429a-481a-b601-69f23c51c991
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3470,7 +3528,8 @@
           lineNumber: 13
           path: front/src/routes/scene/edit-scene/actions/UserPresence.jsx
       uuid: 7c55718b-1767-48a8-a379-cf0db17dabba
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3506,7 +3565,8 @@
           lineNumber: 18
           path: server/utils/cache.js
       uuid: 7d5a4970-9ae4-41ca-b48d-13ddf21bc97b
-    - queries:
+    - qualityScore: 88
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 31
@@ -3542,7 +3602,8 @@
           lineNumber: 31
           path: front/src/routes/settings/settings-users/create-user/CreateUserPage.js
       uuid: 7dfb9b59-59dc-411e-8379-0ca2633e50ff
-    - queries:
+    - qualityScore: 89
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3578,7 +3639,8 @@
           lineNumber: 50
           path: server/services/xiaomi/lib/event/xiaomi.newValueMagnetSensor.js
       uuid: 81387ef8-841c-43b4-90c2-e9fc03356736
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 47
@@ -3614,7 +3676,8 @@
           lineNumber: 47
           path: server/test/services/tuya/lib/tuya.loadDevices.test.js
       uuid: 8202a10d-e2b4-4f9c-9d26-92c183672455
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3650,7 +3713,8 @@
           lineNumber: 41
           path: server/lib/device/humidity-sensor/humidity-sensor.getHumidityInRoom.js
       uuid: 825a8ba7-2279-412c-b412-f67c34d070ff
-    - queries:
+    - qualityScore: 58
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3686,7 +3750,8 @@
           lineNumber: 68
           path: front/src/routes/scene/edit-scene/triggers/ChooseTriggerTypeCard.jsx
       uuid: 83c8a00d-f6cd-494d-9267-82a3b049080d
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3724,7 +3789,8 @@
           lineNumber: 24
           path: front/src/routes/integration/all/broadlink/device-page/index.js
       uuid: 842d175a-ecc6-4dbc-b404-6aee1fa091d8
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3760,7 +3826,8 @@
           lineNumber: 66
           path: server/lib/calendar/calendar.findCurrentlyRunningEvent.js
       uuid: 868905bd-8656-421f-a91c-6339a5c6e8db
-    - queries:
+    - qualityScore: 60
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 26
@@ -3796,7 +3863,8 @@
           lineNumber: 26
           path: front/src/routes/settings/settings-users/create-user/CreateUserPage.js
       uuid: 8c36de99-4711-4b0d-a578-c14bce35117e
-    - queries:
+    - qualityScore: 53
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 20
@@ -3832,7 +3900,8 @@
           lineNumber: 20
           path: server/test/services/philips-hue/controllers/getBridges.controller.test.js
       uuid: 8f432860-ceb5-4e30-be23-79296e366a07
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3868,7 +3937,8 @@
           lineNumber: 15
           path: server/services/mqtt/lib/setValue.js
       uuid: 90ff91df-455c-4728-bf44-c372c070538e
-    - queries:
+    - qualityScore: 95
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3904,7 +3974,8 @@
           lineNumber: 5
           path: front/src/routes/integration/all/melcloud/discover-page/EmptyState.jsx
       uuid: 980fe773-78ed-455f-84d1-d3f204049647
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3940,7 +4011,8 @@
           lineNumber: 149
           path: front/src/routes/scene/edit-scene/actions/CheckUserPresence.jsx
       uuid: 98b4af23-a12c-417f-9f91-f5057a2230ea
-    - queries:
+    - qualityScore: 25
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -3976,7 +4048,8 @@
           lineNumber: 22
           path: server/services/xiaomi/lib/event/xiaomi.newValueLeak.js
       uuid: 98cc99d8-bea6-4a09-af2f-773ec0e6a9c7
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4012,7 +4085,8 @@
           lineNumber: 6
           path: server/lib/system/system.restartContainer.js
       uuid: 98d10e2a-bbdb-4de3-83d1-9c89a97e56d2
-    - queries:
+    - qualityScore: 58
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4048,7 +4122,8 @@
           lineNumber: 25
           path: server/test/utils/objects.test.js
       uuid: 9df8acd1-dc65-4a7c-abce-d61e646b1fe4
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 47
@@ -4084,7 +4159,8 @@
           lineNumber: 47
           path: server/test/services/lan-manager/lib/lan-manager.scan.test.js
       uuid: 9f4f7dff-7aac-4e51-b136-c4f6f133389b
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4120,7 +4196,8 @@
           lineNumber: 5
           path: server/test/services/philips-hue/utils/parseExternalId.test.js
       uuid: a0d37070-89a1-48f1-b546-f5b218348c83
-    - queries:
+    - qualityScore: 86
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4156,7 +4233,8 @@
           lineNumber: 11
           path: server/seeders/20190507083413-area.js
       uuid: a0f78d13-7578-436d-b5f4-c32e4d63150c
-    - queries:
+    - qualityScore: 28
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 24
@@ -4192,7 +4270,8 @@
           lineNumber: 24
           path: server/lib/user/index.js
       uuid: a5783d48-49c9-411d-b1b9-7cd4e78c594c
-    - queries:
+    - qualityScore: 81
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4228,7 +4307,8 @@
           lineNumber: 18
           path: server/test/lib/system/system.stopContainer.test.js
       uuid: addad684-ef00-41ea-af0e-107922d3addd
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 22
@@ -4264,7 +4344,8 @@
           lineNumber: 22
           path: server/services/mqtt/lib/publish.js
       uuid: afdf6c44-5ab8-4fb7-8955-004b8a1c08da
-    - queries:
+    - qualityScore: 79
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4300,7 +4381,8 @@
           lineNumber: 34
           path: server/test/lib/gateway/gateway.checkIfBackupNeeded.test.js
       uuid: b223d4f9-659c-4643-a6cc-d5f8f733a2a3
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 27
@@ -4336,7 +4418,8 @@
           lineNumber: 27
           path: server/services/telegram/lib/index.js
       uuid: b6801cd0-2076-459c-af87-2ebb427cbae4
-    - queries:
+    - qualityScore: 85
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 10
@@ -4372,7 +4455,8 @@
           lineNumber: 10
           path: front/src/routes/integration/all/tuya/discover-page/index.js
       uuid: b8d26f37-e8e5-4329-ba58-90022d91e808
-    - queries:
+    - qualityScore: 88
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4408,7 +4492,8 @@
           lineNumber: 15
           path: server/config/config.js
       uuid: bd29bd0b-d84d-4a36-938f-ad268a1f3823
-    - queries:
+    - qualityScore: 55
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 5
@@ -4444,7 +4529,8 @@
           lineNumber: 5
           path: front/src/components/router/Redirect.js
       uuid: bdd20af2-4e75-4e03-8e43-844813678887
-    - queries:
+    - qualityScore: 53
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 13
@@ -4480,7 +4566,8 @@
           lineNumber: 13
           path: server/test/lib/service/service.getUsage.test.js
       uuid: be6c66cb-7aa9-499f-90b1-4703b2fc8d99
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 84
@@ -4517,7 +4604,8 @@
           lineNumber: 84
           path: server/test/services/mqtt/lib/updateContainer.test.js
       uuid: be87b805-5824-4df7-aef6-232dade239a3
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4553,7 +4641,8 @@
           lineNumber: 36
           path: front/cypress/e2e/routes/0-signup/SignUp.cy.js
       uuid: c1890337-63bd-43ab-b9fc-cdaa9b41a9b5
-    - queries:
+    - qualityScore: 83
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4589,7 +4678,8 @@
           lineNumber: 57
           path: front/src/components/boxs/device-in-room/DeviceListWithDragAndDrop.jsx
       uuid: c8080dd4-d1c0-4fb8-9781-e650b97df4f9
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4625,7 +4715,8 @@
           lineNumber: 57
           path: server/services/nextcloud-talk/lib/bot/bot.poll.js
       uuid: cda551ef-b246-4325-b679-d5a5d7cf266e
-    - queries:
+    - qualityScore: 86
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4663,7 +4754,8 @@
           lineNumber: 17
           path: front/src/components/device/view/DeviceFeatures.jsx
       uuid: cf3d6219-5bf8-493c-8d88-e928a69e2160
-    - queries:
+    - qualityScore: 91
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 8
@@ -4699,7 +4791,8 @@
           lineNumber: 8
           path: front/src/routes/integration/IntegrationCategory.jsx
       uuid: d1856d7b-652d-46d7-a014-dd35f45324c1
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4735,7 +4828,8 @@
           lineNumber: 98
           path: server/test/services/bluetooth/lib/config/bluetooth.saveConfiguration.test.js
       uuid: d2e1692f-5905-4bf8-9510-73385619f71e
-    - queries:
+    - qualityScore: 65
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4771,7 +4865,8 @@
           lineNumber: 52
           path: front/src/components/boxs/chart/ApexChartAreaOptions.js
       uuid: d53fc2fb-ae8a-406e-8d21-166d5ffc2963
-    - queries:
+    - qualityScore: 60
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4807,7 +4902,8 @@
           lineNumber: 16
           path: server/test/services/bluetooth/lib/events/bluetooth.scanStart.test.js
       uuid: d864ee36-dea3-4bc4-8216-4df0299de626
-    - queries:
+    - qualityScore: 32
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 94
@@ -4843,7 +4939,8 @@
           lineNumber: 94
           path: server/test/services/lan-manager/lib/lan-manager.transformDevice.test.js
       uuid: da33b464-138d-446d-a7ce-dd5278a315d7
-    - queries:
+    - qualityScore: 0
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4879,7 +4976,8 @@
           lineNumber: 46
           path: server/lib/location/location.get.js
       uuid: db735982-512a-422d-a13b-d37730389d32
-    - queries:
+    - qualityScore: 28
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 12
@@ -4915,7 +5013,8 @@
           lineNumber: 12
           path: server/lib/job/job.purge.js
       uuid: de75c8e1-8df3-4e6e-968e-fb4759aca861
-    - queries:
+    - qualityScore: 73
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 21
@@ -4951,7 +5050,8 @@
           lineNumber: 21
           path: server/test/services/melcloud/index.test.js
       uuid: e00f36ed-4c0a-4cd0-bf22-b9be4a56a5d6
-    - queries:
+    - qualityScore: 56
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -4987,7 +5087,8 @@
           lineNumber: 9
           path: server/services/zigbee2mqtt/utils/features/mapExpose.js
       uuid: e164b834-5df4-43c8-9e5b-00c734c30b8c
-    - queries:
+    - qualityScore: 76
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 25
@@ -5026,7 +5127,8 @@
           lineNumber: 25
           path: front/src/routes/scene/edit-scene/actions/UserPresence.jsx
       uuid: e1dfe899-4e28-49e7-be03-6cc074022905
-    - queries:
+    - qualityScore: 58
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -5062,7 +5164,8 @@
           lineNumber: 46
           path: front/src/routes/integration/all/lan-manager/discover-page/LANManagerDiscoverTab.jsx
       uuid: ed242b1d-c3bf-44ac-803d-c6c8dfc468dc
-    - queries:
+    - qualityScore: 80
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -5098,7 +5201,8 @@
           lineNumber: 11
           path: front/src/routes/integration/all/tasmota/discover-mqtt/index.js
       uuid: ee325216-24c8-4075-b4d4-388d644115ef
-    - queries:
+    - qualityScore: 73
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat:
@@ -5134,7 +5238,8 @@
           lineNumber: 51
           path: front/src/routes/integration/all/mqtt/device-page/DeviceTab.jsx
       uuid: fc80abfb-c0df-4f4d-b6f1-88df210873c6
-    - queries:
+    - qualityScore: 58
+      queries:
           - positionOfCorrectResult:
                 random:
                 seagoat: 9

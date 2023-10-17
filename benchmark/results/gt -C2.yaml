@@ -86,7 +86,7 @@
                 users
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 52
             text: File in django-oscar project for managing partner interactions and operations
           - positionOfCorrectResult:
                 random:
@@ -94,15 +94,15 @@
             text: File in django-oscar project for managing partners in dashboard app with URL routing and view handling
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 52
             text: Functionality for selecting partner users in django-oscar project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 52
             text: Python file managing partners in django-oscar project dashboard app
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 52
             text: Python file providing functionality for partner management in django-oscar project with operations for creating, deleting, and updating
                 partners
           - positionOfCorrectResult:
@@ -205,7 +205,7 @@
                 seagoat: 12
             text: class Migration for wishlists module database migration in django-oscar project
           - positionOfCorrectResult:
-                random:
+                random: 12
                 seagoat: 12
             text: django-oscar wishlists module database migration script
           - positionOfCorrectResult:
@@ -243,15 +243,15 @@
             text: Python code in 'oscar' project for assigning scores to products in e-commerce domain
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: Python file in 'analytics' app of 'oscar' project for calculating product scores
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: Python file in 'analytics' app of 'oscar' project that defines the Calculator class for calculating product scores
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: Python file used for calculating and storing analytics scores related to e-commerce domain in 'oscar' project
           - positionOfCorrectResult:
                 random:
@@ -276,11 +276,11 @@
             text: class CheckoutSessionData
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 20
             text: code file for testing checkout session behavior during checkout process
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 20
             text: code file to test checkout session
           - positionOfCorrectResult:
                 random:
@@ -288,7 +288,7 @@
             text: code file with CheckoutSessionData in integration testing environment
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 20
             text: initialize CheckoutSessionData instance with SessionMiddleware
           - positionOfCorrectResult:
                 random:
@@ -309,7 +309,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 2
             text: How to add exclusive field to ConditionalOffer model in Django-Oscar using migration script
           - positionOfCorrectResult:
                 random:
@@ -317,7 +317,7 @@
             text: How to generate Django migration script for modifying ConditionalOffer model in Django-Oscar on specific date and time
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 2
             text: How to modify ConditionalOffer schema in Django-Oscar to add exclusive field
           - positionOfCorrectResult:
                 random:
@@ -329,7 +329,7 @@
             text: How to modify database schema in Django-Oscar ConditionalOffer model using migration script with exclusive field
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 2
             text: How to write ConditionalOffer model migration script in Django-Oscar using Django's migration framework and necessary imports
           - positionOfCorrectResult:
                 random:
@@ -427,7 +427,7 @@
                 and validate email field in WishListSharedEmailForm? How to add and delete email addresses in the formset?
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 27
             text: Example code for managing wishlists in Django-Oscar using Python
           - positionOfCorrectResult:
                 random:
@@ -501,10 +501,10 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 185
             text: TestOncePerCustomerVoucher test case
           - positionOfCorrectResult:
-                random:
+                random: 185
                 seagoat: 185
             text: assertion to validate count of orders associated with voucher in integration tests
           - positionOfCorrectResult:
@@ -575,11 +575,11 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 10
             text: Django Oscar e-commerce platform CommunicationTypeManager get_and_render
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 10
             text: code file handle communication operations in Django Oscar e-commerce platform
           - positionOfCorrectResult:
                 random:
@@ -621,7 +621,7 @@
             text: changing field in many-to-many relationship of partner model in django-oscar
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 16
             text: code snippet to modify field in partner model of django-oscar
           - positionOfCorrectResult:
                 random:
@@ -637,7 +637,7 @@
             text: parameters to set properties for alterfield in partner model of django-oscar
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 16
             text: python script for overseeing migration of partner app in django-oscar
       repo:
           description: Domain-driven e-commerce for Django
@@ -687,21 +687,21 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 4
             text: django-oscar 'partner' app implementation file in 'apps' directory that defines models related to partners and imports abstract models
                 from different locations
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 4
             text: django-oscar 'partner' app implementation file that allows unregistered models to be used in other parts of the codebase
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 4
             text: django-oscar 'partner' app implementation file that checks for registration of abstract models and adds them to '__all__' list for importing
                 in other parts of the codebase
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 4
             text: django-oscar partner app implementation file abstract model registration
           - positionOfCorrectResult:
                 random:
@@ -713,7 +713,7 @@
             text: django-oscar partner app implementation file models imports
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 4
             text: django-oscar partner app implementation file models not registered add to __all__ list
       repo:
           description: Domain-driven e-commerce for Django
@@ -812,7 +812,7 @@
             text: conduct functional testing order status for anonymous user
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 14
             text: file purpose functional testing order status anonymous user Django-Oscar project
           - positionOfCorrectResult:
                 random:
@@ -853,7 +853,7 @@
             text: integration test for product reviews in Django-Oscar dashboard
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 74
             text: simulating HTTP GET request to review list view in Django-Oscar dashboard test file
           - positionOfCorrectResult:
                 random:
@@ -861,7 +861,7 @@
             text: test code for dashboard review list view
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 74
             text: testing the functionality of dashboard review list view
           - positionOfCorrectResult:
                 random:
@@ -919,7 +919,7 @@
             text: Code file in django-oscar for manipulating and displaying category information in templates
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 94
             text: Code file within templatetags folder of django-oscar e-commerce platform for efficient retrieval, filtering, and rendering of category
                 information in templates
           - positionOfCorrectResult:
@@ -941,7 +941,7 @@
             text: Method to retrieve category tree with maximum depth and browsing filter in django-oscar
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 94
             text: Retrieve category tree using Category model method
       repo:
           description: Domain-driven e-commerce for Django
@@ -980,7 +980,7 @@
             text: Python code implementing custom widgets for catalogue dashboard in django-oscar project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 11
             text: Python code overriding attributes and modifying HTML class for product selection widgets in Django e-commerce project
       repo:
           description: Domain-driven e-commerce for Django
@@ -1074,15 +1074,15 @@
             text: altering 'date_created' field in 'partner' app's database table
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 21
             text: python script for modifying 'date_created' field in 'partner' app's stockalert model
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 21
             text: python script for setting index on 'date_created' field of 'stockalert' model in 'partner' app's database table
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 21
             text: python script modifying date_created field in stockalert model
           - positionOfCorrectResult:
                 random:
@@ -1090,11 +1090,11 @@
             text: python script that modifies the structure and data of the database tables associated with the 'partner' app
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 21
             text: script for automatically storing current date and time in 'date_created' field of 'partner' app's stockalert model
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 21
             text: script written in Python that alters 'date_created' field of 'stockalert' model in 'partner' app's database table
       repo:
           description: Domain-driven e-commerce for Django
@@ -1164,11 +1164,11 @@
             text: test cases for PhoneNumberMixin
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 90
             text: tests for required and optional phone number fields with different input scenarios
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 90
             text: validation of phone number fields
       repo:
           description: Domain-driven e-commerce for Django
@@ -1189,11 +1189,11 @@
             text: Code line for applying validators to ProductAttribute code field
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 16
             text: Code line for changing maximum length of ProductAttribute field
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 16
             text: Django script for modifying ProductAttribute field
           - positionOfCorrectResult:
                 random:
@@ -1205,7 +1205,7 @@
             text: Migration script for modifying field in Django's ProductAttribute model
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 16
             text: Script for altering 'code' field in Django's ProductAttribute model with specific changes
       repo:
           description: Domain-driven e-commerce for Django
@@ -1258,7 +1258,7 @@
                 seagoat:
             text: class in Django Oscar for retrieving field names from an "AttributeFilter" object and returning them as filter keys in a dictionary
           - positionOfCorrectResult:
-                random: 29
+                random:
                 seagoat:
             text: code file for defining query sets for product and category models in Django Oscar
           - positionOfCorrectResult:
@@ -1419,7 +1419,7 @@
             text: Function to create categories based on a breadcrumb string
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 18
             text: Function to create categories based on a sequence of names
           - positionOfCorrectResult:
                 random:
@@ -1467,7 +1467,7 @@
             text: test case method to verify default state of alert
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 16
             text: test code file for customer alert integration
       repo:
           description: Domain-driven e-commerce for Django
@@ -1525,7 +1525,7 @@
             text: Python file with tests to ensure proper functioning of Django-Oscar checkout process for digital goods
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 8
             text: Test file in Django-Oscar codebase that creates digital product for checkout process
       repo:
           description: Domain-driven e-commerce for Django
@@ -1546,11 +1546,11 @@
             text: class responsible for handling range deletion in dashboard ranges app
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 22
             text: code that facilitates the management and organization of ranges in the dashboard ranges app of Django Oscar
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 22
             text: configuration file for managing ranges in Django Oscar
           - positionOfCorrectResult:
                 random:
@@ -1562,7 +1562,7 @@
             text: functionality for creating, updating, and deleting ranges in dashboard app of Django Oscar
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 22
             text: purpose of the file handling the configuration of the dashboard ranges app in Django Oscar
       repo:
           description: Domain-driven e-commerce for Django
@@ -1649,7 +1649,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 114
             text: code file for generating and managing messages in shopping basket
           - positionOfCorrectResult:
                 random:
@@ -1669,11 +1669,11 @@
             text: file with utility functions for generating and applying shopping basket messages in Django-Oscar project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 114
             text: function to handle messages in shopping basket
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 114
             text: utility function for managing shopping basket messages
       repo:
           description: Domain-driven e-commerce for Django
@@ -1772,11 +1772,11 @@
             text: migrating data for slugs in Django Oscar catalog app
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 23
             text: migration script for updating category slugs in Django Oscar catalog app
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 23
             text: python script used in Django Oscar catalog app for migrating and updating category slugs in the database
           - positionOfCorrectResult:
                 random:
@@ -1880,7 +1880,7 @@
             text: migration script django framework ProductAttributeValue model catalogue app Oscar project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 24
             text: migration script modify database schema ProductAttributeValue model catalogue app Oscar project add field ProductAttributeValue model
                 alter fields ProductAttribute model
           - positionOfCorrectResult:
@@ -1897,7 +1897,7 @@
             text: modify database schema ProductAttributeValue model catalogue app Oscar project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 24
             text: modify foreign key relationship option_group field ProductAttribute model
           - positionOfCorrectResult:
                 random:
@@ -1955,7 +1955,7 @@
             text: Django Oscar dashboard file responsible for weight-based shipping methods management
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: Django Oscar dashboard shipping file
           - positionOfCorrectResult:
                 random:
@@ -1974,7 +1974,7 @@
                 seagoat: 13
             text: file in Django Oscar dashboard handling operations related to weight-based shipping methods and bands
           - positionOfCorrectResult:
-                random:
+                random: 13
                 seagoat: 13
             text: weight-based shipping methods management Django Oscar
       repo:
@@ -2151,7 +2151,7 @@
             text: class providing methods for handling attribute values in Django-Oscar
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 38
             text: code line managing product attributes in Django-Oscar
           - positionOfCorrectResult:
                 random:
@@ -2180,7 +2180,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 44
             text: component called MqttDeviceForm responsible for rendering and updating the input fields for a device
           - positionOfCorrectResult:
                 random:
@@ -2217,7 +2217,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 20
             text: Code line for capturing values entered in IP address input fields for Tasmota search form
           - positionOfCorrectResult:
                 random:
@@ -2330,7 +2330,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: async function for turning off light
           - positionOfCorrectResult:
                 random:
@@ -2342,7 +2342,7 @@
             text: code file to handle state and deactivation of light device feature
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: file that controls deactivation of light feature
           - positionOfCorrectResult:
                 random:
@@ -2412,7 +2412,7 @@
             text: code file responsible for initializing services in application
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 40
             text: file in lib directory of Gladys application that starts services from the database
           - positionOfCorrectResult:
                 random:
@@ -2424,7 +2424,7 @@
             text: function that retrieves list of services and starts them sequentially in a specific order
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 40
             text: implementation code in Gladys server codebase that starts all services
           - positionOfCorrectResult:
                 random:
@@ -2441,7 +2441,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 44
             text: class representing mock implementation of eWeLink API service with methods for device information, power states, power usage, temperature,
                 and humidity
           - positionOfCorrectResult:
@@ -2602,7 +2602,7 @@
             text: checking retrieved image against expected value in camera controller test
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 55
             text: code for sending HTTP request and verifying response in camera controller test
           - positionOfCorrectResult:
                 random:
@@ -2704,7 +2704,7 @@
                 seagoat:
             text: code file used within Gladys home assistant project for TP-Link device integration
           - positionOfCorrectResult:
-                random:
+                random: 10
                 seagoat: 10
             text: controller file for TP-Link device integration
           - positionOfCorrectResult:
@@ -2738,12 +2738,12 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 25
             text: code that fetches scenes by applying filters, sort order, and limit to the result. Returns scenes from the server as plain JavaScript
                 objects
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 25
             text: fetch scenes from a database based on specified query parameters
           - positionOfCorrectResult:
                 random:
@@ -2751,7 +2751,7 @@
             text: get scenes with specified options like limit and search filters
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 25
             text: implementation code to retrieve scenes from the server based on specified query parameters. Supports filtering, sorting, and limit options
           - positionOfCorrectResult:
                 random:
@@ -2781,7 +2781,7 @@
             text: code to retrieve service from database, stop it, and update status
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 10
             text: code to stop a service by its name and update status
           - positionOfCorrectResult:
                 random:
@@ -2789,15 +2789,15 @@
             text: component to manage services on server
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 10
             text: file to halt a specific service on server and update its status
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 10
             text: file to halt service on server
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 10
             text: implementation file to stop service on server
           - positionOfCorrectResult:
                 random:
@@ -2838,7 +2838,7 @@
             text: usage of sendCameraFileToGateway unit test in gladysGatewayClient
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 48
             text: validate successful camera file upload to gateway
       repo:
           description: A privacy-first, open-source home assistant
@@ -2863,7 +2863,7 @@
             text: file in the Xiaomi library that contains a switch statement for directing messages based on device model
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 52
             text: file in the event folder of the Xiaomi library that routes incoming messages based on device model
           - positionOfCorrectResult:
                 random:
@@ -2966,11 +2966,11 @@
             text: code implementation to facilitate Cross-Origin Resource Sharing (CORS) in API server middleware stack
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 8
             text: code setting response headers for handling CORS requests in API server
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 8
             text: code that allows requests from different origins and configures permitted HTTP methods and allowed headers for CORS in API server middleware
                 stack
           - positionOfCorrectResult:
@@ -2983,7 +2983,7 @@
             text: file for managing CORS requests in API server
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 8
             text: file responsible for Cross-Origin Resource Sharing in API server middleware stack
           - positionOfCorrectResult:
                 random:
@@ -3053,7 +3053,7 @@
             text: function for setting image on camera device
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 9
             text: function for setting image on camera device with validation and command sending
           - positionOfCorrectResult:
                 random:
@@ -3082,11 +3082,11 @@
             text: cancel learning mode Broadlink device identifier peripheral websocket message
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 22
             text: code file cancellation learning process Broadlink devices Gladys server
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 22
             text: code file responsible handling cancellation learning process Broadlink devices Gladys server lib learn directory
           - positionOfCorrectResult:
                 random:
@@ -3098,7 +3098,7 @@
             text: implementation code JavaScript cancellation learning mode peripheral
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 22
             text: lib directory code file cancellation learning mode Broadlink device Gladys server
       repo:
           description: A privacy-first, open-source home assistant
@@ -3193,7 +3193,7 @@
             text: create a new house object with name, selector, latitude, and longitude
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 9
             text: emit an event for the successful creation of a new house in the Gladys application
           - positionOfCorrectResult:
                 random:
@@ -3234,7 +3234,7 @@
             text: asynchronous request to API to fetch weather data in Node.js
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 30
             text: code file used in a dashboard application that displays weather data using React
           - positionOfCorrectResult:
                 random:
@@ -3300,7 +3300,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 18
             text: add a Xiaomi motion sensor to the system and enable features
           - positionOfCorrectResult:
                 random:
@@ -3308,11 +3308,11 @@
             text: emits events related to the battery value, motion detection, no-motion detection, and luminosity status
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 18
             text: file serves as an implementation for handling new values received from a Xiaomi motion sensor in a system
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 18
             text: implementation for handling new values received from a Xiaomi motion sensor
           - positionOfCorrectResult:
                 random:
@@ -3416,7 +3416,7 @@
             text: Broadlink device send infrared codes
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 72
             text: Broadlink service import modules
           - positionOfCorrectResult:
                 random:
@@ -3495,7 +3495,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: class component to handle user presence at home
           - positionOfCorrectResult:
                 random:
@@ -3519,7 +3519,7 @@
             text: functions to update selected options and properties related to user and house
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 13
             text: location of the file that defines UserSeenAtHome component used for handling user's presence in scene editing feature
       repo:
           description: A privacy-first, open-source home assistant
@@ -3547,7 +3547,7 @@
                 seagoat:
             text: class with methods to manage key-value pairs in memory store
           - positionOfCorrectResult:
-                random:
+                random: 18
                 seagoat: 18
             text: deletion method using 'delete' keyword to remove specific key-value pair from cache
           - positionOfCorrectResult:
@@ -3569,7 +3569,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 31
             text: responsible for displaying the user creation page within the settings section of Gladys
           - positionOfCorrectResult:
                 random:
@@ -3577,11 +3577,11 @@
             text: settings section of Gladys
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 31
             text: used exclusively for creating a new user in the user management feature of Gladys
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 31
             text: user creation page
           - positionOfCorrectResult:
                 random:
@@ -3589,11 +3589,11 @@
             text: user management feature
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 31
             text: user profile and form for creating new users
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 31
             text: utilized within the settings area of Gladys to present the user profile and a form for creating new users
       repo:
           description: A privacy-first, open-source home assistant
@@ -3614,7 +3614,7 @@
             text: code that assigns a unique identifier to the Battery feature of the Xiaomi Magnet Sensor device
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 50
             text: code that defines the minimum and maximum voltage constants for the battery
           - positionOfCorrectResult:
                 random:
@@ -3622,7 +3622,7 @@
             text: code that extracts relevant information from input parameters and logs debug message
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 50
             text: code that updates the battery value of the Xiaomi Magnet Sensor device and the state of the magnet
           - positionOfCorrectResult:
                 random:
@@ -3680,7 +3680,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 41
             text: calculate average humidity from sensor readings
           - positionOfCorrectResult:
                 random:
@@ -3692,7 +3692,7 @@
             text: function to calculate average humidity in a room from humidity sensor data
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 41
             text: implementation that calculates average humidity based on sensors
           - positionOfCorrectResult:
                 random:
@@ -3704,7 +3704,7 @@
             text: query database for humidity sensor data and calculate average humidity
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 41
             text: retrieve relevant humidity sensor data and compute average value
       repo:
           description: A privacy-first, open-source home assistant
@@ -3721,27 +3721,27 @@
             text: JavaScript code for selecting trigger type in Gladys project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 68
             text: JavaScript code in Gladys project for rendering dropdown select input to choose trigger type for scene editing
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 68
             text: JavaScript code in front-end of Gladys project for handling trigger type selection in scene editing
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 68
             text: code in front-end of Gladys project that handles selection of trigger types for editing scenes
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 68
             text: code that displays component for selecting trigger type in scene editing in Gladys project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 68
             text: code that renders dropdown select for selecting trigger type in Gladys project
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 68
             text: code to select trigger type for scene editing in Gladys project
       repo:
           description: A privacy-first, open-source home assistant
@@ -3813,7 +3813,7 @@
             text: function that retrieves a collection of matched events based on the filtering conditions
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 66
             text: function that searches for the current event in the calendar
           - positionOfCorrectResult:
                 random:
@@ -3846,7 +3846,7 @@
             text: conditionally render Profile component in user creation form
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 26
             text: file responsible for displaying form in Gladys settings
           - positionOfCorrectResult:
                 random:
@@ -3879,7 +3879,7 @@
             text: implementation of file includes test case for getBridges controller function
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 20
             text: makes assertions on the result of calling the controller function
           - positionOfCorrectResult:
                 random:
@@ -4071,7 +4071,7 @@
                 seagoat:
             text: function to restart container in Gladys server system
           - positionOfCorrectResult:
-                random: 6
+                random:
                 seagoat:
             text: function to restart specific container in Gladys server system with Promise implementation
           - positionOfCorrectResult:
@@ -4105,7 +4105,7 @@
             text: test cases for pick function with diverse input objects
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 25
             text: test file for object utility functions
           - positionOfCorrectResult:
                 random:
@@ -4138,10 +4138,10 @@
             text: code file with Mocha tests to confirm accuracy of LAN manager scan feature
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 47
             text: file that tests the scanning functionality of the LAN manager module
           - positionOfCorrectResult:
-                random:
+                random: 47
                 seagoat:
             text: file used for validating scan functionality
           - positionOfCorrectResult:
@@ -4163,7 +4163,7 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 5
             text: external ID parsing logic test file
           - positionOfCorrectResult:
                 random:
@@ -4171,7 +4171,7 @@
             text: import parsing function from codebase
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 5
             text: invoke parsing function with sample external ID and assert
           - positionOfCorrectResult:
                 random:
@@ -4463,7 +4463,7 @@
             text: configure database retries
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 15
             text: configure retry mechanism for database queries
           - positionOfCorrectResult:
                 random:
@@ -4512,11 +4512,11 @@
             text: component's null render method in preact
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 5
             text: file defining custom navigation component for preact-router
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 5
             text: file defining custom programmatic navigation component with preact-router
           - positionOfCorrectResult:
                 random:
@@ -4668,7 +4668,7 @@
                 seagoat:
             text: implementation of front-end user interface for device management with drag and drop functionality
           - positionOfCorrectResult:
-                random:
+                random: 57
                 seagoat:
             text: render input element with dynamic styling based on component state
       repo:
@@ -4811,7 +4811,7 @@
             text: save configuration with frequency parameter while maintaining default status of presence scanner
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 98
             text: saveConfiguration method with frequency parameter
           - positionOfCorrectResult:
                 random:
@@ -4910,7 +4910,7 @@
             text: description of test file used to check accuracy of LAN device transformation
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 94
             text: file responsible for testing LAN device transformation in LAN Manager service
           - positionOfCorrectResult:
                 random:
@@ -4967,7 +4967,7 @@
             text: implementation to fetch user location information between specified start and end dates
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 46
             text: module exports function to fetch user location data between specified dates
       repo:
           description: A privacy-first, open-source home assistant
@@ -4980,23 +4980,23 @@
       queries:
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 12
             text: asynchronous function to delete job data
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 12
             text: delete background jobs
           - positionOfCorrectResult:
                 random:
                 seagoat:
             text: delete background jobs prior to a specified date
           - positionOfCorrectResult:
-                random: 12
+                random:
                 seagoat:
             text: function in codebase to delete background jobs created before a specified date
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 12
             text: implementation of data purging process for background job deletion
           - positionOfCorrectResult:
                 random:
@@ -5004,7 +5004,7 @@
             text: remove unnecessary data
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 12
             text: usage of main function to delete older job records in application
       repo:
           description: A privacy-first, open-source home assistant
@@ -5180,7 +5180,7 @@
             text: Find code file for MQTT device discovery in Gladys home assistant's Tasmota integration page component
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 11
             text: Find component responsible for Tasmota integration
           - positionOfCorrectResult:
                 random:
@@ -5225,7 +5225,7 @@
             text: File responsible for rendering the page displaying devices for MQTT integration
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 51
             text: MQTT integration DeviceTab component
           - positionOfCorrectResult:
                 random:
@@ -5246,7 +5246,7 @@
             text: Debug message logging the name and model of Tuya device during conversion
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 9
             text: File responsible for integrating Tuya devices into Gladys home assistant platform
           - positionOfCorrectResult:
                 random:
@@ -5262,11 +5262,11 @@
             text: convert Tuya device properties and features into Gladys format
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 9
             text: function that extracts information from Tuya device and converts into Gladys feature
           - positionOfCorrectResult:
                 random:
-                seagoat:
+                seagoat: 9
             text: function to transform Tuya device into Gladys device
       repo:
           description: A privacy-first, open-source home assistant
