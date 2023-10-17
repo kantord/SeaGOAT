@@ -2,6 +2,25 @@
 
 
 
+## v0.36.2 (2023-10-17)
+
+### Chore
+
+* chore: benchmark chance of correct result by line N ([`c15ab6e`](https://github.com/kantord/SeaGOAT/commit/c15ab6edb9b1c3752a3fecfac5c3e3e061b20e69))
+
+* chore: store benchmark results in yaml files ([`d3de9e8`](https://github.com/kantord/SeaGOAT/commit/d3de9e8851733d2381c32099075164f7cea8dbcc))
+
+* chore: allow comparing different test runs in benchmarks ([`0b57f4f`](https://github.com/kantord/SeaGOAT/commit/0b57f4f6cbef5167d27d66a41ae37c03b439f968))
+
+* chore: add more benchmark examples
+
+. ([`912bcae`](https://github.com/kantord/SeaGOAT/commit/912bcae0873a8d86427a7025362f89926fa5de6f))
+
+### Performance
+
+* perf: avoid full repo analysis when no changes detected ([`f92b887`](https://github.com/kantord/SeaGOAT/commit/f92b887191f8f22434d6a701c99d8a5eb0433444))
+
+
 ## v0.36.1 (2023-10-17)
 
 ### Chore
