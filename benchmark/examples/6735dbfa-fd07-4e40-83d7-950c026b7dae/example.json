@@ -16,5 +16,6 @@
         "Migration operation for altering field in ProductAttribute",
         "Migration script for modifying field in Django's ProductAttribute model",
         "Script for altering 'code' field in Django's ProductAttribute model with specific changes"
-    ]
+    ],
+    "qualityScore": 56
 }

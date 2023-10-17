@@ -16,5 +16,6 @@
         "file that displays an empty state component on the discover page",
         "file that renders an empty state component for MELCloud integration in the Gladys project",
         "file with a functional component that renders an empty state on the MELCloud integration discover page in Gladys project"
-    ]
+    ],
+    "qualityScore": 95
 }

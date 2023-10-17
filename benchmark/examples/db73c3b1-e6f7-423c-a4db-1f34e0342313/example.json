@@ -16,5 +16,6 @@
         "file for search operations in Oscar e-commerce app",
         "file in Oscar e-commerce app that calls parent method before returning search response",
         "implementation code file for search in Oscar e-commerce app"
-    ]
+    ],
+    "qualityScore": 53
 }

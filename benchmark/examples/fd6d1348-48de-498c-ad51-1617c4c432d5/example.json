@@ -16,5 +16,6 @@
         "purpose of this code file is to define the admin interface for managing offers in our e-commerce project based on Django-Oscar",
         "this code file enables the creation, update, and deletion of offers through the admin panel of our e-commerce project, and provides an intuitive interface for handling various aspects of offers, such as conditions, benefits, start and end dates, priority, and usage statistics",
         "this file is part of the fieldset definition for the ConditionalOffer model in the admin interface, and specifically contributes the 'condition' field to the first fieldset, allowing administrators to specify conditions for each offer"
-    ]
+    ],
+    "qualityScore": 53
 }

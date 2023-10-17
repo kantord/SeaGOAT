@@ -16,5 +16,6 @@
         "Django-Oscar e-commerce project duplicate email addresses",
         "Django-Oscar file responsible for identifying and handling duplicate email addresses",
         "User model duplicate email address identification"
-    ]
+    ],
+    "qualityScore": 0
 }

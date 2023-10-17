@@ -16,5 +16,6 @@
         "implementation code for polling Tasmota devices",
         "implementation code for polling Tasmota devices with protocol extraction and handler method",
         "polling function for Tasmota devices"
-    ]
+    ],
+    "qualityScore": 55
 }

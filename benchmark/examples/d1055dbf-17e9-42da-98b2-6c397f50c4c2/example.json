@@ -16,5 +16,6 @@
         "What are the default permissions required for accessing the partners dashboard in Django-Oscar?",
         "What is the purpose of the configuration file in Django-Oscar for setting up the dashboard functionality for managing partners? Which actions does it define URL patterns, permissions, and views for?",
         "Which file is responsible for configuring the partners dashboard and URL patterns for managing partner-related views and permissions in Django-Oscar?"
-    ]
+    ],
+    "qualityScore": 88
 }

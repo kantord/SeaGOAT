@@ -16,5 +16,6 @@
         "initialize object with default options, modify based on provided options, execute final query using database function, and return scenes as array of JavaScript objects",
         "retrieve a collection of scenes with filtering options",
         "retrieve a specific scene from the server"
-    ]
+    ],
+    "qualityScore": 85
 }

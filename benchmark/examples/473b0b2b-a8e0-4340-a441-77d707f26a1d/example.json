@@ -16,5 +16,6 @@
         "test file bluetooth subscribe",
         "validate behavior subscribe function bluetooth utils",
         "verify subscription functionality bluetooth test file"
-    ]
+    ],
+    "qualityScore": 85
 }

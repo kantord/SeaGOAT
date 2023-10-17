@@ -16,5 +16,6 @@
         "file purpose is to verify start scanning in Bluetooth library implementation",
         "file to verify start scanning in Bluetooth library",
         "test file start scanning BluetoothManager"
-    ]
+    ],
+    "qualityScore": 60
 }

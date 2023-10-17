@@ -16,5 +16,6 @@
         "test classes for Django's models.Model in django-oscar",
         "test classes that inherit from models.Model in django-oscar",
         "test implementations for model_tests_app in django-oscar"
-    ]
+    ],
+    "qualityScore": 66
 }

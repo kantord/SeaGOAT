@@ -16,5 +16,6 @@
         "code for creating, deleting, logging in, and updating user details",
         "file containing functions for creating, deleting, logging in, initializing, and retrieving user information",
         "file responsible for user management and authentication"
-    ]
+    ],
+    "qualityScore": 28
 }

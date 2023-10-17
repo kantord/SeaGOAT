@@ -16,5 +16,6 @@
         "React component handling new user creation in Gladys settings",
         "React component in Gladys settings for new user creation",
         "This file is a React component that extends from the `preact.Component` class in the Gladys settings section. It manages the creation of a new user by rendering a layout and form. The user can specify properties such as first name, last name, email, role, language, password, birthdate, temperature unit preference, and distance unit preference. The component takes care of initializing and cleaning up the user's data. It is a part of the Gladys settings section and utilizes the `<SettingsLayout>` component for consistent layout."
-    ]
+    ],
+    "qualityScore": 64
 }

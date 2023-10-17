@@ -16,5 +16,6 @@
         "setup phase involves creating a product and establishing a product alert for the user associated with that product in the code file for testing customer alert integration",
         "test case method to verify default state of alert",
         "test code file for customer alert integration"
-    ]
+    ],
+    "qualityScore": 0
 }

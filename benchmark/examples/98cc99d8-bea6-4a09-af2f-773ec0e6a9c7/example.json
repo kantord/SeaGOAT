@@ -16,5 +16,6 @@
         "functional implementation file for leak sensor device",
         "method to process data from leak sensor",
         "process incoming messages for leak sensor"
-    ]
+    ],
+    "qualityScore": 25
 }

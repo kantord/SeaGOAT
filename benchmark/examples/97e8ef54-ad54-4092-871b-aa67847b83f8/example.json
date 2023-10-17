@@ -16,5 +16,6 @@
         "python script that modifies the structure and data of the database tables associated with the 'partner' app",
         "script for automatically storing current date and time in 'date_created' field of 'partner' app's stockalert model",
         "script written in Python that alters 'date_created' field of 'stockalert' model in 'partner' app's database table"
-    ]
+    ],
+    "qualityScore": 51
 }

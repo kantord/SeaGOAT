@@ -16,5 +16,6 @@
         "convert Tuya device properties and features into Gladys format",
         "function that extracts information from Tuya device and converts into Gladys feature",
         "function to transform Tuya device into Gladys device"
-    ]
+    ],
+    "qualityScore": 58
 }

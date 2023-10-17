@@ -16,5 +16,6 @@
         "File responsible for rendering the page displaying devices for MQTT integration",
         "MQTT integration DeviceTab component",
         "UI components and functionality for managing MQTT devices"
-    ]
+    ],
+    "qualityScore": 73
 }

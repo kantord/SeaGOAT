@@ -16,5 +16,6 @@
         "code file in Gladys that handles user presence form with selectable component and event management",
         "code responsible for rendering form component for user presence in scene",
         "code that updates corresponding properties when options are changed in form component"
-    ]
+    ],
+    "qualityScore": 56
 }

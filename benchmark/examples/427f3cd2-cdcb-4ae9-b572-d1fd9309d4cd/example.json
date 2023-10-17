@@ -16,5 +16,6 @@
         "file responsible for processing incoming messages in the onMessage function",
         "file that handles messages from Xiaomi plug devices",
         "specific file in the server project that handles messages related to Xiaomi plug devices"
-    ]
+    ],
+    "qualityScore": 58
 }

@@ -17,5 +17,6 @@
         "test code for verifying the display of upsell messages in the integration context of django-oscar",
         "test for verifying the correct display of upsell messages",
         "upsell message functionality and specific conditions"
-    ]
+    ],
+    "qualityScore": 85
 }

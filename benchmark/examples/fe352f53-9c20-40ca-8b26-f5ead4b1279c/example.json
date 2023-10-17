@@ -16,5 +16,6 @@
         "Python file managing partners in django-oscar project dashboard app",
         "Python file providing functionality for partner management in django-oscar project with operations for creating, deleting, and updating partners",
         "URL routing and view handling for partner management in django-oscar project"
-    ]
+    ],
+    "qualityScore": 91
 }

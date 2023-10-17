@@ -16,5 +16,6 @@
         "part of testing suite for Philips Hue service",
         "test file for getBridges controller function",
         "verifies if bridges are correctly retrieved"
-    ]
+    ],
+    "qualityScore": 53
 }

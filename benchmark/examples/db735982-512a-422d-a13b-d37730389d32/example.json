@@ -16,5 +16,6 @@
         "function that retrieves user locations within specified time range",
         "implementation to fetch user location information between specified start and end dates",
         "module exports function to fetch user location data between specified dates"
-    ]
+    ],
+    "qualityScore": 0
 }

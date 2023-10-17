@@ -16,5 +16,6 @@
         "testing tool for eWeLink API",
         "unit tests mock implementation eWeLink API",
         "usage of mock implementation instead of actual API service in larger codebase"
-    ]
+    ],
+    "qualityScore": 51
 }

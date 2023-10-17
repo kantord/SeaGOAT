@@ -16,5 +16,6 @@
         "error handling and updating box status in case of any error in a React application",
         "file responsible for fetching weather data in a React app",
         "function to retrieve and display weather data on a dashboard"
-    ]
+    ],
+    "qualityScore": 55
 }

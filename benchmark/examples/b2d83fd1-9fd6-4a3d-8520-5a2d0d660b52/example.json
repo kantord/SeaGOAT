@@ -16,5 +16,6 @@
         "Which file defines the ExtendedURLField in the e-commerce domain?",
         "Which file overrides the URLField widget to support relative URLs?",
         "Which file overrides the URLField widget to use TextInput instead of URLInput?"
-    ]
+    ],
+    "qualityScore": 55
 }

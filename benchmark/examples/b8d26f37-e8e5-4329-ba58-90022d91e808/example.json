@@ -16,5 +16,6 @@
         "Preact integration discovery page",
         "Preact integration discovery page for Tuya devices",
         "Tuya devices component class"
-    ]
+    ],
+    "qualityScore": 85
 }

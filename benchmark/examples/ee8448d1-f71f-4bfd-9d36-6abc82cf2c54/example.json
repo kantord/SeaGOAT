@@ -16,5 +16,6 @@
         "file that defines URL patterns in Django-Oscar sandbox environment",
         "import modules and components from Django in Django-Oscar sandbox URL patterns file",
         "import necessary modules and define URL patterns in Django-Oscar sandbox environment file"
-    ]
+    ],
+    "qualityScore": 26
 }

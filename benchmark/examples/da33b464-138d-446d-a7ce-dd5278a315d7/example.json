@@ -16,5 +16,6 @@
         "test cases for transforming LAN devices with MAC starting with x2",
         "test file for transforming LAN Manager service",
         "validate transformation function for LAN devices with specific MAC format"
-    ]
+    ],
+    "qualityScore": 32
 }

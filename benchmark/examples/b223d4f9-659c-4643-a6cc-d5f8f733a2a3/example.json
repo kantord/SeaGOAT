@@ -16,5 +16,6 @@
         "test suite for checkIfBackupNeeded method",
         "test suite for checkIfBackupNeeded method in Gladys gateway",
         "verify checkIfBackupNeeded method functionality"
-    ]
+    ],
+    "qualityScore": 79
 }

@@ -16,5 +16,6 @@
         "How to manage wishlists in Django-Oscar using formset?",
         "How to use formset with email field in WishListSharedEmailForm?",
         "In Django-Oscar e-commerce framework, how to handle wishlists? How are formsets used? What models are involved? How to work with the email field in WishListSharedEmailForm? How to add and delete email addresses in the formset?"
-    ]
+    ],
+    "qualityScore": 83
 }

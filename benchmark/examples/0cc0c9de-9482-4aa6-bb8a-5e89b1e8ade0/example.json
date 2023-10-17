@@ -16,5 +16,6 @@
         "test cases targeting Google Actions service functionality",
         "tests focused on verifying Google Actions service initialization and termination",
         "unit tests for Google Actions service"
-    ]
+    ],
+    "qualityScore": 60
 }

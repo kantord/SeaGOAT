@@ -16,5 +16,6 @@
         "file with utility functions for generating and applying shopping basket messages in Django-Oscar project",
         "function to handle messages in shopping basket",
         "utility function for managing shopping basket messages"
-    ]
+    ],
+    "qualityScore": 76
 }

@@ -16,5 +16,6 @@
         "how the 'id' field is defined for the Basket model in django-oscar",
         "migration script for basket app in django-oscar",
         "script used to create three models - Basket, Line, and LineAttribute - and their fields in database"
-    ]
+    ],
+    "qualityScore": 78
 }

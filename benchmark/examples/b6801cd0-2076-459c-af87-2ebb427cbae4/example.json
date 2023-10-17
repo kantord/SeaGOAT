@@ -16,5 +16,6 @@
         "JavaScript module in Gladys codebase responsible for enabling sending and receiving of Telegram messages",
         "JavaScript module used in Gladys for Telegram integration",
         "Telegram messages management class in Gladys"
-    ]
+    ],
+    "qualityScore": 80
 }

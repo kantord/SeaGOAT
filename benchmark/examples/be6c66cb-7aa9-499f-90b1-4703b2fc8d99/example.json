@@ -16,5 +16,6 @@
         "test suite to assess different scenarios of getUsage implementation",
         "test suite to verify implementation of getUsage function",
         "validate accuracy of functionality in service module"
-    ]
+    ],
+    "qualityScore": 53
 }

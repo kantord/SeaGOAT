@@ -16,5 +16,6 @@
         "file to halt service on server",
         "implementation file to stop service on server",
         "stop service by name"
-    ]
+    ],
+    "qualityScore": 56
 }

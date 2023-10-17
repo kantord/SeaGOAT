@@ -16,5 +16,6 @@
         "purpose of code file to terminate Bluetooth presence scan and remove pending timers in Gladys server",
         "test file to stop Bluetooth presence scan in Gladys server",
         "usage of interval timer and stopScanPresence function in BluetoothManager to cancel presence scan in Gladys server"
-    ]
+    ],
+    "qualityScore": 26
 }

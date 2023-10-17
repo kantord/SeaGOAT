@@ -17,5 +17,6 @@
         "initialize sourcemaps for SCSS to CSS conversion in gulpfile.js",
         "purpose of the file converting SCSS to CSS for django-oscar project in gulpfile.js",
         "usage of the file for SCSS to CSS conversion in gulpfile.js"
-    ]
+    ],
+    "qualityScore": 56
 }

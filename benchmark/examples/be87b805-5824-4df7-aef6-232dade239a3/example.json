@@ -16,5 +16,6 @@
         "test file for updateContainer function in MQTT library in Gladys project",
         "test file for updating MQTT container using updateContainer function in Gladys project",
         "updateContainer function test for MQTT library in Gladys project"
-    ]
+    ],
+    "qualityScore": 83
 }

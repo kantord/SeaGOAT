@@ -16,5 +16,6 @@
         "code to test API endpoints for camera controller",
         "file that performs unit tests for camera controller API endpoints",
         "test file for camera controller to verify expected behavior"
-    ]
+    ],
+    "qualityScore": 55
 }

@@ -16,5 +16,6 @@
         "test methods for CCV field validation of American Express cards",
         "test suite for validating payment forms in the integration environment",
         "test suite for validation of payment form fields including card number, starting month, expiration month, and CCV"
-    ]
+    ],
+    "qualityScore": 85
 }

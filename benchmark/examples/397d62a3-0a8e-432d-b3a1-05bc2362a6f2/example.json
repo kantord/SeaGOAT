@@ -16,5 +16,6 @@
         "file in Django Oscar dashboard for managing weight-based shipping methods",
         "file in Django Oscar dashboard handling operations related to weight-based shipping methods and bands",
         "weight-based shipping methods management Django Oscar"
-    ]
+    ],
+    "qualityScore": 83
 }

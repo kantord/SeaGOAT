@@ -16,5 +16,6 @@
         "code rendering input element with dynamic CSS class based on condition",
         "implementation of front-end user interface for device management with drag and drop functionality",
         "render input element with dynamic styling based on component state"
-    ]
+    ],
+    "qualityScore": 83
 }

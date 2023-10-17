@@ -16,5 +16,6 @@
         "specific object creation and teardown in Tasmota test file",
         "test file for Tasmota connect function",
         "test suite for Tasmota service"
-    ]
+    ],
+    "qualityScore": 54
 }

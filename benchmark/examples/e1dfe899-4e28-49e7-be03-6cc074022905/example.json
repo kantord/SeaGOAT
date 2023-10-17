@@ -16,5 +16,6 @@
         "code file in Gladys that handles actions related to user presence in the edit scene feature, modifies and updates user and house options, communicates with server to fetch available users and houses, populates dropdown menus, and adjusts action properties based on selections",
         "code file responsible for dynamically populating dropdown menus in user presence section of edit scene feature in Gladys",
         "file for user presence in edit scene feature of Gladys"
-    ]
+    ],
+    "qualityScore": 76
 }

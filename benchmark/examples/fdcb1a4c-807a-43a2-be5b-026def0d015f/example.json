@@ -16,5 +16,6 @@
         "implement HTTP GET request order status path anonymous user Django-Oscar",
         "implementation involves retrieve URL order status page HTTP GET request path anonymous user Django-Oscar",
         "specifically designed test ability view order status anonymous user HTTP GET request specified path Django-Oscar"
-    ]
+    ],
+    "qualityScore": 75
 }

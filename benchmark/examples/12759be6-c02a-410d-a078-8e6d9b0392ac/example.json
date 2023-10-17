@@ -16,5 +16,6 @@
         "function that retrieves list of services and starts them sequentially in a specific order",
         "implementation code in Gladys server codebase that starts all services",
         "module exports function to start services one by one in a specific order"
-    ]
+    ],
+    "qualityScore": 57
 }

@@ -16,5 +16,6 @@
         "Find function executed on Tasmota integration page mount",
         "Find lifecycle method in TasmotaIntegration component that fetches list of houses associated with user",
         "Retrieve list of houses for user in Gladys home assistant"
-    ]
+    ],
+    "qualityScore": 80
 }

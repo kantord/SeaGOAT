@@ -16,5 +16,6 @@
         "file responsible for managing different types of records in django-oscar",
         "file responsible for setting the plural name for the user records model in django-oscar, utilizing translation function for multilingual support",
         "setting the plural name for user records in django-oscar"
-    ]
+    ],
+    "qualityScore": 55
 }

@@ -16,5 +16,6 @@
         "implementation to check if TuyaHandler loadDevices method uses GET for HTTP request",
         "test code for loadDevices method TuyaHandler",
         "test code to verify loadDevices method retrieves devices"
-    ]
+    ],
+    "qualityScore": 81
 }

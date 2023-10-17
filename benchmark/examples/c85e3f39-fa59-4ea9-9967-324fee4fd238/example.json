@@ -16,5 +16,6 @@
         "test code for dashboard review list view",
         "testing the functionality of dashboard review list view",
         "verifying response from dashboard review list view test code"
-    ]
+    ],
+    "qualityScore": 57
 }

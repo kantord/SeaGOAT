@@ -16,5 +16,6 @@
         "Python file used to automate and verify partner user creation in partner dashboard",
         "Python test file for creating partner user in dashboard",
         "Tests for creating a new partner user in partner dashboard"
-    ]
+    ],
+    "qualityScore": 83
 }

@@ -16,5 +16,6 @@
         "function to deactivate specific device feature",
         "implementation details of deactivating a specific device feature",
         "javascript code to turn off light using device manager and event manager"
-    ]
+    ],
+    "qualityScore": 30
 }

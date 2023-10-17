@@ -16,5 +16,6 @@
         "saveConfiguration method with frequency parameter",
         "test file for Bluetooth configuration",
         "validate handling of Bluetooth configuration scenarios in home assistant system"
-    ]
+    ],
+    "qualityScore": 80
 }

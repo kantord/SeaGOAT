@@ -16,5 +16,6 @@
         "Integration test file for signup functionality in Gladys application using Cypress",
         "Javascript file for testing signup flow in Gladys application",
         "Retrieve error message array for form fields in signup process"
-    ]
+    ],
+    "qualityScore": 0
 }

@@ -16,5 +16,6 @@
         "form with dropdowns to select user and house",
         "functions to update selected options and properties related to user and house",
         "location of the file that defines UserSeenAtHome component used for handling user's presence in scene editing feature"
-    ]
+    ],
+    "qualityScore": 56
 }

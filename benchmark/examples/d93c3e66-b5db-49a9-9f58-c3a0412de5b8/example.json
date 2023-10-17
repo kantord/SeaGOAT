@@ -16,5 +16,6 @@
         "custom manager class CommunicationTypeManager method get_and_render",
         "generate message contents communication type not in database",
         "retrieve rendered message dictionary communication type"
-    ]
+    ],
+    "qualityScore": 51
 }

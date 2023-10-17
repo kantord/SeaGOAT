@@ -16,5 +16,6 @@
         "deletion method using 'delete' keyword to remove specific key-value pair from cache",
         "efficient storage and retrieval of data in memory",
         "file for caching backend operations"
-    ]
+    ],
+    "qualityScore": 81
 }

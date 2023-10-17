@@ -16,5 +16,6 @@
         "implement retry configuration for database queries in Gladys server",
         "set maximum attempts for database queries",
         "set maximum number of attempts for database queries in Gladys server"
-    ]
+    ],
+    "qualityScore": 88
 }

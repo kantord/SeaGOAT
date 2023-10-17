@@ -17,5 +17,6 @@
         "test cases for UseFirstStockRecordMixin",
         "test cases to verify UseFirstStockRecordMixin class",
         "verify functionality of select_stockrecord"
-    ]
+    ],
+    "qualityScore": 50
 }

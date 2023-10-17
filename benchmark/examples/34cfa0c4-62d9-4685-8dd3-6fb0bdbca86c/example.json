@@ -16,5 +16,6 @@
         "implementation code for TP-Link API integration in Gladys home assistant project",
         "retrieve TP-Link devices",
         "retrieve list of devices from TP-Link API in Gladys home assistant project"
-    ]
+    ],
+    "qualityScore": 81
 }

@@ -16,5 +16,6 @@
         "JavaScript code for publishing MQTT messages",
         "JavaScript code responsible for connecting and sending MQTT messages",
         "JavaScript file within the server module for publishing MQTT messages"
-    ]
+    ],
+    "qualityScore": 0
 }

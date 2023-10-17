@@ -16,5 +16,6 @@
         "JavaScript file for displaying device functionality view in Gladys project",
         "Purpose of the JavaScript file responsible for displaying the view of different functionalities of a device on the front-end in the Gladys project",
         "Type and usage of the JavaScript file used as a component to present device functionalities in the Gladys project"
-    ]
+    ],
+    "qualityScore": 86
 }

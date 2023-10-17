@@ -16,5 +16,6 @@
         "django-oscar voucher model integration test file with multiple test cases",
         "record usage of voucher by user and order in integration tests",
         "validate voucher functionality and behavior in django-oscar project"
-    ]
+    ],
+    "qualityScore": 0
 }

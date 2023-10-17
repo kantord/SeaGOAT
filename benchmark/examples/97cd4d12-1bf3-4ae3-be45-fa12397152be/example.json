@@ -16,5 +16,6 @@
         "How to modify database schema in Django-Oscar ConditionalOffer model using migration script with exclusive field",
         "How to write ConditionalOffer model migration script in Django-Oscar using Django's migration framework and necessary imports",
         "How to write migration script for adding exclusive field to ConditionalOffer schema in Django-Oscar"
-    ]
+    ],
+    "qualityScore": 83
 }
