@@ -1,6 +1,14 @@
 import json
 from pathlib import Path
 
+from yaml import dump
+from yaml import load
+
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 
 def get_list_of_test_runs() -> list:
     script_dir = Path(__file__).parent
@@ -81,8 +89,30 @@ def create_result_summary(test_run):
     return results
 
 
+def get_results_yaml_folder():
+    results_folder = Path(__file__).parent / "results"
+    results_folder.mkdir(parents=True, exist_ok=True)
+
+    return results_folder
+
+
+def get_results_yaml_file_path(test_run):
+    return get_results_yaml_folder() / f"{test_run}.yaml"
+
+
+def create_result_summary_yaml(test_run):
+    with open(
+        get_results_yaml_file_path(test_run), "w", encoding="utf-8"
+    ) as output_file:
+        output_file.write(dump(create_result_summary(test_run), Dumper=Dumper))
+
+
 def load_results(test_run):
-    return create_result_summary(test_run)
+    if not get_results_yaml_file_path(test_run).exists():
+        create_result_summary_yaml(test_run)
+
+    with open(get_results_yaml_file_path(test_run), encoding="utf-8") as input_file:
+        return load(input_file, Loader=Loader)
 
 
 def get_percentage_of_queries_with_correct_results(results, engine):
