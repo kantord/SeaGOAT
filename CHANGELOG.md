@@ -2,6 +2,17 @@
 
 
 
+## v0.36.1 (2023-10-17)
+
+### Chore
+
+* chore: add benchmark script ([`ad38794`](https://github.com/kantord/SeaGOAT/commit/ad38794c72344ab75cd37cece190202312241200))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.38 ([`4debdbe`](https://github.com/kantord/SeaGOAT/commit/4debdbed8044a8fa66612fb3089ee257ec4e6908))
+
+
 ## v0.36.0 (2023-10-16)
 
 ### Chore
