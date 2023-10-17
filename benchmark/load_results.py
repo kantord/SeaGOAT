@@ -117,31 +117,31 @@ def load_results(test_run):
         return load(input_file, Loader=Loader)
 
 
-def get_percentage_of_queries_with_correct_results(results, engine):
+def get_percentage_of_queries_with_correct_results(row):
     total_queries = 0
     correct_results = 0
 
-    for example in results:
+    for example in row["Data"]:
         for query in example["queries"]:
             total_queries += 1
-            if query["positionOfCorrectResult"][engine] is not None:
+            if query["positionOfCorrectResult"][row["Engine"]] is not None:
                 correct_results += 1
 
-    return float(correct_results) / total_queries * 100
+    return float(correct_results) / total_queries
 
 
-def get_percentage_of_examples_with_correct_results(results, engine):
+def get_percentage_of_examples_with_correct_results(row):
     total_examples = 0
     correct_results = 0
 
-    for example in results:
+    for example in row["Data"]:
         total_examples += 1
         for query in example["queries"]:
-            if query["positionOfCorrectResult"][engine] is not None:
+            if query["positionOfCorrectResult"][row["Engine"]] is not None:
                 correct_results += 1
                 break
 
-    return float(correct_results) / total_examples * 100
+    return float(correct_results) / total_examples
 
 
 def get_positions_of_correct_results(results, engine):
@@ -199,4 +199,32 @@ def get_chance_of_getting_correct_result_in_n_lines(results, engine):
     return [
         float(positions[index + 1]) / total_queries * 100
         for index in range(MAXIMUM_NUMBER_OF_RESULT_LINES)
+    ]
+
+
+def filter_minimum_example_quality(results, minimum_example_quality):
+    return [
+        result
+        for result in results
+        if result["qualityScore"] >= minimum_example_quality
+    ]
+
+
+def load_results_for_all_runs(minimum_example_quality):
+    list_of_test_runs = get_list_of_test_runs()
+    results = [
+        ("random", load_results(list_of_test_runs[0]), "random"),
+        (list_of_test_runs[0], load_results(list_of_test_runs[0]), "seagoat"),
+    ]
+
+    for test_run in list_of_test_runs[1:]:
+        results.append((test_run, load_results(test_run), "seagoat"))
+
+    return [
+        [
+            test_run_name,
+            filter_minimum_example_quality(results, minimum_example_quality),
+            engine,
+        ]
+        for test_run_name, results, engine in results
     ]
