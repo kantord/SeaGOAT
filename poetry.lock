@@ -2986,13 +2986,13 @@ dev = ["black", "flake8", "pre-commit"]
 
 [[package]]
 name = "pytest-testmon"
-version = "2.0.12"
+version = "2.0.13"
 description = "selects tests affected by changed files and methods"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-testmon-2.0.12.tar.gz", hash = "sha256:9163a3738472049a3212bd406ff46b0ee37e582b5d7f1a8c4e0971f5014274e2"},
-    {file = "pytest_testmon-2.0.12-py3-none-any.whl", hash = "sha256:a9456c4a002a6818f0543368e1cafa5d4b0fdd04fefa81f88782a062ebdad878"},
+    {file = "pytest-testmon-2.0.13.tar.gz", hash = "sha256:9cf56021ccaa6c8c6bcaef07589fb6c872db1797f0f7ff1f104e93c96078d642"},
+    {file = "pytest_testmon-2.0.13-py3-none-any.whl", hash = "sha256:170872f2407e1eab431a266108229dbcde73513771a71ab77ed1e84ec94c816c"},
 ]
 
 [package.dependencies]
