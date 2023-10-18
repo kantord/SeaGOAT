@@ -2,6 +2,51 @@
 
 
 
+## v0.36.3 (2023-10-18)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.332 ([`a3c7436`](https://github.com/kantord/SeaGOAT/commit/a3c7436062fd209a1fec4754d0a32a36872eaeef))
+
+* chore: compare different runs in the benchmark
+
+* chore: compare all benchmark runs together
+
+* chore: show different benchmark table for each project
+
+* chore: add chance by line # charts to benchmark ([`8c5cfe8`](https://github.com/kantord/SeaGOAT/commit/8c5cfe8fb5ebb62d5830d6c55bccc1a35c64b000))
+
+* chore(deps): update dependency black to v23.10.0 ([`4984918`](https://github.com/kantord/SeaGOAT/commit/4984918ea7b6f6896b6fba47fbb5f0020f2022d3))
+
+* chore(deps): update dependency pytest-testmon to v2.0.13 ([`d451374`](https://github.com/kantord/SeaGOAT/commit/d45137417a1b800b94ef14ebdc05cf87e66c81ba))
+
+### Documentation
+
+* docs: add example for setting ONNX execution provider for ONNX model
+
+* docs: cadded example for setting ONNX execution provider for ONNX model
+
+* docs: typo
+
+* fixed typo in yaml config
+
+* docs: formatting ([`7470879`](https://github.com/kantord/SeaGOAT/commit/747087951ea8f0030497dc96d30c35465c3337c6))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.40 ([`1c69a8e`](https://github.com/kantord/SeaGOAT/commit/1c69a8e45a1bbd0b800f47366793e4cbf19f4cb1))
+
+### Unknown
+
+* chrore: filter out bad banchmark examples ([`cb2b452`](https://github.com/kantord/SeaGOAT/commit/cb2b4524bf31c84108f69f7f7d5ed737711612e5))
+
+* Filter out bad benchmark examples (#339)
+
+* refactor: extract benchmark utils
+
+* chore: add script for adding quality for benchmarks ([`843ae8d`](https://github.com/kantord/SeaGOAT/commit/843ae8dfc6c0fa6502e61b0d4d7213708515647a))
+
+
 ## v0.36.2 (2023-10-17)
 
 ### Chore
