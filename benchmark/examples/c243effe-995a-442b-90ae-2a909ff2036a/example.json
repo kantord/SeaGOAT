@@ -1,0 +1,20 @@
+{
+    "uuid": "c243effe-995a-442b-90ae-2a909ff2036a",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/user/user.getByTelegramUserId.test.js",
+        "lineNumber": 14
+    },
+    "queries": [
+        "code to retrieve user based on Telegram user ID in User module",
+        "code to validate behavior of getByTelegramUserId method in User module",
+        "implementation of code to retrieve user based on Telegram user ID in User module",
+        "purpose and usage of code to validate getByTelegramUserId method in User module",
+        "test cases for getByTelegramUserId method in User module",
+        "test code for getByTelegramUserId method in User module"
+    ],
+    "qualityScore": 81
+}

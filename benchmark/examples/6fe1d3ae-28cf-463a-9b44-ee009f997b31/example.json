@@ -1,0 +1,21 @@
+{
+    "uuid": "6fe1d3ae-28cf-463a-9b44-ee009f997b31",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/telegram/Telegram.jsx",
+        "lineNumber": 21
+    },
+    "queries": [
+        "Conditionally render elements in Telegram integration page based on specific conditions and user roles in Gladys home assistant using JavaScript",
+        "Description of the JavaScript code file that provides structure and functionality for configuring and managing Telegram integration settings in Gladys home assistant project",
+        "File in Gladys home assistant project that contributes to seamless implementation and user experience of Telegram integration feature using JavaScript",
+        "JavaScript file responsible for integrating Telegram into Gladys home assistant project and rendering Telegram integration page with dimmer effect",
+        "Render Telegram integration page with dimmer effect in Gladys home assistant using JavaScript",
+        "Telegram JavaScript component integration",
+        "Telegram integration page dimmer effect in JavaScript"
+    ],
+    "qualityScore": 86
+}

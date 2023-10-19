@@ -1,0 +1,21 @@
+{
+    "uuid": "b5b5fa30-c817-47ca-b303-dc47ffee75ff",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/api/controllers/gateway.controller.js",
+        "lineNumber": 81
+    },
+    "queries": [
+        "HTTP POST request backup gateway",
+        "actual implementation code for creating backups of the gateway using HTTP POST request",
+        "code for creating backups of the gateway",
+        "code handling server gateway backups",
+        "code that handles requests and logic for creating backups of the server's gateway",
+        "code used within the gateway module to manage backups of the gateway by initiating an HTTP POST request to a specified endpoint",
+        "implementation for gateway backup functionality"
+    ],
+    "qualityScore": 83
+}

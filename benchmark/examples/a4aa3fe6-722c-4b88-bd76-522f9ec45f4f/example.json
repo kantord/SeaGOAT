@@ -1,0 +1,21 @@
+{
+    "uuid": "a4aa3fe6-722c-4b88-bd76-522f9ec45f4f",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/gateway/gateway.backup.js",
+        "lineNumber": 68
+    },
+    "queries": [
+        "code file responsible for compressing backup file in Gladys home assistant project using gzip",
+        "code implementation for compressing backup file with gzip in Gladys home assistant project",
+        "compress backup file in Gladys home assistant project using gzip",
+        "compress backup file using gzip",
+        "compressing backup file using gzip command in Gladys home assistant project",
+        "how to use gzip command to compress files",
+        "implementation of gzip command for compressing backup files in Gladys home assistant project"
+    ],
+    "qualityScore": 85
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "da5eb191-2349-47a0-8a41-a46c3038a01f",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/migrations/0022_auto_20210210_0539.py",
+        "lineNumber": 13
+    },
+    "queries": [
+        "alter value_boolean field of productattributevalue model",
+        "automate changes in database schema for catalogue app",
+        "execution of migration script during Django-Oscar migration process",
+        "file part of database migration script",
+        "migrations.AlterField() method in Django-Oscar migration script",
+        "models.BooleanField in migrations.AlterField() method",
+        "modify field in productattributevalue model"
+    ],
+    "qualityScore": 58
+}

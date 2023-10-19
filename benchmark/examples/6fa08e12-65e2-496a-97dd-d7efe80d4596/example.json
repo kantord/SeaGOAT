@@ -1,0 +1,21 @@
+{
+    "uuid": "6fa08e12-65e2-496a-97dd-d7efe80d4596",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/scene/edit-scene/actions/TurnOnOffSwitchParams.jsx",
+        "lineNumber": 11
+    },
+    "queries": [
+        "Code that defines parameters for switch control in front-end scene",
+        "Code to fetch devices for switch control using httpClient object",
+        "HTTP GET request to fetch devices for switch control",
+        "JavaScript code for controlling switches in front-end application",
+        "JavaScript code to fetch devices and populate options for switch control in front-end application",
+        "JavaScript file implementing switch control functionality in front-end application",
+        "JavaScript implementation code for switch control in front-end scene"
+    ],
+    "qualityScore": 55
+}

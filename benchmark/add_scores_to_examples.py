@@ -46,7 +46,7 @@ def evaluate_test_case_quality(repositories_path, ask_conversational_ai, example
         quality_score = ask_conversational_ai(evaluation_prompt)["text"]
 
         return int(float(quality_score.split("=====")[1].strip()))
-    except RuntimeError as error:
+    except (ValueError, IndexError, RuntimeError) as error:
         click.echo(f"Error! {error}")
         return None
 

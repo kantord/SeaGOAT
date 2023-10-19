@@ -1,0 +1,21 @@
+{
+    "uuid": "dbda8c31-5c42-462f-a2c0-6f1da1ba3e4c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/chart/ApexChartAreaOptions.js",
+        "lineNumber": 28
+    },
+    "queries": [
+        "file path of area chart code",
+        "file path of area chart code in Gladys web interface",
+        "function to customize appearance and behavior of area chart",
+        "function to generate area chart options for Gladys web interface",
+        "function to generate configuration options for area chart",
+        "input parameters for area chart configuration",
+        "line stroke width for area chart in Gladys web interface"
+    ],
+    "qualityScore": 53
+}

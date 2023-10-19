@@ -1,0 +1,22 @@
+{
+    "uuid": "f6e62088-59bc-48f4-b066-dc6a71b70aa3",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/management/commands/oscar_import_catalogue_images.py",
+        "lineNumber": 16
+    },
+    "queries": [
+        "code line to import product images in django-oscar",
+        "code line to import product images in django-oscar using argparse",
+        "django-oscar backend tool for importing product images",
+        "django-oscar code line for importing catalogue images from folder",
+        "django-oscar management command for importing catalogue images",
+        "django-oscar management command for importing images from folder",
+        "implementation code to import product images in django-oscar using management command",
+        "import product images using django-oscar management command"
+    ],
+    "qualityScore": 83
+}

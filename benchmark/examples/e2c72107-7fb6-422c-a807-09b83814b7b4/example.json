@@ -1,0 +1,22 @@
+{
+    "uuid": "e2c72107-7fb6-422c-a807-09b83814b7b4",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/shipping/migrations/0002_auto_20150604_1450.py",
+        "lineNumber": 15
+    },
+    "queries": [
+        "Python script in the 'migrations' directory of the Django-Oscar shipping app that alters the database schema related to shipping charges",
+        "altering database schema of shipping app",
+        "many-to-many relationship between countries and 'orderanditemcharges' models",
+        "many-to-many relationship between countries and 'weightbased' models",
+        "migration script file that establishes many-to-many relationship between the 'countries' field and the 'Country' model from the 'address' app",
+        "migration script for Django-Oscar shipping app",
+        "migration script in Django-Oscar project's shipping app that modifies the 'countries' field in 'orderanditemcharges' and 'weightbased' models to allow multiple selections and set a descriptive name",
+        "subclass of migrations.Migration that modifies 'countries' field in 'orderanditemcharges' and 'weightbased' models"
+    ],
+    "qualityScore": 83
+}

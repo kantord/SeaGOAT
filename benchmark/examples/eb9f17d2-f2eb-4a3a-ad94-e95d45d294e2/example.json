@@ -1,0 +1,21 @@
+{
+    "uuid": "eb9f17d2-f2eb-4a3a-ad94-e95d45d294e2",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tasmota/lib/mqtt/handle-message/device-creation/tasmota.mqtt.handleMessage.deviceCreation-power_switch_on.test.js",
+        "lineNumber": 140
+    },
+    "queries": [
+        "TasmotaHandler unit test cases",
+        "analyze TasmotaHandler behavior in response to MQTT messages",
+        "code snippet for activating Tasmota switch using MQTT",
+        "code snippet for handling MQTT messages related to Tasmota device creation",
+        "file with test cases for activating switch on Tasmota device using MQTT",
+        "test scenarios for TasmotaHandler MQTT message handling",
+        "validate TasmotaHandler properties against expected values"
+    ],
+    "qualityScore": 50
+}

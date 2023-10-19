@@ -1,0 +1,21 @@
+{
+    "uuid": "f909ff2d-4c0f-45aa-868e-588bb1b6342c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tasmota/lib/http/tasmota.http.setValue.test.js",
+        "lineNumber": 78
+    },
+    "queries": [
+        "file responsible for testing set value functionality in Tasmota HTTP library",
+        "function for value setting in Tasmota HTTP library",
+        "purpose of file testing value setting in Tasmota HTTP library",
+        "test cases for setting values in Tasmota HTTP library",
+        "test file for setting value in Tasmota HTTP library",
+        "test scenarios for setting values in Tasmota HTTP library",
+        "verify function for setting values in Tasmota HTTP library"
+    ],
+    "qualityScore": 85
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "0efd3fa4-dd77-4a99-8722-c013f0ae1c6e",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/utils/HttpClient.js",
+        "lineNumber": 71
+    },
+    "queries": [
+        "class named HttpClient that handles API communication and session management",
+        "class that handles communication with APIs via HTTP requests",
+        "class that stores session information and refreshes access tokens",
+        "code file that manages HTTP requests, session information, and access tokens",
+        "code file with a class named HttpClient for making HTTP requests",
+        "file that facilitates HTTP requests and manages responses",
+        "file with a class called HttpClient for handling HTTP requests and session management"
+    ],
+    "qualityScore": 58
+}

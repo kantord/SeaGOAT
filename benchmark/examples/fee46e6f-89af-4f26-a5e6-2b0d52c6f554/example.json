@@ -1,0 +1,21 @@
+{
+    "uuid": "fee46e6f-89af-4f26-a5e6-2b0d52c6f554",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/device/device.saveHistoricalState.js",
+        "lineNumber": 15
+    },
+    "queries": [
+        "function in file that serves the purpose of persisting the historical state of a device feature in a database",
+        "function that saves historical state of device feature",
+        "function that saves historical state of device feature in database",
+        "function to persist historical state of device feature",
+        "function to persist historical state of device feature in database",
+        "function to save historical state of device feature in database, perform validation checks, update RAM cache, trigger WebSocket event, and store state in history if required",
+        "implementation file that saves historical state of device feature in database and updates RAM cache"
+    ],
+    "qualityScore": 56
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "8f1e3f69-ce5f-4a61-98f5-2b8ff2931b71",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/unit/templatetags/test_wishlist_tags.py",
+        "lineNumber": 15
+    },
+    "queries": [
+        "create product instance and associate with wishlist for testing template tag",
+        "file purpose: test functionality of wishlist tags in Django Oscar",
+        "implementation: create product, user, and wishlist instances to test template tag association in Django Oscar",
+        "test file for wishlist tags in Django Oscar",
+        "test functionality of wishlist tags for Django Oscar e-commerce platform",
+        "usage: test template tag for displaying wishlists with specific product in Django Oscar",
+        "verify correctness of template tag for wishlists with specific product"
+    ],
+    "qualityScore": 28
+}

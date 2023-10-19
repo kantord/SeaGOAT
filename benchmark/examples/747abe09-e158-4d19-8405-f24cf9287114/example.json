@@ -1,0 +1,21 @@
+{
+    "uuid": "747abe09-e158-4d19-8405-f24cf9287114",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/service/service.getUsage.js",
+        "lineNumber": 25
+    },
+    "queries": [
+        "create a mapping of service names to their usage status",
+        "determine service usage status using a separate function and store the result in a mapping object",
+        "fetch services associated with a specific pod",
+        "find the file responsible for retrieving usage data for a service in JavaScript codebase",
+        "interface with the database to fetch services associated with a specific pod",
+        "iterate through services to retrieve service objects in a codebase",
+        "retrieve usage data for a specific service"
+    ],
+    "qualityScore": 28
+}

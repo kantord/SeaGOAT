@@ -1,0 +1,21 @@
+{
+    "uuid": "7ffb7d9e-a317-4b19-a244-0e7d9ddda210",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/orders/forms.py",
+        "lineNumber": 150
+    },
+    "queries": [
+        "Code file in django-oscar dashboard for managing orders and capturing shipping address information",
+        "Shipping address form in django-oscar",
+        "ShippingAddressForm class in django-oscar dashboard",
+        "django-oscar ShippingAddressForm",
+        "django-oscar dashboard implementation file for creating a form to capture shipping address information",
+        "django-oscar dashboard orders forms ShippingAddressForm class implementation",
+        "django-oscar dashboard shipping address form"
+    ],
+    "qualityScore": 55
+}

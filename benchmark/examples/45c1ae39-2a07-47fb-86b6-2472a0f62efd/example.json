@@ -1,0 +1,21 @@
+{
+    "uuid": "45c1ae39-2a07-47fb-86b6-2472a0f62efd",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/calendar/calendar.create.js",
+        "lineNumber": 6
+    },
+    "queries": [
+        "JSDoc comments providing comprehensive documentation for creating calendar events",
+        "code file that enables the creation of calendar events with well-documented instructions in React",
+        "code that interacts with the database to create calendar events in Node.js",
+        "example usage of the gladys.calendar.create function with a calendar object in Python",
+        "function for creating new calendar events in JavaScript",
+        "function that returns a Promise with the newly created calendar object in TypeScript",
+        "implementation file for creating new calendar events in the application using Express.js"
+    ],
+    "qualityScore": 87
+}

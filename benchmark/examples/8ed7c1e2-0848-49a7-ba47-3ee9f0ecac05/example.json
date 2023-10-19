@@ -1,0 +1,21 @@
+{
+    "uuid": "8ed7c1e2-0848-49a7-ba47-3ee9f0ecac05",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/device-in-room/device-features/sensor-value/SignalQualityDeviceValue.jsx",
+        "lineNumber": 12
+    },
+    "queries": [
+        "JSX code block for rendering the output of the component using a flex container and SvgIcon component",
+        "calculate ratio for signal quality to determine which icon to display",
+        "code for displaying signal quality value in a file",
+        "extract properties from the 'deviceFeature' prop object and calculate the ratio to determine the appropriate icon",
+        "functional component to extract properties from prop object",
+        "import necessary modules and define a functional component to display the signal quality value",
+        "render JSX code with a flex container and SvgIcon component"
+    ],
+    "qualityScore": 84
+}

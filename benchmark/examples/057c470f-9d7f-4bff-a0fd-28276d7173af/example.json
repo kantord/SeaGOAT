@@ -1,0 +1,21 @@
+{
+    "uuid": "057c470f-9d7f-4bff-a0fd-28276d7173af",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/order/test_emails.py",
+        "lineNumber": 34
+    },
+    "queries": [
+        "Django test file for email functionality",
+        "Django test file for verifying correctness of order placed email subject and body",
+        "Oscar library usage for e-commerce emails",
+        "code file for testing email attachments in Django application",
+        "code file for testing email functionality related to order placement in Django application",
+        "email test file",
+        "order placement email functionality"
+    ],
+    "qualityScore": 53
+}

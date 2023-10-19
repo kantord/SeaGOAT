@@ -1,0 +1,22 @@
+{
+    "uuid": "15f858e4-6d89-47d0-999d-62d2d2dc0b28",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/analytics/apps.py",
+        "lineNumber": 7
+    },
+    "queries": [
+        "Configuration file for analytics app in django-oscar",
+        "Inherits from base configuration class in django-oscar",
+        "Python import path for django-oscar analytics app",
+        "What attributes are defined in the analytics app config file of Django-Oscar?",
+        "What is the purpose of the analytics app config file in Django-Oscar?",
+        "Where is the AnalyticsConfig class located in the Django-Oscar project structure?",
+        "definition of AnalyticsConfig class in django-oscar",
+        "django-oscar analytics app config file"
+    ],
+    "qualityScore": 64
+}

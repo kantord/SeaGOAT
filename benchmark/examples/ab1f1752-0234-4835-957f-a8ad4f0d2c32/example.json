@@ -1,0 +1,21 @@
+{
+    "uuid": "ab1f1752-0234-4835-957f-a8ad4f0d2c32",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/mqtt/lib/index.js",
+        "lineNumber": 54
+    },
+    "queries": [
+        "Find the file defining and exporting MqttHandler class for MQTT functionality",
+        "Find the file that defines and exports a class called MqttHandler that handles the functionality related to MQTT protocol",
+        "Find the file that exports the MqttHandler class as the public interface of the module with additional methods for specific MQTT operations",
+        "Locate the file used to establish connections with MQTT brokers and perform MQTT operations in a larger project or application",
+        "Locate the implementation file for the MqttHandler class used for connecting to MQTT brokers and performing MQTT operations",
+        "Locate the implementation file of the MqttHandler class used for MQTT operations like message publishing, message subscribing, and message handling",
+        "Search for the code file that is a part of a larger project requiring MQTT functionality and is utilized in IoT applications or messaging systems"
+    ],
+    "qualityScore": 0
+}

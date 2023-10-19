@@ -1,0 +1,21 @@
+{
+    "uuid": "ac61d48c-9491-4ddc-bbe8-5c8aee7f7d0f",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/rtsp-camera/lib/convertLocalStreamToGateway.js",
+        "lineNumber": 23
+    },
+    "queries": [
+        "async function for converting local stream to gateway stream in rtsp-camera service",
+        "code that lists and processes files in a folder for gateway upload in rtsp-camera service",
+        "code that manages the conversion of local camera stream to Gladys gateway stream in the 'rtsp-camera' service of the server codebase",
+        "description of the code that exports an async function called 'convertLocalStreamToGateway' in the 'rtsp-camera' service",
+        "file in server codebase for converting local RTSP camera stream to Gladys gateway stream through the 'rtsp-camera' service",
+        "file that converts local RTSP camera stream to Gladys gateway stream",
+        "function in rtsp-camera service that starts the conversion process for a specified camera"
+    ],
+    "qualityScore": 81
+}

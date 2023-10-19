@@ -1,0 +1,21 @@
+{
+    "uuid": "f8b361f8-ebf6-4e79-9f2a-f1e4fb91af0a",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/catalogue/reviews/test_models.py",
+        "lineNumber": 53
+    },
+    "queries": [
+        "checking instance of ProductReview for invalid data",
+        "file location and purpose of testing ProductReview model in Django-Oscar",
+        "file location of product review test cases",
+        "functionality validation of ProductReview model in Django-Oscar framework",
+        "test code for product reviews in catalogue module",
+        "test scenarios for ProductReview model in Django-Oscar",
+        "validation of ProductReview model"
+    ],
+    "qualityScore": 78
+}

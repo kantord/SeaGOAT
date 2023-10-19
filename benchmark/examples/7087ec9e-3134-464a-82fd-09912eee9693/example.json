@@ -1,0 +1,22 @@
+{
+    "uuid": "7087ec9e-3134-464a-82fd-09912eee9693",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/basket/migrations/0001_initial.py",
+        "lineNumber": 38
+    },
+    "queries": [
+        "Code snippet in Python migration script to define fields of Line model for basket app in Django",
+        "Code to define Line model fields in Django migration script for basket app",
+        "Django ORM database migration script for basket app",
+        "Django ORM script to define Line model fields for basket app",
+        "Django migration script for basket app to define Line model fields and table structure",
+        "Python migration script for basket app",
+        "Python migration script to create database tables for basket app",
+        "Python migration script used to create schema and tables for basket app in Django ORM"
+    ],
+    "qualityScore": 55
+}

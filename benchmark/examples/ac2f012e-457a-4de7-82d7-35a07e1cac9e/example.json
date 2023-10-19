@@ -1,0 +1,21 @@
+{
+    "uuid": "ac2f012e-457a-4de7-82d7-35a07e1cac9e",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/location/location.create.js",
+        "lineNumber": 36
+    },
+    "queries": [
+        "asynchronous function to create and store user locations in a database",
+        "create location record for user with latitude, longitude, altitude, accuracy, and timestamp",
+        "create new location records asynchronously",
+        "emit events for new location",
+        "function to store user locations in a database",
+        "implementation for tracking and storing user locations",
+        "update user's location in the database"
+    ],
+    "qualityScore": 56
+}

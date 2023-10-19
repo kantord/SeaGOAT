@@ -1,0 +1,21 @@
+{
+    "uuid": "da05173c-ba25-4615-98e1-957091561f14",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/checkout/surcharges.py",
+        "lineNumber": 23
+    },
+    "queries": [
+        "Class for calculating surcharge amount based on percentage value and shopping basket total in Django-Oscar e-commerce framework",
+        "Class for calculating surcharge amount based on percentage value and total amount in Django-Oscar e-commerce framework",
+        "Class for calculating surcharge based on percentage and total amount in Django-Oscar e-commerce framework",
+        "Class for calculating surcharge based on percentage in Django-Oscar e-commerce framework",
+        "Python code for calculating and applying additional charges in Django-Oscar e-commerce framework",
+        "Python code for implementing surcharges in Django-Oscar e-commerce framework",
+        "Python code with class for applying flat surcharges in Django-Oscar e-commerce framework"
+    ],
+    "qualityScore": 56
+}

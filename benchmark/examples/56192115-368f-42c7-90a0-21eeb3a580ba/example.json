@@ -1,0 +1,21 @@
+{
+    "uuid": "56192115-368f-42c7-90a0-21eeb3a580ba",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/scene/scene.init.js",
+        "lineNumber": 30
+    },
+    "queries": [
+        "function to initialize the scene module",
+        "handle the initialization of the scene module and set up scheduling jobs",
+        "initialize the scene module and load scenes from a database",
+        "load scenes from a database into the trigger store and perform necessary configuration tasks",
+        "perform configuration tasks",
+        "schedule recurring jobs for updating sunrise and sunset times and checking calendar events",
+        "scheduled job for updating sunrise and sunset times"
+    ],
+    "qualityScore": 55
+}

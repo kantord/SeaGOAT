@@ -1,0 +1,21 @@
+{
+    "uuid": "533f567a-903d-47bc-a0bd-0e16244b89f5",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/offer/test_combination.py",
+        "lineNumber": 21
+    },
+    "queries": [
+        "20% discount benefit offered by the tested offer",
+        "assert expected behavior of offer",
+        "integration test for e-commerce application's offer feature",
+        "simulate various scenarios for applying offers to baskets",
+        "test behavior of offer when no additional discounts are available",
+        "test case with required conditions and benefits",
+        "test if condition is met, apply benefit, and verify discounts and item quantities in the basket"
+    ],
+    "qualityScore": 48
+}

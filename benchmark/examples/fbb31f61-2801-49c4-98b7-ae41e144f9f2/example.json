@@ -1,0 +1,21 @@
+{
+    "uuid": "fbb31f61-2801-49c4-98b7-ae41e144f9f2",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/signup-gateway/SignupGeneratingKeys.js",
+        "lineNumber": 22
+    },
+    "queries": [
+        "component that generates keys for sign-up process",
+        "displays completion message when sign-up process is completed but token is not available",
+        "displays different messages based on state of sign-up process",
+        "file used in front-end application's sign-up gateway route",
+        "implements a component called 'SignupGeneratingKeys' in JavaScript",
+        "includes conditional rendering for loading animations based on sign-up process state",
+        "renders a card element with fixed height and dynamic title based on input"
+    ],
+    "qualityScore": 85
+}

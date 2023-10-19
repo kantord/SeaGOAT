@@ -1,0 +1,21 @@
+{
+    "uuid": "3a059e6c-1cc5-48c3-a485-d57e873e1417",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/user/user.get.js",
+        "lineNumber": 47
+    },
+    "queries": [
+        "convert user data into plain objects",
+        "create query parameters for user retrieval",
+        "execute query and fetch list of users using Sequelize ORM with Node.js",
+        "function that fetches user data from database",
+        "generate compound condition for search in 'firstname' and 'lastname' columns using logical OR operator",
+        "include House model in user query if current_house expansion is required",
+        "set default values and merge options for user preferences"
+    ],
+    "qualityScore": 76
+}

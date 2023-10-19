@@ -1,0 +1,21 @@
+{
+    "uuid": "e6c35154-86bd-4867-838c-f93618692b73",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/categories.py",
+        "lineNumber": 14
+    },
+    "queries": [
+        "code file for managing product categories in e-commerce system",
+        "code for creating new root node if it doesn't exist at depth level 1",
+        "code for creating product categories",
+        "code for ensuring uniqueness of category names at depth level 1",
+        "code for managing e-commerce product categories",
+        "function to obtain or create root node of category hierarchy",
+        "implementation for creating category hierarchy based on sequence"
+    ],
+    "qualityScore": 28
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "8dc5241c-4f04-4057-8c7e-cf48b9a32ddc",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/address/migrations/0002_auto_20150927_1547.py",
+        "lineNumber": 19
+    },
+    "queries": [
+        "AddField method usage in Django-Oscar address app UserAddress model database migration",
+        "Code file used in Django-Oscar address app for modifying database schema of UserAddress model by adding 'num_orders_as_billing_address' field",
+        "Code for adding field 'num_orders_as_billing_address' to UserAddress model in Django-Oscar address app",
+        "Database migration code in Django-Oscar address app UserAddress model for adding new field",
+        "Django-Oscar address app database migration code to include new field 'num_orders_as_billing_address' in UserAddress model",
+        "Python code in Django-Oscar address app for performing database migration to add 'num_orders_as_billing_address' field in UserAddress model",
+        "Python file for modifying database schema in Django-Oscar address app"
+    ],
+    "qualityScore": 86
+}

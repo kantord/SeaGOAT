@@ -1,0 +1,21 @@
+{
+    "uuid": "0ecbab31-94b8-441f-84ce-bf98a452b817",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/customer/migrations/0001_initial.py",
+        "lineNumber": 18
+    },
+    "queries": [
+        "create CommunicationEventType model using migrations framework",
+        "create tables and fields in the database corresponding to specified models",
+        "database migration script for initial app setup",
+        "how the migration script ensures proper configuration and creation of required database schema",
+        "implementation details of the CommunicationEventType model within the migration script",
+        "implementation of migrations framework provided by Django for app setup",
+        "purpose of the migration script for customer app setup"
+    ],
+    "qualityScore": 83
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "4122db81-df51-4a27-a746-bb29460166f4",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/test/factories/basket.py",
+        "lineNumber": 8
+    },
+    "queries": [
+        "class in Django-Oscar for creating instances of BasketLineAttribute with pre-determined attributes",
+        "code file utilised for testing baskets in Django-Oscar e-commerce project",
+        "factory class for Basket model in Django-Oscar",
+        "factory class in Django-Oscar for creating instances of Basket model",
+        "file for generating test data for baskets in Django-Oscar",
+        "file in Django-Oscar for generating test data for the baskets feature",
+        "python file responsible for testing baskets in Django-Oscar"
+    ],
+    "qualityScore": 85
+}

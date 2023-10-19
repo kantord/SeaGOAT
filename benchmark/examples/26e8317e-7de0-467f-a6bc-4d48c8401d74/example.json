@@ -1,0 +1,21 @@
+{
+    "uuid": "26e8317e-7de0-467f-a6bc-4d48c8401d74",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/utils/colors.js",
+        "lineNumber": 148
+    },
+    "queries": [
+        "code for color manipulation in files",
+        "code fragment to calculate maximum RGB color value",
+        "code to convert color values between RGB, HSB, HEX, and integer formats",
+        "component of a larger codebase related to color handling and manipulation",
+        "file with color conversion and normalization functions",
+        "file with implementation of color manipulation utilities and constants",
+        "functions for color space transformations implementation"
+    ],
+    "qualityScore": 88
+}

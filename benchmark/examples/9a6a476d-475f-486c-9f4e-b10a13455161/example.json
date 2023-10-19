@@ -1,0 +1,21 @@
+{
+    "uuid": "9a6a476d-475f-486c-9f4e-b10a13455161",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/room/room.get.js",
+        "lineNumber": 56
+    },
+    "queries": [
+        "construct query object to retrieve rooms",
+        "create main function to retrieve rooms from database based on options",
+        "define default options for room retrieval",
+        "fetch rooms along with associated devices",
+        "implement code to fetch complete list of rooms from database",
+        "retrieve list of rooms along with devices, features, and services from database",
+        "retrieve list of rooms from database"
+    ],
+    "qualityScore": 81
+}

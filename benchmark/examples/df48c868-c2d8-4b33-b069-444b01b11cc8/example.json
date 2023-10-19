@@ -1,0 +1,21 @@
+{
+    "uuid": "df48c868-c2d8-4b33-b069-444b01b11cc8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/payment/migrations/0003_auto_20160323_1520.py",
+        "lineNumber": 15
+    },
+    "queries": [
+        "Django Oscar e-commerce project database migration script for payment app reference field modification",
+        "Django Oscar payment app database migration script for empty 'reference' field and 255 characters limit",
+        "Django Oscar payment app database migration script for modifying reference field in source model",
+        "Django Oscar payment app reference field modification script",
+        "In the Django Oscar e-commerce project, there is a script located in the payment app that performs a specific database migration. This migration is related to the 'reference' field in the 'source' model of the payment app. The script allows the 'reference' field to be left empty and sets a maximum length limit of 255 characters. It utilizes the Django migrations framework, specifically the `migrations.AlterField()` operation, to make the necessary alterations. The purpose of this script is to accommodate changes in the 'reference' field and modify the database schema accordingly.",
+        "Looking for a specific code line in the Django Oscar e-commerce project. The code is part of a database migration script in the payment app. It is responsible for modifying the 'reference' field in the 'source' model. The script sets a maximum length limit of 255 characters and allows the 'reference' field to be empty. The script makes use of the Django migrations framework and includes the `migrations.AlterField()` operation in its list of operations. The intended effect is to update the database schema to reflect the desired modifications.",
+        "Search query for code line: Django Oscar payment app database migration script that modifies 'reference' field in the 'source' model. The script allows the 'reference' field to be empty and has a maximum length limit of 255 characters. It is part of the Django Oscar e-commerce project and resides in the payment app. The script utilizes the Django migrations framework, specifically the `migrations.AlterField()` operation, to apply the necessary changes. Its purpose is to update the database schema to accommodate modifications in the 'reference' field."
+    ],
+    "qualityScore": 60
+}

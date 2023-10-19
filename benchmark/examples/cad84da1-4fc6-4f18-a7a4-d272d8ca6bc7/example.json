@@ -1,0 +1,21 @@
+{
+    "uuid": "cad84da1-4fc6-4f18-a7a4-d272d8ca6bc7",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/models/session.js",
+        "lineNumber": 4
+    },
+    "queries": [
+        "Sequelize model for the 't_session' table in Gladys home assistant",
+        "code in session.js file defining the 'session' model for the 't_session' table in Gladys home assistant",
+        "code in session.js file using Sequelize to define the 'session' model and its columns for the 't_session' table with foreign key association to the 't_user' table in the Gladys home assistant project",
+        "code in session.js file using Sequelize to define the 'session' model for the 't_session' table in the Gladys home assistant project",
+        "code to define a model named 'session' for the 't_session' table in Gladys home assistant",
+        "how is the 'session' model defined in the session.js file in the Gladys project",
+        "implementation code in session.js file specifying the 'session' model for the 't_session' table with Sequelize in the Gladys project"
+    ],
+    "qualityScore": 86
+}

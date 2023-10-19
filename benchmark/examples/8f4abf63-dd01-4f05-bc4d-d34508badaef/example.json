@@ -1,0 +1,21 @@
+{
+    "uuid": "8f4abf63-dd01-4f05-bc4d-d34508badaef",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/device-in-room/EditDeviceInRoom.jsx",
+        "lineNumber": 115
+    },
+    "queries": [
+        "Code file in Gladys front-end for editing a device within a specific room",
+        "Code for filtering and sorting device features",
+        "Implementation file for the 'EditDeviceInRoom' component in Gladys front-end",
+        "JavaScript file for managing devices within rooms",
+        "JavaScript file that uses Preact library and allows users to select a room and configure device features",
+        "Logic for fetching devices associated with a room",
+        "Preact component for editing a device in a room"
+    ],
+    "qualityScore": 26
+}

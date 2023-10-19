@@ -1,0 +1,20 @@
+{
+    "uuid": "0d0ddf59-c6a3-41ca-8c63-2db0ad2550a6",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/shipping/test_models.py",
+        "lineNumber": 26
+    },
+    "queries": [
+        "Code for testing data validation process in Django weight band model using `full_clean()`",
+        "Code line that calls `full_clean()` method on WeightBand model instance in Django",
+        "Conducting integration-based unit tests for shipping models in Django",
+        "Script to verify functionality of `full_clean()` method in Django WeightBand model",
+        "Test script for validating WeightBand model data in Django",
+        "Unit test for weight-based and weight band models in django-oscar"
+    ],
+    "qualityScore": 0
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "bbf1dea6-bc71-476a-8966-5d8a2387ace6",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/settings/settings-gateway/GatewayUserRow.jsx",
+        "lineNumber": 31
+    },
+    "queries": [
+        "JSX code that represents a table row with two cells, one displaying the user's name and keys, and the other containing a switch input",
+        "class that extends a base class from the preact library",
+        "class with name UserRow that extends a base class, contains methods switchKey and render, and exports as default",
+        "component that presents the user's name, RSA and ECDSA public keys, and a switch input for acceptance status",
+        "file responsible for rendering a row with user details on gateway settings page",
+        "function passed as a property to the component in the switchKey method",
+        "method triggered when the switch input is clicked"
+    ],
+    "qualityScore": 85
+}

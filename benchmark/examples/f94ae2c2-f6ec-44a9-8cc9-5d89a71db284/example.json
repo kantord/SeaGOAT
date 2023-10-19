@@ -1,0 +1,21 @@
+{
+    "uuid": "f94ae2c2-f6ec-44a9-8cc9-5d89a71db284",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/drag-and-drop/AutoScrollMobile.jsx",
+        "lineNumber": 34
+    },
+    "queries": [
+        "Code file for handling auto-scroll in drag-and-drop feature on mobile devices in Gladys front-end application",
+        "Description of ScrollBottomMobile component in Gladys front-end application for auto-scrolling in drag-and-drop feature on mobile devices",
+        "Implementing auto-scroll behavior in Gladys front-end application",
+        "JavaScript code file defining ScrollBottomMobile component for auto-scrolling in drag-and-drop feature on mobile devices in Gladys front-end application",
+        "JavaScript code for auto-scrolling in Gladys front-end application",
+        "Purpose of JavaScript code file in Gladys front-end application for automatic scrolling in drag-and-drop feature on mobile devices",
+        "Usage and implementation details of JavaScript code file enabling auto-scroll in Gladys front-end application"
+    ],
+    "qualityScore": 83
+}

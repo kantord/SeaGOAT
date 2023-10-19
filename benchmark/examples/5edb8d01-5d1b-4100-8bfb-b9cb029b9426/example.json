@@ -1,0 +1,21 @@
+{
+    "uuid": "5edb8d01-5d1b-4100-8bfb-b9cb029b9426",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/scene/actions/scene.action.ecowattCondition.test.js",
+        "lineNumber": 108
+    },
+    "queries": [
+        "encountering errors during retrieval of ecowatt signals in ecowatt network condition",
+        "ensure expected behavior during retrieval of ecowatt signals",
+        "execution of unit tests for ecowattCondition action",
+        "file serving as test file for ecowattCondition action in scene module",
+        "scenarios related to ecowatt network condition",
+        "specifically designed to test functionality and behavior of ecowattCondition action",
+        "test file for ecowattCondition action"
+    ],
+    "qualityScore": 85
+}

@@ -1,0 +1,22 @@
+{
+    "uuid": "961538fe-fa59-439e-912d-d4148b12d4a8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/orders/apps.py",
+        "lineNumber": 27
+    },
+    "queries": [
+        "Class definition for configuring orders in Django-Oscar dashboard",
+        "Code file in Django-Oscar project that assigns specific classes to attributes, determining views for different URL endpoints in orders dashboard.",
+        "Code file responsible for handling the behavior and appearance of the orders app within the Django-Oscar dashboard. Initializes during Django application startup.",
+        "Code for assigning views to URL endpoints in Django-Oscar orders dashboard",
+        "Django-Oscar orders app configuration file",
+        "Initialization code for handling orders in Django-Oscar dashboard",
+        "Python file for configuring orders in Django-Oscar dashboard",
+        "Python file that configures behavior and appearance of orders in Django-Oscar dashboard. Defines attributes and methods for permissions and views."
+    ],
+    "qualityScore": 60
+}

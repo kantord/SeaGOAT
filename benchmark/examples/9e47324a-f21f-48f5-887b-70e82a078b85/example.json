@@ -1,0 +1,21 @@
+{
+    "uuid": "9e47324a-f21f-48f5-887b-70e82a078b85",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/voucher/test_models.py",
+        "lineNumber": 158
+    },
+    "queries": [
+        "file dedicated to testing voucher functionality and attributes in an application",
+        "file for testing voucher models in an application",
+        "file that tests voucher models in an integration environment",
+        "integration testing file for vouchers",
+        "test file for voucher models in integration environment",
+        "voucher model testing file",
+        "voucher model testing file in integration environment"
+    ],
+    "qualityScore": 78
+}

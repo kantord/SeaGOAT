@@ -1,0 +1,22 @@
+{
+    "uuid": "aef483cd-d44a-441c-a634-391016e15857",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/unit/templatetags/test_wishlist_tags.py",
+        "lineNumber": 17
+    },
+    "queries": [
+        "find wishlists containing a specific product",
+        "implement and test the functionality of wishlists_containing_product template tag",
+        "initialize user, create wishlists, and add a product to one wishlist",
+        "test file for wishlists_containing_product template tag",
+        "test file for wishlists_containing_product template tag in the codebase",
+        "test that wishlists_containing_product returns only one wishlist for a given product and wishlists",
+        "test wishlists_containing_product with a product and verify the retrieved wishlists",
+        "verify functionality of wishlists_containing_product template tag within the wishlist_tags module"
+    ],
+    "qualityScore": 70
+}

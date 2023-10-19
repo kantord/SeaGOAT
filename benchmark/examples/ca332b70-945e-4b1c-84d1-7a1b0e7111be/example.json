@@ -1,0 +1,20 @@
+{
+    "uuid": "ca332b70-945e-4b1c-84d1-7a1b0e7111be",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/settings/settings-gateway/GatewayConnectedSuccess.jsx",
+        "lineNumber": 22
+    },
+    "queries": [
+        "Find the code that renders a success message when a gateway device successfully connects",
+        "In the codebase, search for the file that renders a message indicating a successful connection of a gateway device",
+        "Locate the implementation file responsible for displaying a success message for a successfully connected gateway device",
+        "display success message with relevant information for gateway device connection",
+        "render success message for gateway device connection",
+        "render success message for gateway device connection using label element"
+    ],
+    "qualityScore": 83
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "80242517-df67-4339-9acc-d8f28971d2a0",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/tasmota/lib/features/colorTemperature.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "category of color temperature feature in Tasmota library code",
+        "file name for color temperature implementation in Tasmota library",
+        "file that handles color temperature in Tasmota library",
+        "function responsible for color temperature in Tasmota library",
+        "function that creates color temperature object in Tasmota library",
+        "function to create color temperature object in Tasmota library",
+        "implementation file for color temperature feature in Tasmota library"
+    ],
+    "qualityScore": 88
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "e8ec9d71-76cc-4c2b-9cb6-91207c9015e3",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/controllers/room/room.test.js",
+        "lineNumber": 98
+    },
+    "queries": [
+        "API response with room humidity represented as percent",
+        "consistent structure of test cases for room controller in API",
+        "file containing test cases for room controller in API",
+        "file that thoroughly tests the behavior of the room controller in the API",
+        "test case with API response including room humidity information represented as percent",
+        "test cases for create, update, delete, fetch operations related to room entities",
+        "test cases for room controller API"
+    ],
+    "qualityScore": 83
+}

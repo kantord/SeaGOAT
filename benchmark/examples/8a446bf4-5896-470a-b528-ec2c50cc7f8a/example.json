@@ -1,0 +1,21 @@
+{
+    "uuid": "8a446bf4-5896-470a-b528-ec2c50cc7f8a",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/mqtt/lib/configureContainer.test.js",
+        "lineNumber": 43
+    },
+    "queries": [
+        "MQTT service container configuration verification",
+        "assertions for expected operations on MQTT service configuration file",
+        "code that checks directory creation and permissions for MQTT container configuration",
+        "code to ensure correct setup and operation of MQTT service container configuration",
+        "container configuration file test",
+        "mocking framework for configuration file operations",
+        "test suite for MQTT service container configuration"
+    ],
+    "qualityScore": 88
+}

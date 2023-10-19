@@ -1,0 +1,22 @@
+{
+    "uuid": "5b63017c-d3d9-4632-9cad-ef8eac8c38f4",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/customer/test_order_status.py",
+        "lineNumber": 10
+    },
+    "queries": [
+        "Django Oscar functional test order status feature",
+        "anonymous user request order cannot be found",
+        "check response status code 404 NOT_FOUND",
+        "functional testing for order status feature Django Oscar project",
+        "reverse function URL parameters unknown order",
+        "test file order status functionality customer",
+        "test file order status functionality customers Django Oscar project",
+        "test_gets_a_404_when_requesting_an_unknown_order"
+    ],
+    "qualityScore": 83
+}

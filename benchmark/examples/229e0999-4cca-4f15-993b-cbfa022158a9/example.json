@@ -1,0 +1,21 @@
+{
+    "uuid": "229e0999-4cca-4f15-993b-cbfa022158a9",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/catalogue/migrations/0011_auto_20170422_1355.py",
+        "lineNumber": 11
+    },
+    "queries": [
+        "Django migration script alter unique_together constraint",
+        "Django migration script alter unique_together constraint for productimage model",
+        "Django migration script catalogue app",
+        "Django migration script dependency on previous migration",
+        "Django migration script inherit from migration class",
+        "Django migration script modify database schema",
+        "Django migration script operations section"
+    ],
+    "qualityScore": 56
+}

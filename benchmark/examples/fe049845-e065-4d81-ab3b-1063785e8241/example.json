@@ -1,0 +1,21 @@
+{
+    "uuid": "fe049845-e065-4d81-ab3b-1063785e8241",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tasmota/lib/device-setValue/mqtt/tasmota.mqtt.setValue-power.test.js",
+        "lineNumber": 32
+    },
+    "queries": [
+        "description of file that tests setting power value for device using MQTT in tasmota library in Gladys project",
+        "file to test setting power value using MQTT in tasmota library",
+        "file used to integrate tasmota library with MQTT in Gladys project",
+        "implementation details for testing MQTT functionality in tasmota library to set power value of device",
+        "process for verifying correct integration of tasmota library with MQTT in setting device power value",
+        "test file for setting power ON and OFF for a tasmota device",
+        "verify MQTT publish method in tasmota library when setting power value"
+    ],
+    "qualityScore": 30
+}

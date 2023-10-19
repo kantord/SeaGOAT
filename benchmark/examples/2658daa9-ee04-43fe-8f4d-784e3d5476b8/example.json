@@ -1,0 +1,21 @@
+{
+    "uuid": "2658daa9-ee04-43fe-8f4d-784e3d5476b8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/settings.py",
+        "lineNumber": 113
+    },
+    "queries": [
+        "configuration file for Django testing",
+        "configuration settings for Django project such as allowed hosts, databases, installed apps, authentication settings, template rendering settings, middleware, URL routing, static and media file settings, debug mode, site ID, time zone usage, URL slash appending, default data fixtures, session serializer, language code, order and line status settings specific to an e-commerce framework, and secret key",
+        "how to override default wildcard imports in Python",
+        "how to specify the test runner and directories for test fixtures in Django",
+        "how to support the current checkout process in Django with \"checkout\" object in templates",
+        "how to use context processors in Django templates",
+        "required settings for running tests in Django"
+    ],
+    "qualityScore": 55
+}

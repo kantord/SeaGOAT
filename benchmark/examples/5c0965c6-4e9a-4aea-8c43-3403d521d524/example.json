@@ -1,0 +1,21 @@
+{
+    "uuid": "5c0965c6-4e9a-4aea-8c43-3403d521d524",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/device-in-room/device-features/BinaryDeviceFeature.jsx",
+        "lineNumber": 12
+    },
+    "queries": [
+        "Create React table row displaying binary device functionality with switch component",
+        "Display React functional component for binary device functionality row",
+        "Find CSS class for right-aligned table column with switch component",
+        "Find code that integrates binary device functionality UI component",
+        "Implement React component for binary device functionality row with switch",
+        "Render table row with binary device functionality and switch component",
+        "Update binary device functionality value when switch is toggled in code"
+    ],
+    "qualityScore": 86
+}

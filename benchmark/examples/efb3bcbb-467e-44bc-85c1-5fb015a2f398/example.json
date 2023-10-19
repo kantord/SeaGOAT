@@ -1,0 +1,21 @@
+{
+    "uuid": "efb3bcbb-467e-44bc-85c1-5fb015a2f398",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/bluetooth/lib/commands/bluetooth.readDevice.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "File path to read Bluetooth values in JavaScript",
+        "Function to read Bluetooth characteristics",
+        "Function to retrieve characteristic object from a connected Bluetooth device",
+        "JavaScript function for reading Bluetooth values",
+        "JavaScript implementation to read values from a connected Bluetooth device",
+        "Location of JavaScript file to read Bluetooth values",
+        "Parameters for reading Bluetooth characteristic in a function"
+    ],
+    "qualityScore": 85
+}

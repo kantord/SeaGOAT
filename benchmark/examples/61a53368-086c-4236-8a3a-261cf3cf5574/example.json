@@ -1,0 +1,21 @@
+{
+    "uuid": "61a53368-086c-4236-8a3a-261cf3cf5574",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/gateway-reset-password/ResetPasswordForm.js",
+        "lineNumber": 46
+    },
+    "queries": [
+        "code file for resetting password in Gladys front-end application",
+        "code file used in Gladys front-end application's 'gateway-reset-password' route to render a form for password resetting. The form includes password input fields synchronized with password-related properties and an onSubmit event handler for password reset action. It displays error messages in alert divs and if two-factor authentication is enabled, renders an additional input field for the two-factor code. The submit button is disabled during password reset and the input elements and alert messages are localized using the 'preact-i18n' package. The form elements are wrapped with a <Localizer> component for localization based on the current locale settings.",
+        "file in the Gladys home assistant system front-end application responsible for rendering a form component allowing users to reset their password. It is used in the 'gateway-reset-password' route. The file contains JSX syntax for defining the form structure and behavior. The form has an onSubmit event handler for handling the password reset action. Error messages are displayed in alert divs based on certain conditions. The form includes password input fields that are synchronized with the respective password-related properties. If two-factor authentication is enabled, an additional input field for the two-factor code is rendered. The form also includes a submit button that is disabled when the password reset is in progress. The text content of the input elements and alert messages is localized using the 'preact-i18n' package. The form elements are wrapped with a <Localizer> component to enable localization based on the current locale settings.",
+        "file responsible for handling password resetting in Gladys home assistant system front-end application",
+        "file that renders a form component for users to reset their password in the Gladys home assistant system front-end application. It is used in the 'gateway-reset-password' route and contains JSX syntax for defining the form structure and behavior. The form has an onSubmit event handler for password reset action and displays error messages in alert divs. It includes password input fields synchronized with password-related properties. If two-factor authentication is enabled, it renders an additional input field for the two-factor code. The submit button is disabled during password reset and the input elements and alert messages are localized using the 'preact-i18n' package. The form elements are wrapped with a <Localizer> component for localization based on the current locale settings.",
+        "password reset form in front-end application",
+        "rendering form component for resetting password in front-end application"
+    ],
+    "qualityScore": 88
+}

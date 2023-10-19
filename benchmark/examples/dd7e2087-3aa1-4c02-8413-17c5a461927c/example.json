@@ -1,0 +1,21 @@
+{
+    "uuid": "dd7e2087-3aa1-4c02-8413-17c5a461927c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/seeders/20190403081927-calendar.js",
+        "lineNumber": 11
+    },
+    "queries": [
+        "SQL statements for inserting calendar data into t_calendar table in MySQL",
+        "database migration script for SQL Server",
+        "description of calendar data seeding script for database migration process",
+        "insert calendar data into t_calendar table SQL",
+        "migration tool for seeding calendar data into database",
+        "script to seed calendar data into database using Python during migration",
+        "seed calendar data for application"
+    ],
+    "qualityScore": 81
+}

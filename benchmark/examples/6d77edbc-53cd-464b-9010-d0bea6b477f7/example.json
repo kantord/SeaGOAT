@@ -1,0 +1,21 @@
+{
+    "uuid": "6d77edbc-53cd-464b-9010-d0bea6b477f7",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tuya/lib/tuya.setTokens.test.js",
+        "lineNumber": 8
+    },
+    "queries": [
+        "file testing setTokens feature in Gladys project",
+        "initialize variable for substitution of specific function in token storage testing in Gladys project",
+        "mocking library in Tuya service",
+        "simulate function in code for token storage in Gladys project",
+        "test tokens in Gladys project",
+        "unit tests for token storage in Gladys project",
+        "validate parameters passed to function for token storage in Gladys project"
+    ],
+    "qualityScore": 81
+}

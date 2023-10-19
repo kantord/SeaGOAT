@@ -1,0 +1,21 @@
+{
+    "uuid": "d3d80e6a-d379-44a3-9be1-acea8627ef20",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/bluetooth/setup-page/setup-peripheral/index.js",
+        "lineNumber": 50
+    },
+    "queries": [
+        "JavaScript file in setup-page directory for Bluetooth integration",
+        "JavaScript file in setup-peripheral directory of setup-page directory in bluetooth integration",
+        "JavaScript implementation file for BluetoothConnectPage component in setup-peripheral directory of setup-page directory in bluetooth integration",
+        "JavaScript implementation in setup-page directory for BluetoothConnectPage component",
+        "file configuring peripheral device for Bluetooth integration",
+        "file in setup-page directory used for configuring Bluetooth peripheral device",
+        "file in setup-page directory within bluetooth integration group used for configuring a peripheral device for Bluetooth"
+    ],
+    "qualityScore": 87
+}

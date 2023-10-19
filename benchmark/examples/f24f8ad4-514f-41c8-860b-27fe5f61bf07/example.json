@@ -1,0 +1,21 @@
+{
+    "uuid": "f24f8ad4-514f-41c8-860b-27fe5f61bf07",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tuya/lib/tuya.loadDevices.test.js",
+        "lineNumber": 22
+    },
+    "queries": [
+        "simulating request method behavior in loadDevices test case",
+        "stubbing request method in TuyaHandler.connector",
+        "stubbing request method using sinon library in loadDevices test scenario",
+        "test file conducting tests on loadDevices function in TuyaHandler class with stubbed request method",
+        "test file dedicated to verifying functionality of loadDevices function in TuyaHandler class",
+        "test file for loadDevices function in TuyaHandler class",
+        "testing loadDevices function in TuyaHandler class"
+    ],
+    "qualityScore": 29
+}

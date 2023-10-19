@@ -1,0 +1,21 @@
+{
+    "uuid": "880eb6de-ffbe-4522-89d8-36a57aee9a5b",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/utils/chunks.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "Code that breaks down an array into manageable sections in JavaScript",
+        "JavaScript code for dividing array into chunks",
+        "JavaScript code for partitioning an array into smaller segments with specified size",
+        "JavaScript implementation to divide an array into smaller parts",
+        "array division implementation code",
+        "code file for dividing array into sections",
+        "code to split array into smaller sections"
+    ],
+    "qualityScore": 85
+}

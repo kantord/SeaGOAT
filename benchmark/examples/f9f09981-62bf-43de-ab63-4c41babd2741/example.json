@@ -1,0 +1,21 @@
+{
+    "uuid": "f9f09981-62bf-43de-ab63-4c41babd2741",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/service/service.load.test.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "code file for testing load functionality of services",
+        "code file in server project to assess load functionality of services",
+        "confidential test file in server project testing the load functionality of services",
+        "dummy service example test file",
+        "dummy services placeholder functions for testing",
+        "load functionality testing file in server project",
+        "test file in server project to ensure correct loading and initialization of services"
+    ],
+    "qualityScore": 78
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "0799f412-8746-406b-ba2d-18c798b90f90",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/checkout/applicator.py",
+        "lineNumber": 17
+    },
+    "queries": [
+        "Checkout module managing surcharges in web app",
+        "Custom class in Python for managing surcharges during checkout",
+        "File in a web application's checkout module responsible for managing and implementing surcharges during the checkout process",
+        "Python code file containing the SurchargeApplicator class which overrides get_surcharges and is_applicable methods",
+        "Python code for applying surcharges during checkout in a web application",
+        "Python file extending the SurchargeApplicator class from oscar.apps.checkout.applicator and implementing surcharge logic",
+        "Python file handling surcharges during checkout in a web application"
+    ],
+    "qualityScore": 61
+}

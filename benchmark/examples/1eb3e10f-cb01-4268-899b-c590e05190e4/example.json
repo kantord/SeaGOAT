@@ -1,0 +1,21 @@
+{
+    "uuid": "1eb3e10f-cb01-4268-899b-c590e05190e4",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tasmota/lib/mqtt/handle-message/device-creation/tasmota.mqtt.handleMessage.deviceCreation-device_temperature_ESP32.test.js",
+        "lineNumber": 129
+    },
+    "queries": [
+        "automated testing file for Tasmota MQTT handler",
+        "code file to test Tasmota MQTT handler functionality",
+        "file containing test cases and assertions to ensure proper behavior of Tasmota MQTT handler in creating devices and handling MQTT messages",
+        "file used to test Tasmota MQTT handler's ability to create devices with ESP32 temperature feature and handle MQTT messages",
+        "test file for the Tasmota MQTT handler that checks if the 'pendingDevices' property is cleared after performing certain actions or operations",
+        "validate properties and methods in Tasmota MQTT handler",
+        "verify MQTT message handling and device creation"
+    ],
+    "qualityScore": 85
+}

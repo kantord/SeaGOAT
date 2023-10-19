@@ -1,0 +1,22 @@
+{
+    "uuid": "6c333422-eb96-444c-9f8c-7bc16e02c705",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/catalogue/test_product_search_handler_setting.py",
+        "lineNumber": 15
+    },
+    "queries": [
+        "catalogue integration test file",
+        "catalogue integration test file with handler_override variable",
+        "code file testing the influence of a setting on the returned value of product search handler",
+        "file testing the handling of product search in catalogue integration",
+        "file verifying the effect of configuration on get_product_search_handler_class function",
+        "product search handler configuration testing file",
+        "test file checking the influence of a specific setting on product search handler",
+        "test file for evaluating the behavior of get_product_search_handler_class"
+    ],
+    "qualityScore": 79
+}

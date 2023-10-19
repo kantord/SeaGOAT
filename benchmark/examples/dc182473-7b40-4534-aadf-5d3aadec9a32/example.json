@@ -1,0 +1,21 @@
+{
+    "uuid": "dc182473-7b40-4534-aadf-5d3aadec9a32",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/analytics/admin.py",
+        "lineNumber": 26
+    },
+    "queries": [
+        "file responsible for configuring and managing analytics functionality",
+        "handle tasks related to tracking user actions",
+        "includes product records, user search, and user product views",
+        "integral part of the Django-Oscar project focusing on analytics-related operations",
+        "manage and view records for users and their related activities",
+        "responsible for gathering data for product views, user activity, and search analysis",
+        "utilizes the Django admin site to register and associate custom admin classes"
+    ],
+    "qualityScore": 58
+}

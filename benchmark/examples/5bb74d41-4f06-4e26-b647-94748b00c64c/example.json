@@ -1,0 +1,21 @@
+{
+    "uuid": "5bb74d41-4f06-4e26-b647-94748b00c64c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/ewelink/lib/features/binary.js",
+        "lineNumber": 15
+    },
+    "queries": [
+        "file functionality for generating features in Ewelink library",
+        "file location and purpose for controlling binary features in Ewelink library",
+        "file path for managing binary features in Ewelink library",
+        "file responsible for controlling devices in Ewelink library",
+        "function description for handling value transformations between two systems in Ewelink library",
+        "function that accepts input device and feature with maximum allowed value of 1",
+        "functionality for polling binary state of device in Ewelink library"
+    ],
+    "qualityScore": 78
+}

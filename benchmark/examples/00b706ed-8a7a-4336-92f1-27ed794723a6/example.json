@@ -1,0 +1,21 @@
+{
+    "uuid": "00b706ed-8a7a-4336-92f1-27ed794723a6",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/IntegrationMenu.jsx",
+        "lineNumber": 5
+    },
+    "queries": [
+        "Gladys project",
+        "IntegrationMenu.jsx",
+        "JavaScript code file that uses the Preact library",
+        "allows users to view different categories of integrations and navigate to their respective pages",
+        "displaying the integration menu component in the front-end of the Gladys project",
+        "menu for integrating various features",
+        "used to render the integration menu component"
+    ],
+    "qualityScore": 73
+}

@@ -1,0 +1,22 @@
+{
+    "uuid": "784fec43-55e7-4355-8ba3-93ce51dd1013",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/core/test_decorator.py",
+        "lineNumber": 29
+    },
+    "queries": [
+        "check_permissions decorator test",
+        "integration of core functionality with decorators in django-oscar",
+        "test cases for decorators in django-oscar",
+        "test file for check_permissions decorator in django-oscar",
+        "test file for decorators in django-oscar",
+        "test file that contains test cases for decorators in django-oscar project",
+        "test file that ensures decorators and their functionalities are working as expected in django-oscar",
+        "test suite for decorators in django-oscar"
+    ],
+    "qualityScore": 76
+}

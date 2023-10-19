@@ -1,0 +1,21 @@
+{
+    "uuid": "9546db13-3f36-4207-a5a8-c3d2b22646e6",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/offers/reports.py",
+        "lineNumber": 20
+    },
+    "queries": [
+        "CSV reports of order discounts",
+        "Python source code file",
+        "dashboard module of the django-oscar project",
+        "formatter class that generates CSV reports",
+        "formatting them into rows for the CSV report",
+        "retrieve order details and order discount information",
+        "write to a CSV file using a CSV writer"
+    ],
+    "qualityScore": 88
+}

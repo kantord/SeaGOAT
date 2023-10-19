@@ -1,0 +1,21 @@
+{
+    "uuid": "b5ff2c14-705a-4390-a12c-69323a42b2db",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/unit/catalogue/test_managers.py",
+        "lineNumber": 7
+    },
+    "queries": [
+        "The file consists of a unit test function that verifies the filtering capability of the `public()` method",
+        "conduct unit tests for the catalogue module's managers",
+        "file serves as a testing file for the public filtering functionality of the `Product` model in the catalogue module",
+        "testing file for the public filtering functionality of the `Product` model",
+        "tests within this file ensure that the `public()` method in the `Product` model accurately filters products depending on their public status",
+        "unit test function that verifies the filtering capability of the `public()` method",
+        "validating the behavior of the `public()` method and its ability to filter products based on their public status"
+    ],
+    "qualityScore": 83
+}

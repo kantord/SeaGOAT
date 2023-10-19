@@ -1,0 +1,21 @@
+{
+    "uuid": "ade5670e-7ab4-4190-a054-3cc9013a49d7",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/payment/migrations/0005_auto_20200801_0817.py",
+        "lineNumber": 8
+    },
+    "queries": [
+        "class that inherits from Migration class and specifies dependencies for payment app migration in django-oscar project",
+        "database schema update for payment app in django-oscar project",
+        "file to manage database changes for payment app in django-oscar project",
+        "file to manage database changes for payment app in django-oscar project. It ensures consistent database schema updates in correct order",
+        "inherits from Migration class and specifies dependencies for payment app migration",
+        "migration script for payment app in django-oscar project that modifies model options and fields",
+        "migration script for payment app in django-oscar project with schema changes"
+    ],
+    "qualityScore": 58
+}

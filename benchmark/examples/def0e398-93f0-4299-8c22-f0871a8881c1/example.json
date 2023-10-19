@@ -1,0 +1,22 @@
+{
+    "uuid": "def0e398-93f0-4299-8c22-f0871a8881c1",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/core/test_prices.py",
+        "lineNumber": 40
+    },
+    "queries": [
+        "Django Oscar project price object test",
+        "code lines testing the core functionality related to prices in Django Oscar project",
+        "price object functionality",
+        "price object instantiation with currency, excluding tax amount, and tax amount",
+        "test case for price object creation and equality",
+        "test code file",
+        "test methods for price object functionality in Django Oscar project",
+        "verification of price calculations and comparisons in Django Oscar project"
+    ],
+    "qualityScore": 81
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "cd4efc38-dbdf-452f-85d8-f8fbf952f8e9",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/test/factories/urls.py",
+        "lineNumber": 11
+    },
+    "queries": [
+        "Configuration file in Django's 'oscar' package's 'test' directory with URL patterns for bands in the dashboard section",
+        "Django configuration file for the dashboard section",
+        "File in Django web framework that defines URL patterns for bands in the 'dashboard' section of the application",
+        "Path definitions for band actions in Django dashboard",
+        "Python file defining URL patterns for bands in Django dashboard",
+        "Python file with URL mappings for bands in Django dashboard",
+        "URL patterns for band actions in the dashboard"
+    ],
+    "qualityScore": 91
+}

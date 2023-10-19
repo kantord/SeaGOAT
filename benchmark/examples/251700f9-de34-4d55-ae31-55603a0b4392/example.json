@@ -1,0 +1,21 @@
+{
+    "uuid": "251700f9-de34-4d55-ae31-55603a0b4392",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/offer/test_shipping_benefit.py",
+        "lineNumber": 16
+    },
+    "queries": [
+        "django-oscar StubRepository class get_shipping_methods method",
+        "django-oscar StubRepository class override get_shipping_methods method non-free shipping",
+        "django-oscar StubRepository class override get_shipping_methods method simulate non-free shipping for testing discounts",
+        "django-oscar project code file for testing shipping benefit feature",
+        "django-oscar project purpose evaluate shipping benefit functionality",
+        "django-oscar shipping benefit functionality test code",
+        "django-oscar shipping benefit test code"
+    ],
+    "qualityScore": 50
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "d1af323a-ebb1-4e48-a8fe-be0e612a21c7",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/chat/EmptyChat.jsx",
+        "lineNumber": 4
+    },
+    "queries": [
+        "code file for displaying empty state message in chat interface when there are no messages",
+        "code file for empty chat state",
+        "code to center align image and fetch text message from translation file in empty chat component",
+        "code to show visually appealing message in empty chat state",
+        "component displayed when no messages in chat",
+        "empty chat component implementation code",
+        "implementation code for empty chat component with image and paragraph for empty state message"
+    ],
+    "qualityScore": 81
+}

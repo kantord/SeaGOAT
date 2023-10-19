@@ -1,0 +1,21 @@
+{
+    "uuid": "8f91b776-19ac-4a5f-964d-f624477281d3",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/wishlists/abstract_models.py",
+        "lineNumber": 164
+    },
+    "queries": [
+        "Abstract models for wishlists in django-oscar project",
+        "Code file for wishlists with ownership, visibility, and creation date in django-oscar",
+        "Code file in django-oscar for wishlists with abstract models, product adding, and shared emails",
+        "File in django-oscar project that provides abstract models for wishlists, including ownership, visibility, and creation date",
+        "Python file that defines abstract models for wishlists in django-oscar",
+        "Python source code file for wishlists in django-oscar",
+        "Python source code file in django-oscar for wishlists with ownership, visibility, and creation date, and adding products"
+    ],
+    "qualityScore": 80
+}

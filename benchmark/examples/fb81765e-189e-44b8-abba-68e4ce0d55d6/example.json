@@ -1,0 +1,21 @@
+{
+    "uuid": "fb81765e-189e-44b8-abba-68e4ce0d55d6",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/google-home-gateway/index.js",
+        "lineNumber": 95
+    },
+    "queries": [
+        "File in 'google-home-gateway' folder in codebase",
+        "File that connects Google Home devices with Gladys application",
+        "Frontend code file for Google Home integration in Gladys ecosystem",
+        "Google Home integration file in Gladys",
+        "HTML file with green checkmark in user interface of Gladys",
+        "Location of file in codebase for integrating Google Home with Gladys application",
+        "Real implementation file in 'google-home-gateway' folder for connecting Google Home devices with Gladys"
+    ],
+    "qualityScore": 81
+}

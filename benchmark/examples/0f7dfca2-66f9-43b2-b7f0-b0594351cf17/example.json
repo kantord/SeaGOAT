@@ -1,0 +1,21 @@
+{
+    "uuid": "0f7dfca2-66f9-43b2-b7f0-b0594351cf17",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/dashboard/test_catalogue_views.py",
+        "lineNumber": 78
+    },
+    "queries": [
+        "code file to search child products and retrieve parent in ProductListView view",
+        "code file to simulate request for child products using UPC in ProductListView view",
+        "file for testing ProductListView in catalogue module",
+        "implementation file to test integration of views related to catalogue in dashboard",
+        "test code for ProductListView in catalogue module",
+        "test file for verifying functionality of ProductListView view",
+        "test scenario in code file to assert result set from get_queryset() method in ProductListView view"
+    ],
+    "qualityScore": 0
+}

@@ -1,0 +1,22 @@
+{
+    "uuid": "c95698b7-adac-4779-9de7-949503434453",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/order/test_order_dispatcher.py",
+        "lineNumber": 20
+    },
+    "queries": [
+        "creating custom communication event type for testing purposes",
+        "creating new instance of CommunicationEventType",
+        "examining delivery of order messages to registered users' email addresses",
+        "file containing order dispatch unit tests",
+        "inheritance from Django's 'TestCase' for order dispatcher tests",
+        "purpose of evaluating the order dispatcher functionality in django-oscar project",
+        "test class for order dispatcher",
+        "testing order dispatcher in integration environment"
+    ],
+    "qualityScore": 53
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "187063bc-f847-4468-9baf-135cf961e0db",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/reviews/migrations/0001_initial.py",
+        "lineNumber": 53
+    },
+    "queries": [
+        "create initial database migration for reviews in Django-Oscar",
+        "define database schema for reviews and voting",
+        "define fields and relations for review votes in migration script",
+        "foreign key relationship between votes and product reviews",
+        "handle deletion of product reviews and associated votes in migration script",
+        "initial migration for reviews",
+        "migrate database script"
+    ],
+    "qualityScore": 90
+}

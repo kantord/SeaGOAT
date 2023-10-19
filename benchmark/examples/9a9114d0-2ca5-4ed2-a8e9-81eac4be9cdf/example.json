@@ -1,0 +1,21 @@
+{
+    "uuid": "9a9114d0-2ca5-4ed2-a8e9-81eac4be9cdf",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/gateway/gateway.enedis.test.js",
+        "lineNumber": 17
+    },
+    "queries": [
+        "fake implementation of system object in Gateway module test code",
+        "purpose of code file unit testing Gateway module Enedis API",
+        "replace system function in Gateway module fake implementation",
+        "simulate scenarios in Gateway module test code",
+        "test code for Gateway module Enedis API interactions",
+        "unit test file for Gateway module Enedis API",
+        "validate responses and handle errors in Gateway module test code"
+    ],
+    "qualityScore": 83
+}

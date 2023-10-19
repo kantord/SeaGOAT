@@ -1,0 +1,21 @@
+{
+    "uuid": "43451391-83cf-4dda-86fa-88b1a68850b5",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/tasmota/lib/device-setValue/mqtt/tasmota.mqtt.setValue-colorTemperature.test.js",
+        "lineNumber": 28
+    },
+    "queries": [
+        "Code file for testing the color temperature adjustment of Tasmota devices via MQTT",
+        "How does the code simulate the process of setting the color temperature on Tasmota devices using MQTT?",
+        "How to adjust the color temperature of a Tasmota device using MQTT in the codebase?",
+        "Method for setting the color temperature of Tasmota devices using MQTT",
+        "What is the purpose of the code file that tests the color temperature adjustment feature of Tasmota devices via MQTT?",
+        "What parameters are used to test the method that sets the color temperature on Tasmota devices via MQTT?",
+        "Which method in the codebase is responsible for publishing MQTT messages to set the color temperature on Tasmota devices?"
+    ],
+    "qualityScore": 80
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "fc1c7550-f316-4ae2-ad4f-3b8a016960b1",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/receivers.py",
+        "lineNumber": 11
+    },
+    "queries": [
+        "python code managing image file deletion django-oscar catalogue app",
+        "python django-oscar catalogue app event handling code",
+        "python file handling delete save events Category ProductImage models django-oscar catalogue app",
+        "python file handling delete save events catalogue django-oscar file",
+        "python file responsible for handling events in django-oscar catalogue app",
+        "python file used for image file deletion and visibility management in django-oscar catalogue app",
+        "python file with receiver functions for handling image file deletion and setting ancestors as public in django-oscar catalogue app"
+    ],
+    "qualityScore": 83
+}

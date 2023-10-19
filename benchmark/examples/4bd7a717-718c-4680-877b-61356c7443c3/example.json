@@ -1,0 +1,21 @@
+{
+    "uuid": "4bd7a717-718c-4680-877b-61356c7443c3",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/forms/fields.py",
+        "lineNumber": 26
+    },
+    "queries": [
+        "Django-Oscar project forms module ExtendedURLField definition",
+        "Django-Oscar project forms module class extending URLField properties and methods",
+        "ExtendedURLField class overriding properties and methods in Django-Oscar project",
+        "Python source code file adding custom form field called ExtendedURLField in Django-Oscar project",
+        "Python source code file defining ExtendedURLField in Django-Oscar project",
+        "Python source code file extending URLField with ExtendedURLField in Django-Oscar project",
+        "Python source code file handling and validating regular and local relative URLs in Django-Oscar project"
+    ],
+    "qualityScore": 0
+}

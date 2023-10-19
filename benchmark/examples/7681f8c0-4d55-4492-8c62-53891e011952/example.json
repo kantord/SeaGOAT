@@ -1,0 +1,21 @@
+{
+    "uuid": "7681f8c0-4d55-4492-8c62-53891e011952",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/gateway/gateway.restoreBackup.test.js",
+        "lineNumber": 73
+    },
+    "queries": [
+        "code file demonstrating error assertion in try-catch block",
+        "code file examining properties of error object in try-catch block",
+        "code file implementing restoreBackup function in gateway module",
+        "code file testing the behavior of restoreBackup function in gateway module",
+        "unit test for NotFoundError class",
+        "unit test for restoreBackup function in gateway module",
+        "unit test validating thrown error in restoreBackup function"
+    ],
+    "qualityScore": 90
+}

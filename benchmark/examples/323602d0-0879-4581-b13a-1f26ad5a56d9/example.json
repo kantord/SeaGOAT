@@ -1,0 +1,21 @@
+{
+    "uuid": "323602d0-0879-4581-b13a-1f26ad5a56d9",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/utils/device.js",
+        "lineNumber": 25
+    },
+    "queries": [
+        "code to retrieve device parameter in Gladys project",
+        "file in Gladys project with utility functions for device operations and function to fetch device parameter",
+        "file with utility functions for devices in Gladys project and function to get specific device parameter",
+        "function to get a specific device parameter in Gladys project",
+        "function to retrieve device parameter",
+        "implementation code file in Gladys project for shared functions related to devices with function to retrieve device parameter",
+        "utility function for device parameters"
+    ],
+    "qualityScore": 85
+}

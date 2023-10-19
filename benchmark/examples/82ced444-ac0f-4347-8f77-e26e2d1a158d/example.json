@@ -1,0 +1,21 @@
+{
+    "uuid": "82ced444-ac0f-4347-8f77-e26e2d1a158d",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/scene/TextWithVariablesInjected.jsx",
+        "lineNumber": 40
+    },
+    "queries": [
+        "Tagify library integration in TextWithVariablesInjected component",
+        "component for rendering text with injected variables",
+        "implementation of TextWithVariablesInjected component",
+        "initialize Tagify instance and load original text values in TextWithVariablesInjected component",
+        "update text value and refresh variable list in TextWithVariablesInjected component",
+        "usage of TextWithVariablesInjected component",
+        "variable to track if injected variables are ready in TextWithVariablesInjected component"
+    ],
+    "qualityScore": 90
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "bf8c8395-6297-48f5-ab39-8e2a70a7fe4a",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/customer/test_history.py",
+        "lineNumber": 6
+    },
+    "queries": [
+        "code that dynamically loads CustomerHistoryManager class from core.loading module",
+        "code that ensures CustomerHistoryManager.get method returns an empty list for HttpRequest object",
+        "code that utilizes get_class function from core.loading module to load CustomerHistoryManager class",
+        "file used to test customer history in Django project",
+        "implementation code for customer history functionality in Django project",
+        "test file for customer history feature",
+        "validate behavior of CustomerHistoryManager class"
+    ],
+    "qualityScore": 55
+}

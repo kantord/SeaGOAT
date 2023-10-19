@@ -1,0 +1,21 @@
+{
+    "uuid": "bb94d7bb-eb41-4006-b47d-332cdebb8075",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/partner/migrations/0003_auto_20150604_1450.py",
+        "lineNumber": 8
+    },
+    "queries": [
+        "django migration script alter partner model users field to ManyToManyField relationship in partner application",
+        "django migration script alter users field",
+        "django migration script change users field in partner application",
+        "django migration script for partner application altering users field to ManyToManyField in partner model",
+        "python migration script change users field to ManyToManyField in partner application",
+        "python migration script for partner application",
+        "python migration script modify users field to ManyToManyField in partner application"
+    ],
+    "qualityScore": 30
+}

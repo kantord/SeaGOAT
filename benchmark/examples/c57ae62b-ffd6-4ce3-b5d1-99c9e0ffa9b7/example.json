@@ -1,0 +1,21 @@
+{
+    "uuid": "c57ae62b-ffd6-4ce3-b5d1-99c9e0ffa9b7",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/apps.py",
+        "lineNumber": 9
+    },
+    "queries": [
+        "Python file in Django Oscar project that defines a class called 'CatalogueOnlyConfig'",
+        "Python file that configures the catalogue app in Django Oscar",
+        "Python file that customizes the behavior of the catalogue app in Django Oscar",
+        "file containing settings and functionality for the catalogue app in Django Oscar",
+        "file in Django Oscar project for configuring and tailoring the catalogue functionality",
+        "file in Django Oscar project that overrides methods related to the catalogue functionality",
+        "file in Django Oscar project that returns a list of URL patterns specific to the catalogue app"
+    ],
+    "qualityScore": 89
+}

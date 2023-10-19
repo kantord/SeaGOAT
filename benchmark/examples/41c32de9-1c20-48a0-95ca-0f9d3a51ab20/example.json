@@ -1,0 +1,22 @@
+{
+    "uuid": "41c32de9-1c20-48a0-95ca-0f9d3a51ab20",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/controllers/user/user.getSetupState.test.js",
+        "lineNumber": 5
+    },
+    "queries": [
+        "Jest test for GET request to verify account configuration",
+        "Jest test suite for backend application account setup state retrieval",
+        "code file for testing account setup state retrieval controller",
+        "code file intended for testing a controller function that retrieves the setup state of a user's account in a test suite for the backend application, focusing on testing the behavior of the controller function responsible for a specific endpoint using the Jest framework to define test cases and make assertions on the response received from an HTTP request sent to the targeted endpoint to verify if the account is configured or not",
+        "code file testing the behavior of a controller function responsible for handling GET requests to verify the setup state of a user's account in a Jest test suite for the backend application, checking the expected behavior of the controller function and the response received from the targeted endpoint",
+        "code file with Jest test cases for a controller function that handles GET requests to verify the account configuration status by checking the expected behavior of the controller function handling the GET request in a test suite for the backend application",
+        "controller function test for account setup state retrieval",
+        "test suite for account setup state retrieval controller"
+    ],
+    "qualityScore": 78
+}
