@@ -1,0 +1,13 @@
+{
+    "uuid": "a135c858-c322-4191-a0fd-29a8326b6679",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/offer/receivers.py",
+        "lineNumber": 8
+    },
+    "queries": [],
+    "qualityScore": 25
+}

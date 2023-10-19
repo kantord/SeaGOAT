@@ -1,0 +1,21 @@
+{
+    "uuid": "e185f01f-0767-4fdc-a404-4868e7be43df",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/core/test_slugfield.py",
+        "lineNumber": 11
+    },
+    "queries": [
+        "django-oscar SlugField allow_unicode test find",
+        "django-oscar SlugField class test file find",
+        "django-oscar SlugField test file for allow_unicode keyword argument find",
+        "django-oscar SlugField test file to check precedence of allow_unicode keyword argument find",
+        "django-oscar SlugField test file to verify allow_unicode functionality find",
+        "django-oscar SlugField test file with override_settings for allow_unicode find",
+        "django-oscar test file for SlugField allow_unicode behavior find"
+    ],
+    "qualityScore": 86
+}

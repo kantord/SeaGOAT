@@ -1,0 +1,21 @@
+{
+    "uuid": "21e3461f-14c8-416b-b455-8fa1b2dc62c2",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/models/calendar_event.js",
+        "lineNumber": 69
+    },
+    "queries": [
+        "Attributes and data types of calendar event model using Sequelize",
+        "Code line exporting the calendar event model in JavaScript file",
+        "Foreign key association of calendar event model with another model",
+        "Implementation details of calendar event model in JavaScript file",
+        "JavaScript file exporting the calendar event model",
+        "Model definition for calendar event in JavaScript file",
+        "Usage of calendar event JavaScript file in server project"
+    ],
+    "qualityScore": 0
+}

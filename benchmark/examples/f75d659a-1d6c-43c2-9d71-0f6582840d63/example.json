@@ -1,0 +1,21 @@
+{
+    "uuid": "f75d659a-1d6c-43c2-9d71-0f6582840d63",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/job/job.finish.js",
+        "lineNumber": 11
+    },
+    "queries": [
+        "code that fetches the updated job object and resolves a Promise",
+        "code that searches for a job in the database, throws an error if not found, and updates the job",
+        "file in server application that finalizes a job",
+        "file used to finalize a job in server application, updates job status, and emits a WebSocket message",
+        "function in server application that marks a job as finished and updates the status",
+        "function that updates job status and additional data in server application",
+        "implementation file in server application that updates job status and potentially adds additional data"
+    ],
+    "qualityScore": 93
+}

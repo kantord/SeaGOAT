@@ -1,0 +1,21 @@
+{
+    "uuid": "db693207-c6a6-494d-a277-4739bd0201ae",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/bluetooth/lib/index.js",
+        "lineNumber": 65
+    },
+    "queries": [
+        "BluetoothManager scanPresence function",
+        "BluetoothManager scanPresence function implementation",
+        "Code for scanning presence of Bluetooth devices in Gladys bluetooth service",
+        "File in Gladys codebase handling Bluetooth devices",
+        "Gladys bluetooth scanPresence function",
+        "Gladys bluetooth scanPresence function code",
+        "Gladys bluetooth service file containing scanPresence function"
+    ],
+    "qualityScore": 23
+}

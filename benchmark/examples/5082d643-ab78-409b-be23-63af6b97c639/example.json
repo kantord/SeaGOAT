@@ -1,0 +1,21 @@
+{
+    "uuid": "5082d643-ab78-409b-be23-63af6b97c639",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/ecowatt/controllers/ecowatt.controller.js",
+        "lineNumber": 7
+    },
+    "queries": [
+        "ECOWatt service controller code",
+        "ECOWatt service controller function in API implementation file with API documentation comments",
+        "ECOWatt service controller function with API documentation",
+        "code file for managing ECOWatt service",
+        "file for handling control of ECOWatt service operations with API documentation",
+        "function for retrieving signals in ECOWatt service",
+        "implementation file for managing ECOWatt service operations and handling client requests with API documentation comments"
+    ],
+    "qualityScore": 28
+}

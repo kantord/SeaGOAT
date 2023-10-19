@@ -1,0 +1,21 @@
+{
+    "uuid": "dbf09259-d2da-47bf-960f-4bae37fd4ccb",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/core/application.py",
+        "lineNumber": 25
+    },
+    "queries": [
+        "Python code file extending django.apps.AppConfig class for django-oscar",
+        "URL configurations and permissions for managing online stores in django-oscar",
+        "base application class for django-oscar core functionality",
+        "code file providing URL configurations and permissions for managing online stores in django-oscar",
+        "dictionary called permissions_map mapping URL names to sets of permissions in django-oscar",
+        "purpose of code file defining base application class for django-oscar core functionality",
+        "role of code file in configuring and managing the core functionality of django-oscar framework"
+    ],
+    "qualityScore": 87
+}

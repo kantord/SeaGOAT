@@ -1,0 +1,21 @@
+{
+    "uuid": "432424b1-152b-40ae-99b6-f81cf05ca451",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/device/device.newStateEvent.test.js",
+        "lineNumber": 118
+    },
+    "queries": [
+        "file containing the code for validating the 'newStateEvent' in the 'device' library",
+        "file with code to verify the state updates by the 'newStateEvent' method in the 'device' library",
+        "how to validate the 'newStateEvent' functionality in the 'device' library",
+        "how to write a test case to update the state manager using the 'newStateEvent' method in the 'device' library",
+        "how to write a test case to update the state manager with the latest state of the device feature",
+        "how to write code for testing the 'newStateEvent' functionality of the 'device' library",
+        "implementation of the test case for the 'newStateEvent' in the 'device' library"
+    ],
+    "qualityScore": 31
+}

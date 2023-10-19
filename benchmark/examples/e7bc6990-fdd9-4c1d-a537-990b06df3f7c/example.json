@@ -1,0 +1,21 @@
+{
+    "uuid": "e7bc6990-fdd9-4c1d-a537-990b06df3f7c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/cypress/support/e2e.js",
+        "lineNumber": 16
+    },
+    "queries": [
+        "How to configure Cypress for a project?",
+        "How to extend Cypress capabilities using 'commands.js'?",
+        "What is the purpose of the file in the Gladys project?",
+        "What is the purpose of the support file in Cypress?",
+        "Where is the Cypress configuration file located?",
+        "Where is the configuration file located in the Gladys project?",
+        "Why is the 'commands.js' file imported in the configuration file of Gladys project?"
+    ],
+    "qualityScore": 88
+}

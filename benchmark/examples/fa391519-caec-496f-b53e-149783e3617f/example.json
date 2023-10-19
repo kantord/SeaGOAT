@@ -1,0 +1,21 @@
+{
+    "uuid": "fa391519-caec-496f-b53e-149783e3617f",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/mqtt/api/mqtt.controller.js",
+        "lineNumber": 57
+    },
+    "queries": [
+        "API endpoint that requires authentication and initiates async retrieval of MQTT configuration using mqttManager.getConfiguration()",
+        "MQTT API controller file",
+        "MQTT API middleware file with multiple API endpoints for connecting, checking status, retrieving configuration, and installing MQTT broker container",
+        "asynchronously retrieve MQTT configuration using dedicated function",
+        "fetch MQTT configuration endpoint",
+        "file that serves as controller and contains implementation code for MQTT API endpoints",
+        "handle MQTT requests and logic"
+    ],
+    "qualityScore": 95
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "eecbf355-9759-451b-a474-bd8383d9f250",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/customer/utils.py",
+        "lineNumber": 19
+    },
+    "queries": [
+        "constant codes representing customer actions",
+        "dispatcher class for sending emails",
+        "file for managing and dispatching customer-related emails",
+        "function to generate password reset URL",
+        "function to normalize email addresses",
+        "functionality to send emails associated with customer actions",
+        "utility module for Django Oscar e-commerce framework"
+    ],
+    "qualityScore": 90
+}

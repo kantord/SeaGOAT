@@ -1,0 +1,22 @@
+{
+    "uuid": "d8578497-622d-4ed1-bc24-18d19ed89018",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/catalogue/widgets.py",
+        "lineNumber": 16
+    },
+    "queries": [
+        "CSS class for customizing widget appearance in Django Oscar",
+        "Django Oscar dashboard custom components modification",
+        "Django Oscar dashboard customized selection components",
+        "Django Oscar specialized display elements",
+        "ProductSelect and ProductSelectMultiple classes in Django Oscar",
+        "ProductSelectMultiple class overrides lookup_url attribute in Django Oscar",
+        "Python script defining specialized display elements for Django Oscar catalogue",
+        "Python script for customized selection components"
+    ],
+    "qualityScore": 86
+}

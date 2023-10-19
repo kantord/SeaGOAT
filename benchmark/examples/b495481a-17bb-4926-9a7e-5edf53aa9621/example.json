@@ -1,0 +1,21 @@
+{
+    "uuid": "b495481a-17bb-4926-9a7e-5edf53aa9621",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/catalogue/reviews/test_forms.py",
+        "lineNumber": 30
+    },
+    "queries": [
+        "integration test file for review forms in catalogue app",
+        "test file for reviews in Django application",
+        "test methods for cleansing title field in review form",
+        "test methods for preventing multiple votes on same review in vote form",
+        "test methods for review form functionality in catalogue app",
+        "test methods for validating provided data in review form",
+        "test methods for vote form functionality in Django application"
+    ],
+    "qualityScore": 84
+}

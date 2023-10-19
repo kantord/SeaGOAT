@@ -1,0 +1,21 @@
+{
+    "uuid": "273ba6b3-dcc1-4cd3-a2db-d33b51bd57b9",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/payment/test_forms.py",
+        "lineNumber": 62
+    },
+    "queries": [
+        "clean() method invoked with predefined input values to check for ValidationError in payment forms",
+        "confirming payment forms handle expected exceptions during integration testing",
+        "file for conducting tests and validation of payment form integration",
+        "rejection of invalid years and months in payment forms",
+        "test file for payment form integration",
+        "test functions to check for ValidationError in payment form code",
+        "verify behavior of payment forms during integration"
+    ],
+    "qualityScore": 75
+}

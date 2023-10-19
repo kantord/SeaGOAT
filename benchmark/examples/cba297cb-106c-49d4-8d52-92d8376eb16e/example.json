@@ -1,0 +1,21 @@
+{
+    "uuid": "cba297cb-106c-49d4-8d52-92d8376eb16e",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/tasmota/lib/http/tasmota.http.getDiscoveredDevices.js",
+        "lineNumber": 12
+    },
+    "queries": [
+        "Tasmota library file that provides a solution for retrieving discovered devices",
+        "exported interface for retrieving discovered devices in Tasmota library",
+        "file that handles HTTP requests to retrieve a list of discovered devices in Tasmota library",
+        "function for retrieving discovered devices in Tasmota library",
+        "implementation file for HTTP service discovery in Tasmota library",
+        "interface for gathering information about devices in Tasmota library",
+        "purpose of the file in Tasmota library that retrieves a list of devices discovered by HTTP service implementation"
+    ],
+    "qualityScore": 0
+}

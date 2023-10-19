@@ -1,0 +1,21 @@
+{
+    "uuid": "39ae8ff5-8956-41b6-abb2-95da7f9f6bef",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/utils/httpErrors.js",
+        "lineNumber": 31
+    },
+    "queries": [
+        "JavaScript file that manages and customizes error messages related to HTTP requests in a server implementation",
+        "class containing properties for status, code, and error message for HTTP error code 403",
+        "class file for custom HTTP error handling",
+        "class representing HTTP error code 403",
+        "file containing classes for different HTTP error codes",
+        "file implementing custom handling for HTTP errors",
+        "file with classes representing various HTTP error codes, each with properties for status code, error code, and error specific details"
+    ],
+    "qualityScore": 53
+}

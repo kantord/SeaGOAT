@@ -1,0 +1,21 @@
+{
+    "uuid": "f1d5da5d-50cd-4739-9506-b1758a3a1566",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/zigbee2mqtt/api/zigbee2mqtt.controller.js",
+        "lineNumber": 67
+    },
+    "queries": [
+        "JavaScript file managing Zigbee2mqtt API endpoints and providing additional information",
+        "JavaScript functions for Zigbee2mqtt API controllers",
+        "Zigbee2mqtt API controller file",
+        "Zigbee2mqtt API endpoint handler",
+        "Zigbee2mqtt API request handler",
+        "controller handling Zigbee2mqtt API requests",
+        "file managing Zigbee2mqtt API endpoints"
+    ],
+    "qualityScore": 81
+}

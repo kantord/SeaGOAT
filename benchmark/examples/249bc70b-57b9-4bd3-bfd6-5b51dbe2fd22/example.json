@@ -1,0 +1,22 @@
+{
+    "uuid": "249bc70b-57b9-4bd3-bfd6-5b51dbe2fd22",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/unit/core/test_thumbnails.py",
+        "lineNumber": 22
+    },
+    "queries": [
+        "Django-Oscar method for setting the thumbnailer to SorlThumbnail",
+        "TestThumbnailer class inheritance and functionality",
+        "behavior of thumbnail generation and deletion in Django-Oscar",
+        "description and inheritance of TestThumbnailer class in Django-Oscar",
+        "method for creating product images and testing thumbnail generation and deletion",
+        "method for deleting thumbnails in Django-Oscar",
+        "purpose of the file in Django-Oscar core module",
+        "test Django-Oscar core module thumbnail functionality"
+    ],
+    "qualityScore": 83
+}

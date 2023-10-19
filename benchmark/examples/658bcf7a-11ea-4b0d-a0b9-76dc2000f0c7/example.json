@@ -1,0 +1,21 @@
+{
+    "uuid": "658bcf7a-11ea-4b0d-a0b9-76dc2000f0c7",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/shipping/test_discount.py",
+        "lineNumber": 30
+    },
+    "queries": [
+        "code file testing and validating discounts applied to charges without tax in shipping module django-oscar",
+        "django-oscar discounting test file",
+        "file dedicated functionality shipping module django-oscar",
+        "shipping module discounting methods test cases",
+        "test cases creating basket calculating charge excluding tax discounting method asserting charge equals decimal 8.00",
+        "test cases discounting methods applying expected discounts charges without tax shipping module django-oscar",
+        "test code file shipping module django-oscar"
+    ],
+    "qualityScore": 55
+}

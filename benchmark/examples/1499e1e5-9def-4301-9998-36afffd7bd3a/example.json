@@ -1,0 +1,21 @@
+{
+    "uuid": "1499e1e5-9def-4301-9998-36afffd7bd3a",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/broadlink/lib/utils/broadlink.constants.js",
+        "lineNumber": 1
+    },
+    "queries": [
+        "code file containing the objects ACTIONS and PARAMS with constant values for Broadlink",
+        "code file in Gladys project that provides constant values for Broadlink service",
+        "code file in Gladys repository utilized for referencing Broadlink actions and parameters through constant values",
+        "code file that exports constant values for Broadlink operations in Gladys project",
+        "file responsible for defining and exporting objects ACTIONS and PARAMS with unchanging values for Broadlink in Gladys project",
+        "file that defines constant values for Broadlink service in Gladys project",
+        "file with nested properties representing different Broadlink actions and their outcomes"
+    ],
+    "qualityScore": 91
+}

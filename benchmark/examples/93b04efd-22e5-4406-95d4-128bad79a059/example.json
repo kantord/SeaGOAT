@@ -1,0 +1,21 @@
+{
+    "uuid": "93b04efd-22e5-4406-95d4-128bad79a059",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/zigbee2mqtt/lib/findMatchingExpose.js",
+        "lineNumber": 46
+    },
+    "queries": [
+        "file that facilitates integration between Gladys and Zigbee",
+        "file used for establishing a link between Gladys and Zigbee",
+        "function responsible for finding matching exposed devices",
+        "implementation of the function to find matching exposed device in Zigbee network",
+        "purpose of the file that facilitates integration between Gladys and Zigbee",
+        "recursive function to find matching exposed device in Zigbee network",
+        "usage of the file in Gladys project for mapping values between Gladys and Zigbee"
+    ],
+    "qualityScore": 80
+}

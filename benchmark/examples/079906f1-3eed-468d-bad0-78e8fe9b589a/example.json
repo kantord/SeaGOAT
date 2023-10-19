@@ -1,0 +1,21 @@
+{
+    "uuid": "079906f1-3eed-468d-bad0-78e8fe9b589a",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/core/customisation.py",
+        "lineNumber": 70
+    },
+    "queries": [
+        "Code line that raises a ValueError when there is no valid app with given label in django-oscar",
+        "Function that verifies app label validity in django-oscar framework",
+        "Purpose of the file responsible for customizing django-oscar core functionality",
+        "Python file responsible for customizing django-oscar core functionality",
+        "Python file used to create local app directories and configure settings in django-oscar",
+        "Type of the file used to manage apps within django-oscar framework",
+        "Usage of the file in django-oscar framework customization"
+    ],
+    "qualityScore": 53
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "f4e7c3cd-7eef-4505-9e7c-b92bfe64d167",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/utils/DemoSession.js",
+        "lineNumber": 22
+    },
+    "queries": [
+        "code details omitted demo session front-end gladys project",
+        "create and handle demo session for front-end",
+        "file used to manage demo session in gladys project",
+        "initialize and maintain properties in demo session for front-end",
+        "initialize demo session in front-end",
+        "manage user details in demo session",
+        "retrieve user object in demo session"
+    ],
+    "qualityScore": 83
+}

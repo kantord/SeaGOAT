@@ -1,0 +1,21 @@
+{
+    "uuid": "ccde3517-bbb5-41f6-aecf-b92986399663",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/config/integrations/index.js",
+        "lineNumber": 8
+    },
+    "queries": [
+        "facilitate import and export of configurations in Gladys project",
+        "file in the front-end codebase of the Gladys project for categorizing and structuring integrations",
+        "file managing connections between functionalities in Gladys project",
+        "file responsible for managing connections and organizing functionalities in the Gladys project",
+        "implementation file for import and export of configurations in the Gladys project",
+        "initialize arrays for storing integrations, integrations by types, and categories in Gladys project",
+        "part of Gladys project dedicated to managing integrations system"
+    ],
+    "qualityScore": 85
+}

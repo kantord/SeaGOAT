@@ -1,0 +1,21 @@
+{
+    "uuid": "9db507a2-aec5-4fc2-9c83-f928b4a41589",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/communications/apps.py",
+        "lineNumber": 20
+    },
+    "queries": [
+        "Class 'CommunicationsDashboardConfig' with method 'ready()' in Django-Oscar communications dashboard",
+        "Code file that configures the communications dashboard in Django-Oscar",
+        "Find the code for the communications dashboard configuration in Django-Oscar project",
+        "How is the communications dashboard configured in Django-Oscar? Provide the relevant code.",
+        "Python file that defines the configuration for the communications dashboard in Django-Oscar project",
+        "Python implementation for Django-Oscar communications dashboard configuration",
+        "Show me the Python code that sets up the communications dashboard in Django-Oscar"
+    ],
+    "qualityScore": 86
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "834c0eba-5c1b-4579-bcc0-837a7a4dc0c7",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/payment/bankcards.py",
+        "lineNumber": 75
+    },
+    "queries": [
+        "code file for handling bank card payments in e-commerce",
+        "code file for managing bank card transactions in e-commerce system",
+        "code file in oscar package for managing tasks related to bank card transactions",
+        "code file in payment module of oscar package for handling bank card transactions",
+        "function to determine card type and validate card numbers in e-commerce system",
+        "function to validate bank card number length against predefined lengths",
+        "function to validate bank card number length for specific card type"
+    ],
+    "qualityScore": 81
+}

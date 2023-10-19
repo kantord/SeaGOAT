@@ -1,0 +1,21 @@
+{
+    "uuid": "d96c2867-4d1e-42ad-bf31-6f0df2fdf279",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/reports/apps.py",
+        "lineNumber": 21
+    },
+    "queries": [
+        "configure reports app",
+        "create ReportsDashboardConfig class",
+        "create ReportsDashboardConfig class that extends OscarDashboardConfig class in configuration file",
+        "define URL configuration for reports app in configuration file",
+        "define settings and URL paths for reports app in Oscar dashboard configuration file",
+        "implement file that configures the reports app within Oscar dashboard",
+        "override get_urls method in reports app configuration file"
+    ],
+    "qualityScore": 58
+}

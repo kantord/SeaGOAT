@@ -1,0 +1,21 @@
+{
+    "uuid": "d8d1b705-05da-4679-a5c3-0b1463ff04f8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/voucher/test_forms.py",
+        "lineNumber": 25
+    },
+    "queries": [
+        "Code file for testing voucher forms functionality in django-oscar project",
+        "Code file in Python used to test voucher forms functionality within the django-oscar project. It contains three functions that create instances of ConditionalOffer with specific configurations for form testing",
+        "Functions for testing voucher forms in django-oscar project",
+        "Python code file that focuses solely on testing voucher forms in django-oscar project. It imports modules and classes from various sources and verifies the expected behavior and functionality of the forms",
+        "Python code file used for integration testing of voucher forms in django-oscar project",
+        "Python code for testing voucher forms in django-oscar project",
+        "Python file with three functions for testing voucher forms in django-oscar project"
+    ],
+    "qualityScore": 25
+}

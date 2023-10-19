@@ -1,0 +1,21 @@
+{
+    "uuid": "66b0afc4-1e9c-44d5-8ee6-4e7fb8c5c86b",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/calendar/calendar.createEvent.js",
+        "lineNumber": 29
+    },
+    "queries": [
+        "code file responsible for creating calendar events",
+        "code for creating new calendar events using a specific method",
+        "database and utility module imports for event creation",
+        "file used to manage calendar event creation",
+        "function to handle creation of calendar events",
+        "implementation code for creating events in a calendar",
+        "retrieve calendar from database based on selector"
+    ],
+    "qualityScore": 55
+}

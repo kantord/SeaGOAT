@@ -1,0 +1,21 @@
+{
+    "uuid": "7ce38a0d-5f7c-4596-9258-efa0a4db9bea",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/bluetooth/lib/device/bluetooth.transformToDevice.test.js",
+        "lineNumber": 7
+    },
+    "queries": [
+        "file for testing transformToDevice function in bluetooth service",
+        "file for verifying the behavior of transformToDevice function in bluetooth service",
+        "file that validates the behavior of transformToDevice function in bluetooth service",
+        "test file for transformToDevice function in bluetooth service",
+        "test file to ensure correct behavior of transformToDevice function in bluetooth service",
+        "testing suite for transformToDevice function in bluetooth service",
+        "transformToDevice function behavior test"
+    ],
+    "qualityScore": 83
+}

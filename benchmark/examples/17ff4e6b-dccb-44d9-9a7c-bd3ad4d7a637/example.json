@@ -1,0 +1,21 @@
+{
+    "uuid": "17ff4e6b-dccb-44d9-9a7c-bd3ad4d7a637",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/device/device.newStateEvent.test.js",
+        "lineNumber": 155
+    },
+    "queries": [
+        "JavaScript test file libraries imports",
+        "JavaScript test file with Mocha framework",
+        "code file usage",
+        "example test case missing device parameter",
+        "newStateEvent function behavior validation",
+        "test cases for newStateEvent function",
+        "test file purpose"
+    ],
+    "qualityScore": 91
+}

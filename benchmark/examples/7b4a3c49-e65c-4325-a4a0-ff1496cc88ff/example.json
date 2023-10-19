@@ -1,0 +1,21 @@
+{
+    "uuid": "7b4a3c49-e65c-4325-a4a0-ff1496cc88ff",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/bluetooth/lib/commands/bluetooth.getDiscoveredDevice.js",
+        "lineNumber": 6
+    },
+    "queries": [
+        "Code file in JavaScript for retrieving a Bluetooth device based on its UUID",
+        "Function to find Bluetooth device by UUID in JavaScript",
+        "How to implement JavaScript code to retrieve a Bluetooth peripheral device using UUID",
+        "Implementation of Bluetooth device retrieval by UUID in JavaScript",
+        "JavaScript code to interact with Bluetooth devices and retrieve specific device by UUID",
+        "JavaScript code to retrieve Bluetooth peripheral device by UUID",
+        "What is the purpose of the JavaScript code file that retrieves Bluetooth peripheral devices by UUID"
+    ],
+    "qualityScore": 85
+}

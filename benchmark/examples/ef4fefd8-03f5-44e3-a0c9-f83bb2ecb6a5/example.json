@@ -1,0 +1,21 @@
+{
+    "uuid": "ef4fefd8-03f5-44e3-a0c9-f83bb2ecb6a5",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/static_src/oscar/js/oscar/RelatedObjectLookups.js",
+        "lineNumber": 45
+    },
+    "queries": [
+        "Code segment in JavaScript file for managing related object lookups and character replacement for window names",
+        "Code snippet in JavaScript file that replaces invalid characters with placeholders",
+        "Function in JavaScript file to handle character conversion for window names",
+        "Function in JavaScript file to replace invalid characters for window names",
+        "Implementation of character conversion in JavaScript file for window names",
+        "JavaScript file for managing related object lookups in Django-Oscar e-commerce project",
+        "JavaScript file for managing related object lookups in e-commerce project"
+    ],
+    "qualityScore": 90
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "e7d54a06-0c82-44af-a983-4d2604e4b532",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/partner/test_availability_mixin.py",
+        "lineNumber": 14
+    },
+    "queries": [
+        "Code file to evaluate StockRequired class in an integrated scenario",
+        "Code file with a specific test case for determining availability policy using StockRequired class",
+        "File that instantiates StockRequired class and tests the availability policy determination",
+        "File to test the functionality of StockRequired class in determining availability policy",
+        "Integration test file for StockRequired class in the product availability policy determination",
+        "StockRequired class test file",
+        "StockRequired class unit test file"
+    ],
+    "qualityScore": 53
+}

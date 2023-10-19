@@ -1,0 +1,21 @@
+{
+    "uuid": "e7e168fa-6a50-4a12-a80b-7289b91d55ac",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/address/migrations/0002_auto_20150927_1547.py",
+        "lineNumber": 19
+    },
+    "queries": [
+        "Migration script in django-oscar project for adding a new field to the 'useraddress' model",
+        "Migration script in django-oscar project to modify the 'useraddress' model",
+        "Migration script in django-oscar project with a dependency on '0001_initial' of the 'address' app",
+        "Migration script in django-oscar project with verbose name 'Number of Orders as Billing Address' and type 'PositiveIntegerField'",
+        "Python script for address app migration in django-oscar project",
+        "Python script in django-oscar project for modifying the database schema of the 'address' app",
+        "Useraddress model migration script in django-oscar project"
+    ],
+    "qualityScore": 53
+}

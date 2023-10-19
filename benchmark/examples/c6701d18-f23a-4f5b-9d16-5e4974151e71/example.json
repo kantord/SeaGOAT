@@ -1,0 +1,21 @@
+{
+    "uuid": "c6701d18-f23a-4f5b-9d16-5e4974151e71",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/ewelink/edit-page/index.js",
+        "lineNumber": 16
+    },
+    "queries": [
+        "Connect component with state variables in Gladys",
+        "Context and implementation of the 'EditEweLinkDevice' component in Gladys",
+        "File path for editing eWeLink devices in Gladys",
+        "How does the 'EditEweLinkDevice' component interact with the state variables in Gladys",
+        "How to establish connection between component and state variables in Gladys",
+        "JavaScript file for editing eWeLink devices in Gladys",
+        "Purpose and usage of the JavaScript file for editing eWeLink devices in Gladys"
+    ],
+    "qualityScore": 0
+}

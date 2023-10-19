@@ -1,0 +1,21 @@
+{
+    "uuid": "7abaf687-4f7b-4dbc-9f1a-c954dda9173a",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/functional/catalogue/test_catalogue.py",
+        "lineNumber": 140
+    },
+    "queries": [
+        "Python file for conducting functional tests on catalogue views in django-oscar project",
+        "Test case in django-oscar file for accessing non-public category URL",
+        "Test case in django-oscar file for testing GET request to not public category URL",
+        "TestProductCategoryView GET request not public category URL",
+        "TestProductCategoryView class GET request not public category URL",
+        "django-oscar catalogue functional test",
+        "django-oscar catalogue functional test file"
+    ],
+    "qualityScore": 53
+}

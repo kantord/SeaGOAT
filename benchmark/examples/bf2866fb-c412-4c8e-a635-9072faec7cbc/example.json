@@ -1,0 +1,21 @@
+{
+    "uuid": "bf2866fb-c412-4c8e-a635-9072faec7cbc",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/basket/apps.py",
+        "lineNumber": 37
+    },
+    "queries": [
+        "Class extended by Django configuration file for Basket app in Oscar e-commerce framework",
+        "Django configuration file for Basket app in Oscar e-commerce framework",
+        "File responsible for setting up routes for Basket functionality in Django project",
+        "File that defines and configures the Basket app in Django project within the Oscar e-commerce framework. It provides URL patterns for various views related to Basket functionality including summary view, adding items to basket, managing vouchers, and viewing saved baskets. The authentication requirement for the saved view is enforced using a decorator. It also performs additional processing on the URL patterns before returning them.",
+        "In Django project, there is a configuration file specifically for the Basket app in the Oscar e-commerce framework. This file sets up the routes for different views related to Basket functionality, such as the summary view, adding items to the basket, managing vouchers, and viewing saved baskets. It extends a specific class and contains configuration options for the Basket app. One of the methods in this file returns a list of URL patterns for the Basket app. It also includes a decorator to ensure authentication is required for the saved view. Additionally, there is another method that performs further processing on the URL patterns before returning them.",
+        "Method that returns URL patterns for Basket app in Django",
+        "Please find the Django configuration file that defines and configures the Basket app in the Django project. This file is a part of the Oscar e-commerce framework. It extends a specific class and contains configuration options for the Basket app. The file sets up the routes for various views related to the Basket functionality, including the summary view, adding items to the basket, managing vouchers, and viewing saved baskets. A decorator is used to enforce authentication requirement for the saved view. The file also includes a method that performs further processing on the URL patterns before returning them. Finally, the file returns the processed URL patterns to be used within the Django project."
+    ],
+    "qualityScore": 0
+}

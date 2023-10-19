@@ -1,0 +1,21 @@
+{
+    "uuid": "230d4eb0-d1e1-4a02-a8f3-2f95f0cc46dc",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/customer/alerts/views.py",
+        "lineNumber": 130
+    },
+    "queries": [
+        "Python file for managing product alerts in Oscar project",
+        "class that allows both registered and anonymous users to create new product alerts",
+        "class that displays a list of product alerts for the currently logged-in user",
+        "class that handles the cancellation of a product alert",
+        "class that handles the confirmation of a product alert",
+        "file that handles customer alerts in an e-commerce platform using Django",
+        "line that determines the redirect URL after canceling an alert"
+    ],
+    "qualityScore": 0
+}

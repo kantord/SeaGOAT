@@ -1,0 +1,21 @@
+{
+    "uuid": "d556af59-c937-44d5-aa88-b173a7e80bae",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/room/room.update.js",
+        "lineNumber": 16
+    },
+    "queries": [
+        "component for updating properties of a room in server-side application",
+        "db.Room interaction for updating room properties",
+        "file for updating information of a particular room",
+        "file that facilitates updating specific room information in server",
+        "function that modifies room based on identifier",
+        "function that updates room information in server",
+        "function to update room information using identifier and room object"
+    ],
+    "qualityScore": 56
+}

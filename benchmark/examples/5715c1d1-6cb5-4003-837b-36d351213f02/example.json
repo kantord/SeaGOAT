@@ -1,0 +1,21 @@
+{
+    "uuid": "5715c1d1-6cb5-4003-837b-36d351213f02",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/offer/queryset.py",
+        "lineNumber": 12
+    },
+    "queries": [
+        "Django-Oscar project",
+        "apps/offer directory",
+        "define specialized QuerySet class called RangeQuerySet",
+        "efficiently manipulate and query ranges in offer app",
+        "filtering ranges based on associated products, product classes, and categories",
+        "manipulate and query ranges based on different criteria",
+        "subclass of Django's QuerySet class"
+    ],
+    "qualityScore": 90
+}

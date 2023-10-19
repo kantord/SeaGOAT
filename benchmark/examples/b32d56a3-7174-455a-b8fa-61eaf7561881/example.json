@@ -1,0 +1,21 @@
+{
+    "uuid": "b32d56a3-7174-455a-b8fa-61eaf7561881",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/room-humidity/RoomHumidity.jsx",
+        "lineNumber": 32
+    },
+    "queries": [
+        "Code file in the 'boxs' directory under the 'components' directory for displaying humidity level in the home assistant interface",
+        "Code file responsible for rendering the room's humidity level in the home assistant interface by importing preact, unistore, and get-value dependencies",
+        "Code file that listens for websocket events to update the humidity level in the home assistant interface",
+        "Dependencies imported in the RoomHumidityBox component",
+        "File in the front-end codebase of the home assistant interface that renders real-time updates of the room's humidity level",
+        "JavaScript file responsible for displaying current humidity level in the home assistant interface",
+        "JavaScript implementation file that renders and updates the room's humidity level in the home assistant interface"
+    ],
+    "qualityScore": 85
+}

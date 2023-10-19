@@ -1,0 +1,21 @@
+{
+    "uuid": "a2df7017-2918-498d-8961-45bb17ee0f7d",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/test_wishlist.py",
+        "lineNumber": 50
+    },
+    "queries": [
+        "code line that asserts 'is_allowed_to_see' method returns False for private wishlist in django-oscar",
+        "code line that tests visibility and access permissions of private wishlist in django-oscar",
+        "django-oscar private wishlist visibility test",
+        "django-oscar wishlist is_private test",
+        "django-oscar wishlist visibility test case",
+        "line of code that validates the behavior of private wishlists in django-oscar tests",
+        "test case for private wishlist visibility in django-oscar"
+    ],
+    "qualityScore": 71
+}

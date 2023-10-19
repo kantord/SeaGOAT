@@ -1,0 +1,21 @@
+{
+    "uuid": "4a23485b-bf4d-457e-ad0c-948960db59de",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/catalogue/migrations/0014_auto_20181115_1953.py",
+        "lineNumber": 18
+    },
+    "queries": [
+        "Django migration script for catalogue app",
+        "Django migration script specific to catalogue app, modifies fields using AlterField function in Product, ProductImage, and ProductRecommendation models",
+        "alter field function in Django migration script for Product, ProductImage, and ProductRecommendation models",
+        "file created by Django 2.0.7 for database migration in catalogue app",
+        "function to alter database fields in Django migration script",
+        "script for database migration in Django",
+        "script that modifies database fields using AlterField function in Django migration for Product, ProductImage, and ProductRecommendation models"
+    ],
+    "qualityScore": 83
+}

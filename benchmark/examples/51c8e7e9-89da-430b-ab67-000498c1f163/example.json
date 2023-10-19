@@ -1,0 +1,21 @@
+{
+    "uuid": "51c8e7e9-89da-430b-ab67-000498c1f163",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/search/views.py",
+        "lineNumber": 30
+    },
+    "queries": [
+        "Add spelling suggestions and format facet data in Python script for better search usability",
+        "Extend functionality of Haystack's FacetedSearchView for search facets configuration in e-commerce script",
+        "Haystack FacetedSearchView extension for search customization",
+        "Import modules from Haystack and Oscar packages in search script",
+        "Python script for e-commerce search module",
+        "Raise 'user_search' signal for search analytics in Python script",
+        "Retrieve only product information from Solr index in e-commerce search script"
+    ],
+    "qualityScore": 51
+}

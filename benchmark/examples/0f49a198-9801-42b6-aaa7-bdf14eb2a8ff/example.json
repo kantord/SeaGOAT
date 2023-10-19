@@ -1,0 +1,20 @@
+{
+    "uuid": "0f49a198-9801-42b6-aaa7-bdf14eb2a8ff",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/vouchers/forms.py",
+        "lineNumber": 67
+    },
+    "queries": [
+        "Purpose: defining forms for vouchers in Django-Oscar dashboard\nType: actual implementation file\nUsage: creating, updating, and searching vouchers and voucher sets in Django-Oscar dashboard\nContext: part of Django-Oscar project, used in dashboard component to manage vouchers\nImplementation: customized method in VoucherSearchForm class for formatting 'code' field value",
+        "Purpose: defining forms for vouchers in Django-Oscar dashboard\nType: actual implementation file\nUsage: creating, updating, and searching vouchers and voucher sets in Django-Oscar dashboard\nContext: part of Django-Oscar project, used in dashboard component to manage vouchers\nImplementation: method in VoucherSearchForm class that converts 'code' field value to uppercase",
+        "customized method in VoucherSearchForm class for formatting 'code' field value",
+        "file for defining forms related to vouchers in Django-Oscar dashboard",
+        "file in Django-Oscar project that manages forms for vouchers in dashboard",
+        "method in VoucherSearchForm class that converts 'code' field value to uppercase"
+    ],
+    "qualityScore": 86
+}

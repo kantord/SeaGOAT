@@ -1,0 +1,21 @@
+{
+    "uuid": "160b4bca-6fcf-4bd0-8bfc-637805902558",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/static_src/oscar/js/oscar/RelatedObjectLookups.js",
+        "lineNumber": 97
+    },
+    "queries": [
+        "code in Oscar e-commerce project that handles process of looking up related objects",
+        "code that dynamically adds a new option to select element in Oscar e-commerce project",
+        "dismissal of popup window that allows adding related objects",
+        "file in Oscar e-commerce project that facilitates addition of new links and management of related objects",
+        "file location in Oscar e-commerce project responsible for looking up related objects",
+        "file responsible for managing lookup of related objects in Oscar e-commerce project",
+        "implementation of adding a new option to select element and triggering change event in Oscar e-commerce project"
+    ],
+    "qualityScore": 86
+}

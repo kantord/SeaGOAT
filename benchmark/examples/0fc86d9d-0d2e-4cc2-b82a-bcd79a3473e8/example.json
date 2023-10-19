@@ -1,0 +1,21 @@
+{
+    "uuid": "0fc86d9d-0d2e-4cc2-b82a-bcd79a3473e8",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/management/commands/oscar_generate_email_content.py",
+        "lineNumber": 5
+    },
+    "queries": [
+        "code line for rendering email content based on event type",
+        "code line for rendering email content in django-oscar file with subject, body, and HTML",
+        "django-oscar custom management command for generating order emails",
+        "file in django-oscar project for generating order email content and registering Order model",
+        "logic for creating context dictionary with relevant details in django-oscar file",
+        "retrieve orders and communication events from respective models in django-oscar file",
+        "retrieve specific orders and communication event types in django-oscar file"
+    ],
+    "qualityScore": 75
+}

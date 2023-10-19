@@ -1,0 +1,21 @@
+{
+    "uuid": "46992743-611f-4654-ac52-875148b7c83a",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/catalogue/test_options.py",
+        "lineNumber": 47
+    },
+    "queries": [
+        "Django test cases for catalogue options",
+        "attribute 'has_options' verification in catalogue options test cases",
+        "code file defining and testing e-commerce catalogue options",
+        "code file testing integration of catalogue options in Django e-commerce website",
+        "error message for absence of options in catalogue options test cases",
+        "test cases for setting up and verifying options for a product in Django catalogue",
+        "test suite file for verifying presence of options in product object"
+    ],
+    "qualityScore": 51
+}

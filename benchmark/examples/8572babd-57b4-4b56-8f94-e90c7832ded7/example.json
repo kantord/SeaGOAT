@@ -1,0 +1,21 @@
+{
+    "uuid": "8572babd-57b4-4b56-8f94-e90c7832ded7",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/scene/edit-scene/triggers/DeviceFeatureState.jsx",
+        "lineNumber": 17
+    },
+    "queries": [
+        "JavaScript file that defines a component to control the activation of a light in Gladys home assistant system",
+        "JavaScript file that displays a form to select a device feature and update its state in Gladys home assistant system",
+        "JavaScript function to handle device feature change events and update state",
+        "JavaScript implementation within Gladys home assistant system to handle scene configuration",
+        "function that resets trigger value property when device feature changes",
+        "function that updates the state of a device feature",
+        "method to modify trigger property of a device feature"
+    ],
+    "qualityScore": 80
+}

@@ -1,0 +1,22 @@
+{
+    "uuid": "62442b71-fac0-44e4-98b2-d254fa619c41",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/migrations/0007_auto_20151207_1440.py",
+        "lineNumber": 16
+    },
+    "queries": [
+        "The migration script for the \"attributeoption\" model in the \"catalogue\" app of the Oscar application modifies the database schema by applying a uniqueness constraint to the combination of values in the \"group\" and \"option\" fields. This constraint guarantees data integrity by preventing duplicates of the \"group\" and \"option\" attribute combinations.",
+        "This file is used during the migration process of the \"catalogue\" app in the Oscar application to update the database schema. It changes the uniqueness constraint for the \"attributeoption\" model.",
+        "This migration script is responsible for modifying the database schema as part of the migration process. It updates the uniqueness constraint for the \"attributeoption\" model, ensuring that the combination of attributes \"group\" and \"option\" is unique.",
+        "apply uniqueness constraint to group and option fields in attributeoption model migration script",
+        "execute migration script to change uniqueness constraint for attributeoption model",
+        "migration script to change uniqueness constraint for attributeoption model",
+        "modify database schema to update uniqueness constraint for attributeoption model in migration script",
+        "update uniqueness constraint for attributeoption model in migration script"
+    ],
+    "qualityScore": 91
+}

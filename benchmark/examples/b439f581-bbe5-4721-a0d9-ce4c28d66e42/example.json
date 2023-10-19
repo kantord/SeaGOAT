@@ -1,0 +1,21 @@
+{
+    "uuid": "b439f581-bbe5-4721-a0d9-ce4c28d66e42",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/zigbee2mqtt/lib/handleMqttMessage.js",
+        "lineNumber": 110
+    },
+    "queries": [
+        "file that extracts device information from topic and converts incoming features",
+        "file that handles Zigbee2MQTT messages through MQTT",
+        "file that handles different actions based on topic and message",
+        "file that handles discovered devices and sends WebSocket message with payload",
+        "file that updates flag and sends message over WebSocket",
+        "file that updates value based on received JSON message and emits WebSocket message",
+        "integration of MQTT messages with Gladys system"
+    ],
+    "qualityScore": 80
+}

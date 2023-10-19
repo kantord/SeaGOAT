@@ -1,0 +1,21 @@
+{
+    "uuid": "47d2c267-aa7c-413b-b86b-42ce3cfae165",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/melcloud/lib/melcloud.init.test.js",
+        "lineNumber": 59
+    },
+    "queries": [
+        "assertion of websocket message type and payload",
+        "code file that tests the initialization functionality of Melcloud library",
+        "file to ensure proper initiation of Melcloud service in Gladys project",
+        "test file for validating initialization of Melcloud library",
+        "unit testing file for the Melcloud service's initialization process in Gladys project",
+        "unit testing for Melcloud service initialization in Gladys project",
+        "verify the correct functioning of the Melcloud integration"
+    ],
+    "qualityScore": 26
+}

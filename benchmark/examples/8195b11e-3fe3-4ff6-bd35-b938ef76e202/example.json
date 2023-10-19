@@ -1,0 +1,22 @@
+{
+    "uuid": "8195b11e-3fe3-4ff6-bd35-b938ef76e202",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/zigbee2mqtt/device-page/index.js",
+        "lineNumber": 9
+    },
+    "queries": [
+        "class that extends the Component class from preact in Zigbee2mqtt",
+        "connects the defined component to the store in Zigbee2mqtt",
+        "fetches required data in the componentWillMount method for Zigbee2mqtt",
+        "file responsible for Zigbee2mqtt UI rendering",
+        "file responsible for displaying Zigbee2mqtt integration details in Zigbee2mqtt UI",
+        "imports necessary components for Zigbee2mqtt UI",
+        "renders the DeviceTab component with necessary props in Zigbee2mqtt",
+        "renders the Zigbee2mqttPage component"
+    ],
+    "qualityScore": 85
+}

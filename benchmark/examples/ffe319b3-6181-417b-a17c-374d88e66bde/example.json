@@ -1,0 +1,21 @@
+{
+    "uuid": "ffe319b3-6181-417b-a17c-374d88e66bde",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/checkout/calculators.py",
+        "lineNumber": 9
+    },
+    "queries": [
+        "Find the file path of OrderTotalCalculator class in Django-Oscar e-commerce project",
+        "Get the code for OrderTotalCalculator class in Django-Oscar checkout process",
+        "Location of OrderTotalCalculator class in Django-Oscar project",
+        "Python code for calculating order total using user and session data in Django-Oscar checkout",
+        "Retrieve the Python code for calculating order total with user and session data in Django-Oscar",
+        "code for calculating order total in Django-Oscar checkout process",
+        "python file path for OrderTotalCalculator in Django-Oscar e-commerce project"
+    ],
+    "qualityScore": 0
+}

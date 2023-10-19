@@ -1,0 +1,21 @@
+{
+    "uuid": "40e6c5db-4713-4aee-b99f-3f7691629dcf",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/migrations/0013_auto_20170821_1548.py",
+        "lineNumber": 1
+    },
+    "queries": [
+        "Code to update 'option_group' field in 'productattribute' model in Django migration",
+        "Django migration script for 'productattribute' model in 'oscar' project",
+        "Django migration script in 'oscar' project for updating 'option_group' field in 'productattribute' model",
+        "Django migration script in 'oscar' project to modify 'option_group' field in 'productattribute' model",
+        "Python script in 'oscar' project for database migration and synchronization with model definition",
+        "Python script in 'oscar' project to migrate database schema and data to match updated model definition",
+        "Python script to migrate database in 'oscar' project"
+    ],
+    "qualityScore": 63
+}

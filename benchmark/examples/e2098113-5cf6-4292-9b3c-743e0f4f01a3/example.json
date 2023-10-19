@@ -1,0 +1,21 @@
+{
+    "uuid": "e2098113-5cf6-4292-9b3c-743e0f4f01a3",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/caldav/lib/calendar/calendar.disableCalendar.js",
+        "lineNumber": 8
+    },
+    "queries": [
+        "code file in CalDAV service to disable synchronization for a calendar",
+        "code file to disable calendar synchronization",
+        "code file to disable calendar synchronization by resetting sync properties to null",
+        "code file to reset calendar's sync, ctag, and sync_token to null",
+        "function to disable synchronization for a specific calendar",
+        "function to disable synchronization for a specific calendar and remove associated events",
+        "function to remove all events associated with a calendar"
+    ],
+    "qualityScore": 85
+}

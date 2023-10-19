@@ -1,0 +1,21 @@
+{
+    "uuid": "e6858991-b8bb-4e02-a43a-c4e1215bdffb",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/reviews/admin.py",
+        "lineNumber": 13
+    },
+    "queries": [
+        "Administrative interface for product review management in Django-Oscar",
+        "Code file in Django-Oscar for managing product reviews and votes",
+        "Code file in Django-Oscar project that handles the configuration and management of product reviews in the catalogue component",
+        "Detailed code file in Django-Oscar project for managing product reviews and votes, including administration classes like ProductReviewAdmin and VoteAdmin",
+        "Django-Oscar configuration file for product reviews",
+        "Django-Oscar file for configuring the administrative interface of product reviews and votes",
+        "File in Django-Oscar project that provides the administrative interface for creating, reading, updating, and deleting product reviews and votes"
+    ],
+    "qualityScore": 58
+}

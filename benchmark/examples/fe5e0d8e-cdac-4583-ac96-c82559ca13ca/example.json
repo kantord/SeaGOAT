@@ -1,0 +1,21 @@
+{
+    "uuid": "fe5e0d8e-cdac-4583-ac96-c82559ca13ca",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/device/device.notify.js",
+        "lineNumber": 16
+    },
+    "queries": [
+        "Could you describe the functionality and responsibilities of the code file that handles notifications for devices in a server environment?",
+        "Please provide the location and purpose of the file that handles device notifications in the server environment.",
+        "What is the name of the file that manages device notifications in the server-side environment?",
+        "code file that triggers actions for device creation, updates, and deletions",
+        "file responsible for managing device notifications in server environment",
+        "function that emits global events and notifies services about device events",
+        "implementation file for device module in lib directory of server that handles device notifications"
+    ],
+    "qualityScore": 85
+}

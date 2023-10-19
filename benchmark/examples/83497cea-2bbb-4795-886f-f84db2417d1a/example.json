@@ -1,0 +1,21 @@
+{
+    "uuid": "83497cea-2bbb-4795-886f-f84db2417d1a",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/scene/edit-scene/actions/CheckUserPresence.jsx",
+        "lineNumber": 72
+    },
+    "queries": [
+        "code line for assigning user option when user is present in scene",
+        "code line for checking user presence in scene",
+        "code line in edit-scene module's actions directory in scene router to check if there is a user in the scene",
+        "code line in front-end source code that ensures user's presence in scene is identified",
+        "code line responsible for determining if user is present in scene",
+        "code line to check if user is in scene by verifying certain conditions",
+        "code line used in edit-scene module's actions directory in scene router to determine user presence in scene"
+    ],
+    "qualityScore": 30
+}

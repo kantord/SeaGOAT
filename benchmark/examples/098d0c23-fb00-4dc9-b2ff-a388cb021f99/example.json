@@ -1,0 +1,21 @@
+{
+    "uuid": "098d0c23-fb00-4dc9-b2ff-a388cb021f99",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/tuya/lib/tuya.setValue.js",
+        "lineNumber": 22
+    },
+    "queries": [
+        "apply transformations to value based on category and type of device feature",
+        "file responsible for setting value of Tuya device in Gladys system",
+        "file that handles validation and transformation tasks for value",
+        "file used to send updated value of device feature to Tuya device",
+        "handle validation and transformation tasks for value of Tuya device",
+        "send updated value of Tuya device feature using device protocol",
+        "set value of Tuya device in Gladys system"
+    ],
+    "qualityScore": 85
+}

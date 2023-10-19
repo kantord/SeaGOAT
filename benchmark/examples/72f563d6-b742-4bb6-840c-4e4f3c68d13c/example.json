@@ -1,0 +1,21 @@
+{
+    "uuid": "72f563d6-b742-4bb6-840c-4e4f3c68d13c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/gateway/gateway.getBackups.test.js",
+        "lineNumber": 61
+    },
+    "queries": [
+        "code file in server directory dedicated to testing with Chai, Sinon, and Proxyquire",
+        "file setting up mock objects and dependencies for unit tests",
+        "test cases for specified function with backup objects",
+        "test cases organizing multiple scenarios of function behavior",
+        "unit tests for specific function in server module",
+        "unit tests verifying array of backup objects with expected properties",
+        "validation of specific error instances and function behavior in various scenarios"
+    ],
+    "qualityScore": 83
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "b3d0a696-08b4-406d-86e2-726a72ac8f8c",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/reports/utils.py",
+        "lineNumber": 14
+    },
+    "queries": [
+        "Class repository for generating reports in Django Oscar dashboard application",
+        "Code file for organizing and accessing report generator classes in Django Oscar dashboard",
+        "Code file that serves as a central repository for report generators in Django Oscar dashboard application",
+        "File containing code for managing and accessing report generator classes within Django Oscar dashboard",
+        "Python class repository for report generators in Django Oscar dashboard",
+        "Python file storing report generator classes in Django Oscar dashboard",
+        "Python implementation file used to organize and store report generator classes in Django Oscar dashboard"
+    ],
+    "qualityScore": 81
+}

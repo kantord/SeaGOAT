@@ -1,0 +1,19 @@
+{
+    "uuid": "55d115e1-b566-42af-9322-d130dfd187e9",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/management/commands/oscar_import_catalogue_images.py",
+        "lineNumber": 18
+    },
+    "queries": [
+        "Describe the implementation of the file used for importing product images in django-oscar project",
+        "Explain the purpose and usage of the python script file responsible for managing and updating product images in django-oscar project",
+        "Provide details of the code line that defines the arguments for importing catalogue images in django-oscar project",
+        "Python script file for importing catalogue images in django-oscar project",
+        "Python script file used to import product images in django-oscar project from designated folder"
+    ],
+    "qualityScore": 85
+}

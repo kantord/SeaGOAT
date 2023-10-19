@@ -1,0 +1,21 @@
+{
+    "uuid": "f7761cad-50c0-4b90-a599-c616762509fa",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/dashboard/test_voucher_views.py",
+        "lineNumber": 18
+    },
+    "queries": [
+        "conducting integration testing on voucher views",
+        "fixture named \"many_voucher_sets\" is included",
+        "pytest framework and Django's testing utilities",
+        "tests that cover deleting voucher sets",
+        "tests that cover listing and viewing details of voucher sets",
+        "tests that cover updating and deleting vouchers",
+        "verify expected behaviors such as page redirection"
+    ],
+    "qualityScore": 67
+}

@@ -1,0 +1,20 @@
+{
+    "uuid": "92c5ee4d-593c-4f78-a118-8c1f791d536d",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "gulpfile.js/subtasks/scss.js",
+        "lineNumber": 18
+    },
+    "queries": [
+        "Gulp task runner file for SCSS to CSS conversion",
+        "Gulp task runner file that compiles SCSS files into CSS using 'gulp-sass' plugin and generates sourcemaps",
+        "JavaScript file for converting SCSS files to CSS",
+        "JavaScript file integrated into Gulp build process for transforming SCSS files to CSS and saving them using 'gulp.dest' function",
+        "JavaScript file that imports 'gulp', 'gulp-sass', 'gulp-sourcemaps', and 'pump' modules for converting SCSS files to CSS",
+        "file that converts SCSS to CSS"
+    ],
+    "qualityScore": 55
+}

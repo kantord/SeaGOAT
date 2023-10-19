@@ -1,0 +1,21 @@
+{
+    "uuid": "a2a5a1c5-daa6-4f8e-bc4d-0d5d139b6bfc",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/offer/views.py",
+        "lineNumber": 19
+    },
+    "queries": [
+        "Classes extending ListView for offers in Django-Oscar",
+        "Code file implementing views for offers in Django-Oscar e-commerce project",
+        "Django-Oscar e-commerce project views related to offers",
+        "Implementations of views for offers in Django-Oscar",
+        "ListView subclasses handling offers in Django-Oscar",
+        "Method in OfferListView class for retrieving queryset of active offers with specific offer type in Django-Oscar",
+        "Retrieve and display queryset of active offer instances in Django-Oscar"
+    ],
+    "qualityScore": 86
+}

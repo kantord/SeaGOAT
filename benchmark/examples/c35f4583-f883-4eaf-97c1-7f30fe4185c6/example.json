@@ -1,0 +1,21 @@
+{
+    "uuid": "c35f4583-f883-4eaf-97c1-7f30fe4185c6",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/_site/apps/catalogue/migrations/0026_predefined_product_options.py",
+        "lineNumber": 36
+    },
+    "queries": [
+        "Django-Oscar database migration script",
+        "alter database schema of type field in options model",
+        "define type field as CharField with max_length 255",
+        "ensure options table in catalogue app undergoes necessary modifications",
+        "modify type field in options table",
+        "set default option type to 'text'",
+        "specify available options for type field using choices attribute"
+    ],
+    "qualityScore": 85
+}

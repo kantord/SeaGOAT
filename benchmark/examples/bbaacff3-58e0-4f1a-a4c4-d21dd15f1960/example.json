@@ -1,0 +1,21 @@
+{
+    "uuid": "bbaacff3-58e0-4f1a-a4c4-d21dd15f1960",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/voucher/test_forms.py",
+        "lineNumber": 69
+    },
+    "queries": [
+        "behavior validation of voucher set form",
+        "code that tests creating a voucher set with specific attributes",
+        "code that tests start and end datetime attributes of voucher set form",
+        "code that tests updating a voucher set with changed count",
+        "integration tests for voucher set form",
+        "test code for voucher set form",
+        "unit tests for voucher set form"
+    ],
+    "qualityScore": 28
+}

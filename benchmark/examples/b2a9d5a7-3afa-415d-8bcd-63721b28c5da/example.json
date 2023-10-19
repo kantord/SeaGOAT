@@ -1,0 +1,22 @@
+{
+    "uuid": "b2a9d5a7-3afa-415d-8bcd-63721b28c5da",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/unit/checkout/test_checkout_session_data.py",
+        "lineNumber": 65
+    },
+    "queries": [
+        "code for managing session data during checkout process in e-commerce application",
+        "code implementation to assess session data management during the checkout process in an e-commerce application",
+        "file utilized for conducting unit testing of session data management during checkout in e-commerce app",
+        "functionality of setting and retrieving guest email in session data test",
+        "test file for handling checkout session data in e-commerce application",
+        "test file that checks if guest email can be set and retrieved correctly in checkout session data",
+        "unit test file for managing session data during checkout process",
+        "unit test to validate functionality of setting and retrieving guest email in checkout session data"
+    ],
+    "qualityScore": 85
+}

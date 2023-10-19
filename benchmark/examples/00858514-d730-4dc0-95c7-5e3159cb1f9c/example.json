@@ -1,0 +1,21 @@
+{
+    "uuid": "00858514-d730-4dc0-95c7-5e3159cb1f9c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/routes/integration/all/broadlink/device-page/actions.js",
+        "lineNumber": 83
+    },
+    "queries": [
+        "HTTP GET request for broadlink peripherals",
+        "JavaScript file for handling actions of integrating device pages with broadlink service",
+        "JavaScript function for integrating device pages with broadlink service",
+        "JavaScript function to retrieve list of broadlink peripherals and update application's state",
+        "actions to integrate device pages with broadlink service",
+        "file for integrating device pages with broadlink service that performs HTTP GET request to retrieve peripherals",
+        "function for retrieving peripherals using broadlink"
+    ],
+    "qualityScore": 93
+}

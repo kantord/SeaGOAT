@@ -1,0 +1,21 @@
+{
+    "uuid": "aff0d9a4-a9c0-4254-8a05-493354942cdd",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/tp-link/lib/smart-device/index.js",
+        "lineNumber": 7
+    },
+    "queries": [
+        "Gladys TP-Link smart devices bridge for home automation system",
+        "TP-Link device control implementation in Gladys",
+        "TP-Link smart devices control file in Gladys",
+        "control TP-Link smart devices",
+        "import modules for device retrieval and value setting in TP-Link",
+        "rate-limiter for TP-Link control polling requests",
+        "retrieve TP-Link device states"
+    ],
+    "qualityScore": 86
+}

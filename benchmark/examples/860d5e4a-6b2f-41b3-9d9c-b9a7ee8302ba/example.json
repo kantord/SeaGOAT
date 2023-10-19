@@ -1,0 +1,21 @@
+{
+    "uuid": "860d5e4a-6b2f-41b3-9d9c-b9a7ee8302ba",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/dashboard/vouchers/apps.py",
+        "lineNumber": 57
+    },
+    "queries": [
+        "URL pattern for updating voucher sets in dashboard",
+        "code responsible for instantiating and rendering voucher update view in Django dashboard",
+        "configure voucher management app in Django",
+        "create and present 'VoucherSetUpdateView' in Django dashboard",
+        "define URLs and views for voucher management in dashboard",
+        "update voucher sets in Django dashboard",
+        "voucher management configuration file in Django project for dashboard feature"
+    ],
+    "qualityScore": 85
+}

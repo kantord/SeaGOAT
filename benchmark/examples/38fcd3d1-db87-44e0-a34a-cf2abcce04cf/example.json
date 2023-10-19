@@ -1,0 +1,21 @@
+{
+    "uuid": "38fcd3d1-db87-44e0-a34a-cf2abcce04cf",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/reviews/views.py",
+        "lineNumber": 127
+    },
+    "queries": [
+        "class for browsing product reviews of a specific product",
+        "class responsible for creating new product reviews",
+        "code that handles creating, displaying, voting, and browsing product reviews",
+        "file containing views for managing product reviews in Django-Oscar",
+        "simple view for voting on a product review",
+        "view used to display product review details",
+        "views specifically designed for managing product reviews in Django-Oscar project's application"
+    ],
+    "qualityScore": 53
+}

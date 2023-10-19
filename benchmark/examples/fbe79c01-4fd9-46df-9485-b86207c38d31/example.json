@@ -1,0 +1,21 @@
+{
+    "uuid": "fbe79c01-4fd9-46df-9485-b86207c38d31",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/services/melcloud/lib/melcloud.disconnect.test.js",
+        "lineNumber": 10
+    },
+    "queries": [
+        "MELCloudHandler class test for disconnect method",
+        "code file to test disconnection functionality",
+        "code file to verify disconnection functionality of Melcloud service",
+        "observe attribute reset behavior in disconnect method test case",
+        "reset attributes using the disconnect method",
+        "set attribute to 'UNKNOWN' before each test",
+        "testing framework for disconnection feature in MELCloudHandler class"
+    ],
+    "qualityScore": 25
+}

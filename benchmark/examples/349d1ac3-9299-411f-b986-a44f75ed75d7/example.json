@@ -1,0 +1,21 @@
+{
+    "uuid": "349d1ac3-9299-411f-b986-a44f75ed75d7",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/services/zigbee2mqtt/exposes/enumType.js",
+        "lineNumber": 1
+    },
+    "queries": [
+        "file responsible for handling actions and states of devices in Zigbee2mqtt service",
+        "file that defines enumerated type for Zigbee2mqtt service in Gladys server",
+        "file that defines enumerated type, maps values, and handles actions and states in Zigbee2mqtt service in Gladys server",
+        "file that defines enumerated type, maps values, and handles actions and states in Zigbee2mqtt service in Gladys server using imported constants",
+        "file that implements mapping of values from Gladys server to Zigbee2mqtt service using constants in utility file",
+        "file that imports constants from utility file for Zigbee2mqtt service in Gladys server",
+        "implementation code for mapping values from Gladys server to Zigbee2mqtt service"
+    ],
+    "qualityScore": 80
+}

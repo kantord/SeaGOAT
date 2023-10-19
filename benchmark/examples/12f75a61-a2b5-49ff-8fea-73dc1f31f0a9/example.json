@@ -1,0 +1,21 @@
+{
+    "uuid": "12f75a61-a2b5-49ff-8fea-73dc1f31f0a9",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/integration/communication/test_communicationeventtype.py",
+        "lineNumber": 48
+    },
+    "queries": [
+        "enforce code field constraints in CommunicationEventType class",
+        "ensure proper operation of CommunicationEventType class in integration environment",
+        "python pytest file for testing behavior of event types",
+        "test file for CommunicationEventType class",
+        "test template rendering in CommunicationEventType class",
+        "validate CommunicationEventType object data",
+        "verify creation and validation of CommunicationEventType objects"
+    ],
+    "qualityScore": 56
+}

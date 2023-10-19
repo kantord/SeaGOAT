@@ -1,0 +1,21 @@
+{
+    "uuid": "ea49d33f-5996-46ef-8bc2-cee4fba4a999",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/catalogue/reviews/forms.py",
+        "lineNumber": 41
+    },
+    "queries": [
+        "class with @property decorator that calculates 'is_up_vote' and 'is_down_vote' based on 'delta' field in Django web application",
+        "file for defining and customizing product review forms in Oscar app",
+        "file in Django web application that handles user input for product reviews in Oscar app",
+        "file in e-commerce application Oscar for managing forms related to product reviews",
+        "file that manages product review forms in Oscar app",
+        "file used in Oscar app to enable users to input name, email, title, score, and body for product reviews",
+        "implementation file in Django web app for defining and customizing forms used in product reviews in Oscar app"
+    ],
+    "qualityScore": 56
+}

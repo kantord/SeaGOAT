@@ -1,0 +1,21 @@
+{
+    "uuid": "92a5e320-2948-43d2-b6c1-7fe14fc6d986",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/gateway/gateway.getLatestGladysVersion.js",
+        "lineNumber": 5
+    },
+    "queries": [
+        "code to acquire the most recent Gladys version, gather system information, retrieve client ID and device state count, fetch service usage, and return the latest Gladys version",
+        "code to fetch system information, client ID, device state count, service usage, and the latest Gladys version",
+        "concrete implementation file with a function that uses promises to fetch system information, client ID, device state count, service usage, and return the latest Gladys version",
+        "function to ensure the application is informed about the most recent Gladys version",
+        "function to retrieve the latest Gladys version",
+        "implementation code for retrieving the latest Gladys version, gathering system information, retrieving client ID and device state count, fetching service usage, and returning the most recent Gladys version",
+        "promise-based function to get the most recent Gladys version"
+    ],
+    "qualityScore": 85
+}

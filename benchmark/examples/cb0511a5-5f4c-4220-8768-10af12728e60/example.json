@@ -1,0 +1,21 @@
+{
+    "uuid": "cb0511a5-5f4c-4220-8768-10af12728e60",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/communication/app.py",
+        "lineNumber": 32
+    },
+    "queries": [
+        "Code managing product alerts and notifications in django-oscar e-commerce platform",
+        "Find code responsible for displaying detailed information about a notification in django-oscar e-commerce platform",
+        "In django-oscar e-commerce platform, implement communication functionality for product alerts and notifications by retrieving a class for displaying detailed information",
+        "Locate the implementation code in a Python file within the django-oscar e-commerce platform that is responsible for managing communication-related features and displaying detailed information about a notification",
+        "Python file implementing communication functionality in django-oscar e-commerce platform",
+        "Retrieve class for showing notification details in django-oscar e-commerce platform",
+        "Search for the code line in django-oscar e-commerce platform that retrieves a class from a specific module and uses it to handle the display of detailed information about a notification"
+    ],
+    "qualityScore": 87
+}

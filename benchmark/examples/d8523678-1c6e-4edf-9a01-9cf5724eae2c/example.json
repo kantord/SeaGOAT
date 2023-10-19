@@ -1,0 +1,21 @@
+{
+    "uuid": "d8523678-1c6e-4edf-9a01-9cf5724eae2c",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/test/lib/gateway/gateway.getBackups.test.js",
+        "lineNumber": 38
+    },
+    "queries": [
+        "code line for handling 403 error in function to get backups",
+        "code line testing function to get backups",
+        "code line that tests invalid gateway scenario",
+        "code line that tests successful retrieval of backups",
+        "code line that validates behavior of function to get backups",
+        "function in test file creating scheduled job",
+        "unit test file for gateway module"
+    ],
+    "qualityScore": 81
+}

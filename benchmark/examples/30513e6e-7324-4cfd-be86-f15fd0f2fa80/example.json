@@ -1,0 +1,21 @@
+{
+    "uuid": "30513e6e-7324-4cfd-be86-f15fd0f2fa80",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "tests/settings.py",
+        "lineNumber": 175
+    },
+    "queries": [
+        "File containing Django test settings",
+        "File for configuring Django settings for tests",
+        "File for setting up test environment in Django",
+        "File specifying settings required for testing in Django",
+        "Python code file to configure Django settings for tests in a project",
+        "Python code file used for running tests in Django project",
+        "Python file that configures Django settings for tests"
+    ],
+    "qualityScore": 0
+}

@@ -1,0 +1,21 @@
+{
+    "uuid": "f042ba19-4a04-43f9-b6d5-1aa0545a5789",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "front/src/components/boxs/ecowatt/Ecowatt.jsx",
+        "lineNumber": 23
+    },
+    "queries": [
+        "code fetching and rendering ecowatt box in Gladys frontend",
+        "code file building and showing ecowatt component in Gladys home assistant frontend, handling data fetching, rendering, loading and error states, and displaying localized error messages",
+        "code file defining ecowatt component in Gladys frontend using Preact class component, importing dependencies for internationalization, state management, date formatting, and a functional component called EcowattBox for rendering the ecowatt box",
+        "code file implementing ecowatt component in the frontend of Gladys home assistant, responsible for fetching data, rendering the ecowatt box, and displaying localized error messages",
+        "code handling data fetching, rendering, and error states for ecowatt component in Gladys frontend",
+        "component file implementing ecowatt in Gladys frontend",
+        "file displaying energy consumption data in Gladys frontend"
+    ],
+    "qualityScore": 86
+}

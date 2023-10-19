@@ -1,0 +1,21 @@
+{
+    "uuid": "fd3c6477-13dc-4b47-b331-c3cb0a47962f",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/payment/bankcards.py",
+        "lineNumber": 28
+    },
+    "queries": [
+        "Django-Oscar bankcard payment handling code",
+        "Django-Oscar bankcard payment module",
+        "bankcard payment validation functions in Django-Oscar",
+        "code for processing bankcard payments in Django-Oscar payment module",
+        "constants for bankcard types and lengths in Django-Oscar",
+        "file that implements bankcard payment handling in Django-Oscar",
+        "functions for checking bankcard types and validating card numbers in Django-Oscar payment module"
+    ],
+    "qualityScore": 90
+}

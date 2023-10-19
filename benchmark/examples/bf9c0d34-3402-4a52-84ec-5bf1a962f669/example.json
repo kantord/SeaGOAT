@@ -1,0 +1,21 @@
+{
+    "uuid": "bf9c0d34-3402-4a52-84ec-5bf1a962f669",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/basket/migrations/0011_json_basket_option.py",
+        "lineNumber": 7
+    },
+    "queries": [
+        "File defining database migration script in Python for Django project",
+        "Migration class subclass of Django's migrations.Migration class",
+        "Migration class subclass of Django's migrations.Migration class with list of dependencies in DB migration script for Django project",
+        "Migration class with list of dependencies in Django project",
+        "Python script for database migration in Django project",
+        "Python script in Django project for modifying database schema during migration process",
+        "Script responsible for modifying database schema during migration process in Django"
+    ],
+    "qualityScore": 76
+}

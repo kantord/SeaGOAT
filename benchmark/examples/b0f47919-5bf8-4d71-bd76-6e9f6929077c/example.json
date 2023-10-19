@@ -1,0 +1,21 @@
+{
+    "uuid": "b0f47919-5bf8-4d71-bd76-6e9f6929077c",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/voucher/migrations/0008_auto_20200801_0817.py",
+        "lineNumber": 31
+    },
+    "queries": [
+        "code line in the Django-Oscar project migration script that changes the date_created field of the voucherapplication model to a DateTimeField",
+        "code line in the migration script that updates the voucherapplication model's date_created field to be a DateTimeField with auto_now_add=True and db_index=True",
+        "code line in the voucher app migration script that modifies the model options of voucherapplication",
+        "code line that alters the voucherapplication model's date_created field",
+        "code line that changes date_created field to DateTimeField",
+        "code line that modifies model options",
+        "code line that modifies the voucherapplication model"
+    ],
+    "qualityScore": 78
+}

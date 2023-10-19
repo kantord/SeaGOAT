@@ -1,0 +1,21 @@
+{
+    "uuid": "b73a5f2e-4ad9-4955-9252-b4621b12cd7d",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/system/system.restartContainer.js",
+        "lineNumber": 7
+    },
+    "queries": [
+        "JavaScript module for restarting container in gladys system using Docker",
+        "JavaScript module restart container Docker",
+        "code implementing functionality to restart container in gladys system",
+        "code line restart container gladys system Docker",
+        "function restart container promise JavaScript module gladys system",
+        "function to restart container in gladys system with Docker",
+        "restart container gladys system"
+    ],
+    "qualityScore": 78
+}

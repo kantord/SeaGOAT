@@ -1,0 +1,21 @@
+{
+    "uuid": "bf45ec92-ae59-42e4-bdb1-1cbf044c1ead",
+    "repo": {
+        "name": "django-oscar",
+        "description": "Domain-driven e-commerce for Django"
+    },
+    "targetCode": {
+        "path": "src/oscar/apps/analytics/admin.py",
+        "lineNumber": 25
+    },
+    "queries": [
+        "Admin models for analytics-related records in Django Oscar e-commerce",
+        "Admin models in Django Oscar e-commerce for product records, user-product views, and user records",
+        "Configuration file for administration interface of analytics app in Django Oscar e-commerce",
+        "Customizing display of analytics-related models in Django Oscar e-commerce admin interface",
+        "Django Oscar e-commerce project administration interface file",
+        "File defining admin models for managing product records, user-product views, and user records in Django Oscar e-commerce",
+        "File responsible for configuring the administration interface of the 'analytics' app in Django Oscar e-commerce project"
+    ],
+    "qualityScore": 85
+}

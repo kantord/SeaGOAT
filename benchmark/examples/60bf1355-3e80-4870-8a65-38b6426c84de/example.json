@@ -1,0 +1,21 @@
+{
+    "uuid": "60bf1355-3e80-4870-8a65-38b6426c84de",
+    "repo": {
+        "name": "Gladys",
+        "description": "A privacy-first, open-source home assistant"
+    },
+    "targetCode": {
+        "path": "server/lib/gateway/gateway.loginTwoFactor.js",
+        "lineNumber": 5
+    },
+    "queries": [
+        "Gladys gateway login steps",
+        "code for second step of two-factor authentication in Gladys gateway login",
+        "file responsible for two-factor login in Gladys gateway",
+        "function for two-factor authentication in login process",
+        "function to validate two-factor access code in Gladys gateway",
+        "function to validate two-factor access token and code in Gladys gateway login",
+        "implementation details of two-factor authentication in Gladys gateway login process"
+    ],
+    "qualityScore": 54
+}
