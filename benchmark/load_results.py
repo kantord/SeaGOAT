@@ -267,3 +267,9 @@ def get_list_of_projects():
         projects.add(example["repo"]["name"])
 
     return sorted(list(projects))
+
+
+def iterate_queries(results):
+    for example in results:
+        for query in example["queries"]:
+            yield {**example, **query}
