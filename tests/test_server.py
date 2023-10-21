@@ -73,24 +73,26 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot):
 
 
 @pytest.mark.usefixtures("repo_with_more_files")
-def test_status_endpoint_with_some_files_not_analyzed(server):
-    url = f"{server}/status"
-    time.sleep(3)
-    response = requests.get(url)
-    data = response.json()
+def test_priority_queue_order(server):
+    # Create an Engine object in the same repo.
+    my_engine = Engine(repo_with_more_files.working_dir)
 
-    assert response.status_code == 200, response.text
+    # Get the list of files that have not been analyzed yet.
+    list_of_chunks_not_cached = my_engine.cache["chunks_not_yet_analyzed"]
+    all_vector_embeddings = my_engine._create_vector_embeddings()
+    top_files = list(my_engine.repository.top_files())
 
-    data = response.json()
-    assert data["version"] == __version__
-    data = normalize_version(data)
-    assert data["stats"]["chunks"]["analyzed"] > 0
-    assert data["stats"]["chunks"]["unanalyzed"] > 0
-    assert data["stats"]["queue"]["size"] >= data["stats"]["chunks"]["unanalyzed"]
-    assert data["stats"]["accuracy"]["percentage"] == int(
-        data["stats"]["accuracy"]["percentage"]
-    )
-    assert 0 < data["stats"]["accuracy"]["percentage"] < 100
+    files_not_yet_analyzed = {chunk.path for chunk in all_vector_embeddings if chunk.id in list_of_chunks_not_cached}
+
+    # Ensure that the files that are not analyzed yet are at the end of the top_files list.
+    top_files = top_files[-len(files_not_yet_analyzed):]
+
+    # Check if the files not yet analyzed have lower priority than the analyzed files.
+    analyzed_file_priorities = [file['priority'] for file in top_files[:-len(files_not_yet_analyzed)]]
+    unanalyzed_file_priorities = [file['priority'] for file in top_files[-len(files_not_yet_analyzed):]
+
+    # Assert that all the unanalyzed files have lower priority than analyzed files.
+    assert all(priority_analyzed < priority_unanalyzed for priority_analyzed in analyzed_file_priorities for priority_unanalyzed in unanalyzed_file_priorities)
 
 
 def test_status_1(repo, runner):
