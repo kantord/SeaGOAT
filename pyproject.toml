@@ -68,6 +68,10 @@ jupyterlab-widgets = "^3.0.9"
 pandas = "^2.1.1"
 locust = "^2.17.0"
 
+
+[tool.poetry.group.ev.dependencies]
+seaborn = "^0.13.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
