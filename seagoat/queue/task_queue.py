@@ -79,10 +79,12 @@ class TaskQueue(BaseQueue):
                 len(remaining_chunks_to_analyze),
             )
 
-            for chunk in remaining_chunks_to_analyze:
+            for task_index, chunk in enumerate(remaining_chunks_to_analyze):
+                priority = MEDIUM_PRIORITY + ((LOW_PRIORITY - MEDIUM_PRIORITY) / len(remaining_chunks_to_analyze)) * task_index
                 self.enqueue(
-                    "analyze_chunk", chunk, priority=LOW_PRIORITY, wait_for_result=False
+                    "analyze_chunk", chunk, priority=priority, wait_for_result=False
                 )
+
         else:
             logging.info("Analyzed all chunks!")
 

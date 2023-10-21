@@ -10,6 +10,7 @@ from typing import Tuple
 from uuid import uuid4
 
 HIGH_PRIORITY = 0
+MEDIUM_PRIORITY = 0.5
 LOW_PRIORITY = 1
 
 
