@@ -4242,6 +4242,16 @@ anyio = ">=3.4.0,<5"
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
+name = "stop-words"
+version = "2018.7.23"
+description = "Get list of common stop words in various languages in Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "stop-words-2018.7.23.tar.gz", hash = "sha256:6df3ad5f5de697daa437e4445c86c73604e6bc138dd0dc0fac55664aa4e6b03e"},
+]
+
+[[package]]
 name = "sympy"
 version = "1.12"
 description = "Computer algebra system (CAS) in Python"
@@ -4952,4 +4962,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10, < 3.13"
-content-hash = "6552f93be5670370c81b92e7a2f475b059241406479fe36a43b4f0992837069a"
+content-hash = "35adfbf73555be982dc73c21b43f63a29846996e0ad9e0c027c32fce3a31f730"

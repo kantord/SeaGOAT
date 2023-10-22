@@ -6,6 +6,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from stop_words import get_stop_words
+
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
@@ -18,6 +20,7 @@ MEGABYTE = KILOBYTE * 1024
 MAX_MMAP_SIZE = 100
 MAX_MMAP_SIZE_BYTES = MAX_MMAP_SIZE * MEGABYTE
 MAX_FILE_SIZE = 200 * KILOBYTE
+STOP_WORDS = set(get_stop_words("english"))
 
 
 class RipGrepCache(str):
@@ -98,6 +101,11 @@ class RipGrepCache(str):
 
 
 def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
+    query_text_without_stopwords = " ".join(
+        query for query in query_text.split(" ") if query not in STOP_WORDS
+    )
+    if len(query_text_without_stopwords) > 2:
+        query_text = query_text_without_stopwords
     query_text = re.sub(r"\s+", "|", query_text)
     files = {}
 

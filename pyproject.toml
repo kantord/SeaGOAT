@@ -32,6 +32,7 @@ chardet = "^5.2.0"
 pyyaml = "^6.0.1"
 jsonschema = "^4.19.1"
 deepmerge = "^1.1.0"
+stop-words = "^2018.7.23"
 
 
 [virtualenvs]

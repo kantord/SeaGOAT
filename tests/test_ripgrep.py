@@ -141,3 +141,61 @@ async def test_ripgrep_respects_custom_ignore_patterns(repo, create_config_file)
     results_files = set(result.path for result in seagoat.get_results())
     assert "history/files/events.txt" not in results_files
     assert "events.txt" in results_files
+
+
+@pytest.mark.asyncio
+async def test_filters_stop_words(repo):
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="""1: Nothing
+        2: Battle of Waterloo 1815
+        3:
+        4:
+        5: that that that
+        6:
+        7: The signing of the Magna Carta 1215
+        8: Some other information
+        9: The fall of the Berlin Wall 1989
+        """,
+        author=repo.actors["John Doe"],
+        commit_message="Add historical events",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "that this the potato 1989"
+    seagoat.query(my_query)
+    await seagoat.fetch()
+
+    events_result = [
+        result for result in seagoat.get_results() if result.path == "events.txt"
+    ][0]
+    assert 5 not in set(events_result.get_lines(my_query))
+
+
+@pytest.mark.asyncio
+async def test_does_not_filter_stop_words_if_that_is_all_whats_in_the_query(repo):
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="""1: Nothing
+        2: Battle of Waterloo 1815
+        3:
+        4:
+        5: that that that
+        6:
+        7: The signing of the Magna Carta 1215
+        8: Some other information
+        9: The fall of the Berlin Wall 1989
+        """,
+        author=repo.actors["John Doe"],
+        commit_message="Add historical events",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    my_query = "that this their"
+    seagoat.query(my_query)
+    await seagoat.fetch()
+
+    events_result = [
+        result for result in seagoat.get_results() if result.path == "events.txt"
+    ][0]
+    assert set(events_result.get_lines(my_query)) == {5}
