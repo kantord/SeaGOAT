@@ -2,6 +2,13 @@
 
 
 
+## v0.38.0 (2023-10-23)
+
+### Feature
+
+* feat: merge almost contiguous code blocks ([`6b94347`](https://github.com/kantord/SeaGOAT/commit/6b94347e59a4b7e62c73211c060bc9ce486b28b0))
+
+
 ## v0.37.0 (2023-10-23)
 
 ### Chore
