@@ -16,7 +16,7 @@ def generate_random_results(repo_dir, _, __):
 def generate_seagoat_results(repo_dir, query_text, seagoat_args):
     query_text = query_text.replace("'", "'\\''")
     return subprocess.check_output(
-        f"gt --no-color {seagoat_args} '{query_text}' {repo_dir}", shell=True
+        f"poetry run gt --no-color {seagoat_args} '{query_text}' {repo_dir}", shell=True
     ).decode("utf-8")
 
 
