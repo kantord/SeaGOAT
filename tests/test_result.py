@@ -47,6 +47,7 @@ def test_get_lines_without_context(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "score": 0.5,
                 "lineTypeCount": {"result": 1},
                 "lines": [
                     {
@@ -87,6 +88,7 @@ def test_add_context_above_1(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "score": 0.5,
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
@@ -124,6 +126,7 @@ def test_add_context_above_2(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "score": 0.5,
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
@@ -145,6 +148,7 @@ def test_add_context_above_2(create_result, repo):
                 ],
             },
             {
+                "score": 0.5,
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
@@ -181,6 +185,7 @@ def test_add_context_below_1(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "score": 0.5,
                 "lineTypeCount": {"context": 1, "result": 1},
                 "lines": [
                     {
@@ -219,6 +224,7 @@ def test_add_context_below_2(create_result, repo):
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "score": 0.5,
                 "lineTypeCount": {"context": 3, "result": 3},
                 "lines": [
                     {
@@ -307,6 +313,7 @@ def test_merges_almost_continuous_code_lines(
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
             {
+                "score": 0.5,
                 "lineTypeCount": {
                     "result": first_block_length + second_block_length,
                     "bridge": gap,

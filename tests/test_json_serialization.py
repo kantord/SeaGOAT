@@ -46,6 +46,7 @@ def test_to_result_json_correct_output_example1():
             "fullPath": file_path,
             "blocks": [
                 {
+                    "score": 0.15,
                     "lineTypeCount": {"result": 2},
                     "lines": [
                         {
@@ -83,6 +84,7 @@ def test_to_result_json_correct_output_example2():
             "fullPath": file_path,
             "blocks": [
                 {
+                    "score": 0.25,
                     "lineTypeCount": {"result": 1},
                     "lines": [
                         {
@@ -94,6 +96,7 @@ def test_to_result_json_correct_output_example2():
                     ],
                 },
                 {
+                    "score": 0.05,
                     "lineTypeCount": {"result": 1},
                     "lines": [
                         {

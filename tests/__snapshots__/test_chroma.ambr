@@ -25,6 +25,7 @@
               'score': 1.2,
             }),
           ]),
+          'score': 1.2000000000000002,
         }),
       ]),
       'fullPath': '/path/to/repo/file1.md',

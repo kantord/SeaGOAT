@@ -105,7 +105,8 @@ You will receive a response similar to this one:
       "fullPath": "/home/user/repos/SeaGOAT/tests/conftest.py",
       "score": 0.6,
       "blocks": [
-      {
+        {
+          "score": 0.21,
           "lines": [
             {
               "score": 0.21,
@@ -119,8 +120,9 @@ You will receive a response similar to this one:
           "lineTypeCount": {
             "result": 1
           }
-        }
+        },
         {
+          "score": 0.6,
           "lines": [
             {
               "score": 0.6,
@@ -180,5 +182,9 @@ Within each block you will find:
   * `resultTypes` - An array indicating all types of result on this line
     * `"result"` Means that the line is directly relevant to the query
     * `"context"` Means that the line was added as a context line
+    * `"bridge"` It is a type of context line that is added within a block
+        rather than around it. It is used to merge code blocks when they
+        are nearly touching.
 * `lineTypeCount` - An object containing a count of all line types within
   the code block. See `resultTypes` for more.
+* `score` - A score for the code block overall
