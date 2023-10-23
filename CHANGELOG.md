@@ -2,6 +2,33 @@
 
 
 
+## v0.37.0 (2023-10-23)
+
+### Chore
+
+* chore(deps): update dependency pylint to v3.0.2 ([`a1c3b2f`](https://github.com/kantord/SeaGOAT/commit/a1c3b2f1a7ff9ddcd49147e5b8558f3d238225cc))
+
+* chore: add more charts to benchmark ([`0ca1beb`](https://github.com/kantord/SeaGOAT/commit/0ca1beb613de1b5f1cb94a4d4be1dc66e1578d41))
+
+* chore: fix bugs in the benchmark ([`5d9cf14`](https://github.com/kantord/SeaGOAT/commit/5d9cf14a9bbcb6de133cd16dffe72694d6e22f6b))
+
+* chore: add more benchmark examples ([`aaf8c71`](https://github.com/kantord/SeaGOAT/commit/aaf8c7100c408b1e7b3503b7892a1bfd8dd56936))
+
+* chore(deps): update dependency pytest-mock to v3.12.0 ([`a6147f7`](https://github.com/kantord/SeaGOAT/commit/a6147f78fcf1662b88fa12a85073ca781e1bfab2))
+
+* chore(deps): update actions/checkout digest to b4ffde6 ([`3b9206c`](https://github.com/kantord/SeaGOAT/commit/3b9206c8a2da3c29df033dacea12d6e6172daf34))
+
+### Feature
+
+* feat: filter stop words from regex results
+
+* chore: add -C1 results to the benchmarks
+
+* feat: filter stop words from regex results
+
+* chore: add more benchmark results ([`fae7f55`](https://github.com/kantord/SeaGOAT/commit/fae7f555551948e93c48a2d367599b903957d561))
+
+
 ## v0.36.3 (2023-10-18)
 
 ### Chore
