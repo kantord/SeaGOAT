@@ -90,8 +90,16 @@ class ResultBlock:
 
         return dict(counts)
 
+    def _get_score(self, query: str) -> float:
+        return min(
+            line.get_score(query)
+            for line in self.lines
+            if ResultLineType.RESULT in line.types
+        )
+
     def to_json(self, query: str):
         return {
+            "score": self._get_score(query),
             "lines": [line.to_json(query) for line in self.lines],
             "lineTypeCount": self._get_line_count_per_type(),
         }
