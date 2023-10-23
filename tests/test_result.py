@@ -11,7 +11,9 @@ def create_result_(repo):
 
     cleanup = {"cleanup": noop}
 
-    def result_factory(fake_lines=None):
+    def result_factory(fake_lines=None, lines_to_include=None):
+        if lines_to_include is None:
+            lines_to_include = [40]
         if fake_lines is None:
             fake_lines = {}
         test_file_path = Path(repo.working_dir) / "test.txt"
@@ -23,7 +25,8 @@ def create_result_(repo):
             output_file.write(fake_content)
 
         result = Result("test.txt", test_file_path)
-        result.add_line(40, 0.5)
+        for line in lines_to_include:
+            result.add_line(line, 0.5)
 
         cleanup["cleanup"] = test_file_path.unlink
 
@@ -273,3 +276,75 @@ def test_adds_correct_context_lines(create_result, context_line, expected_lines)
     result.add_context_lines(context_line)
     actual_lines = result.get_lines("")
     assert actual_lines == expected_lines
+
+
+@pytest.mark.parametrize(
+    "first_code_line, first_block_length, second_block_length, gap",
+    [
+        (3, 3, 2, 1),
+        (5, 1, 1, 2),
+    ],
+)
+# pylint: disable-next=too-many-arguments
+def test_merges_almost_continuous_code_lines(
+    first_code_line, first_block_length, second_block_length, gap, create_result, repo
+):
+    first_code_block_lines = list(
+        range(first_code_line, first_code_line + first_block_length)
+    )
+    bridge_start = first_code_line + first_block_length
+    bridge_lines = list(range(bridge_start, bridge_start + gap))
+    second_block_start = bridge_start + gap
+    second_code_block_lines = list(
+        range(second_block_start, second_block_start + second_block_length)
+    )
+    line_numbers_to_include = first_code_block_lines + second_code_block_lines
+    result = create_result(
+        lines_to_include=line_numbers_to_include,
+    )
+    assert result.to_json("hello") == {
+        "score": 0.75,
+        "fullPath": str(Path(repo.working_dir) / "test.txt"),
+        "blocks": [
+            {
+                "lineTypeCount": {
+                    "result": first_block_length + second_block_length,
+                    "bridge": gap,
+                },
+                "lines": [
+                    {
+                        "score": 0.5,
+                        "line": line_number,
+                        "lineText": f"fake line {line_number}",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    }
+                    for line_number in first_code_block_lines
+                ]
+                + [
+                    {
+                        "score": 0.0,
+                        "line": line_number,
+                        "lineText": f"fake line {line_number}",
+                        "resultTypes": [
+                            "bridge",
+                        ],
+                    }
+                    for line_number in bridge_lines
+                ]
+                + [
+                    {
+                        "score": 0.5,
+                        "line": line_number,
+                        "lineText": f"fake line {line_number}",
+                        "resultTypes": [
+                            "result",
+                        ],
+                    }
+                    for line_number in second_code_block_lines
+                ],
+            },
+        ],
+        "path": "test.txt",
+    }

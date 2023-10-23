@@ -47,6 +47,7 @@ def get_best_score(result, query: str) -> float:
 class ResultLineType(Enum):
     RESULT = "result"
     CONTEXT = "context"
+    BRIDGE = "bridge"
 
     def __str__(self):
         return self.value
@@ -140,6 +141,36 @@ class Result:
             )
         )
 
+    def _merge_almost_touching_blocks(self, blocks):
+        if len(blocks) == 0:
+            return []
+
+        merged_blocks = [blocks[0]]
+
+        for block in blocks[1:]:
+            last_block = merged_blocks[-1]
+            last_line_of_last_block = last_block.lines[-1].line
+            line_range_from_last_block = range(
+                last_line_of_last_block + 1, block.lines[0].line
+            )
+
+            if len(line_range_from_last_block) <= 2:
+                for line in line_range_from_last_block:
+                    bridge_line = ResultLine(
+                        line,
+                        0.0,
+                        self.line_texts[line - 1],
+                        {ResultLineType.BRIDGE},
+                    )
+                    last_block.lines.append(bridge_line)
+
+                for line in block.lines:
+                    last_block.lines.append(line)
+            else:
+                merged_blocks.append(block)
+
+        return merged_blocks
+
     def get_result_blocks(self, query):
         self_lines = self.get_lines(query)
         lines_to_include = [
@@ -159,7 +190,7 @@ class Result:
 
             blocks[-1].lines.append(line)
 
-        return blocks
+        return self._merge_almost_touching_blocks(blocks)
 
     def to_json(self, query: str):
         return {

@@ -70,11 +70,11 @@ def test_to_result_json_correct_output_example2():
     with tempfile.TemporaryDirectory() as tmpdirname:
         file_path = os.path.join(tmpdirname, "example2.txt")
         with open(file_path, "w", encoding="utf-8") as tmp_file:
-            tmp_file.write("This is line 1\nThis is line 2\nThis is line 3\n")
+            tmp_file.write("\n".join(f"This is line {i + 1}" for i in range(10)))
 
         result = Result("example2.txt", Path(file_path))
         result.add_line(1, 0.5)
-        result.add_line(3, 0.1)
+        result.add_line(5, 0.1)
 
         result_dict = result.to_json("")
         assert result_dict == {
@@ -98,8 +98,8 @@ def test_to_result_json_correct_output_example2():
                     "lines": [
                         {
                             "score": 0.05,
-                            "line": 3,
-                            "lineText": "This is line 3",
+                            "line": 5,
+                            "lineText": "This is line 5",
                             "resultTypes": ["result"],
                         },
                     ],
