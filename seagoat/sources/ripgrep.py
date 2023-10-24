@@ -89,7 +89,7 @@ class RipGrepCache(str):
             with open(self.file_path, "r+b") as cache_file:
                 self._data = mmap.mmap(cache_file.fileno(), 0)
 
-    # pylint: disable-next=unused-argument
+
     def encode(self, *args, **kwargs):
         return self._data
 

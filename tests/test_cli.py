@@ -1,4 +1,3 @@
-# pylint: disable=too-many-arguments
 import os
 import re
 import shutil
@@ -263,7 +262,7 @@ def mock_response_(mocker):
 
 @pytest.fixture
 def mock_accuracy_warning(mocker):
-    # pylint: disable-next=unused-argument
+
     def _noop(*args, **kwargs):
         pass
 
@@ -272,7 +271,7 @@ def mock_accuracy_warning(mocker):
 
 @pytest.fixture
 def mock_query_server(mocker):
-    # pylint: disable-next=unused-argument
+
     def _mocked_query_server(*args, **kwargs):
         return []
 
@@ -343,7 +342,7 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner, temporar
         (2, "-l", 3),
     ],
 )
-# pylint: disable-next=too-many-arguments
+
 def test_limit_output_length(
     repo, max_length, command_option, mock_server_factory, runner, expected_length
 ):

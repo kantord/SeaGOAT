@@ -1,4 +1,3 @@
-# pylint: disable=protected-access
 import copy
 from pathlib import Path
 from unittest.mock import patch
@@ -20,7 +19,7 @@ def normalize_full_paths(data, repo):
 
 
 @pytest.fixture(autouse=True)
-# pylint: disable-next=unused-argument
+
 def use_real_db(real_chromadb):
     pass
 

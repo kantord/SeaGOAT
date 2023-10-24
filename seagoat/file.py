@@ -93,7 +93,7 @@ class File:
         ]
 
 
-# pylint: disable=too-few-public-methods
+
 class FileChunk:
     def __init__(self, parent: File, codeline: int, chunk: str):
         self.path = parent.path

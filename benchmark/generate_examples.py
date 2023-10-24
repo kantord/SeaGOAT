@@ -1,4 +1,3 @@
-# pylint: disable=too-many-locals
 import functools
 import json
 import os
@@ -306,5 +305,5 @@ Implementation: <How it works>
 
 
 if __name__ == "__main__":
-    # pylint: disable-next=no-value-for-parameter
+
     generate_examples()

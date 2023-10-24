@@ -1,4 +1,3 @@
-# pylint: disable=too-many-arguments
 import os
 import sys
 from pathlib import Path
@@ -14,7 +13,7 @@ from seagoat.utils.server import get_server_info
 from seagoat.utils.server import ServerDoesNotExist
 
 
-# pylint: disable-next=too-few-public-methods
+
 class ExitCode:
     SERVER_NOT_RUNNING = 3
     SERVER_ERROR = 4
@@ -183,5 +182,5 @@ def seagoat(
 
 
 if __name__ == "__main__":
-    # pylint: disable-next=no-value-for-parameter
+
     seagoat()

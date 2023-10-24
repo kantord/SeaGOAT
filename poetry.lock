@@ -4873,8 +4873,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10, < 3.13"
-<<<<<<< HEAD
-content-hash = "bf02d12343c835afed1d2b8f9019593ddd20d51fdcaf92e7a1438f87bed4dd96"
-=======
-content-hash = "8296b50c453349a26038ac6ea3622365beb933e2f2f4bb7f56d0c15815c31e69"
->>>>>>> 0d01eaa (Replace `black` with `ruff` in pre-commit)
+content-hash = "ff9cf9ecad0b28f57e204ff067aceaded065815db83e70824275394d53d124ca"

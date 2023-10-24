@@ -95,5 +95,5 @@ def evaluate_testcases(repositories_path, api_key):
 
 
 if __name__ == "__main__":
-    # pylint: disable-next=no-value-for-parameter
+
     evaluate_testcases()

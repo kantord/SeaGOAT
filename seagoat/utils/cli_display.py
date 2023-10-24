@@ -1,4 +1,3 @@
-# pylint: disable=import-outside-toplevel
 import math
 import subprocess
 from functools import cache

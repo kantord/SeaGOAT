@@ -1,4 +1,3 @@
-# pylint: disable=redefined-outer-name, too-few-public-methods
 import logging
 import multiprocessing
 import os
@@ -157,7 +156,7 @@ class MockRepo(Repo):
                 )
                 self.tick_fake_date(days=1)
 
-    # pylint: disable=too-many-arguments
+
     def add_file_change_commit(
         self,
         file_name,
@@ -268,7 +267,7 @@ def _start_server(repo):
             try:
                 get_server_info(repo.working_dir)
                 return True
-            # pylint: disable-next=broad-except
+
             except Exception:
                 return False
 
@@ -449,7 +448,7 @@ def client(repo):
         app.config["TESTING"] = True
         app.extensions["task_queue"] = mock_queue
         client = app.test_client()
-        # pylint: disable=protected-access
+
         client._mock_queue = mock_queue  # type: ignore
 
         yield client
@@ -457,7 +456,7 @@ def client(repo):
 
 @pytest.fixture
 def mock_queue(client):
-    # pylint: disable=protected-access
+
     yield client._mock_queue
 
 
@@ -485,7 +484,7 @@ def managed_process():
 
 @contextmanager
 def mock_sources_context(repo, ripgrep_lines, chroma_lines):
-    # pylint: disable-next=unused-argument
+
     def noop(*args, **kwargs):
         pass
 
@@ -573,7 +572,7 @@ def bat_not_available(mocker):
 
 
 @pytest.fixture(autouse=True)
-# pylint: disable-next=unused-argument
+
 def real_bat(bat_not_available):
     """This fixture sets the default behavior of is_bat_installed."""
     # Nothing to do here since bat_not_available has already set the behavior
@@ -589,7 +588,7 @@ def bat_available(mocker):
 def bat_calls(mocker):
     calls = []
 
-    # pylint: disable-next=unused-argument
+
     def mock_bat(*args, **kwargs):
         if args[0] and args[0][0] == "bat":
             command_str = " ".join(args[0])
