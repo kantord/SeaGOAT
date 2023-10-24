@@ -2,6 +2,19 @@
 
 
 
+## v0.39.0 (2023-10-24)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.3.0 ([`967ebcd`](https://github.com/kantord/SeaGOAT/commit/967ebcd6b97fdd8aa61458ef34f85777b10e3f14))
+
+* chore: fix poetry.lock ([`5804925`](https://github.com/kantord/SeaGOAT/commit/58049258198994008476b5f7bae579022cb570b4))
+
+### Feature
+
+* feat: include score for code blocks ([`236d983`](https://github.com/kantord/SeaGOAT/commit/236d98339566b8db0a0e65e9c5f459bd19f0e759))
+
+
 ## v0.38.0 (2023-10-23)
 
 ### Feature
