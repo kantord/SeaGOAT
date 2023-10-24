@@ -694,3 +694,37 @@ def test_connecting_to_remote_server(
     ] == snapshot
 
     assert len(bat_calls) == 2
+
+
+def test_server_does_not_exist_error(runner_with_error, mocker, repo):
+    mocker.patch(
+        "seagoat.cli.requests.get", side_effect=requests.exceptions.ConnectionError
+    )
+    query = "JavaScript"
+    result = runner_with_error.invoke(seagoat, [query, repo.working_dir])
+
+    assert result.exit_code == 3
+    assert "The SeaGOAT server is not running" in result.output
+
+
+@pytest.mark.usefixtures("mock_query_server")
+def test_no_network_to_update(runner_with_error, mocker, mock_response, repo):
+    mocked_response = {
+        "stats": {
+            "chunks": {"analyzed": 100, "unanalyzed": 0},
+            "queue": {"size": 0},
+            "accuracy": {"percentage": 100},
+        },
+        "version": __version__,
+    }
+
+    mocker.patch("requests.get", return_value=mock_response(mocked_response))
+    mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
+    mocker.patch(
+        "seagoat.cli.warn_if_update_available",
+        side_effect=requests.exceptions.ConnectionError,
+    )
+    result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
+
+    assert result.exit_code == 0
+    assert "Could not check for updates" in result.output
