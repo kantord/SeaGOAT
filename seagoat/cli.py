@@ -162,7 +162,6 @@ def seagoat(
         display_results(results, max_results, color_enabled)
 
         display_accuracy_warning(server_address)
-        warn_if_update_available()
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,
@@ -174,6 +173,13 @@ def seagoat(
             f"seagoat-server start {repo_path}\n"
         )
         sys.exit(ExitCode.SERVER_NOT_RUNNING)
+
+    try:
+        warn_if_update_available()
+    except requests.exceptions.ConnectionError:
+        click.echo(
+            "Could not check for updates because the pypi.org API is not accessible"
+        )
 
 
 if __name__ == "__main__":
