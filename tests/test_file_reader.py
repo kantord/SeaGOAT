@@ -6,7 +6,6 @@ from chardet.universaldetector import UniversalDetector
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 
-
 MISDETECTED_UTF8_EXAMPLES = [
     # (sequence, detected_encoding),  # detection_confidence
     (b"\xcc\x8fa\\>N7:A", "Windows-1252"),  # 0.73
@@ -14,7 +13,10 @@ MISDETECTED_UTF8_EXAMPLES = [
     (b"\xd8\x90Mas", "Windows-1254"),  # 0.6183718269795628
     (b"t\xd1\x8fXbci\x15\x1bE", "Windows-1254"),  # 0.322068659885189
     (b"\xde\x9cL&\x1ba\xca\xb4r1", "TIS-620"),  # 0.30841818174528296
-    (b"qdl\t=\xdc\xb4\x10\x0e9\xe9\x9f\x9d\x03", "Windows-1254"),  # 0.38648239186222677
+    (
+        b"qdl\t=\xdc\xb4\x10\x0e9\xe9\x9f\x9d\x03",
+        "Windows-1254",
+    ),  # 0.38648239186222677
     (b"#L)Xlg<\xd6\x90x", "Windows-1254"),  # 0.7729647837244535
     (b"$\xc6\x8f>.", "Windows-1252"),  # 0.73
     (b"\xdf\x8fO\x15mg$G", "Windows-1254"),  # 0.6870798077550698

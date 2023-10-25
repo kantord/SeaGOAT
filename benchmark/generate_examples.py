@@ -9,8 +9,7 @@ from pathlib import Path
 import click
 import requests
 
-from benchmark.utils import create_ai_persona
-from benchmark.utils import generate_personality
+from benchmark.utils import create_ai_persona, generate_personality
 
 keywords_to_avoid = ["import", "require", "pass"]
 
@@ -116,7 +115,18 @@ def get_single_example(repo_path):
         for _file in all_files
         if _file.endswith(
             tuple(
-                [".rs", ".go", ".cpp", ".c", ".h", ".ts", ".js", ".jsx", ".tsx", ".py"]
+                [
+                    ".rs",
+                    ".go",
+                    ".cpp",
+                    ".c",
+                    ".h",
+                    ".ts",
+                    ".js",
+                    ".jsx",
+                    ".tsx",
+                    ".py",
+                ]
             )
         )
     ]
@@ -124,7 +134,7 @@ def get_single_example(repo_path):
     random.shuffle(selected_files)
     for _file in selected_files:
         full_path = os.path.join(repo_path, _file)
-        with open(full_path, "r", encoding="utf-8") as file:
+        with open(full_path, encoding="utf-8") as file:
             file_text = file.read()
             lines = file_text.splitlines()
 
@@ -171,7 +181,10 @@ def generate_example(repo_path):
 )
 @click.argument("api_key", type=str)
 @click.option(
-    "--num-examples", default=1, type=int, help="Number of examples to generate."
+    "--num-examples",
+    default=1,
+    type=int,
+    help="Number of examples to generate.",
 )
 def generate_examples(repo_path, api_key, num_examples):
     """Generates examples for a given repository path."""
@@ -305,5 +318,4 @@ Implementation: <How it works>
 
 
 if __name__ == "__main__":
-
     generate_examples()

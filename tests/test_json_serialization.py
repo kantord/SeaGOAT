@@ -2,9 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from seagoat.result import Result
-from seagoat.result import ResultLine
-from seagoat.result import ResultLineType
+from seagoat.result import Result, ResultLine, ResultLineType
 
 
 def test_to_result_line_correct_output_example1():

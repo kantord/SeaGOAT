@@ -13,9 +13,11 @@ import requests
 from seagoat import __version__
 from seagoat.server import get_status_data
 from seagoat.server import server as seagoat_server
-from seagoat.utils.server import get_server_info
-from seagoat.utils.server import is_server_running
-from seagoat.utils.server import normalize_repo_path
+from seagoat.utils.server import (
+    get_server_info,
+    is_server_running,
+    normalize_repo_path,
+)
 from seagoat.utils.wait import wait_for
 from tests.conftest import GLOBAL_CONFIG_FILE
 
@@ -148,7 +150,14 @@ def test_stop(repo):
 
 def test_status_with_json_when_server_not_running(repo):
     result = subprocess.run(
-        ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
+        [
+            "python",
+            "-m",
+            "seagoat.server",
+            "status",
+            "--json",
+            repo.working_dir,
+        ],
         capture_output=True,
         text=True,
         check=False,
@@ -164,7 +173,14 @@ def test_status_with_json_when_server_not_running(repo):
 @pytest.mark.usefixtures("server")
 def test_status_with_json_when_server_running(repo):
     result = subprocess.run(
-        ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
+        [
+            "python",
+            "-m",
+            "seagoat.server",
+            "status",
+            "--json",
+            repo.working_dir,
+        ],
         capture_output=True,
         text=True,
         check=False,
@@ -180,7 +196,14 @@ def test_status_with_json_when_server_running(repo):
 
 def assert_server_status(repo, running):
     result = subprocess.run(
-        ["python", "-m", "seagoat.server", "status", "--json", repo.working_dir],
+        [
+            "python",
+            "-m",
+            "seagoat.server",
+            "status",
+            "--json",
+            repo.working_dir,
+        ],
         capture_output=True,
         text=True,
         check=True,

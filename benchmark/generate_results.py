@@ -16,7 +16,8 @@ def generate_random_results(repo_dir, _, __):
 def generate_seagoat_results(repo_dir, query_text, seagoat_args):
     query_text = query_text.replace("'", "'\\''")
     return subprocess.check_output(
-        f"poetry run gt --no-color {seagoat_args} '{query_text}' {repo_dir}", shell=True
+        f"poetry run gt --no-color {seagoat_args} '{query_text}' {repo_dir}",
+        shell=True,
     ).decode("utf-8")
 
 
@@ -51,10 +52,14 @@ def process_example(example, examples_path, repo_folder, test_run_name, seagoat_
 @click.command()
 @click.argument("test_run_name", type=str)
 @click.argument(
-    "repositories_path", type=click.Path(exists=True, dir_okay=True, file_okay=False)
+    "repositories_path",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False),
 )
 @click.option(
-    "--seagoat-args", default="", type=str, help="Extra arguments to pass to SeaGOAT"
+    "--seagoat-args",
+    default="",
+    type=str,
+    help="Extra arguments to pass to SeaGOAT",
 )
 def generate_results(test_run_name, repositories_path, seagoat_args):
     examples_path = Path(__file__).parent / "examples"
@@ -76,10 +81,13 @@ def generate_results(test_run_name, repositories_path, seagoat_args):
         click.echo(repo_folder)
         for example in examples:
             process_example(
-                example, examples_path, repo_folder, test_run_name, seagoat_args
+                example,
+                examples_path,
+                repo_folder,
+                test_run_name,
+                seagoat_args,
             )
 
 
 if __name__ == "__main__":
-
     generate_results()

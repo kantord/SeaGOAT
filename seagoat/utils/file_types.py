@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Union
 
-
 IGNORED_BRANCHES = {"gh-pages"}
 
 TEXT_FILE_TYPES = {

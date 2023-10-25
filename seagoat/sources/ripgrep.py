@@ -83,12 +83,11 @@ class RipGrepCache(str):
         if platform.system() == "Windows":
             # Memory map does not work on Windows for some reason
             # Use a simple string as a fallback
-            with open(self.file_path, "r", encoding="utf-8") as cache_file:
+            with open(self.file_path, encoding="utf-8") as cache_file:
                 self._data = cache_file.read()
         else:
             with open(self.file_path, "r+b") as cache_file:
                 self._data = mmap.mmap(cache_file.fileno(), 0)
-
 
     def encode(self, *args, **kwargs):
         return self._data

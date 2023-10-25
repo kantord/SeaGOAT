@@ -2,8 +2,7 @@ import hashlib
 import os
 import pickle
 from pathlib import Path
-from typing import Generic
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 import appdirs
 

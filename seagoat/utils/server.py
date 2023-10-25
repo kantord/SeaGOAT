@@ -1,15 +1,12 @@
 import os
 import socket
 from pathlib import Path
-from typing import Dict
-from typing import TypedDict
-from typing import Union
+from typing import Dict, TypedDict, Union
 
 import appdirs
 import psutil
 
-from seagoat.utils.json_file import get_json_file_contents
-from seagoat.utils.json_file import write_to_json_file
+from seagoat.utils.json_file import get_json_file_contents, write_to_json_file
 
 
 class ServerInfo(TypedDict):

@@ -1,14 +1,16 @@
 import hashlib
-from typing import Dict
-from typing import List
-from typing import Literal
+from typing import Dict, List, Literal
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 
 
 class File:
     def __init__(
-        self, path: str, absolute_path: str, score: float, commit_messages: list[str]
+        self,
+        path: str,
+        absolute_path: str,
+        score: float,
+        commit_messages: list[str],
     ):
         self.path = path
         self.absolute_path = absolute_path
@@ -47,7 +49,10 @@ class File:
         return chunk
 
     def _get_context_lines(
-        self, lines: Dict[int, str], line_number: int, direction: Literal[-1, 1]
+        self,
+        lines: Dict[int, str],
+        line_number: int,
+        direction: Literal[-1, 1],
     ) -> List[str]:
         context_lines = []
         for i in range(1, 6):
@@ -91,7 +96,6 @@ class File:
             for line_number in lines.keys()
             if self._line_has_relevant_data(lines[line_number])
         ]
-
 
 
 class FileChunk:
