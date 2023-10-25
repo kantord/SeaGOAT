@@ -72,4 +72,15 @@ b3
     assert len(fetched_files) == 1
     file = next(iter(fetched_files))
     assert file.path == "file1.txt"
-    assert set(line for line in file.lines) == {2, 3, 4, 6, 7, 8, 9, 10, 11, 12}
+    assert set(line for line in file.lines) == {
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+    }

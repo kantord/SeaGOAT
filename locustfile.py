@@ -1,8 +1,6 @@
 import random
 
-from locust import between
-from locust import HttpUser
-from locust import task
+from locust import HttpUser, between, task
 
 WORDS = [
     "function",

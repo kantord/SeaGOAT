@@ -35,7 +35,10 @@ CONFIG_SCHEMA = {
             "additionalProperties": False,
             "properties": {
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
-                "ignorePatterns": {"type": "array", "items": {"type": "string"}},
+                "ignorePatterns": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                },
                 "chroma": {
                     "type": "object",
                     "additionalProperties": False,

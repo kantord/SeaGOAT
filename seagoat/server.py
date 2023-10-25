@@ -4,25 +4,22 @@ import os
 from pathlib import Path
 
 import click
-from flask import current_app
-from flask import Flask
-from flask import jsonify
-from flask import request
+from flask import Flask, current_app, jsonify, request
 from waitress import serve
 
 from seagoat import __version__
-from seagoat.cache import Cache
-from seagoat.cache import get_cache_root
+from seagoat.cache import Cache, get_cache_root
 from seagoat.queue.task_queue import TaskQueue
-from seagoat.utils.config import get_config_values
-from seagoat.utils.config import GLOBAL_CONFIG_FILE
-from seagoat.utils.server import get_free_port
-from seagoat.utils.server import get_server_info
-from seagoat.utils.server import get_servers_info
-from seagoat.utils.server import is_server_running
-from seagoat.utils.server import ServerDoesNotExist
-from seagoat.utils.server import stop_server
-from seagoat.utils.server import update_server_info
+from seagoat.utils.config import GLOBAL_CONFIG_FILE, get_config_values
+from seagoat.utils.server import (
+    ServerDoesNotExist,
+    get_free_port,
+    get_server_info,
+    get_servers_info,
+    is_server_running,
+    stop_server,
+    update_server_info,
+)
 from seagoat.utils.wait import wait_for
 
 
@@ -164,7 +161,11 @@ def get_status_data(repo_path):
         pid = server_info.get("pid", None)
 
         if is_server_running(repo_path):
-            status_info = {"isRunning": True, "url": server_address, "pid": pid}
+            status_info = {
+                "isRunning": True,
+                "url": server_address,
+                "pid": pid,
+            }
 
     except ServerDoesNotExist:
         pass

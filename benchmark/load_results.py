@@ -4,13 +4,13 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
-from yaml import dump
-from yaml import load
+from yaml import dump, load
 
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Dumper, Loader
 
 MAXIMUM_NUMBER_OF_RESULT_LINES = 500
 

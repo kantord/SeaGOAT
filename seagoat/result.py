@@ -4,13 +4,10 @@ from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict
-from typing import List
-from typing import Set
+from typing import Dict, List, Set
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import get_file_penalty_factor
-
 
 SPLITTER_PATTERN = re.compile(r"\s+")
 

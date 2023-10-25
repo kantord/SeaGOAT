@@ -4,9 +4,11 @@ import jsonschema
 import pytest
 from deepmerge import always_merger
 
-from seagoat.utils.config import DEFAULT_CONFIG
-from seagoat.utils.config import get_config_values
-from seagoat.utils.config import GLOBAL_CONFIG_FILE
+from seagoat.utils.config import (
+    DEFAULT_CONFIG,
+    GLOBAL_CONFIG_FILE,
+    get_config_values,
+)
 
 
 def _(config):

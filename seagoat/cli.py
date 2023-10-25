@@ -9,9 +9,7 @@ import requests
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.config import get_config_values
-from seagoat.utils.server import get_server_info
-from seagoat.utils.server import ServerDoesNotExist
-
+from seagoat.utils.server import ServerDoesNotExist, get_server_info
 
 
 class ExitCode:
@@ -119,7 +117,13 @@ def remove_results_from_unavailable_files(results):
 )
 @click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(
-    query, repo_path, no_color, max_results, context_above, context_below, context
+    query,
+    repo_path,
+    no_color,
+    max_results,
+    context_above,
+    context_below,
+    context,
 ):
     """
     Query your codebase for your QUERY in the Git repository REPO_PATH.
@@ -182,5 +186,4 @@ def seagoat(
 
 
 if __name__ == "__main__":
-
     seagoat()

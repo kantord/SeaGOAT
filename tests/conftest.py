@@ -7,13 +7,10 @@ import subprocess
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import cast
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import appdirs
 import orjson
@@ -28,13 +25,10 @@ from urllib3.util import Retry
 
 from seagoat.engine import Engine
 from seagoat.result import Result
-from seagoat.server import create_app
-from seagoat.server import start_server
-from seagoat.sources import chroma
-from seagoat.sources import ripgrep
+from seagoat.server import create_app, start_server
+from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
-from seagoat.utils.server import get_server_info
-from seagoat.utils.server import ServerDoesNotExist
+from seagoat.utils.server import ServerDoesNotExist, get_server_info
 from seagoat.utils.wait import wait_for
 
 try:
@@ -155,7 +149,6 @@ class MockRepo(Repo):
                     file_change["commit_messages"][i],
                 )
                 self.tick_fake_date(days=1)
-
 
     def add_file_change_commit(
         self,
@@ -395,7 +388,10 @@ def mock_server_error_factory(mocker, init_server_mock):
     def _mock_error_response(error_message, code):
         error_response = {
             "code": code,
-            "error": {"type": "Internal Server Error", "message": error_message},
+            "error": {
+                "type": "Internal Server Error",
+                "message": error_message,
+            },
         }
 
         mocked_response = MagicMock()
@@ -456,7 +452,6 @@ def client(repo):
 
 @pytest.fixture
 def mock_queue(client):
-
     yield client._mock_queue
 
 
@@ -484,7 +479,6 @@ def managed_process():
 
 @contextmanager
 def mock_sources_context(repo, ripgrep_lines, chroma_lines):
-
     def noop(*args, **kwargs):
         pass
 
@@ -572,7 +566,6 @@ def bat_not_available(mocker):
 
 
 @pytest.fixture(autouse=True)
-
 def real_bat(bat_not_available):
     """This fixture sets the default behavior of is_bat_installed."""
     # Nothing to do here since bat_not_available has already set the behavior
@@ -587,7 +580,6 @@ def bat_available(mocker):
 @pytest.fixture
 def bat_calls(mocker):
     calls = []
-
 
     def mock_bat(*args, **kwargs):
         if args[0] and args[0][0] == "bat":

@@ -10,9 +10,7 @@ import requests
 from click.testing import CliRunner
 
 from seagoat import __version__
-from seagoat.cli import query_server
-from seagoat.cli import seagoat
-from seagoat.cli import warn_if_update_available
+from seagoat.cli import query_server, seagoat, warn_if_update_available
 from seagoat.utils.cli_display import is_bat_installed
 from seagoat.utils.server import update_server_info
 from tests.conftest import MagicMock
@@ -262,7 +260,6 @@ def mock_response_(mocker):
 
 @pytest.fixture
 def mock_accuracy_warning(mocker):
-
     def _noop(*args, **kwargs):
         pass
 
@@ -271,7 +268,6 @@ def mock_accuracy_warning(mocker):
 
 @pytest.fixture
 def mock_query_server(mocker):
-
     def _mocked_query_server(*args, **kwargs):
         return []
 
@@ -342,9 +338,13 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner, temporar
         (2, "-l", 3),
     ],
 )
-
 def test_limit_output_length(
-    repo, max_length, command_option, mock_server_factory, runner, expected_length
+    repo,
+    max_length,
+    command_option,
+    mock_server_factory,
+    runner,
+    expected_length,
 ):
     mock_server_factory(
         [
@@ -360,7 +360,13 @@ def test_limit_output_length(
     query = "JavaScript"
     result = runner.invoke(
         seagoat,
-        [query, repo.working_dir, "--no-color", command_option, str(max_length)],
+        [
+            query,
+            repo.working_dir,
+            "--no-color",
+            command_option,
+            str(max_length),
+        ],
     )
 
     assert len(result.output.splitlines()) == min(expected_length, 15)
@@ -465,12 +471,18 @@ def test_limit_does_not_apply_to_context_lines(repo, mock_server_factory, runner
             ["foobar3.py", ["def bonjour():", "    print('monde')"]],
             [
                 "foobar.fake",
-                ["fn hello()", "    echo('world') // I am also a context line"],
+                [
+                    "fn hello()",
+                    "    echo('world') // I am also a context line",
+                ],
             ],
             ["foobar2.fake", ["fn hola()", "    echo('mundo')"]],
             [
                 "foobar3.fake",
-                ["fn bonjour()", "    echo('monde') /* I am too a context line */"],
+                [
+                    "fn bonjour()",
+                    "    echo('monde') /* I am too a context line */",
+                ],
             ],
         ]
     )
@@ -552,7 +564,11 @@ def test_context_lines_are_not_included_from_other_files_when_limit_exceeded(
     [("File Not Found on Server", 500), ("Database Connection Failed", 503)],
 )
 def test_server_error_handling(
-    repo, mock_server_error_factory, runner_with_error, error_message, error_code
+    repo,
+    mock_server_error_factory,
+    runner_with_error,
+    error_message,
+    error_code,
 ):
     mock_server_error_factory(error_message, error_code)
 
@@ -574,7 +590,8 @@ def test_bat_installed(mocker):
 
 def test_bat_not_installed_1(mocker):
     mocker.patch(
-        "seagoat.utils.cli_display.subprocess.run", side_effect=FileNotFoundError
+        "seagoat.utils.cli_display.subprocess.run",
+        side_effect=FileNotFoundError,
     )
     assert is_bat_installed() is False
 
@@ -631,7 +648,8 @@ def test_integration_test_no_results(snapshot, repo, mocker, runner):
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize(
-    "remote_host", ["http://example.com/potato", "https://ejemplo.es/nose/seagoat"]
+    "remote_host",
+    ["http://example.com/potato", "https://ejemplo.es/nose/seagoat"],
 )
 def test_configure_remote_server_address(
     remote_host, get_request_args_from_cli_call, create_config_file
@@ -643,7 +661,14 @@ def test_configure_remote_server_address(
 
 @pytest.mark.usefixtures("mock_accuracy_warning", "bat_available")
 def test_connecting_to_remote_server(
-    repo, mocker, runner, temporary_cd, server, create_config_file, bat_calls, snapshot
+    repo,
+    mocker,
+    runner,
+    temporary_cd,
+    server,
+    create_config_file,
+    bat_calls,
+    snapshot,
 ):
     """
     When the user requests data from a remote server,
@@ -671,7 +696,9 @@ def test_connecting_to_remote_server(
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         shutil.copytree(
-            repo.working_dir, os.path.join(tmpdirname, "repo_copy"), dirs_exist_ok=True
+            repo.working_dir,
+            os.path.join(tmpdirname, "repo_copy"),
+            dirs_exist_ok=True,
         )
         repo.add_file_change_commit(
             file_name="example_should_not_exist_in_copy.txt",
@@ -697,7 +724,8 @@ def test_connecting_to_remote_server(
 
 def test_server_does_not_exist_error(runner_with_error, mocker, repo):
     mocker.patch(
-        "seagoat.cli.requests.get", side_effect=requests.exceptions.ConnectionError
+        "seagoat.cli.requests.get",
+        side_effect=requests.exceptions.ConnectionError,
     )
     query = "JavaScript"
     result = runner_with_error.invoke(seagoat, [query, repo.working_dir])

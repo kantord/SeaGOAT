@@ -12,7 +12,11 @@ def test_sort_results_test1(create_prepared_seagoat):
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     results = seagoat.get_results()
 
-    assert [result.path for result in results] == ["file1.md", "file3.md", "file2.md"]
+    assert [result.path for result in results] == [
+        "file1.md",
+        "file3.md",
+        "file2.md",
+    ]
 
 
 def test_sort_results_test2(create_prepared_seagoat):
@@ -28,7 +32,11 @@ def test_sort_results_test2(create_prepared_seagoat):
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     results = seagoat.get_results()
 
-    assert [result.path for result in results] == ["file3.md", "file1.md", "file2.md"]
+    assert [result.path for result in results] == [
+        "file3.md",
+        "file1.md",
+        "file2.md",
+    ]
 
 
 def test_missing_file_in_one_source(create_prepared_seagoat):

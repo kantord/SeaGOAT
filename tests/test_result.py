@@ -291,9 +291,13 @@ def test_adds_correct_context_lines(create_result, context_line, expected_lines)
         (5, 1, 1, 2),
     ],
 )
-
 def test_merges_almost_continuous_code_lines(
-    first_code_line, first_block_length, second_block_length, gap, create_result, repo
+    first_code_line,
+    first_block_length,
+    second_block_length,
+    gap,
+    create_result,
+    repo,
 ):
     first_code_block_lines = list(
         range(first_code_line, first_code_line + first_block_length)

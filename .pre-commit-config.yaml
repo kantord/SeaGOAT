@@ -10,14 +10,11 @@ repos:
           - id: check-added-large-files
             exclude: ^(docs/assets/.*|assets/.*|benchmark/results/.*)$
 
-    - repo: https://github.com/asottile/reorder-python-imports
-      rev: v3.10.0
-      hooks:
-          - id: reorder-python-imports
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.1.1
       hooks:
+          - id: ruff-format
           - id: ruff
             args: [--fix, --exit-non-zero-on-fix]
 

@@ -10,7 +10,6 @@ from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.utils.config import get_config_values
 
-
 MAXIMUM_VECTOR_DISTANCE = 1.5
 
 

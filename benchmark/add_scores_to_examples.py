@@ -3,8 +3,7 @@ from pathlib import Path
 
 import click
 
-from benchmark.utils import create_ai_persona
-from benchmark.utils import generate_personality
+from benchmark.utils import create_ai_persona, generate_personality
 
 
 def evaluate_test_case_quality(repositories_path, ask_conversational_ai, example):
@@ -53,7 +52,8 @@ def evaluate_test_case_quality(repositories_path, ask_conversational_ai, example
 
 @click.command()
 @click.argument(
-    "repositories_path", type=click.Path(exists=True, dir_okay=True, file_okay=False)
+    "repositories_path",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False),
 )
 @click.argument("api_key", type=str)
 def evaluate_testcases(repositories_path, api_key):
@@ -67,7 +67,7 @@ def evaluate_testcases(repositories_path, api_key):
 
     for example_folder in example_folders:
         example_file = Path(example_folder) / "example.json"
-        with open(example_file, "r", encoding="utf-8") as file:
+        with open(example_file, encoding="utf-8") as file:
             example_data = json.load(file)
 
             if "qualityScore" not in example_data:
@@ -95,5 +95,4 @@ def evaluate_testcases(repositories_path, api_key):
 
 
 if __name__ == "__main__":
-
     evaluate_testcases()

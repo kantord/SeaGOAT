@@ -6,11 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from itertools import chain
 from pathlib import Path
-from typing import Callable
-from typing import Dict
-from typing import Iterable
-from typing import List
-from typing import Set
+from typing import Callable, Dict, Iterable, List, Set
 
 import nest_asyncio
 from tqdm import tqdm
@@ -20,23 +16,18 @@ from seagoat.cache import Cache
 from seagoat.file import File
 from seagoat.repository import Repository
 from seagoat.result import get_best_score
-from seagoat.sources import chroma
-from seagoat.sources import ripgrep
+from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import get_config_values
 
 
-RepositoryData = TypedDict(
-    "RepositoryData",
-    {
-        "last_analyzed_version_of_branch": Dict[str, str],
-        "required_commits": Set[str],
-        "commits_already_analyzed": Set[str],
-        "file_data": Dict[str, File],
-        "sorted_files": List[str],
-        "chunks_already_analyzed": Set[str],
-        "chunks_not_yet_analyzed": Set[str],
-    },
-)
+class RepositoryData(TypedDict):
+    last_analyzed_version_of_branch: Dict[str, str]
+    required_commits: Set[str]
+    commits_already_analyzed: Set[str]
+    file_data: Dict[str, File]
+    sorted_files: List[str]
+    chunks_already_analyzed: Set[str]
+    chunks_not_yet_analyzed: Set[str]
 
 
 nest_asyncio.apply()
@@ -129,7 +120,8 @@ class Engine:
             )
 
         for _ in tqdm(
-            enumerate(range(minimum_chunks_to_analyze)), desc="Analyzing source code"
+            enumerate(range(minimum_chunks_to_analyze)),
+            desc="Analyzing source code",
         ):
             chunk = chunks_to_process.pop(0)
             self.process_chunk(chunk)
@@ -152,7 +144,8 @@ class Engine:
         loop = asyncio.get_event_loop()
         async_tasks = [
             loop.run_in_executor(
-                executor, partial(source["fetch"], self.query_string, limit_clue)
+                executor,
+                partial(source["fetch"], self.query_string, limit_clue),
             )
             for source in self._fetchers["async"]
         ]
