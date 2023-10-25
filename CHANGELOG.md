@@ -2,6 +2,21 @@
 
 
 
+## v0.39.1 (2023-10-25)
+
+### Chore
+
+* chore(deps): update dependency ipykernel to v6.26.0 ([`d82f444`](https://github.com/kantord/SeaGOAT/commit/d82f444c4d7b6ae66b7c60ccb973bbdb6ff48fab))
+
+* chore(deps): update dependency syrupy to v4.6.0 ([`b872527`](https://github.com/kantord/SeaGOAT/commit/b872527350dd37774eee85133881c616ac6d662f))
+
+* chore(deps): update dependency pytest to v7.4.3 ([`ed426ad`](https://github.com/kantord/SeaGOAT/commit/ed426ad8663207bf14addbdca8b5b8bbaf3545c6))
+
+### Fix
+
+* fix: add failure message when checking for updates (#362) ([`09a7c48`](https://github.com/kantord/SeaGOAT/commit/09a7c4804546b51fd2523439ce61d134332faae7))
+
+
 ## v0.39.0 (2023-10-24)
 
 ### Chore
