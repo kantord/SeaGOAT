@@ -81,5 +81,5 @@ def generate_results(test_run_name, repositories_path, seagoat_args):
 
 
 if __name__ == "__main__":
-    # pylint: disable-next=no-value-for-parameter
+
     generate_results()

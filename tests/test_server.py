@@ -1,4 +1,3 @@
-# pylint: disable=no-member
 import copy
 import json
 import os
