@@ -2,6 +2,51 @@
 
 
 
+## v0.39.2 (2023-10-26)
+
+### Chore
+
+* chore: exclude benchmark in git attributes ([`a5211ab`](https://github.com/kantord/SeaGOAT/commit/a5211abc7964cb4b93b754f8f5f878b9906bc70b))
+
+* chore: fix ruff configuration
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`46afbc8`](https://github.com/kantord/SeaGOAT/commit/46afbc8fe0c2d99f251b74ad6688809a3dbc341f))
+
+* chore(deps): update dependency ruff to v0.1.2 (#368)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b78c29d`](https://github.com/kantord/SeaGOAT/commit/b78c29d6c7461460e6bce1f0a31195897d60d672))
+
+* chore: replace black &amp; pylint with ruff in pre-commit (#359)
+
+* Replace `black` with `ruff` in pre-commit
+
+To improve performance and simplify pre-commit
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt;
+
+* Replace `pylint` with `ruff` in pre-commit
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt;
+
+* Remove `pylint: disable` directives
+
+They are no longer needed since pylint was replaced with ruff.
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt;
+
+---------
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt; ([`f6a087a`](https://github.com/kantord/SeaGOAT/commit/f6a087a9e4f3f6829c9281f31e18111f00c73cac))
+
+* chore(deps): update dependency pyright to v1.1.333 (#365)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`d274241`](https://github.com/kantord/SeaGOAT/commit/d274241886c4d96323334ae44a941a804ceecf91))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.10 ([`77adbe5`](https://github.com/kantord/SeaGOAT/commit/77adbe533c827499fd6f2bd5df836d1ba5479b61))
+
+
 ## v0.39.1 (2023-10-25)
 
 ### Chore
