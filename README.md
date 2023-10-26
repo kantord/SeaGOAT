@@ -8,7 +8,7 @@
 </h1>
 
 A code search engine for the AI age. SeaGOAT is a local search tool that
-leverages vector embeddings to enable to search your codebase semantically.
+leverages vector embeddings to enable you to search your codebase semantically.
 
 <p align="center">
   <img src="assets/demo-slideshow.gif" alt="" />
@@ -203,7 +203,7 @@ concern.
 
 ### What programming languages are supported?
 
-Currently SeaGOAT is hardcoded to only process files in the following
+Currently SeaGOAT is hard coded to only process files in the following
 formats:
 
 - **Text Files** (`*.txt`)
@@ -229,7 +229,7 @@ This design decision does not affect the performance of queries.
 
 **By the way, you are able to use SeaGOAT to query your repository while
 it's processing your files!** When you make a query, and the files are not
-processed yet, you will receive a warning with an esimation of the accuracy
+processed yet, you will receive a warning with an estimation of the accuracy
 of your results. Also, regular expression/full text search based results
 will be displayed from the very beginning!
 
