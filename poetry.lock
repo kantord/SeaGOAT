@@ -1985,13 +1985,13 @@ files = [
 
 [[package]]
 name = "locust"
-version = "2.17.0"
+version = "2.18.0"
 description = "Developer friendly load testing framework"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "locust-2.17.0-py3-none-any.whl", hash = "sha256:72e4d41a5e674f5149cc6cb5d70b3382b4bfe38fba9e7a29f5368052b6e68d44"},
-    {file = "locust-2.17.0.tar.gz", hash = "sha256:e50bb4647370c22d27010cd700cc87a519a0f25fef012efa7b42af68982b58f0"},
+    {file = "locust-2.18.0-py3-none-any.whl", hash = "sha256:55036b2601ad7a2725885ceafb28f90390128a9a5dc631809da462f53b37cd56"},
+    {file = "locust-2.18.0.tar.gz", hash = "sha256:f8d668c2c33518c705664bc869791d58fc98ba8f1aadbf2335be36e4e681feae"},
 ]
 
 [package.dependencies]
@@ -2007,7 +2007,6 @@ pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
 pyzmq = ">=22.2.1,<23.0.0 || >23.0.0"
 requests = ">=2.23.0"
 roundrobin = ">=0.0.2"
-typing-extensions = ">=3.7.4.3"
 Werkzeug = ">=2.0.0"
 
 [[package]]
