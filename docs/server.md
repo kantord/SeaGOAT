@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD046 -->
 # SeaGOAT-server
 
-The seagoat-server is an integral component of the Seagoat command-line tool
+The `seagoat-server` is an integral component of the Seagoat command-line tool
 designed to analyze your codebase and create vector embeddings for it.
 
 While it serves as a backend for the command-line tool, also allows you to
@@ -15,8 +15,8 @@ To boot up the server for a specific repository, use:
 seagoat-server start <repo_path> [--port=<custom_port>]
 ```
 
-* `repo_path`: Path to your Git repository
-* `--port`: (Optional) Run the server on a specific port
+* `repo_path` - Path to your Git repository.
+* `--port` - (Optional) Run the server on a specific port.
 
 If you don't specify a custom port, a random port will be assigned to your
 server. Don't worry, SeaGOAT will still be able to automatically find
@@ -163,8 +163,8 @@ You will receive a response similar to this one:
 
 The response contains the following information:
 
-* `version` - This is the version of SeaGOAT being used
-* `results` - This is an array containing your results
+* `version` - This is the version of SeaGOAT being used.
+* `results` - This is an array containing your results.
 
 Each result inside results has the following data:
 
@@ -179,12 +179,9 @@ Within each block you will find:
   * `score` - Relevance score for this line. See `score` above.
   * `line` - The line number in the file where the result was found.
   * `lineText` - The actual text content of that line.
-  * `resultTypes` - An array indicating all types of result on this line
-    * `"result"` Means that the line is directly relevant to the query
-    * `"context"` Means that the line was added as a context line
-    * `"bridge"` It is a type of context line that is added within a block
-        rather than around it. It is used to merge code blocks when they
-        are nearly touching.
-* `lineTypeCount` - An object containing a count of all line types within
-  the code block. See `resultTypes` for more.
-* `score` - A score for the code block overall
+  * `resultTypes` - An array indicating all types of result on this line:
+    * `"result"` Means that the line is directly relevant to the query.
+    * `"context"` Means that the line was added as a context line.
+    * `"bridge"` It is a type of context line that is added within a block rather than around it. It is used to merge code blocks when they are nearly touching.
+* `lineTypeCount` - An object containing a count of all line types within the code block. See `resultTypes` for more.
+* `score` - A score for the code block overall.

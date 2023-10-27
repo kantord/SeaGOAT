@@ -50,7 +50,7 @@ The following values can be configured:
 * `ignorePatterns`: A list of glob patterns to ignore. Keep in mind that all
 files ignored by `.gitignore` are already ignored. You probably should not
 need to configure this value. It is only useful if there are some files that
-you wish to keep in git, but you wish to hide from from SeaGOAT.
+you wish to keep in git, but you wish to hide from SeaGOAT.
 [Learn more about globs](https://en.wikipedia.org/wiki/Glob_(programming))
 * `chroma`: Configurations for the ChromaDB based features.
   Has the following attributes:
