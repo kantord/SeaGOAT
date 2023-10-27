@@ -17,7 +17,7 @@ on your computer.
 The following dependencies need to be installed:
 
 * [Git](https://git-scm.com/downloads)
-* [Python 3.11 or newer](https://www.python.org/downloads/) 
+* [Python 3.11 or newer](https://www.python.org/downloads/)
 * [Poetry](https://python-poetry.org/docs/#installation)
 
 ### Step 3: Clone the repository
@@ -136,7 +136,7 @@ poetry run ipython
 This repository uses `pre-commit` to run automatic checks and fixes on the
 codebase in addition to automatic and manual testing.
 
-If you have 
+If you have
 [set up commit hooks](http://localhost:8000/developer/#step-6-optional-set-up-pre-commit-hooks)
 (recommended), then these checks and fixes are automatically executed
 each time you attempt to make a commit.
