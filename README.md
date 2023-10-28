@@ -229,7 +229,7 @@ This design decision does not affect the performance of queries.
 
 **By the way, you are able to use SeaGOAT to query your repository while
 it's processing your files!** When you make a query, and the files are not
-processed yet, you will receive a warning with an esimation of the accuracy
+processed yet, you will receive a warning with an estimation of the accuracy
 of your results. Also, regular expression/full text search based results
 will be displayed from the very beginning!
 
