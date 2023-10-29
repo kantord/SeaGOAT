@@ -7,8 +7,7 @@
   </p>
 </h1>
 
-A code search engine for the AI age. SeaGOAT is a local search tool that
-leverages vector embeddings to enable to search your codebase semantically.
+SeaGOAT is a code search engine for the AI age. It is a local search tool that leverages vector embeddings to enable to search your codebase semantically.
 
 <p align="center">
   <img src="assets/demo-slideshow.gif" alt="" />
@@ -25,7 +24,7 @@ React, Node and Python and I'm located in Spain (European Union).
 ### Install SeaGOAT
 
 In order to install SeaGOAT, you need to have the following
-dependencies already installed on your computer:
+dependencies that must be already installed on your computer:
 
 - Python 3.11 or newer
 - ripgrep
