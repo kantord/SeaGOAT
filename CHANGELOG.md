@@ -2,6 +2,47 @@
 
 
 
+## v0.39.3 (2023-10-30)
+
+### Chore
+
+* chore(deps): update dependency ipython to v8.17.1 (#382)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`6a13f8f`](https://github.com/kantord/SeaGOAT/commit/6a13f8fdbdf560b6c8dea121f1a33cd87729958b))
+
+* chore(deps): update dependency mkdocs-material to v9.4.7 ([`f05043d`](https://github.com/kantord/SeaGOAT/commit/f05043d4cc6b91e5e1c643f5254f1f4592f3bf06))
+
+* chore(deps): update dependency locust to v2.18.0 (#376)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`9200296`](https://github.com/kantord/SeaGOAT/commit/9200296d89b20b9bc82911a8eed814891fca4b8a))
+
+* chore: fix typo in .gitattributes ([`66b3abe`](https://github.com/kantord/SeaGOAT/commit/66b3abe9430eb32b74e7b42b8ff63b84bcf892f8))
+
+* chore: ignore notebooks in github language stats ([`6248e1a`](https://github.com/kantord/SeaGOAT/commit/6248e1a665597b254c397454311dcd13e3b82ad4))
+
+* chore(deps): update dependency ruff to v0.1.3 ([`ccc8033`](https://github.com/kantord/SeaGOAT/commit/ccc80330fdaa062648df9dc2955c5d4a22fd5500))
+
+* chore(deps): update dependency pandas to v2.1.2 ([`9b1ce59`](https://github.com/kantord/SeaGOAT/commit/9b1ce596b3338ad05caf3a34e236e1406f254423))
+
+### Documentation
+
+* docs: fix typo
+
+esimation -&gt; estimation  in FAQ section ([`97512f7`](https://github.com/kantord/SeaGOAT/commit/97512f74f4b968bdb14ff62c24981dc945956e55))
+
+* docs: small fixes and improvements ([`610014e`](https://github.com/kantord/SeaGOAT/commit/610014e163e23f3d5183ac3406d400348f3f7474))
+
+### Fix
+
+* fix(deps): update dependency jsonschema to v4.19.2 (#381)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b9ec0d5`](https://github.com/kantord/SeaGOAT/commit/b9ec0d5ffae9d207de6062074faf90d99e79946c))
+
+### Style
+
+* style: fix code formatting issues ([`82a6ef5`](https://github.com/kantord/SeaGOAT/commit/82a6ef50bc0c1f06473e010b31c335e0aa0bbd73))
+
+
 ## v0.39.2 (2023-10-26)
 
 ### Chore
