@@ -1972,13 +1972,13 @@ files = [
 
 [[package]]
 name = "locust"
-version = "2.18.0"
+version = "2.18.1"
 description = "Developer friendly load testing framework"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "locust-2.18.0-py3-none-any.whl", hash = "sha256:55036b2601ad7a2725885ceafb28f90390128a9a5dc631809da462f53b37cd56"},
-    {file = "locust-2.18.0.tar.gz", hash = "sha256:f8d668c2c33518c705664bc869791d58fc98ba8f1aadbf2335be36e4e681feae"},
+    {file = "locust-2.18.1-py3-none-any.whl", hash = "sha256:95cb37490487db693b9a85914ca13a962d74de7b9588519909a5a678512dfaef"},
+    {file = "locust-2.18.1.tar.gz", hash = "sha256:503985a240f8f8098636c9493689caca2cc923b83f241393bb2c92bde5801278"},
 ]
 
 [package.dependencies]
