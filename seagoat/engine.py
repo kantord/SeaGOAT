@@ -158,6 +158,8 @@ class Engine:
 
         self._include_context_lines(context_above, context_below)
 
+        return self._format_results(limit_clue)
+
     def _include_context_lines(self, context_above: int, context_below: int):
         for result in self._results:
             result.add_context_lines(-context_above)
@@ -165,7 +167,7 @@ class Engine:
 
     def fetch_sync(self, *args, **kwargs):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.fetch(*args, **kwargs))
+        return loop.run_until_complete(self.fetch(*args, **kwargs))
 
     def _get_normalization_function(
         self, values: Iterable[float], min_=None, max_=None
@@ -184,7 +186,7 @@ class Engine:
 
         return normalize
 
-    def get_results(self, hard_count_limit: int = 1000):
+    def _format_results(self, hard_count_limit: int = 1000):
         merged_results = {}
 
         for result_item in self._results:
