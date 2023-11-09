@@ -95,13 +95,12 @@ class TaskQueue(BaseQueue):
             logging.info("Analyzed all chunks!")
 
     def handle_query(self, context, **kwargs):
-        context["seagoat_engine"].fetch_sync(
+        results = context["seagoat_engine"].fetch_sync(
             kwargs["query"],
             limit_clue=kwargs["limit_clue"],
             context_above=int(kwargs["context_above"]),
             context_below=int(kwargs["context_below"]),
         )
-        results = context["seagoat_engine"].get_results(kwargs["limit_clue"])
         formatted_results = [result.to_json(kwargs["query"]) for result in results]
 
         serialized_results = orjson.dumps(
