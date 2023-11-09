@@ -153,8 +153,8 @@ def seagoat(
             query,
             server_address,
             max_results,
-            context_above or 0,
-            context_below or 0,
+            context_above if context_above is not None else 3,
+            context_below if context_below is not None else 3,
         )
 
         results = rewrite_full_paths_to_use_local_path(repo_path, results)
