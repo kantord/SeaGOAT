@@ -525,8 +525,7 @@ def _create_prepared_seagoat(repo):
         with mock_sources_context(repo, ripgrep_lines, chroma_lines):
             seagoat = Engine(repo.working_dir)
             seagoat.analyze_codebase()
-            seagoat.query(query)
-            seagoat.fetch_sync()
+            seagoat.fetch_sync(query)
             return seagoat
 
     return _prepared_seagoat

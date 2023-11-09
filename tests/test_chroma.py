@@ -23,22 +23,12 @@ def use_real_db(real_chromadb):
     pass
 
 
-def test_requires_fetching_data(repo):
-    seagoat = Engine(repo.working_dir)
-    seagoat.analyze_codebase()
-    my_query = "lightweight markup language"
-    seagoat.query(my_query)
-
-    assert len(seagoat.get_results()) == 0
-
-
 @pytest.mark.asyncio
 async def test_gets_data_using_vector_embeddings(repo, snapshot):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "lightweight markup language"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
     # Tests that results are sorted according to relevance
     assert seagoat.get_results()[0].path == "file1.md"
@@ -78,8 +68,7 @@ def test_allows_fetching_data_synchronously(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "tomato pizza"
-    seagoat.query(my_query)
-    seagoat.fetch_sync(limit_clue=33)
+    seagoat.fetch_sync(my_query, limit_clue=33)
 
     assert seagoat.get_results()[0].path == "articles.txt"
 
@@ -107,8 +96,7 @@ async def test_considers_filename_in_results(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "dish_recipe.txt"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
     assert seagoat.get_results()[0].path == "cooking_recipes.txt"
 
@@ -136,8 +124,7 @@ async def test_considers_commit_messages(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "italian pomodoro pie with slices of cured meat"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
     assert seagoat.get_results()[0].path == "vehicles_1.txt"
 
@@ -165,8 +152,7 @@ async def test_truncates_very_long_lines(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "tomato pizza"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
     assert seagoat.get_results()[0].path == "vehicles.txt"
 
@@ -196,8 +182,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "smartphone"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
     assert seagoat.get_results()[0].path == "devices.txt"
     assert set(seagoat.get_results()[0].get_lines(my_query)) == {
@@ -236,8 +221,7 @@ async def test_exact_matches_have_higher_score(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "apple      iphone 12"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
     assert seagoat.get_results()[0].path == "devices.txt"
     assert set(seagoat.get_results()[0].get_lines(my_query)) == {7, 8, 12}
@@ -268,8 +252,7 @@ async def test_chunks_are_persisted_between_runs(repo):
         seagoat1, "_add_to_collection", wraps=seagoat1._add_to_collection
     ) as mock_add_to_collection:
         seagoat1.analyze_codebase()
-        seagoat1.query("pomodoro spaghetti")
-        await seagoat1.fetch()
+        await seagoat1.fetch("pomodoro spaghetti")
         assert mock_add_to_collection.call_count > 2
         assert seagoat1.get_results()[0].path == "articles.txt"
         del seagoat1
@@ -279,8 +262,7 @@ async def test_chunks_are_persisted_between_runs(repo):
         seagoat2, "_add_to_collection", wraps=seagoat2._add_to_collection
     ) as mock_add_to_collection:
         seagoat2.analyze_codebase()
-        seagoat2.query("pomodoro spaghetti")
-        await seagoat2.fetch()
+        await seagoat2.fetch("pomodoro spaghetti")
         assert mock_add_to_collection.call_count == 0
         assert seagoat2.get_results()[0].path == "articles.txt"
 
@@ -307,8 +289,7 @@ async def test_respects_limit_in_chromadb(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "apple"
-    seagoat.query(my_query)
-    await seagoat.fetch(limit_clue=5)
+    await seagoat.fetch(my_query, limit_clue=5)
 
     expected_files = {"devices.txt", "devices2.txt"}
     results_files = set(result.path for result in seagoat.get_results())
@@ -335,13 +316,11 @@ async def test_does_not_crash_repo_when_files_are_deleted(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "dish_recipe.txt"
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
     (Path(repo.working_dir) / "cooking_recipes.txt").unlink()
 
     seagoat.analyze_codebase()
-    seagoat.query(my_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_query)
 
 
 @pytest.mark.asyncio
@@ -368,8 +347,7 @@ async def test_custom_ignore_patterns(repo, create_config_file):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "apple"
-    seagoat.query(my_query)
-    await seagoat.fetch(limit_clue=5)
+    await seagoat.fetch(my_query, limit_clue=5)
 
     results_files = set(result.path for result in seagoat.get_results())
 
@@ -393,4 +371,4 @@ async def test_user_defined_execution_provider(repo, create_config_file):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "apple"
-    seagoat.query(my_query)
+    seagoat.fetch_sync(my_query)

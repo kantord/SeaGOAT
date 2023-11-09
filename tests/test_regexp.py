@@ -22,8 +22,7 @@ async def test_simple_regexp(repo):
     seagoat.analyze_codebase()
 
     my_regex_query = "[0-9]+[0-9]+"
-    seagoat.query(my_regex_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_regex_query)
 
     assert seagoat.get_results()[0].path == "line_positions.txt"
     assert set(seagoat.get_results()[0].get_lines(my_regex_query)) == {4, 6}
@@ -58,8 +57,7 @@ asdf
     seagoat.analyze_codebase()
 
     my_regex_query = "[0-9]+[0-9]+ fruit"
-    seagoat.query(my_regex_query)
-    await seagoat.fetch()
+    await seagoat.fetch(my_regex_query)
 
     assert seagoat.get_results()[0].path == "line_positions.txt"
     assert set(seagoat.get_results()[0].get_lines(my_regex_query)) == {

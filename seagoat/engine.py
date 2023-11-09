@@ -128,10 +128,7 @@ class Engine:
 
         return chunks_to_process
 
-    def query(self, query: str):
-        self.query_string = query
-
-    async def fetch(self, limit_clue=50, context_above=0, context_below=0):
+    async def fetch(self, query: str, limit_clue=50, context_above=0, context_below=0):
         """
         limit_clue: a clue regarding how many results will be processed in the end
 
@@ -139,6 +136,7 @@ class Engine:
         direct effect on the number of results returned, but sources can use it as
         a rule of thumb.
         """
+        self.query_string = query
         self._results = []
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_event_loop()
