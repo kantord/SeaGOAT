@@ -35,8 +35,8 @@ def create_app(repo_path):
     @app.route("/query/<query>")
     def query_codebase(query):
         limit_clue = request.args.get("limitClue", "500")
-        context_above = request.args.get("contextAbove", 0)
-        context_below = request.args.get("contextBelow", 0)
+        context_above = request.args.get("contextAbove", 3)
+        context_below = request.args.get("contextBelow", 3)
 
         try:
             limit_clue = int(limit_clue)
