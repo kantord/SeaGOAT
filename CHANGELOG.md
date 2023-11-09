@@ -2,6 +2,41 @@
 
 
 
+## v0.40.0 (2023-11-09)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.1.5 ([`9b87ed2`](https://github.com/kantord/SeaGOAT/commit/9b87ed2a0f175b69a31bd8a3a167f336eaca7a72))
+
+* chore(deps): update dependency pyright to v1.1.335 ([`48aacbb`](https://github.com/kantord/SeaGOAT/commit/48aacbbdb6aa63454536c949b2d67f1ed898f331))
+
+* chore(deps): update dependency pytest-testmon to v2.1.0 ([`56b7805`](https://github.com/kantord/SeaGOAT/commit/56b780581ea885cdc482d2ccd2a15893a8e975d3))
+
+* chore(deps): update dependency mkdocs-material to v9.4.8 ([`5bce846`](https://github.com/kantord/SeaGOAT/commit/5bce8461abb3581731398c03bb801f66f43aaed9))
+
+* chore(deps): update dependency ruff to v0.1.4 ([`437552f`](https://github.com/kantord/SeaGOAT/commit/437552f90649b434b70e3819577a2f1cdad49193))
+
+* chore(deps): update dependency pyright to v1.1.334 ([`8c820c0`](https://github.com/kantord/SeaGOAT/commit/8c820c0fad40d5c5cbf4c0abab5fb30d0aef7032))
+
+* chore(deps): update dependency pytest-testmon to v2.0.15 ([`ab87457`](https://github.com/kantord/SeaGOAT/commit/ab874578230e5452c23d68e88a330436dfacf066))
+
+* chore(deps): update dependency locust to v2.18.1 ([`e6dd1fd`](https://github.com/kantord/SeaGOAT/commit/e6dd1fdc39469eb8575552116250c78fa1693604))
+
+* chore(deps): update dependency matplotlib to v3.8.1 ([`9cb63d5`](https://github.com/kantord/SeaGOAT/commit/9cb63d5f47a2c5812f8f22494d979fcc27804e09))
+
+* chore(deps): update dependency ipython to v8.17.2 ([`12ccf78`](https://github.com/kantord/SeaGOAT/commit/12ccf788a3aedc31c42b71cc0a49c0528b000c83))
+
+* chore(deps): update dependency pytest-asyncio to ^0.22.0 ([`f44d218`](https://github.com/kantord/SeaGOAT/commit/f44d2184fc8ea25994dbce4a657a68f8544f2d8e))
+
+### Feature
+
+* feat: include context lines by default in the HTTP response (#394)
+
+* feat: include context lines by default in the HTTP response
+
+* feat: set default context to 3 ([`3b15b3c`](https://github.com/kantord/SeaGOAT/commit/3b15b3c6de9c21ca4772f9ede7fbb8bf3d0f9b2a))
+
+
 ## v0.39.3 (2023-10-30)
 
 ### Chore
