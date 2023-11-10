@@ -51,7 +51,7 @@ class ResultLineType(Enum):
 
 @dataclass(frozen=True)
 class ResultLine:
-    query_text: str
+    parent: "Result"
     line: int
     vector_distance: float
     line_text: str
@@ -59,7 +59,7 @@ class ResultLine:
 
     def get_score(self) -> float:
         return self.vector_distance / (
-            1 + get_number_of_exact_matches(self.line_text, self.query_text)
+            1 + get_number_of_exact_matches(self.line_text, self.parent.query_text)
         )
 
     def add_type(self, type_: ResultLineType) -> None:
@@ -76,7 +76,6 @@ class ResultLine:
 
 @dataclass(frozen=True)
 class ResultBlock:
-    query_text: str
     lines: List[ResultLine]
 
     def _get_line_count_per_type(self) -> Dict[str, int]:
@@ -128,7 +127,7 @@ class Result:
         )
 
         self.lines[line] = ResultLine(
-            self.query_text,
+            self,
             line,
             vector_distance,
             self.line_texts[line - 1],
@@ -165,7 +164,7 @@ class Result:
             if len(line_range_from_last_block) <= 2:
                 for line in line_range_from_last_block:
                     bridge_line = ResultLine(
-                        self.query_text,
+                        self,
                         line,
                         0.0,
                         self.line_texts[line - 1],
@@ -195,7 +194,7 @@ class Result:
             )
 
             if not blocks or distance_from_previous_line > 1:
-                blocks.append(ResultBlock(self.query_text, lines=[]))
+                blocks.append(ResultBlock(lines=[]))
 
             blocks[-1].lines.append(line)
 
@@ -223,7 +222,7 @@ class Result:
 
                 if new_line not in self.lines:
                     self.lines[new_line] = ResultLine(
-                        self.query_text,
+                        self,
                         line=new_line,
                         vector_distance=0.0,
                         line_text=self.line_texts[new_line - 1],

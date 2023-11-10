@@ -5,8 +5,9 @@ from pathlib import Path
 from seagoat.result import Result, ResultLine, ResultLineType
 
 
-def test_to_result_line_correct_output_example1():
-    line = ResultLine("", 1, 0.5, "some line text", {ResultLineType.RESULT})
+def test_to_result_line_correct_output_example1(repo):
+    fake_result = Result("", "", Path(repo.working_dir) / "file4.md")
+    line = ResultLine(fake_result, 1, 0.5, "some line text", {ResultLineType.RESULT})
     result_dict = line.to_json()
     assert result_dict == {
         "score": 0.25,
@@ -16,8 +17,11 @@ def test_to_result_line_correct_output_example1():
     }
 
 
-def test_to_result_line_correct_output_example2():
-    line = ResultLine("", 2, 0.2, "another line of text", {ResultLineType.RESULT})
+def test_to_result_line_correct_output_example2(repo):
+    fake_result = Result("", "", Path(repo.working_dir) / "file4.md")
+    line = ResultLine(
+        fake_result, 2, 0.2, "another line of text", {ResultLineType.RESULT}
+    )
     result_dict = line.to_json()
     assert result_dict == {
         "score": 0.1,
