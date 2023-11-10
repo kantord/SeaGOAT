@@ -43,7 +43,6 @@ class Engine:
         Initializes the library
         """
         self.path = path
-        self.query_string = ""
         self._results = []
         self.cache = Cache[RepositoryData](
             "cache",
@@ -136,20 +135,19 @@ class Engine:
         direct effect on the number of results returned, but sources can use it as
         a rule of thumb.
         """
-        self.query_string = query
         self._results = []
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_event_loop()
         async_tasks = [
             loop.run_in_executor(
                 executor,
-                partial(source["fetch"], self.query_string, limit_clue),
+                partial(source["fetch"], query, limit_clue),
             )
             for source in self._fetchers["async"]
         ]
 
         for source in self._fetchers["sync"]:
-            self._results.extend(source["fetch"](self.query_string, limit_clue))
+            self._results.extend(source["fetch"](query, limit_clue))
 
         results = await asyncio.gather(*async_tasks)
 
@@ -158,7 +156,7 @@ class Engine:
 
         self._include_context_lines(context_above, context_below)
 
-        return self._format_results(limit_clue)
+        return self._format_results(query, limit_clue)
 
     def _include_context_lines(self, context_above: int, context_below: int):
         for result in self._results:
@@ -186,7 +184,7 @@ class Engine:
 
         return normalize
 
-    def _format_results(self, hard_count_limit: int = 1000):
+    def _format_results(self, query: str, hard_count_limit: int = 1000):
         merged_results = {}
 
         for result_item in self._results:
@@ -201,7 +199,7 @@ class Engine:
 
         results_to_sort = list(merged_results.values())
 
-        scores = [get_best_score(x, self.query_string) for x in results_to_sort]
+        scores = [get_best_score(x, query) for x in results_to_sort]
 
         if not scores:
             return []
@@ -226,7 +224,7 @@ class Engine:
             sorted(
                 results_to_sort,
                 key=lambda x: (
-                    0.7 * normalize_score(get_best_score(x, self.query_string))
+                    0.7 * normalize_score(get_best_score(x, query))
                     + 0.3 * normalize_file_position(get_file_position(x.path))
                 ),
             )
