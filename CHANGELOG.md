@@ -2,6 +2,29 @@
 
 
 
+## v0.40.1 (2023-11-10)
+
+### Fix
+
+* fix(deps): update dependency prompt-toolkit to v3.0.40 ([`dd823d5`](https://github.com/kantord/SeaGOAT/commit/dd823d54c76b853d0d12e9aced98e62e014cb4ff))
+
+### Refactor
+
+* refactor: pass reference to Result class instead of query text ([`fd5b1c2`](https://github.com/kantord/SeaGOAT/commit/fd5b1c206cea87605970e766b15224670dce1efa))
+
+* refactor: avoid passing query string around in method calls ([`4549acb`](https://github.com/kantord/SeaGOAT/commit/4549acbdb82d45a15a0b74b461f5bcd538640d80))
+
+* refactor: avoid needing query in Result.to_json() ([`2bc47c9`](https://github.com/kantord/SeaGOAT/commit/2bc47c978b859cf7fcb1e7b04961c2f9274f817e))
+
+* refactor: remove query_string attribute from Engine ([`5c8ca51`](https://github.com/kantord/SeaGOAT/commit/5c8ca51ca5b977b2384a3178a1a079818baa7e20))
+
+* refactor: rename fetch() to query() ([`8e9c2f1`](https://github.com/kantord/SeaGOAT/commit/8e9c2f19661b3f441e9da734115faf3da32c81cc))
+
+* refactor: remove get_results() ([`8a95ea8`](https://github.com/kantord/SeaGOAT/commit/8a95ea80a56439e3a73d0f4da6627517bbad2443))
+
+* refactor: remove query() method ([`d68be70`](https://github.com/kantord/SeaGOAT/commit/d68be70129f92e527c4651e8457900595b871865))
+
+
 ## v0.40.0 (2023-11-09)
 
 ### Chore
