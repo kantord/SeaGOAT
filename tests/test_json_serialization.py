@@ -5,9 +5,10 @@ from pathlib import Path
 from seagoat.result import Result, ResultLine, ResultLineType
 
 
-def test_to_result_line_correct_output_example1():
-    line = ResultLine(1, 0.5, "some line text", {ResultLineType.RESULT})
-    result_dict = line.to_json("")
+def test_to_result_line_correct_output_example1(repo):
+    fake_result = Result("", "", Path(repo.working_dir) / "file4.md")
+    line = ResultLine(fake_result, 1, 0.5, "some line text", {ResultLineType.RESULT})
+    result_dict = line.to_json()
     assert result_dict == {
         "score": 0.25,
         "line": 1,
@@ -16,9 +17,12 @@ def test_to_result_line_correct_output_example1():
     }
 
 
-def test_to_result_line_correct_output_example2():
-    line = ResultLine(2, 0.2, "another line of text", {ResultLineType.RESULT})
-    result_dict = line.to_json("")
+def test_to_result_line_correct_output_example2(repo):
+    fake_result = Result("", "", Path(repo.working_dir) / "file4.md")
+    line = ResultLine(
+        fake_result, 2, 0.2, "another line of text", {ResultLineType.RESULT}
+    )
+    result_dict = line.to_json()
     assert result_dict == {
         "score": 0.1,
         "line": 2,
@@ -33,11 +37,11 @@ def test_to_result_json_correct_output_example1():
         with open(file_path, "w", encoding="utf-8") as tmp_file:
             tmp_file.write("Line 1\nLine 2\nLine 3\n")
 
-        result = Result("example1.txt", Path(file_path))
+        result = Result("", "example1.txt", Path(file_path))
         result.add_line(1, 0.5)
         result.add_line(2, 0.3)
 
-        result_dict = result.to_json("")
+        result_dict = result.to_json()
         assert result_dict == {
             "score": 0.225,
             "path": "example1.txt",
@@ -71,11 +75,11 @@ def test_to_result_json_correct_output_example2():
         with open(file_path, "w", encoding="utf-8") as tmp_file:
             tmp_file.write("\n".join(f"This is line {i + 1}" for i in range(10)))
 
-        result = Result("example2.txt", Path(file_path))
+        result = Result("", "example2.txt", Path(file_path))
         result.add_line(1, 0.5)
         result.add_line(5, 0.1)
 
-        result_dict = result.to_json("")
+        result_dict = result.to_json()
         assert result_dict == {
             "score": 0.075,
             "path": "example2.txt",

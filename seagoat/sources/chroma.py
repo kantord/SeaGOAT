@@ -26,7 +26,7 @@ def get_metadata_and_distance_from_chromadb_result(chromadb_results):
     ) or []
 
 
-def format_results(repository, chromadb_results):
+def format_results(query_text: str, repository, chromadb_results):
     files = {}
 
     for metadata, distance in get_metadata_and_distance_from_chromadb_result(
@@ -42,7 +42,7 @@ def format_results(repository, chromadb_results):
             continue
 
         if path not in files:
-            files[path] = Result(path, full_path)
+            files[path] = Result(query_text, path, full_path)
         files[path].add_line(line, distance)
 
     return files.values()
@@ -79,7 +79,7 @@ def initialize(repository: Repository):
             n_results=n_results,
         )
 
-        return format_results(repository, chromadb_results)
+        return format_results(query_text, repository, chromadb_results)
 
     def cache_chunk(chunk):
         try:

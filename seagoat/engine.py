@@ -43,7 +43,6 @@ class Engine:
         Initializes the library
         """
         self.path = path
-        self.query_string = ""
         self._results = []
         self.cache = Cache[RepositoryData](
             "cache",
@@ -128,10 +127,7 @@ class Engine:
 
         return chunks_to_process
 
-    def query(self, query: str):
-        self.query_string = query
-
-    async def fetch(self, limit_clue=50, context_above=0, context_below=0):
+    async def query(self, query: str, limit_clue=50, context_above=0, context_below=0):
         """
         limit_clue: a clue regarding how many results will be processed in the end
 
@@ -145,13 +141,13 @@ class Engine:
         async_tasks = [
             loop.run_in_executor(
                 executor,
-                partial(source["fetch"], self.query_string, limit_clue),
+                partial(source["fetch"], query, limit_clue),
             )
             for source in self._fetchers["async"]
         ]
 
         for source in self._fetchers["sync"]:
-            self._results.extend(source["fetch"](self.query_string, limit_clue))
+            self._results.extend(source["fetch"](query, limit_clue))
 
         results = await asyncio.gather(*async_tasks)
 
@@ -160,14 +156,16 @@ class Engine:
 
         self._include_context_lines(context_above, context_below)
 
+        return self._format_results(query, limit_clue)
+
     def _include_context_lines(self, context_above: int, context_below: int):
         for result in self._results:
             result.add_context_lines(-context_above)
             result.add_context_lines(context_below)
 
-    def fetch_sync(self, *args, **kwargs):
+    def query_sync(self, *args, **kwargs):
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.fetch(*args, **kwargs))
+        return loop.run_until_complete(self.query(*args, **kwargs))
 
     def _get_normalization_function(
         self, values: Iterable[float], min_=None, max_=None
@@ -186,7 +184,7 @@ class Engine:
 
         return normalize
 
-    def get_results(self, hard_count_limit: int = 1000):
+    def _format_results(self, query: str, hard_count_limit: int = 1000):
         merged_results = {}
 
         for result_item in self._results:
@@ -201,7 +199,7 @@ class Engine:
 
         results_to_sort = list(merged_results.values())
 
-        scores = [get_best_score(x, self.query_string) for x in results_to_sort]
+        scores = [get_best_score(x) for x in results_to_sort]
 
         if not scores:
             return []
@@ -226,7 +224,7 @@ class Engine:
             sorted(
                 results_to_sort,
                 key=lambda x: (
-                    0.7 * normalize_score(get_best_score(x, self.query_string))
+                    0.7 * normalize_score(get_best_score(x))
                     + 0.3 * normalize_file_position(get_file_position(x.path))
                 ),
             )

@@ -29,11 +29,11 @@ def get_number_of_exact_matches(line: str, query: str):
     return 0
 
 
-def get_best_score(result, query: str) -> float:
+def get_best_score(result) -> float:
     best_score = min(
         (x for x in result.lines.values() if ResultLineType.RESULT in x.types),
-        key=lambda item: item.get_score(query),
-    ).get_score(query)
+        key=lambda item: item.get_score(),
+    ).get_score()
 
     best_score *= get_file_penalty_factor(result.full_path)
 
@@ -51,22 +51,23 @@ class ResultLineType(Enum):
 
 @dataclass(frozen=True)
 class ResultLine:
+    parent: "Result"
     line: int
     vector_distance: float
     line_text: str
     types: Set[ResultLineType]
 
-    def get_score(self, query: str) -> float:
+    def get_score(self) -> float:
         return self.vector_distance / (
-            1 + get_number_of_exact_matches(self.line_text, query)
+            1 + get_number_of_exact_matches(self.line_text, self.parent.query_text)
         )
 
     def add_type(self, type_: ResultLineType) -> None:
         self.types.add(type_)
 
-    def to_json(self, query: str):
+    def to_json(self):
         return {
-            "score": round(self.get_score(query), 4),
+            "score": round(self.get_score(), 4),
             "line": self.line,
             "lineText": self.line_text,
             "resultTypes": list(sorted(set(str(t) for t in self.types))),
@@ -86,24 +87,25 @@ class ResultBlock:
 
         return dict(counts)
 
-    def _get_score(self, query: str) -> float:
+    def _get_score(self) -> float:
         return min(
-            line.get_score(query)
+            line.get_score()
             for line in self.lines
             if ResultLineType.RESULT in line.types
         )
 
-    def to_json(self, query: str):
+    def to_json(self):
         return {
-            "score": self._get_score(query),
-            "lines": [line.to_json(query) for line in self.lines],
+            "score": self._get_score(),
+            "lines": [line.to_json() for line in self.lines],
             "lineTypeCount": self._get_line_count_per_type(),
         }
 
 
 class Result:
-    def __init__(self, path: str, full_path: Path) -> None:
+    def __init__(self, query_text: str, path: str, full_path: Path) -> None:
         self.path: str = path
+        self.query_text: str = query_text
         self.full_path: Path = full_path
         self.lines: Dict[int, ResultLine] = {}
         self.line_texts = read_file_with_correct_encoding(self.full_path).splitlines()
@@ -125,21 +127,22 @@ class Result:
         )
 
         self.lines[line] = ResultLine(
+            self,
             line,
             vector_distance,
             self.line_texts[line - 1],
             types,
         )
 
-    def get_lines(self, query: str):
-        best_score = get_best_score(self, query)
+    def get_lines(self):
+        best_score = get_best_score(self)
 
         return list(
             sorted(
                 set(
                     result_line.line
                     for result_line in self.lines.values()
-                    if (result_line.get_score(query) <= best_score * 10)
+                    if (result_line.get_score() <= best_score * 10)
                     or ResultLineType.CONTEXT in result_line.types
                 )
             )
@@ -161,6 +164,7 @@ class Result:
             if len(line_range_from_last_block) <= 2:
                 for line in line_range_from_last_block:
                     bridge_line = ResultLine(
+                        self,
                         line,
                         0.0,
                         self.line_texts[line - 1],
@@ -175,8 +179,8 @@ class Result:
 
         return merged_blocks
 
-    def get_result_blocks(self, query):
-        self_lines = self.get_lines(query)
+    def get_result_blocks(self):
+        self_lines = self.get_lines()
         lines_to_include = [
             line
             for line in sorted(self.lines.values(), key=lambda item: item.line)
@@ -196,12 +200,12 @@ class Result:
 
         return self._merge_almost_touching_blocks(blocks)
 
-    def to_json(self, query: str):
+    def to_json(self):
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "score": round(get_best_score(self, query), 4),
-            "blocks": [block.to_json(query) for block in self.get_result_blocks(query)],
+            "score": round(get_best_score(self), 4),
+            "blocks": [block.to_json() for block in self.get_result_blocks()],
         }
 
     def add_context_lines(self, lines: int):
@@ -218,6 +222,7 @@ class Result:
 
                 if new_line not in self.lines:
                     self.lines[new_line] = ResultLine(
+                        self,
                         line=new_line,
                         vector_distance=0.0,
                         line_text=self.line_texts[new_line - 1],

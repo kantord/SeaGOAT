@@ -2,6 +2,150 @@
 
 
 
+## v0.40.1 (2023-11-10)
+
+### Fix
+
+* fix(deps): update dependency prompt-toolkit to v3.0.40 ([`dd823d5`](https://github.com/kantord/SeaGOAT/commit/dd823d54c76b853d0d12e9aced98e62e014cb4ff))
+
+### Refactor
+
+* refactor: pass reference to Result class instead of query text ([`fd5b1c2`](https://github.com/kantord/SeaGOAT/commit/fd5b1c206cea87605970e766b15224670dce1efa))
+
+* refactor: avoid passing query string around in method calls ([`4549acb`](https://github.com/kantord/SeaGOAT/commit/4549acbdb82d45a15a0b74b461f5bcd538640d80))
+
+* refactor: avoid needing query in Result.to_json() ([`2bc47c9`](https://github.com/kantord/SeaGOAT/commit/2bc47c978b859cf7fcb1e7b04961c2f9274f817e))
+
+* refactor: remove query_string attribute from Engine ([`5c8ca51`](https://github.com/kantord/SeaGOAT/commit/5c8ca51ca5b977b2384a3178a1a079818baa7e20))
+
+* refactor: rename fetch() to query() ([`8e9c2f1`](https://github.com/kantord/SeaGOAT/commit/8e9c2f19661b3f441e9da734115faf3da32c81cc))
+
+* refactor: remove get_results() ([`8a95ea8`](https://github.com/kantord/SeaGOAT/commit/8a95ea80a56439e3a73d0f4da6627517bbad2443))
+
+* refactor: remove query() method ([`d68be70`](https://github.com/kantord/SeaGOAT/commit/d68be70129f92e527c4651e8457900595b871865))
+
+
+## v0.40.0 (2023-11-09)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.1.5 ([`9b87ed2`](https://github.com/kantord/SeaGOAT/commit/9b87ed2a0f175b69a31bd8a3a167f336eaca7a72))
+
+* chore(deps): update dependency pyright to v1.1.335 ([`48aacbb`](https://github.com/kantord/SeaGOAT/commit/48aacbbdb6aa63454536c949b2d67f1ed898f331))
+
+* chore(deps): update dependency pytest-testmon to v2.1.0 ([`56b7805`](https://github.com/kantord/SeaGOAT/commit/56b780581ea885cdc482d2ccd2a15893a8e975d3))
+
+* chore(deps): update dependency mkdocs-material to v9.4.8 ([`5bce846`](https://github.com/kantord/SeaGOAT/commit/5bce8461abb3581731398c03bb801f66f43aaed9))
+
+* chore(deps): update dependency ruff to v0.1.4 ([`437552f`](https://github.com/kantord/SeaGOAT/commit/437552f90649b434b70e3819577a2f1cdad49193))
+
+* chore(deps): update dependency pyright to v1.1.334 ([`8c820c0`](https://github.com/kantord/SeaGOAT/commit/8c820c0fad40d5c5cbf4c0abab5fb30d0aef7032))
+
+* chore(deps): update dependency pytest-testmon to v2.0.15 ([`ab87457`](https://github.com/kantord/SeaGOAT/commit/ab874578230e5452c23d68e88a330436dfacf066))
+
+* chore(deps): update dependency locust to v2.18.1 ([`e6dd1fd`](https://github.com/kantord/SeaGOAT/commit/e6dd1fdc39469eb8575552116250c78fa1693604))
+
+* chore(deps): update dependency matplotlib to v3.8.1 ([`9cb63d5`](https://github.com/kantord/SeaGOAT/commit/9cb63d5f47a2c5812f8f22494d979fcc27804e09))
+
+* chore(deps): update dependency ipython to v8.17.2 ([`12ccf78`](https://github.com/kantord/SeaGOAT/commit/12ccf788a3aedc31c42b71cc0a49c0528b000c83))
+
+* chore(deps): update dependency pytest-asyncio to ^0.22.0 ([`f44d218`](https://github.com/kantord/SeaGOAT/commit/f44d2184fc8ea25994dbce4a657a68f8544f2d8e))
+
+### Feature
+
+* feat: include context lines by default in the HTTP response (#394)
+
+* feat: include context lines by default in the HTTP response
+
+* feat: set default context to 3 ([`3b15b3c`](https://github.com/kantord/SeaGOAT/commit/3b15b3c6de9c21ca4772f9ede7fbb8bf3d0f9b2a))
+
+
+## v0.39.3 (2023-10-30)
+
+### Chore
+
+* chore(deps): update dependency ipython to v8.17.1 (#382)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`6a13f8f`](https://github.com/kantord/SeaGOAT/commit/6a13f8fdbdf560b6c8dea121f1a33cd87729958b))
+
+* chore(deps): update dependency mkdocs-material to v9.4.7 ([`f05043d`](https://github.com/kantord/SeaGOAT/commit/f05043d4cc6b91e5e1c643f5254f1f4592f3bf06))
+
+* chore(deps): update dependency locust to v2.18.0 (#376)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`9200296`](https://github.com/kantord/SeaGOAT/commit/9200296d89b20b9bc82911a8eed814891fca4b8a))
+
+* chore: fix typo in .gitattributes ([`66b3abe`](https://github.com/kantord/SeaGOAT/commit/66b3abe9430eb32b74e7b42b8ff63b84bcf892f8))
+
+* chore: ignore notebooks in github language stats ([`6248e1a`](https://github.com/kantord/SeaGOAT/commit/6248e1a665597b254c397454311dcd13e3b82ad4))
+
+* chore(deps): update dependency ruff to v0.1.3 ([`ccc8033`](https://github.com/kantord/SeaGOAT/commit/ccc80330fdaa062648df9dc2955c5d4a22fd5500))
+
+* chore(deps): update dependency pandas to v2.1.2 ([`9b1ce59`](https://github.com/kantord/SeaGOAT/commit/9b1ce596b3338ad05caf3a34e236e1406f254423))
+
+### Documentation
+
+* docs: fix typo
+
+esimation -&gt; estimation  in FAQ section ([`97512f7`](https://github.com/kantord/SeaGOAT/commit/97512f74f4b968bdb14ff62c24981dc945956e55))
+
+* docs: small fixes and improvements ([`610014e`](https://github.com/kantord/SeaGOAT/commit/610014e163e23f3d5183ac3406d400348f3f7474))
+
+### Fix
+
+* fix(deps): update dependency jsonschema to v4.19.2 (#381)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b9ec0d5`](https://github.com/kantord/SeaGOAT/commit/b9ec0d5ffae9d207de6062074faf90d99e79946c))
+
+### Style
+
+* style: fix code formatting issues ([`82a6ef5`](https://github.com/kantord/SeaGOAT/commit/82a6ef50bc0c1f06473e010b31c335e0aa0bbd73))
+
+
+## v0.39.2 (2023-10-26)
+
+### Chore
+
+* chore: exclude benchmark in git attributes ([`a5211ab`](https://github.com/kantord/SeaGOAT/commit/a5211abc7964cb4b93b754f8f5f878b9906bc70b))
+
+* chore: fix ruff configuration
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`46afbc8`](https://github.com/kantord/SeaGOAT/commit/46afbc8fe0c2d99f251b74ad6688809a3dbc341f))
+
+* chore(deps): update dependency ruff to v0.1.2 (#368)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b78c29d`](https://github.com/kantord/SeaGOAT/commit/b78c29d6c7461460e6bce1f0a31195897d60d672))
+
+* chore: replace black &amp; pylint with ruff in pre-commit (#359)
+
+* Replace `black` with `ruff` in pre-commit
+
+To improve performance and simplify pre-commit
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt;
+
+* Replace `pylint` with `ruff` in pre-commit
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt;
+
+* Remove `pylint: disable` directives
+
+They are no longer needed since pylint was replaced with ruff.
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt;
+
+---------
+
+Signed-off-by: Oscar &lt;71343264+0scvr@users.noreply.github.com&gt; ([`f6a087a`](https://github.com/kantord/SeaGOAT/commit/f6a087a9e4f3f6829c9281f31e18111f00c73cac))
+
+* chore(deps): update dependency pyright to v1.1.333 (#365)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`d274241`](https://github.com/kantord/SeaGOAT/commit/d274241886c4d96323334ae44a941a804ceecf91))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.10 ([`77adbe5`](https://github.com/kantord/SeaGOAT/commit/77adbe533c827499fd6f2bd5df836d1ba5479b61))
+
+
 ## v0.39.1 (2023-10-25)
 
 ### Chore

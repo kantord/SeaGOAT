@@ -443,7 +443,7 @@ def test_forwards_context_below_to_server(
 
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
-@pytest.mark.parametrize("context", [1, 2, 10])
+@pytest.mark.parametrize("context", [0, 1, 2, 10])
 def test_forwards_context_to_server(context, get_request_args_from_cli_call):
     request_args1 = get_request_args_from_cli_call(["--context", str(context)])
     assert request_args1["params"]["contextAbove"] == context

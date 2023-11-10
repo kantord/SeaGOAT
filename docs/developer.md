@@ -16,9 +16,9 @@ on your computer.
 
 The following dependencies need to be installed:
 
-* Git
-* Python 3.11 or newer
-* Poetry ([how to install](https://python-poetry.org/docs/#installation))
+* [Git](https://git-scm.com/downloads)
+* [Python 3.11 or newer](https://www.python.org/downloads/)
+* [Poetry](https://python-poetry.org/docs/#installation)
 
 ### Step 3: Clone the repository
 
