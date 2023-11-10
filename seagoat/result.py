@@ -102,8 +102,9 @@ class ResultBlock:
 
 
 class Result:
-    def __init__(self, path: str, full_path: Path) -> None:
+    def __init__(self, query_text: str, path: str, full_path: Path) -> None:
         self.path: str = path
+        self.query_text: str = query_text
         self.full_path: Path = full_path
         self.lines: Dict[int, ResultLine] = {}
         self.line_texts = read_file_with_correct_encoding(self.full_path).splitlines()
@@ -131,15 +132,15 @@ class Result:
             types,
         )
 
-    def get_lines(self, query: str):
-        best_score = get_best_score(self, query)
+    def get_lines(self):
+        best_score = get_best_score(self, self.query_text)
 
         return list(
             sorted(
                 set(
                     result_line.line
                     for result_line in self.lines.values()
-                    if (result_line.get_score(query) <= best_score * 10)
+                    if (result_line.get_score(self.query_text) <= best_score * 10)
                     or ResultLineType.CONTEXT in result_line.types
                 )
             )
@@ -175,8 +176,8 @@ class Result:
 
         return merged_blocks
 
-    def get_result_blocks(self, query):
-        self_lines = self.get_lines(query)
+    def get_result_blocks(self):
+        self_lines = self.get_lines()
         lines_to_include = [
             line
             for line in sorted(self.lines.values(), key=lambda item: item.line)
@@ -196,12 +197,14 @@ class Result:
 
         return self._merge_almost_touching_blocks(blocks)
 
-    def to_json(self, query: str):
+    def to_json(self):
         return {
             "path": self.path,
             "fullPath": str(self.full_path),
-            "score": round(get_best_score(self, query), 4),
-            "blocks": [block.to_json(query) for block in self.get_result_blocks(query)],
+            "score": round(get_best_score(self, self.query_text), 4),
+            "blocks": [
+                block.to_json(self.query_text) for block in self.get_result_blocks()
+            ],
         }
 
     def add_context_lines(self, lines: int):

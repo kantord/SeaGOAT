@@ -25,7 +25,7 @@ async def test_simple_regexp(repo):
     results = await seagoat.query(my_regex_query)
 
     assert results[0].path == "line_positions.txt"
-    assert set(results[0].get_lines(my_regex_query)) == {4, 6}
+    assert set(results[0].get_lines()) == {4, 6}
 
 
 @pytest.mark.asyncio
@@ -60,7 +60,7 @@ asdf
     results = await seagoat.query(my_regex_query)
 
     assert results[0].path == "line_positions.txt"
-    assert set(results[0].get_lines(my_regex_query)) == {
+    assert set(results[0].get_lines()) == {
         3,
         8,
         9,

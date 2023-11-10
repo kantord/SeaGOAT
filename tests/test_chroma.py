@@ -38,7 +38,7 @@ async def test_gets_data_using_vector_embeddings(repo, snapshot):
 
     # Tests that file lines are included for each result
     assert [
-        normalize_full_paths(result.to_json(my_query), repo) for result in results
+        normalize_full_paths(result.to_json(), repo) for result in results
     ] == snapshot
 
 
@@ -182,7 +182,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     results = await seagoat.query(my_query)
 
     assert results[0].path == "devices.txt"
-    assert set(results[0].get_lines(my_query)) == {
+    assert set(results[0].get_lines()) == {
         1,
         2,
         4,
@@ -221,7 +221,7 @@ async def test_exact_matches_have_higher_score(repo):
     results = await seagoat.query(my_query)
 
     assert results[0].path == "devices.txt"
-    assert set(results[0].get_lines(my_query)) == {7, 8, 12}
+    assert set(results[0].get_lines()) == {7, 8, 12}
 
 
 @pytest.mark.asyncio
@@ -297,7 +297,7 @@ async def test_respects_limit_in_chromadb(repo):
         None,
     )
     if result_for_devices_txt:
-        assert len(result_for_devices_txt.get_lines(my_query)) == 6
+        assert len(result_for_devices_txt.get_lines()) == 6
     else:
         raise AssertionError("File 'devices.txt' not found in results.")
 

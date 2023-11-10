@@ -101,7 +101,7 @@ class TaskQueue(BaseQueue):
             context_above=int(kwargs["context_above"]),
             context_below=int(kwargs["context_below"]),
         )
-        formatted_results = [result.to_json(kwargs["query"]) for result in results]
+        formatted_results = [result.to_json() for result in results]
 
         serialized_results = orjson.dumps(
             {
