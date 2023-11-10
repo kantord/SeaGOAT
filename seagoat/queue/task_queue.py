@@ -95,7 +95,7 @@ class TaskQueue(BaseQueue):
             logging.info("Analyzed all chunks!")
 
     def handle_query(self, context, **kwargs):
-        results = context["seagoat_engine"].fetch_sync(
+        results = context["seagoat_engine"].query_sync(
             kwargs["query"],
             limit_clue=kwargs["limit_clue"],
             context_above=int(kwargs["context_above"]),
