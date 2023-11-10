@@ -1,3 +1,4 @@
+import statistics
 import collections
 import json
 from pathlib import Path
@@ -182,6 +183,15 @@ def get_average_position_of_a_correct_results(row):
         return None
 
     return sum(positions) / len(positions)
+
+
+def get_median_position_of_a_correct_results(row):
+    positions = get_positions_of_correct_results(row["Data"], row["Engine"])
+
+    if not positions:
+        return None
+
+    return statistics.median(positions)
 
 
 def get_chance_of_getting_correct_result_in_n_lines(all_results, category_map):
