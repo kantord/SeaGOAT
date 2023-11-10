@@ -23,7 +23,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "19"
-    results = await seagoat.fetch(my_query)
+    results = await seagoat.query(my_query)
 
     assert results[0].path == "events.txt"
     assert set(results[0].get_lines(my_query)) == {4, 6, 9}
@@ -49,7 +49,7 @@ async def test_search_is_case_insensitive(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "UNRELATED"
-    results = await seagoat.fetch(my_query)
+    results = await seagoat.query(my_query)
 
     assert results[0].path == "events.txt"
     assert set(results[0].get_lines(my_query)) == {5}
@@ -66,7 +66,7 @@ async def test_respects_file_extension_restrictions(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "19"
-    results = await seagoat.fetch(my_query)
+    results = await seagoat.query(my_query)
 
     assert "rock.mp3" not in [result.path for result in results]
 
@@ -104,7 +104,7 @@ async def test_includes_context_lines_properly(
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "19"
-    results = seagoat.fetch_sync(
+    results = seagoat.query_sync(
         my_query, context_above=context_above, context_below=context_below
     )
 
@@ -133,7 +133,7 @@ async def test_ripgrep_respects_custom_ignore_patterns(repo, create_config_file)
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "1"
-    results = await seagoat.fetch(my_query)
+    results = await seagoat.query(my_query)
 
     results_files = set(result.path for result in results)
     assert "history/files/events.txt" not in results_files
@@ -160,7 +160,7 @@ async def test_filters_stop_words(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "that this the potato 1989"
-    results = await seagoat.fetch(my_query)
+    results = await seagoat.query(my_query)
 
     events_result = [result for result in results if result.path == "events.txt"][0]
     assert 5 not in set(events_result.get_lines(my_query))
@@ -186,7 +186,7 @@ async def test_does_not_filter_stop_words_if_that_is_all_whats_in_the_query(repo
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
     my_query = "that this their"
-    results = await seagoat.fetch(my_query)
+    results = await seagoat.query(my_query)
 
     events_result = [result for result in results if result.path == "events.txt"][0]
     assert set(events_result.get_lines(my_query)) == {5}

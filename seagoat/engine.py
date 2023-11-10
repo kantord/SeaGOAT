@@ -128,7 +128,7 @@ class Engine:
 
         return chunks_to_process
 
-    async def fetch(self, query: str, limit_clue=50, context_above=0, context_below=0):
+    async def query(self, query: str, limit_clue=50, context_above=0, context_below=0):
         """
         limit_clue: a clue regarding how many results will be processed in the end
 
@@ -165,9 +165,9 @@ class Engine:
             result.add_context_lines(-context_above)
             result.add_context_lines(context_below)
 
-    def fetch_sync(self, *args, **kwargs):
+    def query_sync(self, *args, **kwargs):
         loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self.fetch(*args, **kwargs))
+        return loop.run_until_complete(self.query(*args, **kwargs))
 
     def _get_normalization_function(
         self, values: Iterable[float], min_=None, max_=None

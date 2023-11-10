@@ -482,8 +482,8 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
     def noop(*args, **kwargs):
         pass
 
-    def create_mock_fetch(repo, file_lines):
-        def mock_fetch(_, __):
+    def create_mock_query(repo, file_lines):
+        def mock_query(_, __):
             results = []
             for file_path, lines in file_lines.items():
                 full_path = Path(repo.working_dir) / file_path
@@ -493,7 +493,7 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
                 results.append(result)
             return results
 
-        return mock_fetch
+        return mock_query
 
     for file_path in set(list(ripgrep_lines.keys()) + list(chroma_lines.keys())):
         repo.add_file_change_commit(
@@ -507,12 +507,12 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
         chroma, "initialize"
     ) as mock_chroma:
         mock_ripgrep.return_value = {
-            "fetch": create_mock_fetch(repo, ripgrep_lines),
+            "fetch": create_mock_query(repo, ripgrep_lines),
             "cache_chunk": noop,
             "cache_repo": noop,
         }
         mock_chroma.return_value = {
-            "fetch": create_mock_fetch(repo, chroma_lines),
+            "fetch": create_mock_query(repo, chroma_lines),
             "cache_chunk": noop,
             "cache_repo": noop,
         }
@@ -525,7 +525,7 @@ def _create_prepared_seagoat(repo):
         with mock_sources_context(repo, ripgrep_lines, chroma_lines):
             seagoat = Engine(repo.working_dir)
             seagoat.analyze_codebase()
-            seagoat.fetch_sync(query)
+            seagoat.query_sync(query)
             return seagoat
 
     return _prepared_seagoat
