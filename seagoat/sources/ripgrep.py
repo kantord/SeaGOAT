@@ -132,7 +132,7 @@ def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
             continue
 
         if relative_path not in files:
-            files[relative_path] = Result(str(relative_path), absolute_path)
+            files[relative_path] = Result(query_text, str(relative_path), absolute_path)
 
         # This is so that ripgrep results are on comparable levels with chroma results
         files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)

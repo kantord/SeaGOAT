@@ -26,7 +26,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     results = await seagoat.query(my_query)
 
     assert results[0].path == "events.txt"
-    assert set(results[0].get_lines(my_query)) == {4, 6, 9}
+    assert set(results[0].get_lines()) == {4, 6, 9}
 
 
 @pytest.mark.asyncio
@@ -52,7 +52,7 @@ async def test_search_is_case_insensitive(repo):
     results = await seagoat.query(my_query)
 
     assert results[0].path == "events.txt"
-    assert set(results[0].get_lines(my_query)) == {5}
+    assert set(results[0].get_lines()) == {5}
 
 
 @pytest.mark.asyncio
@@ -109,7 +109,7 @@ async def test_includes_context_lines_properly(
     )
 
     assert results[0].path == "events.txt"
-    assert set(results[0].get_lines(my_query)) == expected_lines
+    assert set(results[0].get_lines()) == expected_lines
 
 
 @pytest.mark.asyncio
@@ -163,7 +163,7 @@ async def test_filters_stop_words(repo):
     results = await seagoat.query(my_query)
 
     events_result = [result for result in results if result.path == "events.txt"][0]
-    assert 5 not in set(events_result.get_lines(my_query))
+    assert 5 not in set(events_result.get_lines())
 
 
 @pytest.mark.asyncio
@@ -189,4 +189,4 @@ async def test_does_not_filter_stop_words_if_that_is_all_whats_in_the_query(repo
     results = await seagoat.query(my_query)
 
     events_result = [result for result in results if result.path == "events.txt"][0]
-    assert set(events_result.get_lines(my_query)) == {5}
+    assert set(events_result.get_lines()) == {5}

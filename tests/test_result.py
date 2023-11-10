@@ -11,7 +11,7 @@ def create_result_(repo):
 
     cleanup = {"cleanup": noop}
 
-    def result_factory(fake_lines=None, lines_to_include=None):
+    def result_factory(query: str, fake_lines=None, lines_to_include=None):
         if lines_to_include is None:
             lines_to_include = [40]
         if fake_lines is None:
@@ -24,7 +24,7 @@ def create_result_(repo):
             )
             output_file.write(fake_content)
 
-        result = Result("test.txt", test_file_path)
+        result = Result(query, "test.txt", test_file_path)
         for line in lines_to_include:
             result.add_line(line, 0.5)
 
@@ -39,10 +39,10 @@ def create_result_(repo):
 
 def test_get_lines_without_context(create_result, repo):
     query = "famous typographic sample text"
-    result = create_result(fake_lines={40: "lorem ipsum"})
-    actual_lines = result.get_lines(query)
+    result = create_result(query, fake_lines={40: "lorem ipsum"})
+    actual_lines = result.get_lines()
     assert actual_lines == [40]
-    assert result.to_json(query) == {
+    assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
@@ -66,7 +66,7 @@ def test_get_lines_without_context(create_result, repo):
 
 
 def test_add_result_twice_when_combining_sources(create_result):
-    result = create_result(fake_lines={40: "lorem ipsum"})
+    result = create_result("", fake_lines={40: "lorem ipsum"})
     result.add_line(40, 0.01)
     result.lines[40].types.add("context")
     result.add_line(
@@ -79,11 +79,11 @@ def test_add_result_twice_when_combining_sources(create_result):
 
 def test_add_context_above_1(create_result, repo):
     query = "QueryTest"
-    result = create_result()
+    result = create_result(query)
     result.add_context_lines(-1)
-    actual_lines = result.get_lines(query)
+    actual_lines = result.get_lines()
     assert actual_lines == [39, 40]
-    assert result.to_json(query) == {
+    assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
@@ -116,12 +116,12 @@ def test_add_context_above_1(create_result, repo):
 
 def test_add_context_above_2(create_result, repo):
     query = "QueryTest"
-    result = create_result()
+    result = create_result(query)
     result.add_line(20, 0.5)
     result.add_context_lines(-1)
-    actual_lines = result.get_lines(query)
+    actual_lines = result.get_lines()
     assert actual_lines == [19, 20, 39, 40]
-    assert result.to_json(query) == {
+    assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
@@ -176,11 +176,11 @@ def test_add_context_above_2(create_result, repo):
 
 def test_add_context_below_1(create_result, repo):
     query = "QueryTest"
-    result = create_result()
+    result = create_result(query)
     result.add_context_lines(1)
-    actual_lines = result.get_lines(query)
+    actual_lines = result.get_lines()
     assert actual_lines == [40, 41]
-    assert result.to_json(query) == {
+    assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
@@ -213,13 +213,13 @@ def test_add_context_below_1(create_result, repo):
 
 def test_add_context_below_2(create_result, repo):
     query = "QueryTest"
-    result = create_result()
+    result = create_result(query)
     result.add_line(41, 0.5)
     result.add_line(42, 0.5)
     result.add_context_lines(1)
-    actual_lines = result.get_lines(query)
+    actual_lines = result.get_lines()
     assert actual_lines == [40, 41, 42, 43]
-    assert result.to_json(query) == {
+    assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [
@@ -278,9 +278,9 @@ def test_add_context_below_2(create_result, repo):
     ],
 )
 def test_adds_correct_context_lines(create_result, context_line, expected_lines):
-    result = create_result()
+    result = create_result("")
     result.add_context_lines(context_line)
-    actual_lines = result.get_lines("")
+    actual_lines = result.get_lines()
     assert actual_lines == expected_lines
 
 
@@ -310,9 +310,10 @@ def test_merges_almost_continuous_code_lines(
     )
     line_numbers_to_include = first_code_block_lines + second_code_block_lines
     result = create_result(
+        "hello",
         lines_to_include=line_numbers_to_include,
     )
-    assert result.to_json("hello") == {
+    assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
         "blocks": [

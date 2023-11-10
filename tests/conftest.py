@@ -487,7 +487,7 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
             results = []
             for file_path, lines in file_lines.items():
                 full_path = Path(repo.working_dir) / file_path
-                result = Result(path=file_path, full_path=full_path)
+                result = Result("", path=file_path, full_path=full_path)
                 for line, vector_distance in lines:
                     result.add_line(line=line, vector_distance=vector_distance)
                 results.append(result)
