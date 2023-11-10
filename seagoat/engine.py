@@ -199,7 +199,7 @@ class Engine:
 
         results_to_sort = list(merged_results.values())
 
-        scores = [get_best_score(x, query) for x in results_to_sort]
+        scores = [get_best_score(x) for x in results_to_sort]
 
         if not scores:
             return []
@@ -224,7 +224,7 @@ class Engine:
             sorted(
                 results_to_sort,
                 key=lambda x: (
-                    0.7 * normalize_score(get_best_score(x, query))
+                    0.7 * normalize_score(get_best_score(x))
                     + 0.3 * normalize_file_position(get_file_position(x.path))
                 ),
             )
