@@ -2,6 +2,35 @@
 
 
 
+## v0.40.2 (2023-11-16)
+
+### Build
+
+* build: remove prompt-toolkit as a dependency ([`42f5501`](https://github.com/kantord/SeaGOAT/commit/42f5501d20600fe4bd3e5a179299853534de1e0c))
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.336 ([`ecf1d5c`](https://github.com/kantord/SeaGOAT/commit/ecf1d5cf2b47f226434bbb8c92288566d27547ba))
+
+* chore(deps): update dependency locust to v2.18.3 ([`f3753eb`](https://github.com/kantord/SeaGOAT/commit/f3753ebd08109a7ea79fb3f3dbf52214adcd34f6))
+
+* chore(deps): update dependency locust to v2.18.2 ([`0681c8d`](https://github.com/kantord/SeaGOAT/commit/0681c8d4d4f39ba05f4e308936fa4a71bac7e144))
+
+* chore(deps): update dependency pandas to v2.1.3 ([`fd1a920`](https://github.com/kantord/SeaGOAT/commit/fd1a9208819704e4144471d37943f904df9f8c15))
+
+### Documentation
+
+* docs: fix typos
+
+Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`b130af3`](https://github.com/kantord/SeaGOAT/commit/b130af3a38a3b5c6c6735d2e5ffc0322e367fb99))
+
+* docs: fix typo ([`d6bf066`](https://github.com/kantord/SeaGOAT/commit/d6bf06608220736c7ba9cd37ae668fa5fafc0001))
+
+### Fix
+
+* fix(deps): update dependency jsonschema to v4.20.0 ([`0b511a4`](https://github.com/kantord/SeaGOAT/commit/0b511a4fc3faff47e73dfbda3879896863412623))
+
+
 ## v0.40.1 (2023-11-10)
 
 ### Fix
