@@ -2,6 +2,25 @@
 
 
 
+## v0.40.3 (2023-11-20)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.4.10 ([`ab87ef2`](https://github.com/kantord/SeaGOAT/commit/ab87ef2ac5e78eca4fa98f547f35df5d6f5a6cbe))
+
+* chore(deps): update dependency locust to v2.18.4 ([`9bfc705`](https://github.com/kantord/SeaGOAT/commit/9bfc705bccf6db42ac2b1f48fee6b42610cbda9e))
+
+* chore(deps): update dependency matplotlib to v3.8.2 ([`fa67d59`](https://github.com/kantord/SeaGOAT/commit/fa67d5966f529a3cb8aace506049465646ccc8ce))
+
+* chore(deps): update dependency ruff to v0.1.6 ([`d1616f9`](https://github.com/kantord/SeaGOAT/commit/d1616f93744e325cba1e4885f4fc494a787acda4))
+
+* chore(deps): update dependency mkdocs-material to v9.4.9 ([`21fcfca`](https://github.com/kantord/SeaGOAT/commit/21fcfca21029da54b0e0be988db7a140cf82afb0))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v69 ([`1caf455`](https://github.com/kantord/SeaGOAT/commit/1caf455ff73f0e00000f26d518882168054bb8dc))
+
+
 ## v0.40.2 (2023-11-16)
 
 ### Build
