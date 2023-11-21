@@ -2,6 +2,27 @@
 
 
 
+## v0.40.5 (2023-11-21)
+
+### Chore
+
+* chore(deps): update dependency locust to v2.19.0 (#416)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`196ba49`](https://github.com/kantord/SeaGOAT/commit/196ba49060632c56752a549fc940b5789db3bc54))
+
+* chore(deps): update dependency ipykernel to v6.27.0 ([`bdb879d`](https://github.com/kantord/SeaGOAT/commit/bdb879d4ac31efca2ae1c432c998b4d072d432ee))
+
+### Fix
+
+* fix(deps): update dependency pygments to v2.17.1 (#408)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`9fabb60`](https://github.com/kantord/SeaGOAT/commit/9fabb6083fbbe7231b61e1734efc511621f54ab6))
+
+* fix(deps): update dependency setuptools to v69.0.2 (#415)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`7b38ac5`](https://github.com/kantord/SeaGOAT/commit/7b38ac560601d35468928ff2eb85e1ff9265182b))
+
+
 ## v0.40.4 (2023-11-21)
 
 ### Chore
