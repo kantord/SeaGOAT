@@ -2,6 +2,17 @@
 
 
 
+## v0.40.4 (2023-11-21)
+
+### Chore
+
+* chore(deps): update dependency exceptiongroup to v1.2.0 ([`a3bd778`](https://github.com/kantord/SeaGOAT/commit/a3bd7788c76b8c0a680c170e6577b35ce7ca48b1))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v69.0.1 ([`d70c212`](https://github.com/kantord/SeaGOAT/commit/d70c2126f5e97720e8a13d5cef2efff8dba8a172))
+
+
 ## v0.40.3 (2023-11-20)
 
 ### Chore
