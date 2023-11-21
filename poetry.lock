@@ -1972,26 +1972,26 @@ files = [
 
 [[package]]
 name = "locust"
-version = "2.18.4"
+version = "2.19.0"
 description = "Developer friendly load testing framework"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "locust-2.18.4-py3-none-any.whl", hash = "sha256:a6a49b0dcf60d886dcbb3dda98d3dcc6914388ed828048fd79ddc24d9f11d6bf"},
-    {file = "locust-2.18.4.tar.gz", hash = "sha256:e58ba16d82d6f0bc42be882438799bc6eb6236918e50a7eaf207e87cb6da6068"},
+    {file = "locust-2.19.0-py3-none-any.whl", hash = "sha256:fc245bcdc3ffccfcd31be1ce99f736fe3be69b514d396ef419e2898d86795c6d"},
+    {file = "locust-2.19.0.tar.gz", hash = "sha256:091bb8ee321a9a63e160d0f6de0a0819c62f18378e44986bc5d446d017875aa6"},
 ]
 
 [package.dependencies]
-ConfigArgParse = ">=1.0"
+ConfigArgParse = ">=1.5.5"
 flask = ">=2.0.0"
 Flask-BasicAuth = ">=0.2.0"
 Flask-Cors = ">=3.0.10"
-gevent = ">=20.12.1"
-geventhttpclient = ">=2.0.2"
-msgpack = ">=0.6.2"
-psutil = ">=5.6.7"
+gevent = ">=22.10.2"
+geventhttpclient = ">=2.0.11"
+msgpack = ">=1.0.0"
+psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
-pyzmq = ">=22.2.1,<23.0.0 || >23.0.0"
+pyzmq = ">=25.0.0"
 requests = ">=2.23.0"
 roundrobin = ">=0.0.2"
 Werkzeug = ">=2.0.0"
