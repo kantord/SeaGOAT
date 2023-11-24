@@ -1,4 +1,5 @@
 import collections
+from concurrent.futures import ThreadPoolExecutor
 import json
 import subprocess
 from pathlib import Path
@@ -34,19 +35,28 @@ def process_example(example, examples_path, repo_folder, test_run_name, seagoat_
     results_folder = examples_path / example["uuid"] / "results" / test_run_name
     results_folder.mkdir(parents=True, exist_ok=True)
 
-    for index, query in enumerate(example["queries"]):
-        query_results_folder = results_folder / str(index)
-        query_results_folder.mkdir(parents=True, exist_ok=True)
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        future_to_query = {
+            executor.submit(
+                process_query, query, index, results_folder, repo_folder, seagoat_args
+            ): query
+            for index, query in enumerate(example["queries"])
+        }
+        for future in future_to_query:
+            future.result()
 
-        for result_type, result_type_function in RESULT_TYPE_FUNCTIONS.items():
-            result_type_results_file = query_results_folder / f"{result_type}.txt"
-            if result_type_results_file.exists():
-                continue
 
-            with open(result_type_results_file, "w", encoding="utf-8") as output_file:
-                output_file.write(
-                    result_type_function(repo_folder, query, seagoat_args)
-                )
+def process_query(query, index, results_folder, repo_folder, seagoat_args):
+    query_results_folder = results_folder / str(index)
+    query_results_folder.mkdir(parents=True, exist_ok=True)
+
+    for result_type, result_type_function in RESULT_TYPE_FUNCTIONS.items():
+        result_type_results_file = query_results_folder / f"{result_type}.txt"
+        if result_type_results_file.exists():
+            continue
+
+        with open(result_type_results_file, "w", encoding="utf-8") as output_file:
+            output_file.write(result_type_function(repo_folder, query, seagoat_args))
 
 
 @click.command()
