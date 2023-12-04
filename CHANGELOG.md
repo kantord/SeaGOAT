@@ -2,6 +2,51 @@
 
 
 
+## v0.40.6 (2023-12-04)
+
+### Chore
+
+* chore(deps): update dependency pytest-asyncio to v0.23.2 ([`ecd5cc7`](https://github.com/kantord/SeaGOAT/commit/ecd5cc75b9a674baa0f6564e4348dd632bc45364))
+
+* chore(deps): update dependency freezegun to v1.3.0 ([`6d495db`](https://github.com/kantord/SeaGOAT/commit/6d495dbc71116f224abb590229aa0a573f0543ed))
+
+* chore(deps): update dependency pytest-asyncio to v0.23.1 ([`f8ae0af`](https://github.com/kantord/SeaGOAT/commit/f8ae0afa71243571ddbf143a0efd8801f336fc3e))
+
+* chore(deps): update dependency pytest-asyncio to ^0.23.0 ([`7e3ccb0`](https://github.com/kantord/SeaGOAT/commit/7e3ccb06220d3a3badf1a5ab6290ece335b7eb76))
+
+* chore(deps): update dependency pyright to v1.1.338 ([`6489040`](https://github.com/kantord/SeaGOAT/commit/64890402f7103e41802b32b64383cd199cf0fb17))
+
+* chore(deps): update dependency ipykernel to v6.27.1 ([`bcdd8af`](https://github.com/kantord/SeaGOAT/commit/bcdd8af1eddc65df8cf49c67bfe79e5f575967ec))
+
+* chore(deps): update dependency ipython to v8.18.1 ([`0de78d8`](https://github.com/kantord/SeaGOAT/commit/0de78d8edcd15b160a6c26dbead79708f3bdbdc4))
+
+* chore(deps): update dependency locust to v2.19.1 ([`86ff22e`](https://github.com/kantord/SeaGOAT/commit/86ff22ec7dbbd24b9741d7a452393392faa001fe))
+
+* chore(deps): update dependency mkdocs-material to v9.4.14 ([`58202cb`](https://github.com/kantord/SeaGOAT/commit/58202cba7f0b3b2a048028feee438bb74ad17e86))
+
+* chore(deps): update dependency mkdocs-material to v9.4.13 ([`d275091`](https://github.com/kantord/SeaGOAT/commit/d27509155d3b625050cd0568af1f367eeff39e4f))
+
+* chore: improve benchmark execution speed ([`a7c0189`](https://github.com/kantord/SeaGOAT/commit/a7c0189bd8348d8e412de14dbe628038082593f0))
+
+* chore: add benchmark for .40.1 ([`f873264`](https://github.com/kantord/SeaGOAT/commit/f87326414c87f2f5eee9f49f62cf7a622bde63f1))
+
+* chore(deps): update dependency ipython to v8.18.0 (#423)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`232744e`](https://github.com/kantord/SeaGOAT/commit/232744e6006b871205020da0780becf40d183e70))
+
+* chore(deps): update dependency mkdocs-material to v9.4.12 ([`d8d52a5`](https://github.com/kantord/SeaGOAT/commit/d8d52a58bcf275411590d155464e5c8c94ed295d))
+
+* chore(deps): update dependency mkdocs-material to v9.4.11 (#420)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`b5fccdd`](https://github.com/kantord/SeaGOAT/commit/b5fccdd05f41947e839bb8fd542ed6d760088e0d))
+
+* chore(deps): update dependency pyright to v1.1.337 ([`8e97635`](https://github.com/kantord/SeaGOAT/commit/8e976353460e145f790ec10a55d50d092dbfa95b))
+
+### Fix
+
+* fix(deps): update dependency pygments to v2.17.2 ([`f27e34b`](https://github.com/kantord/SeaGOAT/commit/f27e34b32ce49c13822d76738933e5167e1677a2))
+
+
 ## v0.40.5 (2023-11-21)
 
 ### Chore
