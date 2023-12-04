@@ -15,7 +15,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, macos-latest]
+                os: [ubuntu-latest, macos-latest, windows-latest]
                 python-version: ['3.11']
 
         steps:
@@ -45,13 +45,13 @@ jobs:
               if: runner.os == 'macOS'
               run: |
                   export HNSWLIB_NO_NATIVE=1
-                  arch -x86_64 poetry install --no-interaction --no-root
+                  arch -x86_64 poetry install --no-interaction --no-root  -vvv --with dev
 
             - name: Install dependencies on other OS
               if: runner.os != 'macOS'
               run: |
                   export HNSWLIB_NO_NATIVE=1
-                  poetry install --no-interaction --no-root
+                  poetry install --no-interaction --no-root  -vvv --with dev
 
             - name: Run pytest
               run: |
