@@ -61,6 +61,8 @@ asdf
 
     assert results[0].path == "line_positions.txt"
     assert set(results[0].get_lines()) == {
+        1,
+        2,
         3,
         8,
         9,
