@@ -2,6 +2,17 @@
 
 
 
+## v0.40.7 (2023-12-04)
+
+### Chore
+
+* chore(deps): update dependency freezegun to v1.3.1 ([`0ada3ca`](https://github.com/kantord/SeaGOAT/commit/0ada3ca5e7dbdb78f5cc9ee3d9b9a5e03206414f))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.18 ([`1fa56fc`](https://github.com/kantord/SeaGOAT/commit/1fa56fc92159fec93ba1d073297dd2fa844414f1))
+
+
 ## v0.40.6 (2023-12-04)
 
 ### Chore
