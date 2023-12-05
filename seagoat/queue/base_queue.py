@@ -5,13 +5,13 @@ from queue import Empty, PriorityQueue
 from typing import Any, Dict, Tuple
 from uuid import uuid4
 
-HIGH_PRIORITY = 0
-LOW_PRIORITY = 1
+HIGH_PRIORITY = 0.0
+LOW_PRIORITY = 1.0
 
 
 @dataclass(order=True)
 class Task:
-    priority: int
+    priority: float
     name: str
     args: Tuple[Any, ...] = field(default_factory=tuple, compare=False)
     kwargs: Dict[str, Any] = field(default_factory=dict, compare=False)
