@@ -2,6 +2,23 @@
 
 
 
+## v0.40.8 (2023-12-05)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.1.7 ([`481b5fb`](https://github.com/kantord/SeaGOAT/commit/481b5fbd0a56a580195a4d6481b6196fb262acd1))
+
+### Fix
+
+* fix: fix the order in which chunks are analyzed
+
+fixes #300 ([`b1f20af`](https://github.com/kantord/SeaGOAT/commit/b1f20af0f209a85d8176e2093c4703461daec1a2))
+
+### Refactor
+
+* refactor: use float based priorities in queues ([`d2eeb63`](https://github.com/kantord/SeaGOAT/commit/d2eeb631d13705d50e2a786f485a9fb199e62dde))
+
+
 ## v0.40.7 (2023-12-04)
 
 ### Chore
