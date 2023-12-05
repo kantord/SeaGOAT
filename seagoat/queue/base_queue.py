@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple
 from uuid import uuid4
 
 HIGH_PRIORITY = 0.0
+MEDIUM_PRIORITY = 0.5
 LOW_PRIORITY = 1.0
 
 
