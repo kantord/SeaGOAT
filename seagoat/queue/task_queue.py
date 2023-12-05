@@ -5,7 +5,7 @@ import time
 import orjson
 
 from seagoat import __version__
-from seagoat.queue.base_queue import LOW_PRIORITY, BaseQueue
+from seagoat.queue.base_queue import LOW_PRIORITY, MEDIUM_PRIORITY, BaseQueue
 
 SECONDS_BETWEEN_MAINTENANCE = 10
 
@@ -76,11 +76,16 @@ class TaskQueue(BaseQueue):
                 len(remaining_chunks_to_analyze),
             )
 
-            for chunk in remaining_chunks_to_analyze:
+            for task_index, chunk in enumerate(remaining_chunks_to_analyze):
+                priority = MEDIUM_PRIORITY + (
+                    (LOW_PRIORITY - MEDIUM_PRIORITY)
+                    / len(remaining_chunks_to_analyze)
+                    * task_index
+                )
                 self.enqueue(
                     "analyze_chunk",
                     chunk,
-                    priority=LOW_PRIORITY,
+                    priority=priority,
                     wait_for_result=False,
                 )
         else:
