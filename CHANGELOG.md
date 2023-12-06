@@ -2,6 +2,19 @@
 
 
 
+## v0.41.0 (2023-12-06)
+
+### Chore
+
+* chore(deps): update actions/setup-python action to v5 ([`d29f989`](https://github.com/kantord/SeaGOAT/commit/d29f989717fadb0cc63147d90c04ed2e2c1ec0c9))
+
+* chore(deps): update dependency pyright to v1.1.339 ([`9068e42`](https://github.com/kantord/SeaGOAT/commit/9068e422919c949940a7e6dec27b07bd64902e39))
+
+### Feature
+
+* feat: increase rg memory map limit to 500 ([`2a61fd3`](https://github.com/kantord/SeaGOAT/commit/2a61fd3e8bbeb6947a5442c9f50ef73b57e93dba))
+
+
 ## v0.40.8 (2023-12-05)
 
 ### Chore
