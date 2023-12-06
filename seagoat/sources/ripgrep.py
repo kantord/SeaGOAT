@@ -17,7 +17,7 @@ from seagoat.utils.file_types import is_file_type_supported
 
 KILOBYTE = 1024
 MEGABYTE = KILOBYTE * 1024
-MAX_MMAP_SIZE = 100
+MAX_MMAP_SIZE = 500
 MAX_MMAP_SIZE_BYTES = MAX_MMAP_SIZE * MEGABYTE
 MAX_FILE_SIZE = 200 * KILOBYTE
 STOP_WORDS = set(get_stop_words("english"))
