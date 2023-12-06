@@ -36,13 +36,19 @@ def format_results(query_text: str, repository, chromadb_results):
             break
         path = str(metadata["path"])
         line = int(metadata["line"])
+        git_object_id = str(metadata["git_object_id"])
         full_path = Path(repository.path) / path
 
         if not full_path.exists():
             continue
 
+        if not repository.is_up_to_date_git_object(path, git_object_id):
+            continue
+
+        gitfile = repository.get_file(path)
+
         if path not in files:
-            files[path] = Result(query_text, path, full_path)
+            files[path] = Result(query_text, gitfile)
         files[path].add_line(line, distance)
 
     return files.values()
@@ -86,7 +92,13 @@ def initialize(repository: Repository):
             chroma_collection.add(
                 ids=[chunk.chunk_id],
                 documents=[chunk.chunk],
-                metadatas=[{"path": chunk.path, "line": chunk.codeline}],
+                metadatas=[
+                    {
+                        "path": chunk.path,
+                        "line": chunk.codeline,
+                        "git_object_id": chunk.object_id,
+                    }
+                ],
             )
         except IDAlreadyExistsError:
             pass

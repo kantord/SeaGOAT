@@ -3,10 +3,9 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 from typing import Dict, List, Set
+from seagoat.gitfile import GitFile
 
-from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import get_file_penalty_factor
 
 SPLITTER_PATTERN = re.compile(r"\s+")
@@ -35,7 +34,7 @@ def get_best_score(result) -> float:
         key=lambda item: item.get_score(),
     ).get_score()
 
-    best_score *= get_file_penalty_factor(result.full_path)
+    best_score *= get_file_penalty_factor(result.gitfile.absolute_path)
 
     return best_score
 
@@ -103,15 +102,13 @@ class ResultBlock:
 
 
 class Result:
-    def __init__(self, query_text: str, path: str, full_path: Path) -> None:
-        self.path: str = path
+    def __init__(self, query_text: str, gitfile: GitFile) -> None:
+        self.gitfile: GitFile = gitfile
         self.query_text: str = query_text
-        self.full_path: Path = full_path
         self.lines: Dict[int, ResultLine] = {}
-        self.line_texts = read_file_with_correct_encoding(self.full_path).splitlines()
 
     def __repr__(self) -> str:
-        return f"Result(path={self.path})"
+        return f"Result(path={self.gitfile.path})"
 
     def extend(self, other) -> None:
         self.lines.update(other.lines)
@@ -130,7 +127,7 @@ class Result:
             self,
             line,
             vector_distance,
-            self.line_texts[line - 1],
+            self.gitfile.lines[line],
             types,
         )
 
@@ -167,7 +164,7 @@ class Result:
                         self,
                         line,
                         0.0,
-                        self.line_texts[line - 1],
+                        self.gitfile.lines[line],
                         {ResultLineType.BRIDGE},
                     )
                     last_block.lines.append(bridge_line)
@@ -202,8 +199,8 @@ class Result:
 
     def to_json(self):
         return {
-            "path": self.path,
-            "fullPath": str(self.full_path),
+            "path": self.gitfile.path,
+            "fullPath": str(self.gitfile.absolute_path),
             "score": round(get_best_score(self), 4),
             "blocks": [block.to_json() for block in self.get_result_blocks()],
         }
@@ -217,7 +214,7 @@ class Result:
             for offset in range(abs(lines)):
                 new_line = result_line + (offset + 1) * direction
 
-                if (new_line) not in range(len(self.line_texts)):
+                if new_line not in self.gitfile.lines:
                     continue
 
                 if new_line not in self.lines:
@@ -225,7 +222,7 @@ class Result:
                         self,
                         line=new_line,
                         vector_distance=0.0,
-                        line_text=self.line_texts[new_line - 1],
+                        line_text=self.gitfile.lines[new_line],
                         types={ResultLineType.CONTEXT},
                     )
 

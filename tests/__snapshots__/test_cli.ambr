@@ -1,8 +1,8 @@
 # serializer version: 1
 # name: test_connecting_to_remote_server
   list([
-    'bat normalized_repo_path/file4.js --file-name file4.js --paging never --line-range 0:1',
-    'bat normalized_repo_path/file4.md --file-name file4.md --paging never --line-range 0:1',
+    'bat normalized_repo_path/file4.js --file-name file4.js --paging never --line-range 1:1',
+    'bat normalized_repo_path/file4.md --file-name file4.md --paging never --line-range 1:1',
   ])
 # ---
 # name: test_integration_test_no_results
@@ -10,9 +10,7 @@
 # ---
 # name: test_integration_test_without_color
   '''
-  file4.js:0:// This is a second updated example JavaScript file
   file4.js:1:// This is a second updated example JavaScript file
-  file4.md:0:// This is a second updated example JavaScript file
   file4.md:1:// This is a second updated example JavaScript file
   
   '''

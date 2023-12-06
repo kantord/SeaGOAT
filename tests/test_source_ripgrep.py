@@ -37,11 +37,11 @@ hello foo bar baz 23
     )
 
     fetch = initialize_source(repo)
-    fetched_files = fetch("[0-9]{2,10}", limit=400)
+    fetched_results = fetch("[0-9]{2,10}", limit=400)
 
-    assert len(fetched_files) == 1
-    file = next(iter(fetched_files))
-    assert file.path == "file1.txt"
+    assert len(fetched_results) == 1
+    file = next(iter(fetched_results))
+    assert file.gitfile.path == "file1.txt"
     assert set(line for line in file.lines) == {2, 4, 6, 7, 8, 9}
 
 
@@ -67,12 +67,12 @@ b3
     )
 
     fetch = initialize_source(repo)
-    fetched_files = fetch("[0-9]{2,10} baz bar b[0-9]", limit=100)
+    fetched_results = fetch("[0-9]{2,10} baz bar b[0-9]", limit=100)
 
-    assert len(fetched_files) == 1
-    file = next(iter(fetched_files))
-    assert file.path == "file1.txt"
-    assert set(line for line in file.lines) == {
+    assert len(fetched_results) == 1
+    result = next(iter(fetched_results))
+    assert result.gitfile.path == "file1.txt"
+    assert set(line for line in result.lines) == {
         2,
         3,
         4,

@@ -25,7 +25,7 @@ async def test_includes_all_matching_lines_from_line(repo):
     my_query = "19"
     results = await seagoat.query(my_query)
 
-    assert results[0].path == "events.txt"
+    assert results[0].gitfile.path == "events.txt"
     assert set(results[0].get_lines()) == {4, 6, 9}
 
 
@@ -51,7 +51,7 @@ async def test_search_is_case_insensitive(repo):
     my_query = "UNRELATED"
     results = await seagoat.query(my_query)
 
-    assert results[0].path == "events.txt"
+    assert results[0].gitfile.path == "events.txt"
     assert set(results[0].get_lines()) == {5}
 
 
@@ -68,7 +68,7 @@ async def test_respects_file_extension_restrictions(repo):
     my_query = "19"
     results = await seagoat.query(my_query)
 
-    assert "rock.mp3" not in [result.path for result in results]
+    assert "rock.mp3" not in [result.gitfile.path for result in results]
 
 
 @pytest.mark.parametrize(
@@ -96,8 +96,7 @@ async def test_includes_context_lines_properly(
         8: Some other information
         9: The fall of the Berlin Wall 1989
         10: Random event
-        11: Another unrelated data
-        """,
+        11: Another unrelated data""",
         author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
@@ -108,7 +107,7 @@ async def test_includes_context_lines_properly(
         my_query, context_above=context_above, context_below=context_below
     )
 
-    assert results[0].path == "events.txt"
+    assert results[0].gitfile.path == "events.txt"
     assert set(results[0].get_lines()) == expected_lines
 
 
@@ -135,7 +134,7 @@ async def test_ripgrep_respects_custom_ignore_patterns(repo, create_config_file)
     my_query = "1"
     results = await seagoat.query(my_query)
 
-    results_files = set(result.path for result in results)
+    results_files = set(result.gitfile.path for result in results)
     assert "history/files/events.txt" not in results_files
     assert "events.txt" in results_files
 
@@ -162,7 +161,9 @@ async def test_filters_stop_words(repo):
     my_query = "that this the potato 1989"
     results = await seagoat.query(my_query)
 
-    events_result = [result for result in results if result.path == "events.txt"][0]
+    events_result = [
+        result for result in results if result.gitfile.path == "events.txt"
+    ][0]
     assert 5 not in set(events_result.get_lines())
 
 
@@ -188,5 +189,7 @@ async def test_does_not_filter_stop_words_if_that_is_all_whats_in_the_query(repo
     my_query = "that this their"
     results = await seagoat.query(my_query)
 
-    events_result = [result for result in results if result.path == "events.txt"][0]
+    events_result = [
+        result for result in results if result.gitfile.path == "events.txt"
+    ][0]
     assert set(events_result.get_lines()) == {5}

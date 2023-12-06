@@ -11,14 +11,6 @@
             }),
             'lines': list([
               dict({
-                'line': 0,
-                'lineText': "HTML is for markup, but it's complicated. Markdown is simpler.",
-                'resultTypes': list([
-                  'context',
-                ]),
-                'score': 0.0,
-              }),
-              dict({
                 'line': 1,
                 'lineText': '# Markdown file',
                 'resultTypes': list([
@@ -40,6 +32,7 @@
                 'line': 3,
                 'lineText': "HTML is for markup, but it's complicated. Markdown is simpler.",
                 'resultTypes': list([
+                  'context',
                   'result',
                 ]),
                 'score': 0.6,

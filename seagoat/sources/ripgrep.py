@@ -24,7 +24,7 @@ STOP_WORDS = set(get_stop_words("english"))
 
 
 class RipGrepCache(str):
-    def __init__(self, repository):
+    def __init__(self, repository: Repository):
         cache = Cache("ripgrep", Path(repository.path), {})
         self.repository = repository
         self.file_path = cache.get_cache_folder() / "mmap"
@@ -99,47 +99,6 @@ class RipGrepCache(str):
         return self
 
 
-def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
-    query_text_without_stopwords = " ".join(
-        query for query in query_text.split(" ") if query not in STOP_WORDS
-    )
-    if len(query_text_without_stopwords) > 2:
-        query_text = query_text_without_stopwords
-    query_text = re.sub(r"\s+", "|", query_text)
-    files = {}
-
-    cmd = [
-        "rg",
-        "--max-count",
-        str(limit),
-        "--ignore-case",
-        query_text,
-    ]
-
-    try:
-        rg_output = subprocess.check_output(
-            cmd, encoding="utf-8", input=cache.as_input()
-        )
-    except subprocess.CalledProcessError as exception:
-        rg_output = exception.output
-    for line in rg_output.splitlines():
-        relative_path, raw_line_number, _ = line.split(":", 2)
-        line_number = int(raw_line_number)
-
-        absolute_path = Path(path) / relative_path
-
-        if not is_file_type_supported(relative_path):
-            continue
-
-        if relative_path not in files:
-            files[relative_path] = Result(query_text, str(relative_path), absolute_path)
-
-        # This is so that ripgrep results are on comparable levels with chroma results
-        files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
-
-    return files.values()
-
-
 def initialize(repository: Repository):
     path = repository.path
     memory_cache = RipGrepCache(repository)
@@ -150,6 +109,45 @@ def initialize(repository: Repository):
 
     def cache_repo():
         memory_cache.rebuild()
+
+    def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
+        query_text_without_stopwords = " ".join(
+            query for query in query_text.split(" ") if query not in STOP_WORDS
+        )
+        if len(query_text_without_stopwords) > 2:
+            query_text = query_text_without_stopwords
+        query_text = re.sub(r"\s+", "|", query_text)
+        files = {}
+
+        cmd = [
+            "rg",
+            "--max-count",
+            str(limit),
+            "--ignore-case",
+            query_text,
+        ]
+
+        try:
+            rg_output = subprocess.check_output(
+                cmd, encoding="utf-8", input=cache.as_input()
+            )
+        except subprocess.CalledProcessError as exception:
+            rg_output = exception.output
+        for line in rg_output.splitlines():
+            relative_path, raw_line_number, _ = line.split(":", 2)
+            line_number = int(raw_line_number)
+            gitfile = repository.get_file(relative_path)
+
+            if not is_file_type_supported(relative_path):
+                continue
+
+            if relative_path not in files:
+                files[relative_path] = Result(query_text, gitfile)
+
+            # This is so that ripgrep results are on comparable levels with chroma results
+            files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
+
+        return files.values()
 
     def fetch(query_text: str, limit: int):
         if not memory_cache.is_initialized:

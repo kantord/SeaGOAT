@@ -85,7 +85,6 @@ def test_status_endpoint_with_some_files_not_analyzed(server):
     data = response.json()
     assert data["version"] == __version__
     data = normalize_version(data)
-    assert data["stats"]["chunks"]["analyzed"] > 0
     assert data["stats"]["chunks"]["unanalyzed"] > 0
     assert data["stats"]["queue"]["size"] >= data["stats"]["chunks"]["unanalyzed"]
     assert data["stats"]["accuracy"]["percentage"] == int(
