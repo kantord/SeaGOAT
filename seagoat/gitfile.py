@@ -1,19 +1,29 @@
+import functools
 import hashlib
 from typing import Dict, List, Literal
 
-from seagoat.utils.file_reader import read_file_with_correct_encoding
 
+class GitFile:
+    """
+    Represents a specific version of a file in a Git repository.
 
-class File:
+    The object_id is the Git object id of the file, which is basically
+    its SHA1 hash.
+    """
+
     def __init__(
         self,
+        repository,
         path: str,
         absolute_path: str,
+        object_id: str,
         score: float,
         commit_messages: list[str],
     ):
+        self.repository = repository
         self.path = path
         self.absolute_path = absolute_path
+        self.object_id = object_id
         self.commit_hashes = set()
         self.score = score
         self.commit_messages = commit_messages
@@ -31,11 +41,13 @@ class File:
     Commits:
 {commit_messages}"""
 
-    def _get_file_lines(self) -> Dict[int, str]:
+    @property
+    @functools.lru_cache(5000)
+    def lines(self) -> Dict[int, str]:
         lines = {
             (i + 1): line
             for i, line in enumerate(
-                read_file_with_correct_encoding(self.absolute_path).splitlines()
+                self.repository.get_blob_data(self.object_id).splitlines()
             )
         }
 
@@ -90,17 +102,18 @@ class File:
         return False
 
     def get_chunks(self):
-        lines = self._get_file_lines()
+        # TODO: should be turned into a class method on FileChunk
         return [
-            self._get_chunk_for_line(line_number, lines)
-            for line_number in lines.keys()
-            if self._line_has_relevant_data(lines[line_number])
+            self._get_chunk_for_line(line_number, self.lines)
+            for line_number in self.lines.keys()
+            if self._line_has_relevant_data(self.lines[line_number])
         ]
 
 
 class FileChunk:
-    def __init__(self, parent: File, codeline: int, chunk: str):
+    def __init__(self, parent: GitFile, codeline: int, chunk: str):
         self.path = parent.path
+        self.object_id = parent.object_id
         self.codeline = codeline
         self.chunk = chunk
         self.chunk_id = self._get_id()
@@ -108,6 +121,7 @@ class FileChunk:
     def _get_id(self):
         text = f"""
         Path: {self.path}
+        Object ID: {self.object_id}
         Code line: {self.codeline}
         Chunk: {self.chunk}
         """

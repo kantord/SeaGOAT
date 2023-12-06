@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from seagoat.file import File
+from seagoat.gitfile import GitFile
+from seagoat.repository import Repository
 
 
 @pytest.fixture
@@ -13,9 +14,11 @@ def repo_folder(repo):
 
 
 def test_file_returns_global_metadata_1(repo_folder, snapshot):
-    my_file = File(
+    my_file = GitFile(
+        None,
         "hello.md",
         repo_folder / "hello.md",
+        "4eb3bd99c328ed9fdc4eeed781af39f19378fae7",
         0.543245,
         [
             "First commit",
@@ -27,7 +30,14 @@ def test_file_returns_global_metadata_1(repo_folder, snapshot):
 
 
 def test_file_returns_global_metadata_2(repo_folder, snapshot):
-    my_file = File("hello.md", repo_folder / "hello.md", 0.234234, ["unrelated commit"])
+    my_file = GitFile(
+        None,
+        "hello.md",
+        repo_folder / "hello.md",
+        "4eb3bd99c328ed9fdc4eeed781af39f19378fae7",
+        0.234234,
+        ["unrelated commit"],
+    )
 
     assert my_file.get_metadata() == snapshot
 
@@ -48,9 +58,10 @@ def __init__(self):
         commit_message=".",
     )
 
-    my_file = File(
-        "example.py", str(Path(repo.working_dir) / "example.py"), 0.234234, []
-    )
+    my_repositoy = Repository(repo.working_dir)
+    my_repositoy.analyze_files()
+    my_file = my_repositoy.get_file("example.py")
+
     assert {item.codeline for item in my_file.get_chunks()} == {1, 5, 8, 9}
     line5 = [item for item in my_file.get_chunks() if item.codeline == 5][0]
     found_lines = line5.chunk.split("###")[0].splitlines()

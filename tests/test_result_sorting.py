@@ -12,7 +12,7 @@ def test_sort_results_test1(create_prepared_seagoat):
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     results = seagoat.query_sync(my_query)
 
-    assert [result.path for result in results] == [
+    assert [result.gitfile.path for result in results] == [
         "file1.md",
         "file3.md",
         "file2.md",
@@ -32,7 +32,7 @@ def test_sort_results_test2(create_prepared_seagoat):
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     results = seagoat.query_sync(my_query)
 
-    assert [result.path for result in results] == [
+    assert [result.gitfile.path for result in results] == [
         "file3.md",
         "file1.md",
         "file2.md",
@@ -52,7 +52,7 @@ def test_missing_file_in_one_source(create_prepared_seagoat):
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     results = seagoat.query_sync(my_query)
 
-    assert [result.path for result in results] == ["file2.md", "file1.md"]
+    assert [result.gitfile.path for result in results] == ["file2.md", "file1.md"]
 
 
 def test_no_lines(create_prepared_seagoat):
@@ -109,7 +109,7 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     seagoat.analyze_codebase()
     results = seagoat.query_sync(my_query)
 
-    assert [result.path for result in results][0:2] == [
+    assert [result.gitfile.path for result in results][0:2] == [
         "file_many_edits.md",
         "file_few_edits.md",
     ]

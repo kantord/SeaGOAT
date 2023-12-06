@@ -10,7 +10,7 @@ T = TypeVar("T")
 
 # Change this whenever a new version is released that requires files to be
 # re-analyzed
-CACHE_FORMAT_VERSION = 24
+CACHE_FORMAT_VERSION = 27
 
 
 def get_cache_root():

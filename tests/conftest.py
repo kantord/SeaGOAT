@@ -24,6 +24,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
 from seagoat.engine import Engine
+from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.server import create_app, start_server
 from seagoat.sources import chroma, ripgrep
@@ -485,12 +486,16 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
     def create_mock_query(repo, file_lines):
         def mock_query(_, __):
             results = []
+            repository = Repository(repo.working_dir)
+            repository.analyze_files()
             for file_path, lines in file_lines.items():
-                full_path = Path(repo.working_dir) / file_path
-                result = Result("", path=file_path, full_path=full_path)
+                gitfile = repository.get_file(file_path)
+                result = Result("", gitfile)
                 for line, vector_distance in lines:
                     result.add_line(line=line, vector_distance=vector_distance)
                 results.append(result)
+
+            del repository
             return results
 
         return mock_query

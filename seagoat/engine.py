@@ -13,7 +13,7 @@ from tqdm import tqdm
 from typing_extensions import TypedDict
 
 from seagoat.cache import Cache
-from seagoat.file import File
+from seagoat.gitfile import GitFile
 from seagoat.repository import Repository
 from seagoat.result import get_best_score
 from seagoat.sources import chroma, ripgrep
@@ -24,7 +24,7 @@ class RepositoryData(TypedDict):
     last_analyzed_version_of_branch: Dict[str, str]
     required_commits: Set[str]
     commits_already_analyzed: Set[str]
-    file_data: Dict[str, File]
+    file_data: Dict[str, GitFile]
     sorted_files: List[str]
     chunks_already_analyzed: Set[str]
     chunks_not_yet_analyzed: Set[str]
@@ -189,14 +189,14 @@ class Engine:
         merged_results = {}
 
         for result_item in self._results:
-            if self._is_file_ignored(result_item.path):
+            if self._is_file_ignored(result_item.gitfile.path):
                 continue
 
-            if result_item.path not in merged_results:
-                merged_results[result_item.path] = result_item
+            if result_item.gitfile.path not in merged_results:
+                merged_results[result_item.gitfile.path] = result_item
                 continue
 
-            merged_results[result_item.path].extend(result_item)
+            merged_results[result_item.gitfile.path].extend(result_item)
 
         results_to_sort = list(merged_results.values())
 
@@ -226,7 +226,7 @@ class Engine:
                 results_to_sort,
                 key=lambda x: (
                     0.7 * normalize_score(get_best_score(x))
-                    + 0.3 * normalize_file_position(get_file_position(x.path))
+                    + 0.3 * normalize_file_position(get_file_position(x.gitfile.path))
                 ),
             )
         )[:hard_count_limit]

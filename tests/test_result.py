@@ -1,4 +1,5 @@
 from pathlib import Path
+from seagoat.repository import Repository
 
 from seagoat.result import Result
 from tests.conftest import pytest
@@ -9,32 +10,33 @@ def create_result_(repo):
     def noop():
         pass
 
-    cleanup = {"cleanup": noop}
-
     def result_factory(query: str, fake_lines=None, lines_to_include=None):
         if lines_to_include is None:
             lines_to_include = [40]
         if fake_lines is None:
             fake_lines = {}
-        test_file_path = Path(repo.working_dir) / "test.txt"
-        with test_file_path.open("w", encoding="utf-8") as output_file:
-            fake_content = "".join(
-                f"{fake_lines[i]}\n" if i in fake_lines else f"fake line {i}\n"
-                for i in range(1, 100)
-            )
-            output_file.write(fake_content)
+        test_file_path = "test.txt"
+        fake_content = "".join(
+            f"{fake_lines[i]}\n" if i in fake_lines else f"fake line {i}\n"
+            for i in range(1, 100)
+        )
+        repo.add_file_change_commit(
+            test_file_path,
+            fake_content,
+            author=repo.actors["John Doe"],
+            commit_message="added my changes",
+        )
 
-        result = Result(query, "test.txt", test_file_path)
+        repository = Repository(repo.working_dir)
+        repository.analyze_files()
+        gitfile = repository.get_file("test.txt")
+        result = Result(query, gitfile)
         for line in lines_to_include:
             result.add_line(line, 0.5)
-
-        cleanup["cleanup"] = test_file_path.unlink
 
         return result
 
     yield result_factory
-
-    cleanup["cleanup"]()
 
 
 def test_get_lines_without_context(create_result, repo):

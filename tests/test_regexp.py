@@ -24,7 +24,7 @@ async def test_simple_regexp(repo):
     my_regex_query = "[0-9]+[0-9]+"
     results = await seagoat.query(my_regex_query)
 
-    assert results[0].path == "line_positions.txt"
+    assert results[0].gitfile.path == "line_positions.txt"
     assert set(results[0].get_lines()) == {4, 6}
 
 
@@ -59,7 +59,7 @@ asdf
     my_regex_query = "[0-9]+[0-9]+ fruit"
     results = await seagoat.query(my_regex_query)
 
-    assert results[0].path == "line_positions.txt"
+    assert results[0].gitfile.path == "line_positions.txt"
     assert set(results[0].get_lines()) == {
         1,
         2,
