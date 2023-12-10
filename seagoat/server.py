@@ -82,7 +82,7 @@ def create_app(repo_path):
     return app
 
 
-def start_server(repo_path, custom_port=None):
+def start_server(repo_path: str, custom_port=None):
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     app = create_app(repo_path)
     port = custom_port

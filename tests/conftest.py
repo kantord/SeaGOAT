@@ -247,18 +247,18 @@ def _get_multiprocessing_context():
     return multiprocessing.get_context("forkserver")
 
 
-@pytest.fixture(name="start_server")
-def _start_server(repo):
-    def _start():
+@pytest.fixture(name="start_server", scope="session")
+def _start_server():
+    def _start(repo_path: str):
         context = _get_multiprocessing_context()
         server_process = context.Process(
-            target=start_server, args=(repo.working_dir,), daemon=True
+            target=start_server, args=(repo_path,), daemon=True
         )
         server_process.start()
 
         def make_sure_server_is_running():
             try:
-                get_server_info(repo.working_dir)
+                get_server_info(repo_path)
                 return True
 
             except Exception:
@@ -267,11 +267,11 @@ def _start_server(repo):
         wait_for(make_sure_server_is_running, timeout=3.0)
 
         try:
-            server_info = get_server_info(repo.working_dir)
+            server_info = get_server_info(repo_path)
         except ServerDoesNotExist as error:
             server_process.kill()
             raise ServerDoesNotExist(
-                f"Server info for {repo.working_dir} not found."
+                f"Server info for {repo_path} not found."
             ) from error
 
         server_address = server_info["address"]
@@ -312,8 +312,8 @@ def _start_server(repo):
 
 
 @pytest.fixture(name="server")
-def _server(start_server):
-    server_address, stop_server = start_server()
+def _server(start_server, repo):
+    server_address, stop_server = start_server(str(repo.working_dir))
     yield server_address
     stop_server()
 
@@ -638,3 +638,61 @@ def temporary_cd():
             os.chdir(old_dir)
 
     return _temporary_cd
+
+
+@pytest.fixture(scope="session")
+def realistic_server(start_server):
+    realrepo = tempfile.mkdtemp()
+    subprocess.check_output(
+        [
+            "git",
+            "clone",
+            "https://github.com/kantord/i3-gnome-pomodoro.git",
+            realrepo,
+        ],
+        text=True,
+    )
+
+    ## Checkout a specific commit to make sure the results are deterministic
+    subprocess.check_output(
+        [
+            "git",
+            "-C",
+            realrepo,
+            "checkout",
+            "8bdea398906e7a706a28254cfd19b83dca136324",
+        ],
+        text=True,
+    )
+
+    subprocess.check_output(
+        [
+            "git",
+            "-C",
+            realrepo,
+            "branch",
+            "-D",
+            "master",
+        ],
+        text=True,
+    )
+
+    subprocess.check_output(
+        [
+            "git",
+            "-C",
+            realrepo,
+            "switch",
+            "-c",
+            "master",
+        ],
+        text=True,
+    )
+    my_engine = Engine(realrepo)
+    my_engine.analyze_codebase(minimum_chunks_to_analyze=339)
+    assert my_engine.cache.data["chunks_not_yet_analyzed"] == set()
+
+    yield my_engine
+    del my_engine
+
+    shutil.rmtree(realrepo, ignore_errors=True)

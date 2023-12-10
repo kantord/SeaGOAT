@@ -1,0 +1,464 @@
+# serializer version: 1
+# name: test_snapshot_results_with_real_repo[15-I want to use a pink color on my led while I'm working]
+  '''
+  i3_gnome_pomodoro/pomodoro_client.py:1:#!/usr/bin/env python3
+  i3_gnome_pomodoro/pomodoro_client.py:2:
+  i3_gnome_pomodoro/pomodoro_client.py:3:from gi.repository import GLib
+  i3_gnome_pomodoro/pomodoro_client.py:4:from pydbus import SessionBus
+  i3_gnome_pomodoro/pomodoro_client.py:5:import subprocess
+  i3_gnome_pomodoro/pomodoro_client.py:6:from threading import Thread
+  i3_gnome_pomodoro/pomodoro_client.py:7:import click
+  i3_gnome_pomodoro/pomodoro_client.py:8:import i3ipc
+  i3_gnome_pomodoro/pomodoro_client.py:9:import math
+  i3_gnome_pomodoro/pomodoro_client.py:10:import os
+  i3_gnome_pomodoro/pomodoro_client.py:11:
+  i3_gnome_pomodoro/pomodoro_client.py:12:
+  i3_gnome_pomodoro/pomodoro_client.py:13:bus = SessionBus()
+  i3_gnome_pomodoro/pomodoro_client.py:14:
+  i3_gnome_pomodoro/pomodoro_client.py:15:
+  i3_gnome_pomodoro/pomodoro_client.py:16:def get_notification_proxy():
+  i3_gnome_pomodoro/pomodoro_client.py:17:    return bus.get("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+  i3_gnome_pomodoro/pomodoro_client.py:18:
+  i3_gnome_pomodoro/pomodoro_client.py:19:
+  i3_gnome_pomodoro/pomodoro_client.py:20:def get_pomodoro_proxy():
+  i3_gnome_pomodoro/pomodoro_client.py:21:    return bus.get("org.gnome.Pomodoro", "/org/gnome/Pomodoro")
+  i3_gnome_pomodoro/pomodoro_client.py:22:
+  i3_gnome_pomodoro/pomodoro_client.py:23:
+  i3_gnome_pomodoro/pomodoro_client.py:24:def format_time(seconds, show_seconds):
+  i3_gnome_pomodoro/pomodoro_client.py:25:    time = "{minutes:02d}".format(minutes=int(math.floor(round(seconds) / 60))) + (
+  i3_gnome_pomodoro/pomodoro_client.py:26:        ":{seconds:02d}".format(seconds=int(round(seconds) % 60))
+  i3_gnome_pomodoro/pomodoro_client.py:27:        if show_seconds
+  i3_gnome_pomodoro/pomodoro_client.py:28:        else "m"
+  i3_gnome_pomodoro/pomodoro_client.py:29:    )
+  i3_gnome_pomodoro/pomodoro_client.py:30:
+  i3_gnome_pomodoro/pomodoro_client.py:31:    return time
+  i3_gnome_pomodoro/pomodoro_client.py:32:
+  i3_gnome_pomodoro/pomodoro_client.py:33:
+  i3_gnome_pomodoro/pomodoro_client.py:34:def format_is_paused(is_paused, format):
+  i3_gnome_pomodoro/pomodoro_client.py:35:    if format == "waybar":
+  i3_gnome_pomodoro/pomodoro_client.py:36:        return "paused" if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:37:    return " PAUSED " if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:38:
+  i3_gnome_pomodoro/pomodoro_client.py:39:
+  i3_gnome_pomodoro/pomodoro_client.py:40:def format_state(state, icon_text):
+  i3_gnome_pomodoro/pomodoro_client.py:41:    return {
+  i3_gnome_pomodoro/pomodoro_client.py:42:        "pomodoro": icon_text,
+  i3_gnome_pomodoro/pomodoro_client.py:43:        "short-break": "Break",
+  i3_gnome_pomodoro/pomodoro_client.py:44:        "long-break": "Long Break",
+  i3_gnome_pomodoro/pomodoro_client.py:45:    }[state]
+  i3_gnome_pomodoro/pomodoro_client.py:46:
+  i3_gnome_pomodoro/pomodoro_client.py:47:
+  i3_gnome_pomodoro/pomodoro_client.py:48:def extract_pomodoro_data(pomodoro):
+  i3_gnome_pomodoro/pomodoro_client.py:49:    return {
+  i3_gnome_pomodoro/pomodoro_client.py:50:        "elapsed": pomodoro.Elapsed,
+  
+  '''
+# ---
+# name: test_snapshot_results_with_real_repo[15-installation instructions for arch linux]
+  '''
+  README.md:22:## Usage and setup
+  README.md:23:
+  README.md:24:### Install
+  README.md:25:
+  README.md:26:To install 3i-gnome-pomodoro, you can use pipx:
+  README.md:27:
+  README.md:28:```bash
+  README.md:29:pipx install i3-gnome-pomodoro
+  README.md:30:```
+  README.md:31:
+  README.md:32:This is the recommended way.
+  README.md:33:
+  README.md:34:#### AUR
+  README.md:35:**Note:** The recommended way to install i3-gnome-pomodoro is through pipx. The AUR package is not maintained
+  README.md:36:by me.
+  README.md:37:
+  README.md:38:`i3-gnome-pomodoro` is available on [AUR](https://aur.archlinux.org/packages/i3-gnome-pomodoro-git), you can install it with your favorite package manager:
+  README.md:39:``` sh
+  README.md:40:$ yay -S i3-gnome-pomodoro-git
+  README.md:41:```
+  README.md:42:
+  README.md:43:#### Local development
+  README.md:44:
+  README.md:45:Use `poetry` to install local development dependencies:
+  README.md:46:
+  README.md:47:```bash
+  README.md:48:poetry install
+  README.md:49:```
+  README.md:50:
+  README.md:51:This is not required for normal usage, only if you want to make changes to i3-gnome-pomodoro.
+  
+  '''
+# ---
+# name: test_snapshot_results_with_real_repo[15-where do we decide what type of status bar app to use]
+  '''
+  i3_gnome_pomodoro/pomodoro_client.py:34:def format_is_paused(is_paused, format):
+  i3_gnome_pomodoro/pomodoro_client.py:35:    if format == "waybar":
+  i3_gnome_pomodoro/pomodoro_client.py:36:        return "paused" if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:37:    return " PAUSED " if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:51:        "is_paused": pomodoro.IsPaused,
+  i3_gnome_pomodoro/pomodoro_client.py:63:        "is_paused": format_is_paused(pomodoro_data["is_paused"], format),
+  i3_gnome_pomodoro/pomodoro_client.py:70:        return "{state} {remaining} {is_paused}".format(
+  i3_gnome_pomodoro/pomodoro_client.py:78:def format_output_waybar(pomodoro_data, always, icon_text, show_seconds, format):
+  i3_gnome_pomodoro/pomodoro_client.py:86:        output["class"] = data["is_paused"]
+  i3_gnome_pomodoro/pomodoro_client.py:99:        return "{state} {remaining} {is_paused}".format(
+  i3_gnome_pomodoro/pomodoro_client.py:107:def detect_nagbar():
+  i3_gnome_pomodoro/pomodoro_client.py:108:    with open(os.devnull, "w") as devnull:
+  i3_gnome_pomodoro/pomodoro_client.py:109:        if subprocess.call(["pgrep", "i3"], stdout=devnull) == 0:
+  i3_gnome_pomodoro/pomodoro_client.py:110:            return "i3-nagbar"
+  i3_gnome_pomodoro/pomodoro_client.py:140:    help="""Display status using a blinkstick LED""",
+  i3_gnome_pomodoro/pomodoro_client.py:150:    help="""Output format, 'text' or 'waybar', default 'text'""",
+  i3_gnome_pomodoro/pomodoro_client.py:154:               Returns a string descriping the current pomodoro state.
+  i3_gnome_pomodoro/pomodoro_client.py:155:               """
+  i3_gnome_pomodoro/pomodoro_client.py:156:)
+  i3_gnome_pomodoro/pomodoro_client.py:157:def status(always, icon_text, show_seconds, format, blinkstick):
+  i3_gnome_pomodoro/pomodoro_client.py:158:    pomodoro = get_pomodoro_proxy()
+  
+  '''
+# ---
+# name: test_snapshot_results_with_real_repo[None-I want to use a pink color on my led while I'm working]
+  '''
+  i3_gnome_pomodoro/pomodoro_client.py:1:#!/usr/bin/env python3
+  i3_gnome_pomodoro/pomodoro_client.py:2:
+  i3_gnome_pomodoro/pomodoro_client.py:3:from gi.repository import GLib
+  i3_gnome_pomodoro/pomodoro_client.py:4:from pydbus import SessionBus
+  i3_gnome_pomodoro/pomodoro_client.py:5:import subprocess
+  i3_gnome_pomodoro/pomodoro_client.py:6:from threading import Thread
+  i3_gnome_pomodoro/pomodoro_client.py:7:import click
+  i3_gnome_pomodoro/pomodoro_client.py:8:import i3ipc
+  i3_gnome_pomodoro/pomodoro_client.py:9:import math
+  i3_gnome_pomodoro/pomodoro_client.py:10:import os
+  i3_gnome_pomodoro/pomodoro_client.py:11:
+  i3_gnome_pomodoro/pomodoro_client.py:12:
+  i3_gnome_pomodoro/pomodoro_client.py:13:bus = SessionBus()
+  i3_gnome_pomodoro/pomodoro_client.py:14:
+  i3_gnome_pomodoro/pomodoro_client.py:15:
+  i3_gnome_pomodoro/pomodoro_client.py:16:def get_notification_proxy():
+  i3_gnome_pomodoro/pomodoro_client.py:17:    return bus.get("org.freedesktop.Notifications", "/org/freedesktop/Notifications")
+  i3_gnome_pomodoro/pomodoro_client.py:18:
+  i3_gnome_pomodoro/pomodoro_client.py:19:
+  i3_gnome_pomodoro/pomodoro_client.py:20:def get_pomodoro_proxy():
+  i3_gnome_pomodoro/pomodoro_client.py:21:    return bus.get("org.gnome.Pomodoro", "/org/gnome/Pomodoro")
+  i3_gnome_pomodoro/pomodoro_client.py:22:
+  i3_gnome_pomodoro/pomodoro_client.py:23:
+  i3_gnome_pomodoro/pomodoro_client.py:24:def format_time(seconds, show_seconds):
+  i3_gnome_pomodoro/pomodoro_client.py:25:    time = "{minutes:02d}".format(minutes=int(math.floor(round(seconds) / 60))) + (
+  i3_gnome_pomodoro/pomodoro_client.py:26:        ":{seconds:02d}".format(seconds=int(round(seconds) % 60))
+  i3_gnome_pomodoro/pomodoro_client.py:27:        if show_seconds
+  i3_gnome_pomodoro/pomodoro_client.py:28:        else "m"
+  i3_gnome_pomodoro/pomodoro_client.py:29:    )
+  i3_gnome_pomodoro/pomodoro_client.py:30:
+  i3_gnome_pomodoro/pomodoro_client.py:31:    return time
+  i3_gnome_pomodoro/pomodoro_client.py:32:
+  i3_gnome_pomodoro/pomodoro_client.py:33:
+  i3_gnome_pomodoro/pomodoro_client.py:34:def format_is_paused(is_paused, format):
+  i3_gnome_pomodoro/pomodoro_client.py:35:    if format == "waybar":
+  i3_gnome_pomodoro/pomodoro_client.py:36:        return "paused" if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:37:    return " PAUSED " if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:38:
+  i3_gnome_pomodoro/pomodoro_client.py:39:
+  i3_gnome_pomodoro/pomodoro_client.py:40:def format_state(state, icon_text):
+  i3_gnome_pomodoro/pomodoro_client.py:41:    return {
+  i3_gnome_pomodoro/pomodoro_client.py:42:        "pomodoro": icon_text,
+  i3_gnome_pomodoro/pomodoro_client.py:43:        "short-break": "Break",
+  i3_gnome_pomodoro/pomodoro_client.py:44:        "long-break": "Long Break",
+  i3_gnome_pomodoro/pomodoro_client.py:45:    }[state]
+  i3_gnome_pomodoro/pomodoro_client.py:46:
+  i3_gnome_pomodoro/pomodoro_client.py:47:
+  i3_gnome_pomodoro/pomodoro_client.py:48:def extract_pomodoro_data(pomodoro):
+  i3_gnome_pomodoro/pomodoro_client.py:49:    return {
+  i3_gnome_pomodoro/pomodoro_client.py:50:        "elapsed": pomodoro.Elapsed,
+  i3_gnome_pomodoro/pomodoro_client.py:54:        "state": pomodoro.State,
+  i3_gnome_pomodoro/pomodoro_client.py:59:    return {
+  i3_gnome_pomodoro/pomodoro_client.py:60:        "elapsed": format_time(pomodoro_data["elapsed"], show_seconds),
+  i3_gnome_pomodoro/pomodoro_client.py:61:        "duration": format_time(pomodoro_data["duration"], show_seconds),
+  i3_gnome_pomodoro/pomodoro_client.py:62:        "remaining": format_time(pomodoro_data["remaining"], show_seconds),
+  i3_gnome_pomodoro/pomodoro_client.py:63:        "is_paused": format_is_paused(pomodoro_data["is_paused"], format),
+  i3_gnome_pomodoro/pomodoro_client.py:68:def format_output_text(pomodoro_data, always, icon_text, show_seconds, format):
+  i3_gnome_pomodoro/pomodoro_client.py:69:    if pomodoro_data["state"] != "null":
+  i3_gnome_pomodoro/pomodoro_client.py:73:    if always:
+  i3_gnome_pomodoro/pomodoro_client.py:84:            icon_text = icon_text + " "
+  i3_gnome_pomodoro/pomodoro_client.py:85:        data = format_pomodoro_data(pomodoro_data, icon_text, show_seconds, format)
+  i3_gnome_pomodoro/pomodoro_client.py:86:        output["class"] = data["is_paused"]
+  i3_gnome_pomodoro/pomodoro_client.py:98:    if pomodoro_data["state"] != "null":
+  i3_gnome_pomodoro/pomodoro_client.py:102:    if always:
+  i3_gnome_pomodoro/pomodoro_client.py:112:            return "swaynag"
+  i3_gnome_pomodoro/pomodoro_client.py:113:
+  i3_gnome_pomodoro/pomodoro_client.py:114:
+  i3_gnome_pomodoro/pomodoro_client.py:115:def set_blinkstick_color(color_hex):
+  i3_gnome_pomodoro/pomodoro_client.py:116:    from blinkstick import blinkstick
+  i3_gnome_pomodoro/pomodoro_client.py:117:
+  i3_gnome_pomodoro/pomodoro_client.py:118:    for device in blinkstick.find_all():
+  i3_gnome_pomodoro/pomodoro_client.py:119:        device.set_color(hex=color_hex)
+  i3_gnome_pomodoro/pomodoro_client.py:120:
+  i3_gnome_pomodoro/pomodoro_client.py:121:
+  i3_gnome_pomodoro/pomodoro_client.py:122:def format_blinkstick(pomodoro_data):
+  i3_gnome_pomodoro/pomodoro_client.py:123:    color = {
+  i3_gnome_pomodoro/pomodoro_client.py:124:        "pomodoro": "#ff0000",
+  i3_gnome_pomodoro/pomodoro_client.py:128:    }[pomodoro_data["state"]]
+  i3_gnome_pomodoro/pomodoro_client.py:129:    set_blinkstick_color(color)
+  i3_gnome_pomodoro/pomodoro_client.py:130:
+  i3_gnome_pomodoro/pomodoro_client.py:131:
+  i3_gnome_pomodoro/pomodoro_client.py:132:@click.group()
+  i3_gnome_pomodoro/pomodoro_client.py:139:    default=False,
+  i3_gnome_pomodoro/pomodoro_client.py:140:    help="""Display status using a blinkstick LED""",
+  i3_gnome_pomodoro/pomodoro_client.py:141:)
+  i3_gnome_pomodoro/pomodoro_client.py:142:@click.option("--always/--not-always", default=False, help="""Show a constant icon.""")
+  i3_gnome_pomodoro/pomodoro_client.py:146:@click.option("--icon-text", default="Pomodoro", help="What to show as icon.")
+  i3_gnome_pomodoro/pomodoro_client.py:158:    pomodoro = get_pomodoro_proxy()
+  i3_gnome_pomodoro/pomodoro_client.py:168:        click.echo(
+  
+  '''
+# ---
+# name: test_snapshot_results_with_real_repo[None-installation instructions for arch linux]
+  '''
+  README.md:22:## Usage and setup
+  README.md:23:
+  README.md:24:### Install
+  README.md:25:
+  README.md:26:To install 3i-gnome-pomodoro, you can use pipx:
+  README.md:27:
+  README.md:28:```bash
+  README.md:29:pipx install i3-gnome-pomodoro
+  README.md:30:```
+  README.md:31:
+  README.md:32:This is the recommended way.
+  README.md:33:
+  README.md:34:#### AUR
+  README.md:35:**Note:** The recommended way to install i3-gnome-pomodoro is through pipx. The AUR package is not maintained
+  README.md:36:by me.
+  README.md:37:
+  README.md:38:`i3-gnome-pomodoro` is available on [AUR](https://aur.archlinux.org/packages/i3-gnome-pomodoro-git), you can install it with your favorite package manager:
+  README.md:39:``` sh
+  README.md:40:$ yay -S i3-gnome-pomodoro-git
+  README.md:41:```
+  README.md:42:
+  README.md:43:#### Local development
+  README.md:44:
+  README.md:45:Use `poetry` to install local development dependencies:
+  README.md:46:
+  README.md:47:```bash
+  README.md:48:poetry install
+  README.md:49:```
+  README.md:50:
+  README.md:51:This is not required for normal usage, only if you want to make changes to i3-gnome-pomodoro.
+  README.md:81:        status_command ~/repos/arch-config/i3status.sh
+  README.md:85:And then restart i3 so the changes be in effect right away:
+  
+  '''
+# ---
+# name: test_snapshot_results_with_real_repo[None-where do we decide what type of status bar app to use]
+  '''
+  i3_gnome_pomodoro/pomodoro_client.py:34:def format_is_paused(is_paused, format):
+  i3_gnome_pomodoro/pomodoro_client.py:35:    if format == "waybar":
+  i3_gnome_pomodoro/pomodoro_client.py:36:        return "paused" if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:37:    return " PAUSED " if is_paused else ""
+  i3_gnome_pomodoro/pomodoro_client.py:51:        "is_paused": pomodoro.IsPaused,
+  i3_gnome_pomodoro/pomodoro_client.py:63:        "is_paused": format_is_paused(pomodoro_data["is_paused"], format),
+  i3_gnome_pomodoro/pomodoro_client.py:70:        return "{state} {remaining} {is_paused}".format(
+  i3_gnome_pomodoro/pomodoro_client.py:78:def format_output_waybar(pomodoro_data, always, icon_text, show_seconds, format):
+  i3_gnome_pomodoro/pomodoro_client.py:86:        output["class"] = data["is_paused"]
+  i3_gnome_pomodoro/pomodoro_client.py:99:        return "{state} {remaining} {is_paused}".format(
+  i3_gnome_pomodoro/pomodoro_client.py:107:def detect_nagbar():
+  i3_gnome_pomodoro/pomodoro_client.py:108:    with open(os.devnull, "w") as devnull:
+  i3_gnome_pomodoro/pomodoro_client.py:109:        if subprocess.call(["pgrep", "i3"], stdout=devnull) == 0:
+  i3_gnome_pomodoro/pomodoro_client.py:110:            return "i3-nagbar"
+  i3_gnome_pomodoro/pomodoro_client.py:140:    help="""Display status using a blinkstick LED""",
+  i3_gnome_pomodoro/pomodoro_client.py:150:    help="""Output format, 'text' or 'waybar', default 'text'""",
+  i3_gnome_pomodoro/pomodoro_client.py:154:               Returns a string descriping the current pomodoro state.
+  i3_gnome_pomodoro/pomodoro_client.py:155:               """
+  i3_gnome_pomodoro/pomodoro_client.py:156:)
+  i3_gnome_pomodoro/pomodoro_client.py:157:def status(always, icon_text, show_seconds, format, blinkstick):
+  i3_gnome_pomodoro/pomodoro_client.py:158:    pomodoro = get_pomodoro_proxy()
+  i3_gnome_pomodoro/pomodoro_client.py:163:    if format == "waybar":
+  i3_gnome_pomodoro/pomodoro_client.py:164:        click.echo(
+  i3_gnome_pomodoro/pomodoro_client.py:165:            format_output_waybar(pomodoro_data, always, icon_text, show_seconds, format)
+  i3_gnome_pomodoro/pomodoro_client.py:173:@click.command(help="""Pauses the current pomodoro if any is running.""")
+  i3_gnome_pomodoro/pomodoro_client.py:174:def pause():
+  i3_gnome_pomodoro/pomodoro_client.py:175:    get_pomodoro_proxy().Pause()
+  i3_gnome_pomodoro/pomodoro_client.py:176:
+  i3_gnome_pomodoro/pomodoro_client.py:177:
+  i3_gnome_pomodoro/pomodoro_client.py:178:@click.command(help="""Resume pomodoro if paused.""")
+  i3_gnome_pomodoro/pomodoro_client.py:215:def toggle(help="Toggling function to pause/resume current pomodoro."):
+  i3_gnome_pomodoro/pomodoro_client.py:216:    pomodoro = get_pomodoro_proxy()
+  i3_gnome_pomodoro/pomodoro_client.py:217:    if pomodoro.IsPaused:
+  i3_gnome_pomodoro/pomodoro_client.py:218:        pomodoro.Resume()
+  i3_gnome_pomodoro/pomodoro_client.py:219:    else:
+  i3_gnome_pomodoro/pomodoro_client.py:220:        pomodoro.Pause()
+  i3_gnome_pomodoro/pomodoro_client.py:229:    dunst_action("DUNST_COMMAND_PAUSE")
+  i3_gnome_pomodoro/pomodoro_client.py:244:    type_ = "error" if is_error else "warning"
+  i3_gnome_pomodoro/pomodoro_client.py:245:    subprocess.Popen('%s -t %s -m "%s"' % (detect_nagbar(), type_, message), shell=True)
+  i3_gnome_pomodoro/pomodoro_client.py:246:
+  i3_gnome_pomodoro/pomodoro_client.py:247:
+  i3_gnome_pomodoro/pomodoro_client.py:248:def get_focused_workspace(i3):
+  i3_gnome_pomodoro/pomodoro_client.py:249:    return i3.get_tree().find_focused().workspace()
+  i3_gnome_pomodoro/pomodoro_client.py:255:        if pomodoro.State == "pomodoro" and pomodoro.IsPaused == False:
+  i3_gnome_pomodoro/pomodoro_client.py:267:def handle_workspace_focus(i3, i3_state, allowed_workspace, nagbar):
+  i3_gnome_pomodoro/pomodoro_client.py:268:    def handler(self, e):
+  i3_gnome_pomodoro/pomodoro_client.py:269:        if not allowed_workspace(e.current.num):
+  i3_gnome_pomodoro/pomodoro_client.py:270:            activate_workspace(i3, i3_state["focused_workspace_name"])
+  i3_gnome_pomodoro/pomodoro_client.py:271:            if nagbar:
+  i3_gnome_pomodoro/pomodoro_client.py:275:        i3_state["focused_workspace_name"] = e.current.name
+  i3_gnome_pomodoro/pomodoro_client.py:280:def i3_daemon(disabled_during_pomodoro, nagbar):
+  i3_gnome_pomodoro/pomodoro_client.py:284:        i3_state = {"focused_workspace_name": get_focused_workspace(i3).name}
+  i3_gnome_pomodoro/pomodoro_client.py:285:        i3.on(
+  i3_gnome_pomodoro/pomodoro_client.py:286:            "workspace::focus",
+  i3_gnome_pomodoro/pomodoro_client.py:287:            handle_workspace_focus(i3, i3_state, workspace_policy, nagbar),
+  i3_gnome_pomodoro/pomodoro_client.py:301:@click.argument("workspaces_disabled_during_pomodoro", nargs=-1, type=int)
+  i3_gnome_pomodoro/pomodoro_client.py:302:@click.option("--nagbar/--no-nagbar", default=False)
+  i3_gnome_pomodoro/pomodoro_client.py:303:def daemon(workspaces_disabled_during_pomodoro, nagbar):
+  i3_gnome_pomodoro/pomodoro_client.py:304:    daemon_commands = [
+  i3_gnome_pomodoro/pomodoro_client.py:305:        i3_daemon(workspaces_disabled_during_pomodoro, nagbar),
+  i3_gnome_pomodoro/pomodoro_client.py:317:main.add_command(status)
+  i3_gnome_pomodoro/pomodoro_client.py:318:main.add_command(pause)
+  README.md:1:# i3-gnome-pomodoro
+  README.md:2:Integrate gnome-pomodoro into i3. Support i3bar, polybar and waybar.
+  README.md:3:
+  README.md:4:Here's what i3-gnome-pomodoro looks like on my i3bar:
+  README.md:5:![Pomodoro 24:45 |  075%    uvsFvTK7SffCNaP9 |  |    100% |    100% |    55°C |  24.6 GB |    01. 07    23.19 |  70%](screenshot.png?raw=true)
+  README.md:6:
+  README.md:7:i3-gnome-pomodoro can integrate with [status-one-liner](https://github.com/kantord/status-one-liner).
+  README.md:8:
+  README.md:9:You can optionally disable certain workspaces during a pomodoro. They are still accessible when you pause a pomodoro.
+  README.md:10:![Workspace 10: mail is disabled during a pomodoro.](screenshot_nagbar.png)
+  README.md:11:
+  README.md:12:## About
+  README.md:13:i3-gnome-pomodoro uses dbus to integrate gnome-pomodoro into i3. Currently it supports the following features:
+  README.md:14:- View timer status in a terminal, and therefore
+  README.md:15:- Show timer status on i3bar
+  README.md:16:- Control pomodoro state in a terminal, and therefore
+  README.md:17:- Control pomodoro state using bindsym (keyboard and mouse shortcuts)
+  README.md:18:- *Optionally* suppressing dunst desktop notifications while a pomodoro is active and showing them when the break starts
+  README.md:19:- *Optionally* disabling specific workspaces (such as instant messaging) while you are on a pomodoro. You can still access those workspaces, if you pause the pomodoro.
+  README.md:20:- *Optionally* displaying a nagbar warning if you try to access a workspace that you have disabled during your pomodoro.
+  README.md:21:
+  README.md:22:## Usage and setup
+  README.md:23:
+  README.md:24:### Install
+  README.md:25:
+  README.md:26:To install 3i-gnome-pomodoro, you can use pipx:
+  README.md:27:
+  README.md:28:```bash
+  README.md:32:This is the recommended way.
+  README.md:33:
+  README.md:34:#### AUR
+  README.md:35:**Note:** The recommended way to install i3-gnome-pomodoro is through pipx. The AUR package is not maintained
+  README.md:36:by me.
+  README.md:37:
+  README.md:38:`i3-gnome-pomodoro` is available on [AUR](https://aur.archlinux.org/packages/i3-gnome-pomodoro-git), you can install it with your favorite package manager:
+  README.md:39:``` sh
+  README.md:40:$ yay -S i3-gnome-pomodoro-git
+  README.md:41:```
+  README.md:42:
+  README.md:43:#### Local development
+  README.md:53:### Terminal
+  README.md:54:Timer status can be viewed by simply running `./pomodoro-client.py`. Example output:
+  README.md:55:
+  README.md:56:    $ ./pomodoro-client.py status
+  README.md:57:    Pomodoro 15:35
+  README.md:58:
+  README.md:59:The timer state can be manipulated using the commands `pause`, `resume`, `start`,
+  README.md:60:`stop`, `skip`, `toggle` and `reset`. For example:
+  README.md:61:
+  README.md:62:    $ ./pomodoro-client.py pause
+  README.md:63:
+  README.md:64:
+  README.md:65:### i3bar
+  README.md:66:Unfortunately, i3status cannot be used to display a custom feature on i3bar. However, another application can use i3status to collect information and combine it with custom features. A very simple way to do that is to create a script in this fashion:
+  README.md:67:```
+  README.md:68:#!/usr/bin/env bash
+  README.md:69:
+  README.md:70:i3status -c ~/.i3/i3status.conf | while :
+  README.md:71:do
+  README.md:72:  read line
+  README.md:73:  pomodoro=`~/repos/i3-gnome-pomodoro/pomodoro-client.py status`
+  README.md:74:  echo "$pomodoro| $line" || exit 1
+  README.md:75:done
+  README.md:76:```
+  README.md:77:
+  README.md:78:After saving that script, make sure you update your i3 config to set it as your `status_command`:
+  README.md:79:```
+  README.md:80:bar {
+  README.md:81:        status_command ~/repos/arch-config/i3status.sh
+  README.md:85:And then restart i3 so the changes be in effect right away:
+  README.md:86:
+  README.md:87:    $ i3-msg restart
+  README.md:88:
+  README.md:89:If you want to use an i3status replacement, please follow its respective documentation to get information about how you can use i3-gnome-pomodoro.
+  README.md:90:
+  README.md:91:### polybar
+  README.md:92:
+  README.md:93:I use the following module in polybar:
+  README.md:94:
+  README.md:95:```
+  README.md:96:[module/pomodoro]
+  README.md:97:type = custom/script
+  README.md:98:exec = i3-gnome-pomodoro status
+  README.md:99:interval = 1
+  README.md:100:```
+  README.md:101:
+  README.md:102:with the `i3-gnome-pomodoro status --always` flag thing like the block below, becomes possible
+  README.md:103:
+  README.md:104:```
+  README.md:105:[module/pomodoro]
+  README.md:106:type = custom/script
+  README.md:107:click-left = i3-gnome-pomodoro toggle
+  README.md:108:click-middle = gnome-pomodoro
+  README.md:109:click-right = i3-gnome-pomodoro start_stop
+  README.md:110:exec = i3-gnome-pomodoro status --always
+  README.md:111:interval = 1
+  README.md:115:### waybar
+  README.md:116:
+  README.md:117:I use the following module in waybar
+  README.md:118:
+  README.md:119:config
+  README.md:120:
+  README.md:121:```
+  README.md:122: "custom/pomodoro": {
+  README.md:123:    "exec": "i3-gnome-pomodoro status --format=waybar --show-seconds",
+  README.md:124:     "return-type": "json",
+  README.md:125:     "interval": 1,
+  README.md:126:     "format": "Pomodoro {}",
+  README.md:127:     "on-click": "i3-gnome-pomodoro start",
+  README.md:128:     "on-click-middle": "i3-gnome-pomodoro toggle",
+  README.md:129:     "on-click-right": "i3-gnome-pomodoro stop",
+  README.md:134:style.css
+  README.md:135:
+  README.md:136:```css
+  README.md:137:#custom-pomodoro.paused {
+  README.md:138:  border-bottom: 3px solid @yellow;
+  README.md:142:### Refresh rate
+  README.md:143:i3-gnome-pomodoro displays a countdown timer on i3bar. If you use i3status, setting `resfresh_rate` in your i3status configuration can probably result in a better user experience. I personally use this configuration:
+  README.md:144:
+  README.md:145:```
+  README.md:146:general {
+  README.md:151:### Blinkstick
+  README.md:152:
+  README.md:153:You can reflect your Pomodoro status on a Blinkstick by using the `--blinkstick` flag
+  README.md:154:in the status command.
+  README.md:155:
+  README.md:156:### Keyboard shortcuts
+  README.md:157:I use the following key bindings in my i3 config:
+  README.md:158:```
+  README.md:159:bindsym $mod+F9 exec "~/repos/i3-gnome-pomodoro/pomodoro-client.py start"
+  README.md:160:bindsym $mod+F10 exec "~/repos/i3-gnome-pomodoro/pomodoro-client.py toggle"
+  README.md:161:bindsym $mod+F11 exec "~/repos/i3-gnome-pomodoro/pomodoro-client.py skip"
+  README.md:162:bindsym $mod+F12 exec "~/repos/i3-gnome-pomodoro/pomodoro-client.py stop"
+  README.md:166:### Suppressing dunst notifications and disabling workspaces
+  README.md:167:i3-gnome-pomodoro has a daemon that can suppress dunst notifications while a
+  README.md:168:pomodoro is active. After your pomodoro is over, dunst still delivers delayed
+  README.md:169:notifications. To use this daemon, launch it manually when needed or add this
+  README.md:170:to your i3 configuration to launch it on startup:
+  README.md:171:
+  README.md:172:```
+  README.md:173:exec ~/repos/i3-gnome-pomodoro/pomodoro-client.py daemon &
+  README.md:174:```
+  README.md:175:
+  README.md:176:If you want to disable any workspaces during your pomodoro, you can do so by
+  README.md:177:specifying there workspace number. For example, I generally use workspace 10
+  README.md:178:for IM, Social Media and Workspace 9 for email. Therefore I want them disabled
+  README.md:179:while I'm on a pomodoro. So, I execute my daemon like this:
+  README.md:185:This works even if you label your workspaces. For example, I use the name "9: mail"
+  README.md:191:exec ~/repos/i3-gnome-/pomodoro-client.py daemon 9 10 --nagbar &
+  
+  '''
+# ---
