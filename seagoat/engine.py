@@ -135,6 +135,7 @@ class Engine:
         direct effect on the number of results returned, but sources can use it as
         a rule of thumb.
         """
+
         self._results = []
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_event_loop()

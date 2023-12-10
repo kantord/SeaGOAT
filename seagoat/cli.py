@@ -56,6 +56,7 @@ def query_server(query, server_address, max_results, context_above, context_belo
     )
 
     response_data = orjson.loads(response.text)
+
     if "error" in response_data:
         click.echo(response_data["error"]["message"], err=True)
         sys.exit(ExitCode.SERVER_ERROR)
