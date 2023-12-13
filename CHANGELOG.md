@@ -2,6 +2,37 @@
 
 
 
+## v0.41.1 (2023-12-13)
+
+### Chore
+
+* chore(deps): update dependency python-semantic-release to v8.5.1 ([`c4c698e`](https://github.com/kantord/SeaGOAT/commit/c4c698ec5f88deb93d9375738c09b0a4c13a126d))
+
+* chore(deps): update dependency mkdocs-material to v9.5.2 ([`8021808`](https://github.com/kantord/SeaGOAT/commit/802180806d4d351ea54c060f5fef22b583c4fd2e))
+
+* chore(deps): update dependency pre-commit to v3.6.0 ([`9f0fd58`](https://github.com/kantord/SeaGOAT/commit/9f0fd5890deb7633c51ff2d92baefe7acb782b9a))
+
+* chore(deps): update dependency mkdocs-material to v9.5.1 ([`8e4fb39`](https://github.com/kantord/SeaGOAT/commit/8e4fb39f68f739d2dd326435820f54a151fbc067))
+
+* chore(deps): update dependency pandas to v2.1.4 ([`3309098`](https://github.com/kantord/SeaGOAT/commit/330909849831c13b766e201229005cb12db7bcfd))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.5.0 ([`9caabe4`](https://github.com/kantord/SeaGOAT/commit/9caabe43c70946ed8dd4e115d14cb188b26170ef))
+
+* chore(deps): update dependency python-semantic-release to v8.5.0 ([`2426165`](https://github.com/kantord/SeaGOAT/commit/24261658ee85d2c95a613934f28249e0d5b0646a))
+
+* chore(deps): update dependency python-semantic-release to v8.4.0 ([`fc9d29d`](https://github.com/kantord/SeaGOAT/commit/fc9d29d774166006bd772fc92c6e27abdcc48409))
+
+* chore(deps): update dependency mkdocs-material to v9.5.0 ([`4654aad`](https://github.com/kantord/SeaGOAT/commit/4654aad337df3243b2b57402c65db5ec965ade9b))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.19 ([`8bb2a0a`](https://github.com/kantord/SeaGOAT/commit/8bb2a0ad03caf3ad017a187d21e11e4005c36c35))
+
+### Test
+
+* test: add snapshot testing with a real repository ([`f56d076`](https://github.com/kantord/SeaGOAT/commit/f56d0769418afb23c2d71b652f7f5d478fd71b8d))
+
+
 ## v0.41.0 (2023-12-06)
 
 ### Chore
