@@ -2,6 +2,23 @@
 
 
 
+## v0.41.2 (2023-12-15)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.1.8 ([`e987432`](https://github.com/kantord/SeaGOAT/commit/e987432de5fdaae5c997870fae10cd9075b75882))
+
+* chore(deps): update dependency locust to v2.20.0 ([`f53f551`](https://github.com/kantord/SeaGOAT/commit/f53f551f1d277c41d9b33e8d50e5072088846161))
+
+* chore(deps): update dependency pyright to v1.1.340 ([`5f9e638`](https://github.com/kantord/SeaGOAT/commit/5f9e63897f7a59bcd4c4a85e2421bda525edbd35))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.5.1 ([`f936e00`](https://github.com/kantord/SeaGOAT/commit/f936e00e9d1140491f78614e95a3592f19b75d7c))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.20 ([`7b5d28e`](https://github.com/kantord/SeaGOAT/commit/7b5d28e74ed9bc8f7b8b2fb8d5185c16faf72c8c))
+
+
 ## v0.41.1 (2023-12-13)
 
 ### Chore
