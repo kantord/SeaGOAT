@@ -2,6 +2,21 @@
 
 
 
+## v0.41.3 (2023-12-19)
+
+### Chore
+
+* chore(deps): update dependency freezegun to v1.4.0 ([`87cadc0`](https://github.com/kantord/SeaGOAT/commit/87cadc0152063910bf35425bfbe2d0114f0f8359))
+
+* chore(deps): update dependency psutil to v5.9.7 ([`bb8b03d`](https://github.com/kantord/SeaGOAT/commit/bb8b03d513c622fe6cbdb1eddd98a4554aec4528))
+
+* chore(deps): update dependency pyright to v1.1.341 ([`c96f02e`](https://github.com/kantord/SeaGOAT/commit/c96f02e1ca0c1f91e4d62986acf5ab492b563aa7))
+
+### Fix
+
+* fix(deps): update dependency deepmerge to v1.1.1 ([`eb621f4`](https://github.com/kantord/SeaGOAT/commit/eb621f4da2f09b56b49505de0154b2e5f7921f6d))
+
+
 ## v0.41.2 (2023-12-15)
 
 ### Chore
