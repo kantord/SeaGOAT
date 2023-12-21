@@ -2,6 +2,21 @@
 
 
 
+## v0.41.4 (2023-12-21)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.342 ([`452b04f`](https://github.com/kantord/SeaGOAT/commit/452b04f1e3442c14f5a77511858da80a4f969de0))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.5.2 ([`04f92f4`](https://github.com/kantord/SeaGOAT/commit/04f92f48ce2e1c38342fa01777b1b3cad9930c71))
+
+* chore(deps): update dependency python-semantic-release to v8.5.2 ([`c4622bb`](https://github.com/kantord/SeaGOAT/commit/c4622bb31d66fc4f062896aed7cfa1d25489d60e))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.21 ([`c87e3a9`](https://github.com/kantord/SeaGOAT/commit/c87e3a91498c5360b445b771e2ff42ee63753f48))
+
+
 ## v0.41.3 (2023-12-19)
 
 ### Chore
