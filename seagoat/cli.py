@@ -46,13 +46,15 @@ def display_accuracy_warning(server_address):
 
 
 def query_server(query, server_address, max_results, context_above, context_below):
-    response = requests.get(
-        f"{server_address}/query/{query}",
-        params={
+    response = requests.post(
+        f"{server_address}/lines/query",
+        json={
+            "query": query,
             "limitClue": max_results,
             "contextAbove": context_above,
             "contextBelow": context_below,
         },
+        headers={"Content-Type": "application/json"},
     )
 
     response_data = orjson.loads(response.text)

@@ -227,12 +227,12 @@ def get_request_args_from_cli_call_(mock_server_factory, mocker, runner, repo):
             mock_response.text = '{"results": []}'
 
             request_args["url"] = args[0]
-            request_args["params"] = kwargs.get("params", {})
+            request_args["json"] = kwargs.get("json", {})
 
             return mock_response
 
         mocked_requests_get = mocker.patch(
-            "seagoat.cli.requests.get", side_effect=fake_requests
+            "seagoat.cli.requests.post", side_effect=fake_requests
         )
         query = "JavaScript"
         result = runner.invoke(
@@ -311,7 +311,7 @@ def test_seagoat_warns_on_incomplete_accuracy(
 @pytest.mark.parametrize("max_length", [1, 2, 10])
 def test_forwards_limit_clue_to_server(max_length, get_request_args_from_cli_call):
     request_args = get_request_args_from_cli_call(["--max-results", str(max_length)])
-    assert request_args["params"]["limitClue"] == max_length
+    assert request_args["json"]["limitClue"] == max_length
 
 
 @pytest.mark.usefixtures("server", "mock_accuracy_warning")
@@ -422,10 +422,10 @@ def test_forwards_context_above_to_server(
     request_args1 = get_request_args_from_cli_call(
         ["--context-above", str(context_above)]
     )
-    assert request_args1["params"]["contextAbove"] == context_above
+    assert request_args1["json"]["contextAbove"] == context_above
 
     request_args2 = get_request_args_from_cli_call([f"-B{context_above}"])
-    assert request_args2["params"]["contextAbove"] == context_above
+    assert request_args2["json"]["contextAbove"] == context_above
 
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
@@ -436,22 +436,22 @@ def test_forwards_context_below_to_server(
     request_args1 = get_request_args_from_cli_call(
         ["--context-below", str(context_below)]
     )
-    assert request_args1["params"]["contextBelow"] == context_below
+    assert request_args1["json"]["contextBelow"] == context_below
 
     request_args2 = get_request_args_from_cli_call([f"-A{context_below}"])
-    assert request_args2["params"]["contextBelow"] == context_below
+    assert request_args2["json"]["contextBelow"] == context_below
 
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize("context", [0, 1, 2, 10])
 def test_forwards_context_to_server(context, get_request_args_from_cli_call):
     request_args1 = get_request_args_from_cli_call(["--context", str(context)])
-    assert request_args1["params"]["contextAbove"] == context
-    assert request_args1["params"]["contextBelow"] == context
+    assert request_args1["json"]["contextAbove"] == context
+    assert request_args1["json"]["contextBelow"] == context
 
     request_args2 = get_request_args_from_cli_call([f"-C{context}"])
-    assert request_args2["params"]["contextAbove"] == context
-    assert request_args2["params"]["contextBelow"] == context
+    assert request_args2["json"]["contextAbove"] == context
+    assert request_args2["json"]["contextBelow"] == context
 
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
@@ -755,3 +755,16 @@ def test_no_network_to_update(runner_with_error, mocker, mock_response, repo):
 
     assert result.exit_code == 0
     assert "Could not check for updates" in result.output
+
+
+@pytest.mark.usefixtures("server", "mock_accuracy_warning")
+def test_does_not_crash_with_slash_in_request(
+    snapshot, repo, mocker, runner, temporary_cd
+):
+    mocker.patch("os.isatty", return_value=True)
+    query = "JavaScript/TypeScript"
+
+    with temporary_cd(repo.working_dir):
+        result = runner.invoke(seagoat, [query, ".", "--no-color"])
+
+    assert result.exit_code == 0
