@@ -406,7 +406,9 @@ def mock_server_error_factory(mocker, init_server_mock):
         mocked_error_response = _mock_error_response(error_message, code)
 
         if not manually_mock_request:
-            mocker.patch("seagoat.cli.requests.get", return_value=mocked_error_response)
+            mocker.patch(
+                "seagoat.cli.requests.post", return_value=mocked_error_response
+            )
 
     return _mock_server_error
 
