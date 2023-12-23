@@ -2,6 +2,29 @@
 
 
 
+## v0.42.0 (2023-12-23)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.7.0 ([`b288829`](https://github.com/kantord/SeaGOAT/commit/b2888298b361a75ced26a1b544d00dd5510d4752))
+
+* chore(deps): update dependency python-semantic-release to v8.7.0 ([`ca7f6bc`](https://github.com/kantord/SeaGOAT/commit/ca7f6bc342281c6bfd345dd1f7e9c2f55dd0e1c7))
+
+* chore(deps): update dependency ipython to v8.19.0 ([`ced0b90`](https://github.com/kantord/SeaGOAT/commit/ced0b90cead2a018f46a56e0865a2fd3c5069c92))
+
+* chore(deps): update dependency ruff to v0.1.9 ([`68e791b`](https://github.com/kantord/SeaGOAT/commit/68e791bb7551bf164a97ebb21a86c89ae4e91cd9))
+
+### Ci
+
+* ci: temporarily disable ci for mac os ([`ea77137`](https://github.com/kantord/SeaGOAT/commit/ea771379bf974436aaa37752f917fde16a8fe931))
+
+### Feature
+
+* feat: store different versions of the same file
+
+fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac0203e160004fc9e0e174d85b81fc2))
+
+
 ## v0.41.4 (2023-12-21)
 
 ### Chore
