@@ -199,7 +199,7 @@ def lots_of_fake_results(mocker):
 
     mock_response = MagicMock()
     mock_response.text = orjson.dumps(mock_results)
-    mocker.patch("requests.get", return_value=mock_response)
+    mocker.patch("requests.post", return_value=mock_response)
 
     return mock_results
 
@@ -231,7 +231,7 @@ def get_request_args_from_cli_call_(mock_server_factory, mocker, runner, repo):
 
             return mock_response
 
-        mocked_requests_get = mocker.patch(
+        mocked_requests_post = mocker.patch(
             "seagoat.cli.requests.post", side_effect=fake_requests
         )
         query = "JavaScript"
@@ -240,7 +240,7 @@ def get_request_args_from_cli_call_(mock_server_factory, mocker, runner, repo):
             [query, repo.working_dir, "--no-color", *cli_args],
         )
         assert result.exit_code == 0
-        mocked_requests_get.assert_called_once()
+        mocked_requests_post.assert_called_once()
 
         return request_args
 

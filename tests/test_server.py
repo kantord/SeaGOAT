@@ -41,9 +41,8 @@ def normalize_version(data):
 
 
 def test_query_codebase(server, snapshot, repo):
-    query_text = "Markdown"
-    url = f"{server}/query/{query_text}"
-    response = requests.get(url)
+    url = f"{server}/lines/query"
+    response = requests.post(url, json={"query_text": "Markdown"})
 
     assert response.status_code == 200, response.text
 
@@ -243,7 +242,13 @@ def test_server_status_not_running_if_process_does_not_exist(repo, runner):
 
 @pytest.mark.parametrize("limit_value", [1, 3, 7])
 def test_query_with_limit_clue_param(client, limit_value, mock_queue):
-    response = client.get(f"/query/Markdown?limitClue={limit_value}")
+    response = client.post(
+        "lines/query",
+        json={
+            "queryText": "Markdown",
+            "limitClue": limit_value,
+        },
+    )
     mock_queue.enqueue.assert_called_with(
         "query",
         query="Markdown",
@@ -256,7 +261,13 @@ def test_query_with_limit_clue_param(client, limit_value, mock_queue):
 
 @pytest.mark.parametrize("context_above", [0, 7])
 def test_query_with_context_above(client, context_above, mock_queue):
-    response = client.get(f"/query/Markdown?contextAbove={context_above}")
+    response = client.post(
+        "lines/query",
+        json={
+            "queryText": "Markdown",
+            "contextAbove": context_above,
+        },
+    )
     mock_queue.enqueue.assert_called_with(
         "query",
         query="Markdown",
@@ -269,7 +280,13 @@ def test_query_with_context_above(client, context_above, mock_queue):
 
 @pytest.mark.parametrize("context_below", [0, 2])
 def test_query_with_context_below(client, mock_queue, context_below):
-    response = client.get(f"/query/Markdown?contextBelow={context_below}")
+    response = client.post(
+        "lines/query",
+        json={
+            "queryText": "Markdown",
+            "contextBelow": context_below,
+        },
+    )
     mock_queue.enqueue.assert_called_with(
         "query",
         query="Markdown",
@@ -311,8 +328,8 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
 
 def test_query_codebase_no_results(server, snapshot):
     query_text = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
-    url = f"{server}/query/{query_text}"
-    response = requests.get(url)
+    url = f"{server}/lines/query"
+    response = requests.post(url, json={"queryText": query_text})
     assert response.status_code == 200, response.text
     data = response.json()
     assert not data["results"]
