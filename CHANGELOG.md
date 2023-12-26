@@ -2,6 +2,17 @@
 
 
 
+## v0.43.0 (2023-12-26)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.5.3 ([`88eb62f`](https://github.com/kantord/SeaGOAT/commit/88eb62fc08c2408b4b0cbb5f4bed50a4073873f7))
+
+### Feature
+
+* feat: allow POST queries ([`104657e`](https://github.com/kantord/SeaGOAT/commit/104657e1b01bdaab7f3a81630ca9351c990e5f3d))
+
+
 ## v0.42.1 (2023-12-23)
 
 ### Fix
