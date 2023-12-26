@@ -87,12 +87,22 @@ You can also create a configuration file for your project. See
 If you want to build an application using SeaGOAT-server, first you need to
 figure out the address of the server you want to connect to.
 
+To find the address of each SeaGOAT-server running on
+your computer, use `seagoat-server server-info`. See the explanation above.
+
 Once you have the address, you can start making queries to it. For instance,
 this is how you'd make a query using `curl` to the server running on
 `http://localhost:32835`:
 
 ```bash
-curl 'http://localhost:32835/query/example'
+curl -X POST 'http://localhost:34743/lines/query' \
+-H 'Content-Type: application/json' \
+-d '{
+      "query": "your_query_here",
+      "limitClue": "500",
+      "contextAbove": 3,
+      "contextBelow": 3
+    }'
 ```
 
 You will receive a response similar to this one:
