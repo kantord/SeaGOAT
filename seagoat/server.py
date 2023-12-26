@@ -23,7 +23,7 @@ from seagoat.utils.server import (
 from seagoat.utils.wait import wait_for
 
 
-def get_non_none_value(dictionary, key, fallback_value):
+def get_fallback_value(dictionary, key, fallback_value):
     if key not in dictionary or dictionary[key] is None:
         return fallback_value
 
@@ -40,36 +40,13 @@ def create_app(repo_path):
         repo_path=repo_path, minimum_chunks_to_analyze=0
     )
 
-    @app.route("/query/<query>", methods=["POST", "GET"])
-    def query(query):
-        limit_clue = request.args.get("limitClue", "500")
-        context_above = request.args.get("contextAbove", 3)
-        context_below = request.args.get("contextBelow", 3)
-
-        try:
-            limit_clue = int(limit_clue)
-        except ValueError as exception:
-            raise RuntimeError(
-                "Invalid limitClue value. Must be an integer."
-            ) from exception
-
-        result = current_app.extensions["task_queue"].enqueue(
-            "query",
-            query=query,
-            context_below=int(context_below),
-            context_above=int(context_above),
-            limit_clue=limit_clue,
-        )
-
-        return result
-
     @app.route("/lines/query", methods=["POST"])
     def query_lines():
         data = request.json
-        query = get_non_none_value(data, "query", "")
-        limit_clue = get_non_none_value(data, "limitClue", "500")
-        context_above = get_non_none_value(data, "contextAbove", 3)
-        context_below = get_non_none_value(data, "contextBelow", 3)
+        query = get_fallback_value(data, "queryText", "")
+        limit_clue = get_fallback_value(data, "limitClue", "500")
+        context_above = get_fallback_value(data, "contextAbove", 3)
+        context_below = get_fallback_value(data, "contextBelow", 3)
 
         try:
             limit_clue = int(limit_clue)
@@ -270,7 +247,6 @@ def _server_info():
     }
 
     click.echo(json.dumps(info))
-    "goulash soup"
 
 
 if __name__ == "__main__":

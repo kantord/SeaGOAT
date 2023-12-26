@@ -6,6 +6,98 @@
         'blocks': list([
           dict({
             'lineTypeCount': dict({
+              'result': 1,
+            }),
+            'lines': list([
+              dict({
+                'line': 1,
+                'lineText': '// This is a second updated example JavaScript file',
+                'resultTypes': list([
+                  'result',
+                ]),
+                'score': 0.6,
+              }),
+            ]),
+            'score': 0.6000000000000001,
+          }),
+        ]),
+        'fullPath': '/path/to/repo/file4.js',
+        'path': 'file4.js',
+        'score': 0.6,
+      }),
+      dict({
+        'blocks': list([
+          dict({
+            'lineTypeCount': dict({
+              'result': 1,
+            }),
+            'lines': list([
+              dict({
+                'line': 1,
+                'lineText': '# This is an updated example Python file',
+                'resultTypes': list([
+                  'result',
+                ]),
+                'score': 0.6,
+              }),
+            ]),
+            'score': 0.6000000000000001,
+          }),
+        ]),
+        'fullPath': '/path/to/repo/file2.py',
+        'path': 'file2.py',
+        'score': 0.6,
+      }),
+      dict({
+        'blocks': list([
+          dict({
+            'lineTypeCount': dict({
+              'result': 1,
+            }),
+            'lines': list([
+              dict({
+                'line': 1,
+                'lineText': '# This is another example Python file',
+                'resultTypes': list([
+                  'result',
+                ]),
+                'score': 0.6,
+              }),
+            ]),
+            'score': 0.6000000000000001,
+          }),
+        ]),
+        'fullPath': '/path/to/repo/file3.py',
+        'path': 'file3.py',
+        'score': 0.6,
+      }),
+      dict({
+        'blocks': list([
+          dict({
+            'lineTypeCount': dict({
+              'result': 1,
+            }),
+            'lines': list([
+              dict({
+                'line': 1,
+                'lineText': '// This is a second updated example JavaScript file',
+                'resultTypes': list([
+                  'result',
+                ]),
+                'score': 0.6,
+              }),
+            ]),
+            'score': 0.6000000000000001,
+          }),
+        ]),
+        'fullPath': '/path/to/repo/file4.md',
+        'path': 'file4.md',
+        'score': 0.9,
+      }),
+      dict({
+        'blocks': list([
+          dict({
+            'lineTypeCount': dict({
               'context': 3,
               'result': 3,
             }),

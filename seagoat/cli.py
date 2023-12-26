@@ -49,7 +49,7 @@ def query_server(query, server_address, max_results, context_above, context_belo
     response = requests.post(
         f"{server_address}/lines/query",
         json={
-            "query": query,
+            "queryText": query,
             "limitClue": max_results,
             "contextAbove": context_above,
             "contextBelow": context_below,
