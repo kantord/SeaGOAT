@@ -89,7 +89,7 @@ class RipGrepCache(str):
             with open(self.file_path, "r+b") as cache_file:
                 self._data = mmap.mmap(cache_file.fileno(), 0)
 
-    def encode(self, *args, **kwargs):
+    def encode(self, *args, **kwargs):  # type: ignore
         return self._data
 
     def as_input(self):

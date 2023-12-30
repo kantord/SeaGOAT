@@ -148,6 +148,30 @@
     'version': '0.0.0-test',
   })
 # ---
+# name: test_query_files_endpoint
+  list([
+    dict({
+      'fullPath': '/path/to/repo/file4.js',
+      'path': 'file4.js',
+    }),
+    dict({
+      'fullPath': '/path/to/repo/file2.py',
+      'path': 'file2.py',
+    }),
+    dict({
+      'fullPath': '/path/to/repo/file3.py',
+      'path': 'file3.py',
+    }),
+    dict({
+      'fullPath': '/path/to/repo/file4.md',
+      'path': 'file4.md',
+    }),
+    dict({
+      'fullPath': '/path/to/repo/file1.md',
+      'path': 'file1.md',
+    }),
+  ])
+# ---
 # name: test_status_endpoint_with_all_files_analyzed
   dict({
     'stats': dict({
