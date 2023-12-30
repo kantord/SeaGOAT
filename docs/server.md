@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD046 -->
+<!-- markdownlint-disable MD036 -->
 # SeaGOAT-server
 
 The `seagoat-server` is an integral component of the Seagoat command-line tool
@@ -82,13 +83,15 @@ in the `globalConfigFile` attribute. This depends on your operating system.
 You can also create a configuration file for your project. See
 [the configuration documentation](configuration.md) for more information.
 
-### Making queries using the API
+### Querying code lines using the API
 
 If you want to build an application using SeaGOAT-server, first you need to
 figure out the address of the server you want to connect to.
 
 To find the address of each SeaGOAT-server running on
 your computer, use `seagoat-server server-info`. See the explanation above.
+
+**Example query**
 
 Once you have the address, you can start making queries to it. For instance,
 this is how you'd make a query using `curl` to the server running on
@@ -98,12 +101,24 @@ this is how you'd make a query using `curl` to the server running on
 curl -X POST 'http://localhost:34743/lines/query' \
 -H 'Content-Type: application/json' \
 -d '{
-      "query": "your_query_here",
+      "queryText": "your_query_here",
       "limitClue": "500",
       "contextAbove": 3,
       "contextBelow": 3
     }'
 ```
+
+**Payload structure**
+
+* `queryText` - The actual text of your query.
+* `limitClue` - This number should indicate how many results you are
+planning to display. This is not a hard limit, you might receive
+more data than what you asked for. Nevertheless, you might not receive
+enough results if your limit clue is low.
+* `contextAbove` - Number of context lines above each result line
+* `contextBelow` - Number of context lines below each result line
+
+**Example response**
 
 You will receive a response similar to this one:
 
@@ -169,7 +184,7 @@ You will receive a response similar to this one:
 }
 ```
 
-#### Understanding the response
+**Understanding the response**
 
 The response contains the following information:
 
@@ -198,3 +213,73 @@ Within each block you will find:
 * `lineTypeCount` - An object containing a count of all line types within
   the code block. See `resultTypes` for more.
 * `score` - A score for the code block overall.
+
+### Querying code files using the API
+
+There is another endpoint that is specifically designed to find code files
+instead of finding specific lines or code blocks.
+
+**Example query**
+
+Once you have the address, you can start making queries to it. For instance,
+this is how you'd make a query using `curl` to the server running on
+`http://localhost:32835`:
+
+```bash
+curl -X POST 'http://localhost:34743/files/query' \
+-H 'Content-Type: application/json' \
+-d '{
+  "queryText": "your_query_here",
+  "limitClue": "500",
+}'
+```
+
+**Payload structure**
+
+* `queryText` - The actual text of your query.
+* `limitClue` - This number should indicate how many results you are
+planning to display. This is not a hard limit, you might receive
+more data than what you asked for. Nevertheless, you might not receive
+enough results if your limit clue is low. When querying files
+instead of lines, the limit clue is more tricky because the limit
+is still expressed in number of lines, but the results are files.
+
+**Example response**
+
+You will receive a response similar to this one:
+
+```json
+{
+    "results": [
+        {
+            "fullPath": "tests/conftest.py",
+            "path": "tests/conftest.py"
+        },
+        {
+            "fullPath": "tests/test_cli.py",
+            "path": "tests/test_cli.py"
+        },
+        {
+            "fullPath": "tests/test_result.py",
+            "path": "tests/test_result.py"
+        },
+        {
+            "fullPath": "tests/test_file.py",
+            "path": "tests/test_file.py"
+        },
+        {
+            "fullPath": "tests/test_repository.py",
+            "path": "tests/test_repository.py"
+        },
+        {
+            "fullPath": "tests/test_source_ripgrep.py",
+            "path": "tests/test_source_ripgrep.py"
+        },
+        {
+            "fullPath": "docs/server.md",
+            "path": "docs/server.md"
+        }
+    ],
+    "version": "0.43.0"
+}
+```

@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from pathlib import Path
+from collections import OrderedDict
 
 import click
 from flask import Flask, current_app, jsonify, request
@@ -21,6 +22,7 @@ from seagoat.utils.server import (
     update_server_info,
 )
 from seagoat.utils.wait import wait_for
+import orjson
 
 
 def get_fallback_value(dictionary, key, fallback_value):
@@ -40,30 +42,54 @@ def create_app(repo_path):
         repo_path=repo_path, minimum_chunks_to_analyze=0
     )
 
-    @app.route("/lines/query", methods=["POST"])
-    def query_lines():
-        data = request.json
-        query = get_fallback_value(data, "queryText", "")
-        limit_clue = get_fallback_value(data, "limitClue", "500")
-        context_above = get_fallback_value(data, "contextAbove", 3)
-        context_below = get_fallback_value(data, "contextBelow", 3)
-
+    def execute_query(limit_clue, **kwargs) -> bytes:
         try:
-            limit_clue = int(limit_clue)
+            limit_clue = limit_clue
         except ValueError as exception:
             raise RuntimeError(
                 "Invalid limitClue value. Must be an integer."
             ) from exception
 
-        result = current_app.extensions["task_queue"].enqueue(
+        return current_app.extensions["task_queue"].enqueue(
             "query",
+            limit_clue=limit_clue,
+            **kwargs,
+        )
+
+    @app.route("/lines/query", methods=["POST"])
+    def query_lines():
+        data = request.json
+        query = get_fallback_value(data, "queryText", "")
+        limit_clue = int(get_fallback_value(data, "limitClue", "500"))
+        context_above = int(get_fallback_value(data, "contextAbove", 3))
+        context_below = int(get_fallback_value(data, "contextBelow", 3))
+
+        return execute_query(
             query=query,
-            context_below=int(context_below),
-            context_above=int(context_above),
+            context_above=context_above,
+            context_below=context_below,
             limit_clue=limit_clue,
         )
 
-        return result
+    @app.route("/files/query", methods=["POST"])
+    def query_files():
+        data = request.json
+        query = get_fallback_value(data, "queryText", "")
+        limit_clue = int(get_fallback_value(data, "limitClue", "500"))
+
+        result = execute_query(
+            query=query, context_above=0, context_below=0, limit_clue=limit_clue
+        )
+        parsed_results = orjson.loads(result)
+        files_dict = OrderedDict()
+
+        for result_item in parsed_results["results"]:
+            files_dict[result_item["fullPath"]] = {
+                "path": result_item["path"],
+                "fullPath": result_item["fullPath"],
+            }
+
+        return {**parsed_results, "results": list(files_dict.values())}
 
     @app.route("/status")
     def status_():

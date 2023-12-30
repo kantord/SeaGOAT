@@ -393,3 +393,16 @@ def test_start_server_on_custom_port_using_config_files(
         server_info = get_server_info(repo.working_dir)
         server_address = server_info["address"]
         assert str(custom_port) in server_address
+
+
+def test_query_files_endpoint(server, snapshot, repo):
+    url = f"{server}/files/query"
+    response = requests.post(url, json={"query_text": "Markdown"})
+
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data["results"]) > 0
+    assert data["version"] == __version__
+    assert normalize_full_paths(data, repo)["results"] == snapshot

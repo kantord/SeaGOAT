@@ -277,7 +277,9 @@ def _start_server():
 
         server_address = server_info["address"]
 
-        retries = Retry(total=5, backoff_factor=0.1)
+        # type ignored because it is errounously marked as int, it is float
+        # as per the official documentation
+        retries = Retry(total=5, backoff_factor=0.1)  # type: ignore
 
         session = requests.Session()
         session.mount("http://", HTTPAdapter(max_retries=retries))
