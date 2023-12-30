@@ -2,6 +2,23 @@
 
 
 
+## v0.44.0 (2023-12-30)
+
+### Chore
+
+* chore(deps): update dependency ipykernel to v6.28.0 ([`7af6bed`](https://github.com/kantord/SeaGOAT/commit/7af6bed559794ad173f92e7f7ca5818aadc676ab))
+
+* chore(deps): update dependency pyright to v1.1.343 ([`d469cd7`](https://github.com/kantord/SeaGOAT/commit/d469cd7497c94e4523dadb660fd1012ac4b2645d))
+
+### Documentation
+
+* docs: update docs to use the POST endpoint ([`66107f1`](https://github.com/kantord/SeaGOAT/commit/66107f132db56e8754ac3fed62892e009477f96c))
+
+### Feature
+
+* feat: remove `query` endpoint in favor of `lines/query` ([`73b4e3d`](https://github.com/kantord/SeaGOAT/commit/73b4e3d89179ef7acbe9377ecda1ca244269520d))
+
+
 ## v0.43.0 (2023-12-26)
 
 ### Chore
