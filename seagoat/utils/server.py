@@ -1,5 +1,6 @@
 import os
 import socket
+import subprocess
 from pathlib import Path
 from typing import Dict, TypedDict, Union
 
@@ -101,3 +102,15 @@ def get_free_port() -> int:
     socket_obj.close()
 
     return port
+
+
+def is_git_repo(path: str) -> bool:
+    try:
+        output = subprocess.check_output(
+            ["git", "-C", path, "rev-parse", "--is-inside-work-tree"],
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        return output.strip().lower() == "true"
+    except subprocess.CalledProcessError:
+        return False
