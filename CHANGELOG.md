@@ -2,6 +2,25 @@
 
 
 
+## v0.45.0 (2024-01-01)
+
+### Chore
+
+* chore(deps): update dependency pytest-asyncio to v0.23.3 ([`dbfa291`](https://github.com/kantord/SeaGOAT/commit/dbfa291130c5e62ddd92e328a22af9162cf10ad7))
+
+* chore(deps): update dependency seaborn to v0.13.1 ([`b08ddd5`](https://github.com/kantord/SeaGOAT/commit/b08ddd58b6691d2407c41cd470566be2c8be25a5))
+
+* chore(deps): update dependency pytest to v7.4.4 ([`073b12c`](https://github.com/kantord/SeaGOAT/commit/073b12cab1696d524ffb9ff154ce0c64ce69cae7))
+
+* chore(deps): update dependency pyright to v1.1.344 ([`7aaa5c0`](https://github.com/kantord/SeaGOAT/commit/7aaa5c05b0ae77441ee0d9977fe7b4409d171f49))
+
+### Feature
+
+* feat: add endpoint to query files
+
+fixes #449 ([`1c7a8ae`](https://github.com/kantord/SeaGOAT/commit/1c7a8ae1559ea16b8de74973eb46ede9aab371fe))
+
+
 ## v0.44.0 (2023-12-30)
 
 ### Chore
