@@ -2,6 +2,15 @@
 
 
 
+## v0.46.0 (2024-01-01)
+
+### Feature
+
+* feat: explicitly fail when git repo not found
+
+fixes #485 ([`8759c6d`](https://github.com/kantord/SeaGOAT/commit/8759c6dea92a92ed8b1c17cd4521d6f6c6cd7461))
+
+
 ## v0.45.0 (2024-01-01)
 
 ### Chore
