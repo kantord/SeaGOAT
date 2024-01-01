@@ -1,3 +1,4 @@
+import sys
 import json
 import logging
 import os
@@ -17,12 +18,17 @@ from seagoat.utils.server import (
     get_free_port,
     get_server_info,
     get_servers_info,
+    is_git_repo,
     is_server_running,
     stop_server,
     update_server_info,
 )
 from seagoat.utils.wait import wait_for
 import orjson
+
+
+class ExitCode:
+    NOT_A_GIT_REPO = 5
 
 
 def get_fallback_value(dictionary, key, fallback_value):
@@ -119,6 +125,13 @@ def create_app(repo_path):
 
 
 def start_server(repo_path: str, custom_port=None):
+    if not is_git_repo(repo_path):
+        click.echo(
+            f"SeaGOAT can only operate in Git repositories. No Git repository found at path '{repo_path}'.",
+            err=True,
+        )
+        sys.exit(ExitCode.NOT_A_GIT_REPO)
+
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     app = create_app(repo_path)
     port = custom_port

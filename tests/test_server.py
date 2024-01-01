@@ -19,7 +19,7 @@ from seagoat.utils.server import (
     normalize_repo_path,
 )
 from seagoat.utils.wait import wait_for
-from tests.conftest import GLOBAL_CONFIG_FILE
+from tests.conftest import GLOBAL_CONFIG_FILE, tempfile
 
 
 def normalize_full_paths(data, repo):
@@ -406,3 +406,10 @@ def test_query_files_endpoint(server, snapshot, repo):
     assert len(data["results"]) > 0
     assert data["version"] == __version__
     assert normalize_full_paths(data, repo)["results"] == snapshot
+
+
+def test_server_shows_error_when_folder_is_not_a_git_repo(runner_with_error):
+    with tempfile.TemporaryDirectory() as new_directory:
+        result = runner_with_error.invoke(seagoat_server, ["start", new_directory])
+
+    assert result.exit_code == 5
