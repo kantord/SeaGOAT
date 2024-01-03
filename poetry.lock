@@ -2109,13 +2109,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.20.0"
+version = "2.20.1"
 description = "Developer friendly load testing framework"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "locust-2.20.0-py3-none-any.whl", hash = "sha256:8092dde31c4cfb43b9b40470ffc7c5f95b3a491dfcb813bb50567edec28451dc"},
-    {file = "locust-2.20.0.tar.gz", hash = "sha256:b6f78af64bc5066babe54836f796469906cd606b01f34ee788986d0b1fbac99a"},
+    {file = "locust-2.20.1-py3-none-any.whl", hash = "sha256:70168ccf462f125e0e4304c1f8301d3c18f186e8f257bc6578e7bed5e74e59a7"},
+    {file = "locust-2.20.1.tar.gz", hash = "sha256:9ba4c8658a158aed55774ac3650ac0139fcc1dfa65fea0dabb00ea35b0d56a4e"},
 ]
 
 [package.dependencies]
@@ -2129,7 +2129,7 @@ msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
 pyzmq = ">=25.0.0"
-requests = ">=2.23.0"
+requests = ">=2.26.0"
 roundrobin = ">=0.0.2"
 Werkzeug = ">=2.0.0"
 
