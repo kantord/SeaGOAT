@@ -325,6 +325,17 @@ def test_integration_test_without_color(snapshot, repo, mocker, runner, temporar
     assert result.exit_code == 0
 
 
+@pytest.mark.usefixtures("server", "mock_accuracy_warning")
+def test_integration_test_vimgrep_mode(snapshot, repo, mocker, runner, temporary_cd):
+    mocker.patch("os.isatty", return_value=True)
+    query = "JavaScript"
+    with temporary_cd(repo.working_dir):
+        result = runner.invoke(seagoat, [query, ".", "--vimgrep"])
+
+    assert str(result.output) == snapshot
+    assert result.exit_code == 0
+
+
 @pytest.mark.usefixtures("mock_accuracy_warning")
 @pytest.mark.parametrize(
     "max_length, command_option, expected_length",
