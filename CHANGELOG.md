@@ -2,6 +2,19 @@
 
 
 
+## v0.47.0 (2024-01-03)
+
+### Chore
+
+* chore(deps): update dependency locust to v2.20.1 ([`771197a`](https://github.com/kantord/SeaGOAT/commit/771197ae22afc2ae2ab9136807748f5fe66546c4))
+
+* chore(deps): update dependency ruff to v0.1.11 ([`2e108f7`](https://github.com/kantord/SeaGOAT/commit/2e108f7cf03220ee1f769de123c6e3290e4c506d))
+
+### Feature
+
+* feat: add --vimgrep flag ([`ce61174`](https://github.com/kantord/SeaGOAT/commit/ce6117468aedf52faf128853c7d93ce6998a1eb2))
+
+
 ## v0.46.0 (2024-01-01)
 
 ### Feature
