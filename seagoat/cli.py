@@ -91,6 +91,11 @@ def remove_results_from_unavailable_files(results):
     help="Disable formatting. Automatically enabled when part of a bash pipeline.",
 )
 @click.option(
+    "--vimgrep",
+    is_flag=True,
+    help="Use a vimgrep compatible output format.",
+)
+@click.option(
     "-l",
     "--max-results",
     type=int,
@@ -127,6 +132,7 @@ def seagoat(
     context_above,
     context_below,
     context,
+    vimgrep,
 ):
     """
     Query your codebase for your QUERY in the Git repository REPO_PATH.
@@ -163,9 +169,9 @@ def seagoat(
         results = rewrite_full_paths_to_use_local_path(repo_path, results)
         results = remove_results_from_unavailable_files(results)
 
-        color_enabled = os.isatty(0) and not no_color
+        color_enabled = os.isatty(0) and not no_color and not vimgrep
 
-        display_results(results, max_results, color_enabled)
+        display_results(results, max_results, color_enabled, vimgrep)
 
         display_accuracy_warning(server_address)
     except (

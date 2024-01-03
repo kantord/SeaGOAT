@@ -31,7 +31,7 @@ def get_highlighted_lines(file_name: str):
     return result.splitlines()
 
 
-def print_result_line(result, block, line, color_enabled):
+def print_result_line(result, block, line, color_enabled, vimgrep):
     if color_enabled:
         highlighted_lines = get_highlighted_lines(str(result["fullPath"]))
         click.echo(
@@ -41,7 +41,10 @@ def print_result_line(result, block, line, color_enabled):
     else:
         for line_content in block["lines"]:
             if line_content["line"] == line:
-                click.echo(f"{result['path']}:{line}:{line_content['lineText']}")
+                if vimgrep:
+                    click.echo(f"{result['path']}:{line}:0:{line_content['lineText']}")
+                else:
+                    click.echo(f"{result['path']}:{line}:{line_content['lineText']}")
                 break
 
 
@@ -82,13 +85,13 @@ def display_results_using_bat(results, max_results):
     display_blocks_with_bat(current_result, blocks)
 
 
-def display_results(results, max_results, color_enabled):
+def display_results(results, max_results, color_enabled, vimgrep):
     if color_enabled and is_bat_installed():
         display_results_using_bat(results, max_results)
         return
 
     for result, block in iterate_result_blocks(results, max_results):
-        print_result_block(result, block, color_enabled)
+        print_result_block(result, block, color_enabled, vimgrep)
 
 
 def is_bat_installed():
@@ -125,7 +128,7 @@ def display_blocks_with_bat(result, blocks):
     subprocess.run(command, check=True)
 
 
-def print_result_block(result, block, color_enabled):
+def print_result_block(result, block, color_enabled, vimgrep):
     for result_line in block["lines"]:
         line = result_line["line"]
-        print_result_line(result, block, line, color_enabled)
+        print_result_line(result, block, line, color_enabled, vimgrep)
