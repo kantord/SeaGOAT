@@ -2,6 +2,17 @@
 
 
 
+## v0.47.1 (2024-01-04)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v8.7.2 ([`303696e`](https://github.com/kantord/SeaGOAT/commit/303696e9bd3a4d6d2fcb4ba6c4148d7fed650ef3))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.22 ([`4ac99a5`](https://github.com/kantord/SeaGOAT/commit/4ac99a558615f21b029d9935aacc6ddfa30dd400))
+
+
 ## v0.47.0 (2024-01-03)
 
 ### Chore
