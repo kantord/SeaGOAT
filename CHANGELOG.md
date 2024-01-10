@@ -2,6 +2,19 @@
 
 
 
+## v0.47.2 (2024-01-10)
+
+### Chore
+
+* chore(deps): update dependency pyright to v1.1.345 ([`63a0566`](https://github.com/kantord/SeaGOAT/commit/63a056660b2a3a00a59d8072df0ebf507b97de61))
+
+* chore(deps): update dependency ipython to v8.20.0 ([`aaafb12`](https://github.com/kantord/SeaGOAT/commit/aaafb121f6228b0b14b852f78af2ec1cc838887f))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.41 ([`1fa293c`](https://github.com/kantord/SeaGOAT/commit/1fa293c173ed1e2571b8352ccfbe8a1a7cde70b9))
+
+
 ## v0.47.1 (2024-01-04)
 
 ### Chore
