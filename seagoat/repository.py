@@ -49,10 +49,9 @@ class Repository:
                 "ls-tree",
                 "HEAD",
                 str(file_path),
-                "--object-only",
             ],
             text=True,
-        ).strip()
+        ).split()[2].strip()
 
         return object_id
 
