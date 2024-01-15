@@ -2,6 +2,21 @@
 
 
 
+## v0.47.3 (2024-01-15)
+
+### Chore
+
+* chore(deps): update dependency mkdocs-material to v9.5.4 ([`215992c`](https://github.com/kantord/SeaGOAT/commit/215992ca99fc3c8f790ce04ae8c8526b60fedcd8))
+
+* chore(deps): update dependency ruff to v0.1.13 ([`44f33fe`](https://github.com/kantord/SeaGOAT/commit/44f33fe8a63c667882069ca756939827c3b70470))
+
+* chore(deps): update dependency ruff to v0.1.12 ([`caa0eab`](https://github.com/kantord/SeaGOAT/commit/caa0eab19b6433a1b436644a748ca2a637f778b6))
+
+### Fix
+
+* fix(deps): update dependency nest-asyncio to v1.5.9 ([`9fbf445`](https://github.com/kantord/SeaGOAT/commit/9fbf4453fbf7b7e39b2fdb64f40b9bb9cba34f06))
+
+
 ## v0.47.2 (2024-01-10)
 
 ### Chore
