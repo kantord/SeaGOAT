@@ -41,18 +41,21 @@ class Repository:
         Returns the git object id for the current version
         of a file
         """
-        object_id = subprocess.check_output(
-            [
-                "git",
-                "-C",
-                str(self.path),
-                "ls-tree",
-                "HEAD",
-                str(file_path),
-                "--object-only",
-            ],
-            text=True,
-        ).strip()
+        object_id = (
+            subprocess.check_output(
+                [
+                    "git",
+                    "-C",
+                    str(self.path),
+                    "ls-tree",
+                    "HEAD",
+                    str(file_path),
+                ],
+                text=True,
+            )
+            .split()[2]
+            .strip()
+        )
 
         return object_id
 
