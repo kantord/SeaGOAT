@@ -2,6 +2,19 @@
 
 
 
+## v0.47.4 (2024-01-16)
+
+### Chore
+
+* chore(deps): update dependency ipykernel to v6.29.0 ([`f5c7639`](https://github.com/kantord/SeaGOAT/commit/f5c76398c51d967a56864db4c2deadaa18b3b3aa))
+
+* chore(deps): update dependency pyright to v1.1.347 ([`084568d`](https://github.com/kantord/SeaGOAT/commit/084568da15fd8082dfb2eacf3286a920438624a2))
+
+### Fix
+
+* fix(deps): update dependency jsonschema to v4.21.0 ([`4e047d1`](https://github.com/kantord/SeaGOAT/commit/4e047d1b5d355ca21980383001ec4c1982d8f550))
+
+
 ## v0.47.3 (2024-01-15)
 
 ### Chore
