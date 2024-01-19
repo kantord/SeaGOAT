@@ -2,6 +2,13 @@
 
 
 
+## v0.47.6 (2024-01-19)
+
+### Fix
+
+* fix(deps): update dependency flask to v3.0.1 ([`4c86f3e`](https://github.com/kantord/SeaGOAT/commit/4c86f3e03056149113fb94965ca7b3b5ea5147d1))
+
+
 ## v0.47.5 (2024-01-18)
 
 ### Fix
