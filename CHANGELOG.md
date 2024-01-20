@@ -2,6 +2,19 @@
 
 
 
+## v0.47.7 (2024-01-20)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.1.14 ([`54e9f1c`](https://github.com/kantord/SeaGOAT/commit/54e9f1c44fd2a5fd011d52542ce058c7ab33bae8))
+
+* chore(deps): update dependency psutil to v5.9.8 ([`450bf40`](https://github.com/kantord/SeaGOAT/commit/450bf40ffe9c1731bed62cc3f16b64d63cd219d2))
+
+### Fix
+
+* fix(deps): update dependency jsonschema to v4.21.1 ([`94daba1`](https://github.com/kantord/SeaGOAT/commit/94daba1625254678ddaa69fd4acaa3bdc1f8727c))
+
+
 ## v0.47.6 (2024-01-19)
 
 ### Fix
