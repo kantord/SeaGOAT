@@ -2,6 +2,17 @@
 
 
 
+## v0.47.8 (2024-01-21)
+
+### Chore
+
+* chore(deps): update dependency pandas to v2.2.0 ([`6f53c28`](https://github.com/kantord/SeaGOAT/commit/6f53c28aafc6b49a02bc935b76a482526de31d1c))
+
+### Fix
+
+* fix(deps): update dependency nest-asyncio to v1.6.0 ([`0ced2a8`](https://github.com/kantord/SeaGOAT/commit/0ced2a8516be4da649aaf2466d20969e08aa9a31))
+
+
 ## v0.47.7 (2024-01-20)
 
 ### Chore
