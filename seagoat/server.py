@@ -185,7 +185,8 @@ def server():
 
     You can query this server using the seagoat command.
     """
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
+    logging.getLogger("waitress").setLevel(logging.DEBUG)
 
 
 @server.command()

@@ -163,3 +163,8 @@ cython_debug/
 .testmondata*
 prof/
 benchmark/examples/*/results/
+
+
+# Added by cargo
+
+/target
