@@ -1046,6 +1046,21 @@ files = [
 Flask = ">=0.9"
 
 [[package]]
+name = "flask-login"
+version = "0.6.3"
+description = "User authentication and session management for Flask."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Flask-Login-0.6.3.tar.gz", hash = "sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333"},
+    {file = "Flask_Login-0.6.3-py3-none-any.whl", hash = "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d"},
+]
+
+[package.dependencies]
+Flask = ">=1.0.4"
+Werkzeug = ">=1.0.1"
+
+[[package]]
 name = "flatbuffers"
 version = "23.5.26"
 description = "The FlatBuffers serialization format for Python"
@@ -2133,20 +2148,20 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.20.1"
+version = "2.21.0"
 description = "Developer friendly load testing framework"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "locust-2.20.1-py3-none-any.whl", hash = "sha256:70168ccf462f125e0e4304c1f8301d3c18f186e8f257bc6578e7bed5e74e59a7"},
-    {file = "locust-2.20.1.tar.gz", hash = "sha256:9ba4c8658a158aed55774ac3650ac0139fcc1dfa65fea0dabb00ea35b0d56a4e"},
+    {file = "locust-2.21.0-py3-none-any.whl", hash = "sha256:77c5fa66d69425ab639f7ea7f05c6793893adc3c5e8309b97f751f6e414ea5a9"},
+    {file = "locust-2.21.0.tar.gz", hash = "sha256:682f27d6696a2eea9f04f2c3ba87aab255a90285ba3a57c3c40444f646b39726"},
 ]
 
 [package.dependencies]
 ConfigArgParse = ">=1.5.5"
 flask = ">=2.0.0"
-Flask-BasicAuth = ">=0.2.0"
 Flask-Cors = ">=3.0.10"
+Flask-Login = ">=0.6.3"
 gevent = ">=22.10.2"
 geventhttpclient = ">=2.0.11"
 msgpack = ">=1.0.0"
