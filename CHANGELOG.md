@@ -2,6 +2,13 @@
 
 
 
+## v0.47.10 (2024-02-04)
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.13 ([`68e67ca`](https://github.com/kantord/SeaGOAT/commit/68e67ca4bd286a48352ae16dd07fd6e699d9ec7d))
+
+
 ## v0.47.9 (2024-02-04)
 
 ### Chore
