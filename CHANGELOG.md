@@ -2,6 +2,17 @@
 
 
 
+## v0.47.11 (2024-02-05)
+
+### Chore
+
+* chore(deps): update dependency locust to v2.22.0 ([`7eccd49`](https://github.com/kantord/SeaGOAT/commit/7eccd492cc0a465cf5d35a979cea2cc0f2619ee5))
+
+### Fix
+
+* fix(deps): update dependency waitress to v3 ([`b55d1ac`](https://github.com/kantord/SeaGOAT/commit/b55d1acd0e3d73a30db25f53fcf9b734b95f57f8))
+
+
 ## v0.47.10 (2024-02-04)
 
 ### Fix
