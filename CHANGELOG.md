@@ -2,6 +2,41 @@
 
 
 
+## v0.47.12 (2024-02-11)
+
+### Chore
+
+* chore(deps): update dependency pre-commit to v3.6.1 ([`96e40f8`](https://github.com/kantord/SeaGOAT/commit/96e40f8a0ed1be43cd0eb8fb787039274c33fd7f))
+
+* chore(deps): update dependency mkdocs-material to v9.5.9 ([`adac751`](https://github.com/kantord/SeaGOAT/commit/adac75130f505dafff790b0b889910fd6cba29c2))
+
+* chore(deps): update dependency pytest-asyncio to v0.23.5 ([`e2df74a`](https://github.com/kantord/SeaGOAT/commit/e2df74a39d6b0b37d136c04328962a0afc9a5f88))
+
+* chore(deps): update dependency jupyterlab-widgets to v3.0.10 ([`c0909bf`](https://github.com/kantord/SeaGOAT/commit/c0909bfa46872408b681d98c81a2a22acda97495))
+
+* chore(deps): update dependency python-semantic-release to v9 ([`955db67`](https://github.com/kantord/SeaGOAT/commit/955db67ce60e4d83268f1c848c86b54c463a9a7a))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.0.3 ([`d917aa6`](https://github.com/kantord/SeaGOAT/commit/d917aa62dd0b406dc8fa335632db0a79c48c22a4))
+
+* chore(deps): update dependency ipykernel to v6.29.2 ([`ee34694`](https://github.com/kantord/SeaGOAT/commit/ee34694ff833b5a13002561498ec14b6c1c4d288))
+
+* chore(deps): update dependency syrupy to v4.6.1 ([`adcc89a`](https://github.com/kantord/SeaGOAT/commit/adcc89aeea94963fbc35b5f81f2b5fd9ce0ebc02))
+
+* chore(deps): update dependency mkdocs-material to v9.5.8 ([`9dc898b`](https://github.com/kantord/SeaGOAT/commit/9dc898bfd68432677b5ba88d0300a43b7125b5f4))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9 ([`82b30d4`](https://github.com/kantord/SeaGOAT/commit/82b30d49cd0dff8f586a84c8d720659dd4a2e258))
+
+* chore(deps): update dependency ruff to v0.2.1 ([`01f0969`](https://github.com/kantord/SeaGOAT/commit/01f0969a35961483077e0c0863df97e891f96c02))
+
+* chore(deps): update dependency ipykernel to v6.29.1 ([`7d9e251`](https://github.com/kantord/SeaGOAT/commit/7d9e251bc60eb352246e93c4c5bb87b6666a421e))
+
+* chore(deps): update dependency pyright to v1.1.350 ([`010e859`](https://github.com/kantord/SeaGOAT/commit/010e8594963c489db5b0b02137b91d17beee4879))
+
+### Fix
+
+* fix(deps): update dependency tqdm to v4.66.2 ([`320147e`](https://github.com/kantord/SeaGOAT/commit/320147e8b08b84c30ffd50007dd03c304f0ae485))
+
+
 ## v0.47.11 (2024-02-05)
 
 ### Chore
