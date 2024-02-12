@@ -2,6 +2,17 @@
 
 
 
+## v0.47.13 (2024-02-12)
+
+### Chore
+
+* chore(deps): update dependency locust to v2.23.1 ([`31aa3d1`](https://github.com/kantord/SeaGOAT/commit/31aa3d174f0dc713f99c02d7c2d6f7cc36e55dbc))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v69.1.0 ([`98059d4`](https://github.com/kantord/SeaGOAT/commit/98059d44c55c8563b4810a192461287778e1d6b4))
+
+
 ## v0.47.12 (2024-02-11)
 
 ### Chore
