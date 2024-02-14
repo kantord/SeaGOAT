@@ -3919,13 +3919,13 @@ yaml = ["PyYaml (>=5.2)"]
 
 [[package]]
 name = "python-semantic-release"
-version = "9.0.3"
+version = "9.1.0"
 description = "Automatic Semantic Versioning for Python projects"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python-semantic-release-9.0.3.tar.gz", hash = "sha256:c11ce2d805347ba29175a2c35072afa013cd2bf502e57193ac1ed79e14c057cc"},
-    {file = "python_semantic_release-9.0.3-py3-none-any.whl", hash = "sha256:13385d60546eaac80b3bfea18503d551936a3c5bd73f960d59d94d021a9e274c"},
+    {file = "python-semantic-release-9.1.0.tar.gz", hash = "sha256:0317e72a940c5080c8aa6ff56cce6230f045b1a8f91f0a58fdc8f80745912369"},
+    {file = "python_semantic_release-9.1.0-py3-none-any.whl", hash = "sha256:7ca5fb1ea4d5215182db477fbc53d9f4c907b7030520c4ac6640b9aaa71dbce7"},
 ]
 
 [package.dependencies]
@@ -3939,7 +3939,7 @@ python-gitlab = ">=2,<5"
 requests = ">=2.25,<3"
 rich = ">=12.5.1"
 shellingham = ">=1.5.0.post1"
-tomlkit = ">=0.10,<1.0"
+tomlkit = ">=0.11,<1.0"
 
 [package.extras]
 dev = ["pre-commit", "ruff (==0.1.11)", "tox"]
