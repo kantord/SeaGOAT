@@ -2,6 +2,21 @@
 
 
 
+## v0.47.15 (2024-02-16)
+
+### Chore
+
+* chore(deps): update dependency matplotlib to v3.8.3 ([`512ed64`](https://github.com/kantord/SeaGOAT/commit/512ed643fc4fb38edf2683300c86db65742128b4))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.1.0 ([`12911a9`](https://github.com/kantord/SeaGOAT/commit/12911a9827da43a74f0f2101ca3edf812b92f918))
+
+* chore(deps): update dependency python-semantic-release to v9.1.0 ([`359ec45`](https://github.com/kantord/SeaGOAT/commit/359ec455a0064a23cbab89e8021c068697f30866))
+
+### Fix
+
+* fix(deps): update dependency gitpython to v3.1.42 ([`f96aa27`](https://github.com/kantord/SeaGOAT/commit/f96aa2794fa02fb7601fce59d6a7e45f05a2a3fd))
+
+
 ## v0.47.14 (2024-02-14)
 
 ### Fix
