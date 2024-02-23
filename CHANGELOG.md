@@ -2,6 +2,25 @@
 
 
 
+## v0.47.16 (2024-02-23)
+
+### Chore
+
+* chore(deps): update dependency ipython to v8.22.1 ([`f3c2330`](https://github.com/kantord/SeaGOAT/commit/f3c233096c71eb3ebece744d314b3c61ad55b65d))
+
+* chore(deps): update dependency pyright to v1.1.351 ([`87695b4`](https://github.com/kantord/SeaGOAT/commit/87695b4e2c7488d9045c4153903a1f6b40fa8289))
+
+* chore(deps): update dependency mkdocs-material to v9.5.10 ([`945c169`](https://github.com/kantord/SeaGOAT/commit/945c1690b42b079eb75d5d50e8e5892379917a40))
+
+* chore(deps): update dependency pre-commit to v3.6.2 ([`8596ec0`](https://github.com/kantord/SeaGOAT/commit/8596ec0996b429a77340057399f364d806ba6be1))
+
+* chore(deps): update dependency ruff to v0.2.2 ([`dc31603`](https://github.com/kantord/SeaGOAT/commit/dc31603bf33a2060527c7c5fd73a7f09811ba0f4))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.23 ([`c24d4cb`](https://github.com/kantord/SeaGOAT/commit/c24d4cb8f613fee277fd980c4c310833d35c5762))
+
+
 ## v0.47.15 (2024-02-16)
 
 ### Chore
