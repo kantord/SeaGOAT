@@ -2,6 +2,17 @@
 
 
 
+## v0.47.18 (2024-02-24)
+
+### Chore
+
+* chore(deps): update dependency pandas to v2.2.1 ([`767e337`](https://github.com/kantord/SeaGOAT/commit/767e33748ba09fc214d6b11d0e94feadec40db7f))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.9.15 ([`b966a25`](https://github.com/kantord/SeaGOAT/commit/b966a25c09f49bae9a3f449a082505cfc17f7f73))
+
+
 ## v0.47.17 (2024-02-23)
 
 ### Fix
