@@ -39,7 +39,7 @@ in-project = true
 create = true
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3.2"
+pytest = "^8.0.0"
 pre-commit = "^3.3.3"
 pyright = "^1.1.314"
 pytest-watch = "^4.2.0"
