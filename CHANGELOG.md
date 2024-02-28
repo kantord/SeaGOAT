@@ -2,6 +2,27 @@
 
 
 
+## v0.47.19 (2024-02-28)
+
+### Chore
+
+* chore(deps): update dependency pytest to v8 ([`0853bfb`](https://github.com/kantord/SeaGOAT/commit/0853bfb7f50b42e50d506d5af994cdc71309a1a0))
+
+* chore(deps): update dependency pytest-testmon to v2.1.1 ([`84f86c6`](https://github.com/kantord/SeaGOAT/commit/84f86c60b4d330399b94a4f7b5b7091085504e3c))
+
+* chore(deps): update dependency ipykernel to v6.29.3 ([`c427e92`](https://github.com/kantord/SeaGOAT/commit/c427e92c3882c814b8d88d8c10bcd073c90c4f56))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.1.1 ([`60583e5`](https://github.com/kantord/SeaGOAT/commit/60583e5320961fcf61426dfd717df5275f149214))
+
+* chore(deps): update dependency python-semantic-release to v9.1.1 ([`9e2b8e5`](https://github.com/kantord/SeaGOAT/commit/9e2b8e564ee09b8db6f2676cf166bd0039ba94fb))
+
+* chore(deps): update dependency mkdocs-material to v9.5.11 ([`f96b2b0`](https://github.com/kantord/SeaGOAT/commit/f96b2b0997c79c352217ec92a354eaf37bbf3ad2))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.4.24 ([`d1b988d`](https://github.com/kantord/SeaGOAT/commit/d1b988d2b2b6ef2c4674768a2e19326896ee7b11))
+
+
 ## v0.47.18 (2024-02-24)
 
 ### Chore
