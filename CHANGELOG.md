@@ -2,6 +2,39 @@
 
 
 
+## v0.47.20 (2024-03-13)
+
+### Chore
+
+* chore(deps): update dependency pytest to v8.1.1 ([`fa287c4`](https://github.com/kantord/SeaGOAT/commit/fa287c41cbc99c1d8221e36125e018d50f7928ef))
+
+* chore(deps): update dependency ruff to v0.3.2 ([`33ecdbc`](https://github.com/kantord/SeaGOAT/commit/33ecdbc0da2fab5d4d5d62db5c59dc57527b4f0e))
+
+* chore(deps): update dependency pyright to v1.1.353 ([`4d66d9c`](https://github.com/kantord/SeaGOAT/commit/4d66d9c7d2c6054ba470a8268ca28d735e80c499))
+
+* chore(deps): update dependency pytest-timeout to v2.3.1 ([`492534d`](https://github.com/kantord/SeaGOAT/commit/492534d9e4de89b15deb6b62d297c50fe7c4e49b))
+
+* chore(deps): update dependency ruff to v0.3.1 ([`88cb5c7`](https://github.com/kantord/SeaGOAT/commit/88cb5c7176903a5aaeb686f3390762701913f4d8))
+
+* chore(deps): update dependency mkdocs-material to v9.5.13 ([`decf7d5`](https://github.com/kantord/SeaGOAT/commit/decf7d5b3ce63585773b099554adc51550962954))
+
+* chore(deps): update dependency ipython to v8.22.2 ([`2c01e9b`](https://github.com/kantord/SeaGOAT/commit/2c01e9b7e2850513b6f9f00ec4fd7d9b38469463))
+
+* chore(deps): update dependency pytest to v8.1.0 ([`4047105`](https://github.com/kantord/SeaGOAT/commit/4047105616361391adacd0ef8bc70108bc8a18b5))
+
+* chore(deps): update dependency ruff to ^0.3.0 ([`6e154b9`](https://github.com/kantord/SeaGOAT/commit/6e154b93e6ee7d2178edcf71b8f6d4f3da8253f3))
+
+* chore(deps): update dependency locust to v2.24.0 ([`03b8ca2`](https://github.com/kantord/SeaGOAT/commit/03b8ca299394e72a72822fb0faf6a7e74dce476f))
+
+* chore(deps): update dependency pyright to v1.1.352 ([`a817268`](https://github.com/kantord/SeaGOAT/commit/a81726807a20c255831b165c3c4726850d432064))
+
+* chore(deps): update dependency mkdocs-material to v9.5.12 ([`7068b44`](https://github.com/kantord/SeaGOAT/commit/7068b44a74e697a1febbc2d8ad748357a0b61fb6))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v69.2.0 ([`649c4d0`](https://github.com/kantord/SeaGOAT/commit/649c4d0de166a7320e88ffd92071a26f244f486c))
+
+
 ## v0.47.19 (2024-02-28)
 
 ### Chore
