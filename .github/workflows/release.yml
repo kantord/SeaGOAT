@@ -1,72 +1,61 @@
----
 name: Semantic Release
-
 permissions:
-    id-token: write
-    contents: write
-
+  id-token: write
+  contents: write
 on:
-    push:
-        branches:
-            - main
-
+  push:
+    branches:
+      - main
 jobs:
-    release:
-        defaults:
-            run:
-                shell: bash
-        runs-on: ubuntu-latest
-        concurrency: release
-
-        steps:
-            - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-              with:
-                  fetch-depth: 0
-
-            - name: release
-              id: release
-              uses: python-semantic-release/python-semantic-release@v9.1.1
-              with:
-                  github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-            - name: update latest tag
-              # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
-              # See https://github.com/actions/runner/issues/1173
-              if: steps.release.outputs.released == 'true'
-              run: |
-                  git config user.email "git@daniel-kantor.com"
-                  git config user.name "github-actions"
-                  git tag -fa latest -m "Update to latest version"
-                  git push origin :refs/tags/latest
-                  git push origin --tags
-
-            - name: publish to pypi
-              uses: pypa/gh-action-pypi-publish@release/v1
-              # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
-              # See https://github.com/actions/runner/issues/1173
-              if: steps.release.outputs.released == 'true'
-
-            - name: Clone AUR package
-              run: git clone https://aur.archlinux.org/python-seagoat.git
-
-            - name: Update PKGBUILD
-              run: |
-                  ls
-                  VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-                  echo $VERSION
-                  sed -i "s/pkgver=.*/pkgver=$VERSION/g" python-seagoat/PKGBUILD
-                  cat python-seagoat/PKGBUILD
-
-            - name: Publish AUR package
-              uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
-              # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
-              # See https://github.com/actions/runner/issues/1173
-              if: steps.release.outputs.released == 'true'
-              with:
-                  pkgname: python-seagoat
-                  pkgbuild: ./python-seagoat/PKGBUILD
-                  commit_username: ${{ secrets.AUR_USERNAME }}
-                  commit_email: ${{ secrets.AUR_EMAIL }}
-                  ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-                  commit_message: Update AUR package
-                  ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+  release:
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-latest
+    concurrency: release
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          fetch-depth: 0
+      - name: release
+        id: release
+        uses: python-semantic-release/python-semantic-release@79ee9a95ef0415a8bad2aa6006ec33abe4f81b69 # v9.1.1
+        with:
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: update latest tag
+        # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
+        # See https://github.com/actions/runner/issues/1173
+        if: steps.release.outputs.released == 'true'
+        run: |
+          git config user.email "git@daniel-kantor.com"
+          git config user.name "github-actions"
+          git tag -fa latest -m "Update to latest version"
+          git push origin :refs/tags/latest
+          git push origin --tags
+      - name: publish to pypi
+        uses: pypa/gh-action-pypi-publish@81e9d935c883d0b210363ab89cf05f3894778450 # release/v1
+        # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
+        # See https://github.com/actions/runner/issues/1173
+        if: steps.release.outputs.released == 'true'
+      - name: Clone AUR package
+        run: git clone https://aur.archlinux.org/python-seagoat.git
+      - name: Update PKGBUILD
+        run: |
+          ls
+          VERSION=$(grep "^version =" pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo $VERSION
+          sed -i "s/pkgver=.*/pkgver=$VERSION/g" python-seagoat/PKGBUILD
+          cat python-seagoat/PKGBUILD
+      - name: Publish AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@063daf78a56662642bb00049ce78425ff6d0fad7 # v2.7.0
+        # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
+        # See https://github.com/actions/runner/issues/1173
+        if: steps.release.outputs.released == 'true'
+        with:
+          pkgname: python-seagoat
+          pkgbuild: ./python-seagoat/PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update AUR package
+          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
