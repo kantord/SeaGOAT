@@ -1,64 +1,53 @@
----
 name: pytest
-
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
-
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
-    build:
-        defaults:
-            run:
-                shell: bash
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-                python-version: ['3.11']
-
-        steps:
-            - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-
-            - name: Set up Python
-              id: setup-python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: ${{ matrix.python-version }}
-
-            - name: Install ripgrep
-              run: |
-                  if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-                    curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
-                    sudo dpkg -i ripgrep_13.0.0_amd64.deb
-                  elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-                    choco install ripgrep
-                  elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-                    brew install ripgrep
-                  fi
-
-            - name: Install Poetry
-              uses: snok/install-poetry@v1
-
-            - name: Install dependencies on macOS
-              if: runner.os == 'macOS'
-              run: |
-                  export HNSWLIB_NO_NATIVE=1
-                  arch -x86_64 poetry install --no-interaction --no-root
-
-            - name: Install dependencies on other OS
-              if: runner.os != 'macOS'
-              run: |
-                  export HNSWLIB_NO_NATIVE=1
-                  poetry install --no-interaction --no-root
-
-            - name: Run pytest
-              run: |
-                  poetry run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
-
-            - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@v4-beta
-              if: matrix.os == 'ubuntu-latest'
-              env:
-                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  build:
+    defaults:
+      run:
+        shell: bash
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.11']
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install ripgrep
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
+            sudo dpkg -i ripgrep_13.0.0_amd64.deb
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            choco install ripgrep
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            brew install ripgrep
+          fi
+      - name: Install Poetry
+        uses: snok/install-poetry@93ada01c735cc8a383ce0ce2ae205a21c415379b # v1
+      - name: Install dependencies on macOS
+        if: runner.os == 'macOS'
+        run: |
+          export HNSWLIB_NO_NATIVE=1
+          arch -x86_64 poetry install --no-interaction --no-root
+      - name: Install dependencies on other OS
+        if: runner.os != 'macOS'
+        run: |
+          export HNSWLIB_NO_NATIVE=1
+          poetry install --no-interaction --no-root
+      - name: Run pytest
+        run: |
+          poetry run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@428cda1b1c731be3e8bfa389049c3f276d572ffb # v4-beta
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
