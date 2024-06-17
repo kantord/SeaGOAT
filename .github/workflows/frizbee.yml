@@ -1,0 +1,23 @@
+name: Frizbee Pinned Actions and Container Images Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run every day at midnight
+  workflow_dispatch:
+
+jobs:
+  frizbee_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: stacklok/frizbee-action@v0.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.FRIZBEE_TOKEN }}
+        with:
+          actions: .github/workflows
+          dockerfiles: ./docker
+          kubernetes: ./k8s
+          docker_compose: ./docker
+          open_pr: true
+          fail_on_unpinned: true
