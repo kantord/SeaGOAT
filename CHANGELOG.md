@@ -2,6 +2,25 @@
 
 
 
+## v0.48.0 (2024-06-27)
+
+### Chore
+
+* chore: update lockfile ([`2dcf05f`](https://github.com/kantord/SeaGOAT/commit/2dcf05f16132d31d9535706e8c1c5293df284c9d))
+
+* chore(deps): update dependency ruff to v0.3.3 ([`dde86c6`](https://github.com/kantord/SeaGOAT/commit/dde86c63dd17830a84637c0cdc2bf9e67bba8d49))
+
+* chore(deps): update dependency pyright to v1.1.354 ([`dfdcaa1`](https://github.com/kantord/SeaGOAT/commit/dfdcaa16bca2c82b4705a343f0a452503c3c6422))
+
+### Feature
+
+* feat: use the latest version of chromadb ([`23d64e9`](https://github.com/kantord/SeaGOAT/commit/23d64e9e94d0c1ae246b8d09cfe4bd12f3ad386b))
+
+### Unknown
+
+* Update tags to digests ([`21f81c5`](https://github.com/kantord/SeaGOAT/commit/21f81c5e04623014926ab64618fcba4ea32861bc))
+
+
 ## v0.47.20 (2024-03-13)
 
 ### Chore
