@@ -6,6 +6,12 @@
 
 ### Chore
 
+* chore(deps): update actions/checkout digest to 692973e ([`8061790`](https://github.com/kantord/SeaGOAT/commit/8061790957c5ef42042123298db5417fe0d47145))
+
+* chore(deps): update codecov/codecov-action digest to e28ff12 ([`7edbe36`](https://github.com/kantord/SeaGOAT/commit/7edbe36df53e724f7f053b19274bc4e6c1e2f53f))
+
+* chore(deps): update dependency pytest-cov to v5 ([`0ebc5c9`](https://github.com/kantord/SeaGOAT/commit/0ebc5c9ebcef30aa7c93a325aaee53590f3eb16b))
+
 * chore: update lockfile ([`2dcf05f`](https://github.com/kantord/SeaGOAT/commit/2dcf05f16132d31d9535706e8c1c5293df284c9d))
 
 * chore(deps): update dependency ruff to v0.3.3 ([`dde86c6`](https://github.com/kantord/SeaGOAT/commit/dde86c63dd17830a84637c0cdc2bf9e67bba8d49))
