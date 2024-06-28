@@ -1,6 +1,34 @@
 # CHANGELOG
 
+## v0.48.1 (2024-06-28)
 
+### Chore
+
+* chore(deps): update dependency psutil to v6 ([`612b5ea`](https://github.com/kantord/SeaGOAT/commit/612b5eaa5171346198a9c12e9dc6404883460f66))
+
+* chore(deps): update dependency ipython to v8.26.0 ([`deb0a18`](https://github.com/kantord/SeaGOAT/commit/deb0a18b933032c689a6ef575a0465debacc3e94))
+
+* chore(deps): update dependency ruff to ^0.5.0 ([`3117f04`](https://github.com/kantord/SeaGOAT/commit/3117f0444b5e6e08c52a51fb20f9ae26a5fb8798))
+
+* chore(deps): update stacklok/frizbee-action action to v0.0.2 ([`9cf35c4`](https://github.com/kantord/SeaGOAT/commit/9cf35c46b646469e398c53648c0bc15434da804e))
+
+* chore(deps): update ksxgithub/github-actions-deploy-aur action to v2.7.1 ([`86310b7`](https://github.com/kantord/SeaGOAT/commit/86310b7cbd664c1ec3bbe93d21c1d171e2e5bfe9))
+
+* chore(deps): update pypa/gh-action-pypi-publish digest to fb9fc6a ([`e35de2b`](https://github.com/kantord/SeaGOAT/commit/e35de2be3e8d7607edebbfdc290d4dbbd6282306))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.8.3 ([`29833e1`](https://github.com/kantord/SeaGOAT/commit/29833e15cbaaec911c1611506f0ea9f73078ea65))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v70 ([`a84c447`](https://github.com/kantord/SeaGOAT/commit/a84c447be5387b13834fd294d42eab3d588dadfa))
+
+### Style
+
+* style: apply autoformatting to frizbee.yml ([`3bde231`](https://github.com/kantord/SeaGOAT/commit/3bde231ec8bbc252de4ef0aeb3e6e428196e2b55))
+
+### Unknown
+
+* Add Frizbee action workflow ([`fd4de42`](https://github.com/kantord/SeaGOAT/commit/fd4de425b76089b1755002d6eb04aa6ba3d15c78))
 
 ## v0.48.0 (2024-06-27)
 
@@ -25,7 +53,6 @@
 ### Unknown
 
 * Update tags to digests ([`21f81c5`](https://github.com/kantord/SeaGOAT/commit/21f81c5e04623014926ab64618fcba4ea32861bc))
-
 
 ## v0.47.20 (2024-03-13)
 
@@ -59,7 +86,6 @@
 
 * fix(deps): update dependency setuptools to v69.2.0 ([`649c4d0`](https://github.com/kantord/SeaGOAT/commit/649c4d0de166a7320e88ffd92071a26f244f486c))
 
-
 ## v0.47.19 (2024-02-28)
 
 ### Chore
@@ -80,7 +106,6 @@
 
 * fix(deps): update dependency chromadb to v0.4.24 ([`d1b988d`](https://github.com/kantord/SeaGOAT/commit/d1b988d2b2b6ef2c4674768a2e19326896ee7b11))
 
-
 ## v0.47.18 (2024-02-24)
 
 ### Chore
@@ -91,13 +116,11 @@
 
 * fix(deps): update dependency orjson to v3.9.15 ([`b966a25`](https://github.com/kantord/SeaGOAT/commit/b966a25c09f49bae9a3f449a082505cfc17f7f73))
 
-
 ## v0.47.17 (2024-02-23)
 
 ### Fix
 
 * fix(deps): update dependency setuptools to v69.1.1 ([`5b87e15`](https://github.com/kantord/SeaGOAT/commit/5b87e15d93594edf9419e7fb5219e10bc9908d7c))
-
 
 ## v0.47.16 (2024-02-23)
 
@@ -117,7 +140,6 @@
 
 * fix(deps): update dependency chromadb to v0.4.23 ([`c24d4cb`](https://github.com/kantord/SeaGOAT/commit/c24d4cb8f613fee277fd980c4c310833d35c5762))
 
-
 ## v0.47.15 (2024-02-16)
 
 ### Chore
@@ -132,13 +154,11 @@
 
 * fix(deps): update dependency gitpython to v3.1.42 ([`f96aa27`](https://github.com/kantord/SeaGOAT/commit/f96aa2794fa02fb7601fce59d6a7e45f05a2a3fd))
 
-
 ## v0.47.14 (2024-02-14)
 
 ### Fix
 
 * fix(deps): update dependency orjson to v3.9.14 ([`f893bcf`](https://github.com/kantord/SeaGOAT/commit/f893bcf3e1a573f76584b2f356eab228f3bf39b1))
-
 
 ## v0.47.13 (2024-02-12)
 
@@ -149,7 +169,6 @@
 ### Fix
 
 * fix(deps): update dependency setuptools to v69.1.0 ([`98059d4`](https://github.com/kantord/SeaGOAT/commit/98059d44c55c8563b4810a192461287778e1d6b4))
-
 
 ## v0.47.12 (2024-02-11)
 
@@ -185,7 +204,6 @@
 
 * fix(deps): update dependency tqdm to v4.66.2 ([`320147e`](https://github.com/kantord/SeaGOAT/commit/320147e8b08b84c30ffd50007dd03c304f0ae485))
 
-
 ## v0.47.11 (2024-02-05)
 
 ### Chore
@@ -196,13 +214,11 @@
 
 * fix(deps): update dependency waitress to v3 ([`b55d1ac`](https://github.com/kantord/SeaGOAT/commit/b55d1acd0e3d73a30db25f53fcf9b734b95f57f8))
 
-
 ## v0.47.10 (2024-02-04)
 
 ### Fix
 
 * fix(deps): update dependency orjson to v3.9.13 ([`68e67ca`](https://github.com/kantord/SeaGOAT/commit/68e67ca4bd286a48352ae16dd07fd6e699d9ec7d))
-
 
 ## v0.47.9 (2024-02-04)
 
@@ -236,7 +252,6 @@
 
 * fix(deps): update dependency flask to v3.0.2 ([`0d9f14f`](https://github.com/kantord/SeaGOAT/commit/0d9f14fdac1ba13b2e829f6675b76cd7f31cca19))
 
-
 ## v0.47.8 (2024-01-21)
 
 ### Chore
@@ -246,7 +261,6 @@
 ### Fix
 
 * fix(deps): update dependency nest-asyncio to v1.6.0 ([`0ced2a8`](https://github.com/kantord/SeaGOAT/commit/0ced2a8516be4da649aaf2466d20969e08aa9a31))
-
 
 ## v0.47.7 (2024-01-20)
 
@@ -260,20 +274,17 @@
 
 * fix(deps): update dependency jsonschema to v4.21.1 ([`94daba1`](https://github.com/kantord/SeaGOAT/commit/94daba1625254678ddaa69fd4acaa3bdc1f8727c))
 
-
 ## v0.47.6 (2024-01-19)
 
 ### Fix
 
 * fix(deps): update dependency flask to v3.0.1 ([`4c86f3e`](https://github.com/kantord/SeaGOAT/commit/4c86f3e03056149113fb94965ca7b3b5ea5147d1))
 
-
 ## v0.47.5 (2024-01-18)
 
 ### Fix
 
 * fix(deps): update dependency orjson to v3.9.12 ([`a3ad549`](https://github.com/kantord/SeaGOAT/commit/a3ad5495f1a326e7a1167b2bca88bb73dc512df3))
-
 
 ## v0.47.4 (2024-01-16)
 
@@ -286,7 +297,6 @@
 ### Fix
 
 * fix(deps): update dependency jsonschema to v4.21.0 ([`4e047d1`](https://github.com/kantord/SeaGOAT/commit/4e047d1b5d355ca21980383001ec4c1982d8f550))
-
 
 ## v0.47.3 (2024-01-15)
 
@@ -302,7 +312,6 @@
 
 * fix(deps): update dependency nest-asyncio to v1.5.9 ([`9fbf445`](https://github.com/kantord/SeaGOAT/commit/9fbf4453fbf7b7e39b2fdb64f40b9bb9cba34f06))
 
-
 ## v0.47.2 (2024-01-10)
 
 ### Chore
@@ -315,7 +324,6 @@
 
 * fix(deps): update dependency gitpython to v3.1.41 ([`1fa293c`](https://github.com/kantord/SeaGOAT/commit/1fa293c173ed1e2571b8352ccfbe8a1a7cde70b9))
 
-
 ## v0.47.1 (2024-01-04)
 
 ### Chore
@@ -325,7 +333,6 @@
 ### Fix
 
 * fix(deps): update dependency chromadb to v0.4.22 ([`4ac99a5`](https://github.com/kantord/SeaGOAT/commit/4ac99a558615f21b029d9935aacc6ddfa30dd400))
-
 
 ## v0.47.0 (2024-01-03)
 
@@ -339,7 +346,6 @@
 
 * feat: add --vimgrep flag ([`ce61174`](https://github.com/kantord/SeaGOAT/commit/ce6117468aedf52faf128853c7d93ce6998a1eb2))
 
-
 ## v0.46.0 (2024-01-01)
 
 ### Feature
@@ -347,7 +353,6 @@
 * feat: explicitly fail when git repo not found
 
 fixes #485 ([`8759c6d`](https://github.com/kantord/SeaGOAT/commit/8759c6dea92a92ed8b1c17cd4521d6f6c6cd7461))
-
 
 ## v0.45.0 (2024-01-01)
 
@@ -367,7 +372,6 @@ fixes #485 ([`8759c6d`](https://github.com/kantord/SeaGOAT/commit/8759c6dea92a92
 
 fixes #449 ([`1c7a8ae`](https://github.com/kantord/SeaGOAT/commit/1c7a8ae1559ea16b8de74973eb46ede9aab371fe))
 
-
 ## v0.44.0 (2023-12-30)
 
 ### Chore
@@ -384,7 +388,6 @@ fixes #449 ([`1c7a8ae`](https://github.com/kantord/SeaGOAT/commit/1c7a8ae1559ea1
 
 * feat: remove `query` endpoint in favor of `lines/query` ([`73b4e3d`](https://github.com/kantord/SeaGOAT/commit/73b4e3d89179ef7acbe9377ecda1ca244269520d))
 
-
 ## v0.43.0 (2023-12-26)
 
 ### Chore
@@ -395,13 +398,11 @@ fixes #449 ([`1c7a8ae`](https://github.com/kantord/SeaGOAT/commit/1c7a8ae1559ea1
 
 * feat: allow POST queries ([`104657e`](https://github.com/kantord/SeaGOAT/commit/104657e1b01bdaab7f3a81630ca9351c990e5f3d))
 
-
 ## v0.42.1 (2023-12-23)
 
 ### Fix
 
 * fix(deps): update dependency setuptools to v69.0.3 ([`9b0372c`](https://github.com/kantord/SeaGOAT/commit/9b0372c9805833e175b38ba9851c40577199da1b))
-
 
 ## v0.42.0 (2023-12-23)
 
@@ -425,7 +426,6 @@ fixes #449 ([`1c7a8ae`](https://github.com/kantord/SeaGOAT/commit/1c7a8ae1559ea1
 
 fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac0203e160004fc9e0e174d85b81fc2))
 
-
 ## v0.41.4 (2023-12-21)
 
 ### Chore
@@ -440,7 +440,6 @@ fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac020
 
 * fix(deps): update dependency chromadb to v0.4.21 ([`c87e3a9`](https://github.com/kantord/SeaGOAT/commit/c87e3a91498c5360b445b771e2ff42ee63753f48))
 
-
 ## v0.41.3 (2023-12-19)
 
 ### Chore
@@ -454,7 +453,6 @@ fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac020
 ### Fix
 
 * fix(deps): update dependency deepmerge to v1.1.1 ([`eb621f4`](https://github.com/kantord/SeaGOAT/commit/eb621f4da2f09b56b49505de0154b2e5f7921f6d))
-
 
 ## v0.41.2 (2023-12-15)
 
@@ -471,7 +469,6 @@ fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac020
 ### Fix
 
 * fix(deps): update dependency chromadb to v0.4.20 ([`7b5d28e`](https://github.com/kantord/SeaGOAT/commit/7b5d28e74ed9bc8f7b8b2fb8d5185c16faf72c8c))
-
 
 ## v0.41.1 (2023-12-13)
 
@@ -503,7 +500,6 @@ fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac020
 
 * test: add snapshot testing with a real repository ([`f56d076`](https://github.com/kantord/SeaGOAT/commit/f56d0769418afb23c2d71b652f7f5d478fd71b8d))
 
-
 ## v0.41.0 (2023-12-06)
 
 ### Chore
@@ -515,7 +511,6 @@ fixes #226 ([`1b76f9d`](https://github.com/kantord/SeaGOAT/commit/1b76f9de0ac020
 ### Feature
 
 * feat: increase rg memory map limit to 500 ([`2a61fd3`](https://github.com/kantord/SeaGOAT/commit/2a61fd3e8bbeb6947a5442c9f50ef73b57e93dba))
-
 
 ## v0.40.8 (2023-12-05)
 
@@ -533,7 +528,6 @@ fixes #300 ([`b1f20af`](https://github.com/kantord/SeaGOAT/commit/b1f20af0f209a8
 
 * refactor: use float based priorities in queues ([`d2eeb63`](https://github.com/kantord/SeaGOAT/commit/d2eeb631d13705d50e2a786f485a9fb199e62dde))
 
-
 ## v0.40.7 (2023-12-04)
 
 ### Chore
@@ -543,7 +537,6 @@ fixes #300 ([`b1f20af`](https://github.com/kantord/SeaGOAT/commit/b1f20af0f209a8
 ### Fix
 
 * fix(deps): update dependency chromadb to v0.4.18 ([`1fa56fc`](https://github.com/kantord/SeaGOAT/commit/1fa56fc92159fec93ba1d073297dd2fa844414f1))
-
 
 ## v0.40.6 (2023-12-04)
 
@@ -589,7 +582,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * fix(deps): update dependency pygments to v2.17.2 ([`f27e34b`](https://github.com/kantord/SeaGOAT/commit/f27e34b32ce49c13822d76738933e5167e1677a2))
 
-
 ## v0.40.5 (2023-11-21)
 
 ### Chore
@@ -610,7 +602,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`7b38ac5`](https://github.com/kantord/SeaGOAT/commit/7b38ac560601d35468928ff2eb85e1ff9265182b))
 
-
 ## v0.40.4 (2023-11-21)
 
 ### Chore
@@ -620,7 +611,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 ### Fix
 
 * fix(deps): update dependency setuptools to v69.0.1 ([`d70c212`](https://github.com/kantord/SeaGOAT/commit/d70c2126f5e97720e8a13d5cef2efff8dba8a172))
-
 
 ## v0.40.3 (2023-11-20)
 
@@ -639,7 +629,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 ### Fix
 
 * fix(deps): update dependency setuptools to v69 ([`1caf455`](https://github.com/kantord/SeaGOAT/commit/1caf455ff73f0e00000f26d518882168054bb8dc))
-
 
 ## v0.40.2 (2023-11-16)
 
@@ -669,7 +658,6 @@ Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`b130af3`](https:/
 
 * fix(deps): update dependency jsonschema to v4.20.0 ([`0b511a4`](https://github.com/kantord/SeaGOAT/commit/0b511a4fc3faff47e73dfbda3879896863412623))
 
-
 ## v0.40.1 (2023-11-10)
 
 ### Fix
@@ -691,7 +679,6 @@ Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`b130af3`](https:/
 * refactor: remove get_results() ([`8a95ea8`](https://github.com/kantord/SeaGOAT/commit/8a95ea80a56439e3a73d0f4da6627517bbad2443))
 
 * refactor: remove query() method ([`d68be70`](https://github.com/kantord/SeaGOAT/commit/d68be70129f92e527c4651e8457900595b871865))
-
 
 ## v0.40.0 (2023-11-09)
 
@@ -726,7 +713,6 @@ Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`b130af3`](https:/
 * feat: include context lines by default in the HTTP response
 
 * feat: set default context to 3 ([`3b15b3c`](https://github.com/kantord/SeaGOAT/commit/3b15b3c6de9c21ca4772f9ede7fbb8bf3d0f9b2a))
-
 
 ## v0.39.3 (2023-10-30)
 
@@ -767,7 +753,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 ### Style
 
 * style: fix code formatting issues ([`82a6ef5`](https://github.com/kantord/SeaGOAT/commit/82a6ef50bc0c1f06473e010b31c335e0aa0bbd73))
-
 
 ## v0.39.2 (2023-10-26)
 
@@ -813,7 +798,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * fix(deps): update dependency orjson to v3.9.10 ([`77adbe5`](https://github.com/kantord/SeaGOAT/commit/77adbe533c827499fd6f2bd5df836d1ba5479b61))
 
-
 ## v0.39.1 (2023-10-25)
 
 ### Chore
@@ -828,7 +812,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * fix: add failure message when checking for updates (#362) ([`09a7c48`](https://github.com/kantord/SeaGOAT/commit/09a7c4804546b51fd2523439ce61d134332faae7))
 
-
 ## v0.39.0 (2023-10-24)
 
 ### Chore
@@ -841,13 +824,11 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * feat: include score for code blocks ([`236d983`](https://github.com/kantord/SeaGOAT/commit/236d98339566b8db0a0e65e9c5f459bd19f0e759))
 
-
 ## v0.38.0 (2023-10-23)
 
 ### Feature
 
 * feat: merge almost contiguous code blocks ([`6b94347`](https://github.com/kantord/SeaGOAT/commit/6b94347e59a4b7e62c73211c060bc9ce486b28b0))
-
 
 ## v0.37.0 (2023-10-23)
 
@@ -874,7 +855,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 * feat: filter stop words from regex results
 
 * chore: add more benchmark results ([`fae7f55`](https://github.com/kantord/SeaGOAT/commit/fae7f555551948e93c48a2d367599b903957d561))
-
 
 ## v0.36.3 (2023-10-18)
 
@@ -920,7 +900,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * chore: add script for adding quality for benchmarks ([`843ae8d`](https://github.com/kantord/SeaGOAT/commit/843ae8dfc6c0fa6502e61b0d4d7213708515647a))
 
-
 ## v0.36.2 (2023-10-17)
 
 ### Chore
@@ -939,7 +918,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * perf: avoid full repo analysis when no changes detected ([`f92b887`](https://github.com/kantord/SeaGOAT/commit/f92b887191f8f22434d6a701c99d8a5eb0433444))
 
-
 ## v0.36.1 (2023-10-17)
 
 ### Chore
@@ -949,7 +927,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 ### Fix
 
 * fix(deps): update dependency gitpython to v3.1.38 ([`4debdbe`](https://github.com/kantord/SeaGOAT/commit/4debdbed8044a8fa66612fb3089ee257ec4e6908))
-
 
 ## v0.36.0 (2023-10-16)
 
@@ -1014,7 +991,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 Co-authored-by: Ashish Datta &lt;ashishdatta@Ashishs-MacBook-Air.local&gt;
 Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`fe2dfc8`](https://github.com/kantord/SeaGOAT/commit/fe2dfc83fa49b95c37b33cbe8023449a03fa8c79))
 
-
 ## v0.35.9 (2023-10-13)
 
 ### Chore
@@ -1025,13 +1001,11 @@ Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`fe2dfc8`](https:/
 
 * fix(deps): update dependency orjson to v3.9.9 ([`b807ae7`](https://github.com/kantord/SeaGOAT/commit/b807ae72bc594ef1895961fea4e5d3dd2dd60c41))
 
-
 ## v0.35.8 (2023-10-10)
 
 ### Fix
 
 * fix(deps): update dependency orjson to v3.9.8 ([`5ea3e8b`](https://github.com/kantord/SeaGOAT/commit/5ea3e8beacbe8d1e0442a7de4395ffa844899a0d))
-
 
 ## v0.35.7 (2023-10-10)
 
@@ -1053,7 +1027,6 @@ Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`fe2dfc8`](https:/
 
 * refactor: extract get_metadata_and_distance_from_chromadb_result ([`58b6594`](https://github.com/kantord/SeaGOAT/commit/58b65940d6e7148948582991adb5d549726a2048))
 
-
 ## v0.35.6 (2023-10-08)
 
 ### Fix
@@ -1065,7 +1038,6 @@ Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`fe2dfc8`](https:/
 * refactor: extract _generate_cache_lines ([`2a96ad6`](https://github.com/kantord/SeaGOAT/commit/2a96ad6ac829e77ac202ca0ba659594ff2a67b3d))
 
 * refactor: extract _iterate_lines_to_cache ([`47d1357`](https://github.com/kantord/SeaGOAT/commit/47d13579dda3281435b1212ea0552b53579cb54e))
-
 
 ## v0.35.5 (2023-10-08)
 
@@ -1117,7 +1089,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * test: allow counting total time with timed_block ([`be9c046`](https://github.com/kantord/SeaGOAT/commit/be9c046fa562ed875a066282be46bd8e384cb3fe))
 
-
 ## v0.35.4 (2023-10-07)
 
 ### Chore
@@ -1138,13 +1109,11 @@ characters. ([`ff0e31e`](https://github.com/kantord/SeaGOAT/commit/ff0e31e1b1a0c
 
 * test: add tool for timing parts of the code ([`1037051`](https://github.com/kantord/SeaGOAT/commit/10370513f8890f96a01182ecdd327a2fab7a9df8))
 
-
 ## v0.35.3 (2023-10-07)
 
 ### Performance
 
 * perf: further optimization of result formatting (#298) ([`8cb5574`](https://github.com/kantord/SeaGOAT/commit/8cb5574e41eb987b19e2eb5af5984844f2063df5))
-
 
 ## v0.35.2 (2023-10-06)
 
@@ -1224,7 +1193,6 @@ Fixes #210
 
 * Add a conditional branch for multiprocessing context ([`26bcee6`](https://github.com/kantord/SeaGOAT/commit/26bcee67f8bc8d7f4757a266110cc99acbc1a9ba))
 
-
 ## v0.35.1 (2023-09-28)
 
 ### Fix
@@ -1234,7 +1202,6 @@ Fixes #210
 ### Refactor
 
 * refactor: extract result filtering to separate functions ([`ea0cf79`](https://github.com/kantord/SeaGOAT/commit/ea0cf79f8019cbb5c1472178f6e8172530a775ca))
-
 
 ## v0.35.0 (2023-09-28)
 
@@ -1268,7 +1235,6 @@ tests #125 ([`f035203`](https://github.com/kantord/SeaGOAT/commit/f035203f498d1b
 
 * test: join server processes ([`b63865b`](https://github.com/kantord/SeaGOAT/commit/b63865b62f8d21701a72f1f976444662581c3f96))
 
-
 ## v0.34.0 (2023-09-27)
 
 ### Chore
@@ -1284,7 +1250,6 @@ tests #125 ([`f035203`](https://github.com/kantord/SeaGOAT/commit/f035203f498d1b
 * feat: allow cli to connect to a remote server (#262)
 
 fixes #236 ([`86b12e9`](https://github.com/kantord/SeaGOAT/commit/86b12e9bc8130cd551ef34b9a8974749d1df8259))
-
 
 ## v0.33.0 (2023-09-26)
 
@@ -1306,7 +1271,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * feat: allow configuring port via config file ([`6f337ce`](https://github.com/kantord/SeaGOAT/commit/6f337cec49a4b1d242d8d0fa14f1ede78a0b90b1))
 
-
 ## v0.32.2 (2023-09-25)
 
 ### Fix
@@ -1314,7 +1278,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 * fix(deps): update dependency chromadb to v0.4.13 (#257)
 
 Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`3b8fdb5`](https://github.com/kantord/SeaGOAT/commit/3b8fdb516c081effc59cee202226e8bec20ecb97))
-
 
 ## v0.32.1 (2023-09-25)
 
@@ -1334,20 +1297,17 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 fixes #250 ([`5d471ea`](https://github.com/kantord/SeaGOAT/commit/5d471eabcb0959762513e72901b35308c7906fa1))
 
-
 ## v0.32.0 (2023-09-25)
 
 ### Feature
 
 * feat: penalize text files compared to code files (#252) ([`c79a6fa`](https://github.com/kantord/SeaGOAT/commit/c79a6fa2e06921fca68781e3d553899effb10829))
 
-
 ## v0.31.0 (2023-09-24)
 
 ### Feature
 
 * feat: include cache folders in server info JSON (#249) ([`3bdc226`](https://github.com/kantord/SeaGOAT/commit/3bdc226f5ec0909ed875f57573c3e9d04b193f2a))
-
 
 ## v0.30.2 (2023-09-24)
 
@@ -1357,7 +1317,6 @@ fixes #250 ([`5d471ea`](https://github.com/kantord/SeaGOAT/commit/5d471eabcb0959
 
 partially or fully fixes #226 ([`4fe3c60`](https://github.com/kantord/SeaGOAT/commit/4fe3c60095240e5a7d7b1d2617ef33c219dd2a36))
 
-
 ## v0.30.1 (2023-09-24)
 
 ### Fix
@@ -1365,7 +1324,6 @@ partially or fully fixes #226 ([`4fe3c60`](https://github.com/kantord/SeaGOAT/co
 * fix: avoid crashing when file no longer exists (#247)
 
 fixes #245 ([`d85231a`](https://github.com/kantord/SeaGOAT/commit/d85231a9647052c773fb7c38dc618b3e46298f81))
-
 
 ## v0.30.0 (2023-09-24)
 
@@ -1389,7 +1347,6 @@ fixes #245 ([`d85231a`](https://github.com/kantord/SeaGOAT/commit/d85231a9647052
 
 Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`3b889bc`](https://github.com/kantord/SeaGOAT/commit/3b889bc43a5464f457a461b321f3bf851e75d6cc))
 
-
 ## v0.29.3 (2023-09-23)
 
 ### Chore
@@ -1401,7 +1358,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 ### Fix
 
 * fix: support Windows file paths (#234) ([`fe11547`](https://github.com/kantord/SeaGOAT/commit/fe11547432240fa6d0dab41894bee34fc054cf6a))
-
 
 ## v0.29.2 (2023-09-23)
 
@@ -1462,7 +1418,6 @@ ValueError: too many values to unpack (expected 4)
 
 Co-authored-by: Daniel Kantor &lt;git@daniel-kantor.com&gt; ([`2a2df42`](https://github.com/kantord/SeaGOAT/commit/2a2df42cd84ebd4be9484a1c2a2c87903d7304b1))
 
-
 ## v0.29.1 (2023-09-22)
 
 ### Chore
@@ -1487,7 +1442,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 fixing typo about Operating Systems ([`51ae32c`](https://github.com/kantord/SeaGOAT/commit/51ae32c845365e64226f49d031769c6b47673bb1))
 
-
 ## v0.29.0 (2023-09-20)
 
 ### Feature
@@ -1499,7 +1453,6 @@ fixing typo about Operating Systems ([`51ae32c`](https://github.com/kantord/SeaG
 * modified readme to reflect that .cc extension is supported
 
 * .cxx for C++ also ([`8ebd516`](https://github.com/kantord/SeaGOAT/commit/8ebd516b456d6655c7ba07b575bfdb19e919c5a5))
-
 
 ## v0.28.0 (2023-09-20)
 
@@ -1542,13 +1495,11 @@ https://huggingface.co/datasets/code_search_net#languages
 
 * docs: document list of supported languages ([`5b33c3e`](https://github.com/kantord/SeaGOAT/commit/5b33c3eff26e6d8c157c6cac6d2524fc9bc8f06a))
 
-
 ## v0.27.2 (2023-09-20)
 
 ### Fix
 
 * fix(deps): update dependency chromadb to v0.4.12 ([`73f7826`](https://github.com/kantord/SeaGOAT/commit/73f78265aad6c75974697c300a67f6352d425902))
-
 
 ## v0.27.1 (2023-09-19)
 
@@ -1560,20 +1511,17 @@ https://huggingface.co/datasets/code_search_net#languages
 
 * fix(deps): update dependency chromadb to v0.4.11 ([`a2f494c`](https://github.com/kantord/SeaGOAT/commit/a2f494ceaad9481f8aa22d9fd37c03e3c53d4aa0))
 
-
 ## v0.27.0 (2023-09-18)
 
 ### Feature
 
 * feat: include isRunning for server-info ([`023ea85`](https://github.com/kantord/SeaGOAT/commit/023ea85ca4f7c40b5c27fb609b45a3612e2e661f))
 
-
 ## v0.26.0 (2023-09-18)
 
 ### Feature
 
 * feat: allow getting list of servers as JSON ([`21ff638`](https://github.com/kantord/SeaGOAT/commit/21ff638f517f64256460ca37c9c09dc20898dbec))
-
 
 ## v0.25.1 (2023-09-17)
 
@@ -1589,7 +1537,6 @@ https://huggingface.co/datasets/code_search_net#languages
 
 * refactor: use a single file for all server info ([`76471bb`](https://github.com/kantord/SeaGOAT/commit/76471bb9f22245868e27c9d48bda5c0ff34677eb))
 
-
 ## v0.25.0 (2023-09-13)
 
 ### Feature
@@ -1600,13 +1547,11 @@ https://huggingface.co/datasets/code_search_net#languages
 
 * feat: include score in results ([`2cde673`](https://github.com/kantord/SeaGOAT/commit/2cde67396b7e97302091883dbe8bf68169811aec))
 
-
 ## v0.24.0 (2023-09-13)
 
 ### Feature
 
 * feat: make grep vs chroma results more balanced ([`c802358`](https://github.com/kantord/SeaGOAT/commit/c8023586ffcd92d0c0d3b74aa00e819f615ad03d))
-
 
 ## v0.23.6 (2023-09-13)
 
@@ -1620,13 +1565,11 @@ https://huggingface.co/datasets/code_search_net#languages
 
 test: test what happens when there are no results ([`49d28a2`](https://github.com/kantord/SeaGOAT/commit/49d28a2cd768633868199400673c70ba2095e6e6))
 
-
 ## v0.23.5 (2023-09-12)
 
 ### Fix
 
 * fix(deps): update dependency setuptools to v68.2.2 ([`45c69a0`](https://github.com/kantord/SeaGOAT/commit/45c69a07de8f050c90ec981b4af16214eee20d11))
-
 
 ## v0.23.4 (2023-09-12)
 
@@ -1635,7 +1578,6 @@ test: test what happens when there are no results ([`49d28a2`](https://github.co
 * fix(deps): update dependency gitpython to v3.1.36 ([`48c9a18`](https://github.com/kantord/SeaGOAT/commit/48c9a181d8955fbc4de333b1797b404322edf823))
 
 * fix(deps): update dependency chromadb to v0.4.10 ([`837443e`](https://github.com/kantord/SeaGOAT/commit/837443ef8c648ebc7e0736e822a564d422897f4f))
-
 
 ## v0.23.3 (2023-09-12)
 
@@ -1649,7 +1591,6 @@ test: test what happens when there are no results ([`49d28a2`](https://github.co
 
 * fix: fix tests in mac os ([`9f215fd`](https://github.com/kantord/SeaGOAT/commit/9f215fdafa5b8ef33e8e8eaddeed70d14c70b74a))
 
-
 ## v0.23.2 (2023-09-11)
 
 ### Chore
@@ -1662,13 +1603,11 @@ test: test what happens when there are no results ([`49d28a2`](https://github.co
 
 * fix(deps): update dependency setuptools to v68.2.1 ([`54cfc12`](https://github.com/kantord/SeaGOAT/commit/54cfc128c2fc66764724ae9f1701ea868bd10540))
 
-
 ## v0.23.1 (2023-09-10)
 
 ### Fix
 
 * fix: use a Queue type that works on Mac OS ([`d6d6761`](https://github.com/kantord/SeaGOAT/commit/d6d67616aaf7012c8019477541f3b56ab971f3be))
-
 
 ## v0.23.0 (2023-09-10)
 
@@ -1700,13 +1639,11 @@ docs: update dmoe gif ([`3c7a96a`](https://github.com/kantord/SeaGOAT/commit/3c7
 
 * feat: use waitress as an HTTP server ([`16b31c2`](https://github.com/kantord/SeaGOAT/commit/16b31c244056d29d6d90d5e6c6b4348c53cffe9e))
 
-
 ## v0.22.1 (2023-09-08)
 
 ### Fix
 
 * fix(deps): update dependency orjson to v3.9.7 ([`43b963c`](https://github.com/kantord/SeaGOAT/commit/43b963c98fd5c5d24a5571c4abfea4948bbc4185))
-
 
 ## v0.22.0 (2023-09-08)
 
@@ -1722,13 +1659,11 @@ docs: update dmoe gif ([`3c7a96a`](https://github.com/kantord/SeaGOAT/commit/3c7
 
 * Create SECURITY.md ([`013af0d`](https://github.com/kantord/SeaGOAT/commit/013af0d4b6a5408a5bcf35b44aa242d000430c3f))
 
-
 ## v0.21.0 (2023-09-08)
 
 ### Feature
 
 * feat: automatically update database if codebase changes ([`1218f2c`](https://github.com/kantord/SeaGOAT/commit/1218f2c5bf929349198493fefae1ca5d3343f7d3))
-
 
 ## v0.20.2 (2023-09-08)
 
@@ -1739,7 +1674,6 @@ docs: update dmoe gif ([`3c7a96a`](https://github.com/kantord/SeaGOAT/commit/3c7
 ### Fix
 
 * fix(deps): update dependency orjson to v3.9.6 ([`7dd57be`](https://github.com/kantord/SeaGOAT/commit/7dd57be96b3bedcbf1185af9c8d6e694a7a50a2b))
-
 
 ## v0.20.1 (2023-09-07)
 
@@ -1763,7 +1697,6 @@ docs: update dmoe gif ([`3c7a96a`](https://github.com/kantord/SeaGOAT/commit/3c7
 
 * fix(deps): update dependency gitpython to v3.1.35 ([`282cba4`](https://github.com/kantord/SeaGOAT/commit/282cba4e95fbf4cc5a276265fc51b0c3b90ba10f))
 
-
 ## v0.20.0 (2023-09-07)
 
 ### Feature
@@ -1772,20 +1705,17 @@ docs: update dmoe gif ([`3c7a96a`](https://github.com/kantord/SeaGOAT/commit/3c7
 
 fixes #171 ([`6c64239`](https://github.com/kantord/SeaGOAT/commit/6c6423926a49ea343e7d45faad9a5beb51174607))
 
-
 ## v0.19.5 (2023-09-07)
 
 ### Fix
 
 * fix(deps): update dependency setuptools to v68.2.0 ([`2925223`](https://github.com/kantord/SeaGOAT/commit/292522369e14c0cd658fa31c01bbd5ae62eabdc3))
 
-
 ## v0.19.4 (2023-09-06)
 
 ### Performance
 
 * perf: avoid wasting time processing irrelevant results ([`b03b936`](https://github.com/kantord/SeaGOAT/commit/b03b9364550977c70dd88241ba41b3217994069a))
-
 
 ## v0.19.3 (2023-09-06)
 
@@ -1817,7 +1747,6 @@ fixes #171 ([`6c64239`](https://github.com/kantord/SeaGOAT/commit/6c6423926a49ea
 
 * refactor: move is_server_running to utils ([`a9004c9`](https://github.com/kantord/SeaGOAT/commit/a9004c9a6eaca8c497216d78cc9865c461cd6a0f))
 
-
 ## v0.19.2 (2023-09-04)
 
 ### Chore
@@ -1844,7 +1773,6 @@ fixes #171 ([`6c64239`](https://github.com/kantord/SeaGOAT/commit/6c6423926a49ea
 
 * perf: avoid overfetching results ([`c0c1c6c`](https://github.com/kantord/SeaGOAT/commit/c0c1c6c494a48bab71a8ac5ca871b22180fe71c0))
 
-
 ## v0.19.1 (2023-09-02)
 
 ### Chore
@@ -1856,7 +1784,6 @@ fixes #171 ([`6c64239`](https://github.com/kantord/SeaGOAT/commit/6c6423926a49ea
 ### Fix
 
 * fix(deps): update dependency gitpython to v3.1.34 ([`0548a84`](https://github.com/kantord/SeaGOAT/commit/0548a84d96e06e9202014b6f82a07e951c7abc6e))
-
 
 ## v0.19.0 (2023-09-01)
 
@@ -1886,7 +1813,6 @@ fixes: #145 ([`199b06d`](https://github.com/kantord/SeaGOAT/commit/199b06daa2938
 
 * refactor: iterate lines in display_results() ([`ebadc81`](https://github.com/kantord/SeaGOAT/commit/ebadc8157685bd271210c376d940cac6f9b4a349))
 
-
 ## v0.18.0 (2023-09-01)
 
 ### Feature
@@ -1896,7 +1822,6 @@ fixes: #145 ([`199b06d`](https://github.com/kantord/SeaGOAT/commit/199b06daa2938
 ### Refactor
 
 * refactor: count line types for each block ([`aa13645`](https://github.com/kantord/SeaGOAT/commit/aa1364569541205696930663ae34543ea5353dcc))
-
 
 ## v0.17.2 (2023-09-01)
 
@@ -1950,7 +1875,6 @@ fixes: #145 ([`199b06d`](https://github.com/kantord/SeaGOAT/commit/199b06daa2938
 
 * test: fix flaky test ([`528e639`](https://github.com/kantord/SeaGOAT/commit/528e63979fc60622846a643c6fc8ee8a2c8373ac))
 
-
 ## v0.17.1 (2023-08-31)
 
 ### Chore
@@ -1966,7 +1890,6 @@ fixes: #145 ([`199b06d`](https://github.com/kantord/SeaGOAT/commit/199b06daa2938
 * perf: avoid loading server dependencies in CLI
 
 fixes #126 ([`e26078d`](https://github.com/kantord/SeaGOAT/commit/e26078db97e4b14c459f5655c93e4d6bd0f78e8e))
-
 
 ## v0.17.0 (2023-08-30)
 
@@ -1988,7 +1911,6 @@ fixes #126 ([`e26078d`](https://github.com/kantord/SeaGOAT/commit/e26078db97e4b1
 
 * feat: analyze all files using the queue ([`84ea9f4`](https://github.com/kantord/SeaGOAT/commit/84ea9f4eadc724529fe0cf3ba19a57f90f833cfe))
 
-
 ## v0.16.2 (2023-08-29)
 
 ### Chore
@@ -2006,7 +1928,6 @@ fixes #126 ([`e26078d`](https://github.com/kantord/SeaGOAT/commit/e26078db97e4b1
 ### Fix
 
 * fix(deps): update dependency chromadb to v0.4.8 ([`cb93d6e`](https://github.com/kantord/SeaGOAT/commit/cb93d6ec9e7582e3d36360bcde3c9d8574aad629))
-
 
 ## v0.16.1 (2023-08-24)
 
@@ -2028,7 +1949,6 @@ part of this documentation: https://app.gitbook.com/o/frj4DkAraQA62Kx3r3Ah/s/aGF
 
 * fix(deps): update dependency chromadb to v0.4.7 ([`e03deb4`](https://github.com/kantord/SeaGOAT/commit/e03deb40748c4c486c5392f4b0cdce1ce3b24b47))
 
-
 ## v0.16.0 (2023-08-22)
 
 ### Chore
@@ -2047,13 +1967,11 @@ part of this documentation: https://app.gitbook.com/o/frj4DkAraQA62Kx3r3Ah/s/aGF
 
 * test: make source faker reusable ([`e25ecb7`](https://github.com/kantord/SeaGOAT/commit/e25ecb74e50c7691358671e6cf29950ed5f7d105))
 
-
 ## v0.15.2 (2023-08-22)
 
 ### Fix
 
 * fix: task queue unexpectedly dies ([`b217b6a`](https://github.com/kantord/SeaGOAT/commit/b217b6acdd25edd57eeecc23bd57ca291a1600bb))
-
 
 ## v0.15.1 (2023-08-22)
 
@@ -2068,7 +1986,6 @@ part of this documentation: https://app.gitbook.com/o/frj4DkAraQA62Kx3r3Ah/s/aGF
 ### Fix
 
 * fix(deps): update dependency flask to v2.3.3 ([`06b9157`](https://github.com/kantord/SeaGOAT/commit/06b9157fa7f49dad2ffdb5d9bb999a44e7838d81))
-
 
 ## v0.15.0 (2023-08-21)
 
@@ -2088,7 +2005,6 @@ fixes #75 ([`01f36d9`](https://github.com/kantord/SeaGOAT/commit/01f36d92e39859c
 
 * refactor: create a simple task queue ([`4cb0017`](https://github.com/kantord/SeaGOAT/commit/4cb0017ef5f64f9b84ca7af3cdfc64bc609b8141))
 
-
 ## v0.14.0 (2023-08-19)
 
 ### Feature
@@ -2107,7 +2023,6 @@ fixes #114 ([`d768d6f`](https://github.com/kantord/SeaGOAT/commit/d768d6f9ba67f8
 
 * refactor: use click.echo() instead of print() ([`d147008`](https://github.com/kantord/SeaGOAT/commit/d14700844027f53cb203a7a0f7e6f62703bea6ec))
 
-
 ## v0.13.0 (2023-08-18)
 
 ### Feature
@@ -2115,7 +2030,6 @@ fixes #114 ([`d768d6f`](https://github.com/kantord/SeaGOAT/commit/d768d6f9ba67f8
 * feat: add --context/--context-above-/--context-below
 
 refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord/SeaGOAT/commit/4fe4887e9dbb9c355ae664e30906b7dc21dcdbe0))
-
 
 ## v0.12.5 (2023-08-18)
 
@@ -2126,7 +2040,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 ### Fix
 
 * fix(deps): update dependency setuptools to v68.1.2 ([`dcf57e6`](https://github.com/kantord/SeaGOAT/commit/dcf57e65e5c8f794267dd9f9ff1d1d665ba7fb3a))
-
 
 ## v0.12.4 (2023-08-17)
 
@@ -2144,13 +2057,11 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * fix(deps): update dependency click to v8.1.7 ([`e8f0de1`](https://github.com/kantord/SeaGOAT/commit/e8f0de146bfb33314318e1e38416e5254dccb77b))
 
-
 ## v0.12.3 (2023-08-15)
 
 ### Fix
 
 * fix(deps): update dependency setuptools to v68.1.0 ([`a445ae4`](https://github.com/kantord/SeaGOAT/commit/a445ae454e3d4437fcdd00214ff02d70f8c4e4b0))
-
 
 ## v0.12.2 (2023-08-15)
 
@@ -2166,7 +2077,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * fix(deps): update dependency chromadb to v0.4.6 ([`e1520c8`](https://github.com/kantord/SeaGOAT/commit/e1520c8e70d488f6cddd3f63d7608ddf07b222d4))
 
-
 ## v0.12.1 (2023-08-12)
 
 ### Chore
@@ -2176,7 +2086,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 ### Performance
 
 * perf: dramatically speed up frecency analysis ([`84e8345`](https://github.com/kantord/SeaGOAT/commit/84e8345e1d00c03696103da5083b1d550d06aa15))
-
 
 ## v0.12.0 (2023-08-12)
 
@@ -2190,7 +2099,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * feat: reduce bias/noise in result sorting ([`557ae30`](https://github.com/kantord/SeaGOAT/commit/557ae309c85fe7b627aabc108e83ee96680ef182))
 
-
 ## v0.11.0 (2023-08-10)
 
 ### Feature
@@ -2201,7 +2109,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * refactor: use dict instead of set to store result lines ([`8d26fda`](https://github.com/kantord/SeaGOAT/commit/8d26fda489b757e00726c6944d927f217f5fdb62))
 
-
 ## v0.10.6 (2023-08-10)
 
 ### Chore
@@ -2211,7 +2118,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 ### Fix
 
 * fix(deps): update dependency tqdm to v4.66.1 ([`b29ba3b`](https://github.com/kantord/SeaGOAT/commit/b29ba3b277b8ddee9f44e8ed22e1df85faa45399))
-
 
 ## v0.10.5 (2023-08-09)
 
@@ -2227,13 +2133,11 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * style: remove unnecessary pylint ignore ([`56ebcdd`](https://github.com/kantord/SeaGOAT/commit/56ebcdd1cb56be044068934317c23de909cbbc8c))
 
-
 ## v0.10.4 (2023-08-09)
 
 ### Fix
 
 * fix(deps): update dependency tqdm to v4.66.0 ([`ec737ca`](https://github.com/kantord/SeaGOAT/commit/ec737ca9238acd2af90605d226d15ffc70eb7e73))
-
 
 ## v0.10.3 (2023-08-09)
 
@@ -2241,20 +2145,17 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * fix(deps): update dependency tqdm to v4.65.2 ([`1e09ac9`](https://github.com/kantord/SeaGOAT/commit/1e09ac9064231ef44614035754e6e976f017784b))
 
-
 ## v0.10.2 (2023-08-08)
 
 ### Fix
 
 * fix(deps): update dependency tqdm to v4.65.1 ([`900c61e`](https://github.com/kantord/SeaGOAT/commit/900c61ee627eaefb7fee943a5a8c3c98d77eae18))
 
-
 ## v0.10.1 (2023-08-08)
 
 ### Performance
 
 * perf: avoid overfetching data when limit is specified ([`a7904cf`](https://github.com/kantord/SeaGOAT/commit/a7904cfeca639fc4b04bc1daf9d528a74ef3eef2))
-
 
 ## v0.10.0 (2023-08-07)
 
@@ -2276,13 +2177,11 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 
 * test: add missing docs for regexp ([`91f2873`](https://github.com/kantord/SeaGOAT/commit/91f2873a4c1970ad42ddae79133b496f4eb66a5f))
 
-
 ## v0.9.3 (2023-08-06)
 
 ### Fix
 
 * fix(deps): update dependency pygments to v2.16.1 ([`262484a`](https://github.com/kantord/SeaGOAT/commit/262484ad7ea4096691220cc340ef06277814a3c5))
-
 
 ## v0.9.2 (2023-08-04)
 
@@ -2295,7 +2194,6 @@ refactor: extract _include_context_lines ([`4fe4887`](https://github.com/kantord
 ### Fix
 
 * fix(deps): update dependency chromadb to v0.4.5 ([`36e7001`](https://github.com/kantord/SeaGOAT/commit/36e7001bf3c82d615eafc00ce815c05b41649e65))
-
 
 ## v0.9.1 (2023-08-02)
 
@@ -2323,7 +2221,6 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * fix(deps): update dependency chromadb to v0.4.4 ([`88df96c`](https://github.com/kantord/SeaGOAT/commit/88df96c70c6bebc6b5f073d1d115a354e4d22da6))
 
-
 ## v0.9.0 (2023-08-02)
 
 ### Chore
@@ -2348,20 +2245,17 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * refactor: use an iterator for limiting the results ([`6d92543`](https://github.com/kantord/SeaGOAT/commit/6d925433778a2986b07be3ff58bd8a937c90d555))
 
-
 ## v0.8.9 (2023-07-31)
 
 ### Fix
 
 * fix: enable docs deployment again ([`1efbaa0`](https://github.com/kantord/SeaGOAT/commit/1efbaa0858d4682c9830f6b857f0e53dba030cde))
 
-
 ## v0.8.8 (2023-07-30)
 
 ### Fix
 
 * fix: fix git identity for deployments ([`7ed0350`](https://github.com/kantord/SeaGOAT/commit/7ed0350be77b25141c731d879f8e0b2ddac386e8))
-
 
 ## v0.8.7 (2023-07-30)
 
@@ -2373,13 +2267,11 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * fix: temporarily remove docs deployment ([`038c6cd`](https://github.com/kantord/SeaGOAT/commit/038c6cd244d184b31f26b5c1234d8468ecb0cf9f))
 
-
 ## v0.8.6 (2023-07-30)
 
 ### Fix
 
 * fix: fix poetry install in docs build ([`0cc4620`](https://github.com/kantord/SeaGOAT/commit/0cc4620e7d9e68ecead4a585b67c77c8347ba9d5))
-
 
 ## v0.8.5 (2023-07-30)
 
@@ -2387,13 +2279,11 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * fix: try to fix docs build ([`b03bf35`](https://github.com/kantord/SeaGOAT/commit/b03bf35086b45e5bcbc3bd2c3de467a4be92c120))
 
-
 ## v0.8.4 (2023-07-30)
 
 ### Fix
 
 * fix: attempt to fix docs build ([`d3be803`](https://github.com/kantord/SeaGOAT/commit/d3be803999d02e9c7886ee0afe18d13ea1ab5943))
-
 
 ## v0.8.3 (2023-07-30)
 
@@ -2401,20 +2291,17 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * fix: yet another attempt to fix docs build ([`35682d1`](https://github.com/kantord/SeaGOAT/commit/35682d1bafe480668e69d010d1f38c0824e054a3))
 
-
 ## v0.8.2 (2023-07-30)
 
 ### Fix
 
 * fix: fix docs deployment after release ([`eafb3fa`](https://github.com/kantord/SeaGOAT/commit/eafb3fa72ad733ec8eaaceabc73cfdf9019569a7))
 
-
 ## v0.8.1 (2023-07-30)
 
 ### Fix
 
 * fix: fix release process ([`ce26f81`](https://github.com/kantord/SeaGOAT/commit/ce26f811907599474d0f3494795d11b4ac5d4f7b))
-
 
 ## v0.8.0 (2023-07-30)
 
@@ -2432,7 +2319,6 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * feat: show a more helpful message when server offline ([`32b9f6d`](https://github.com/kantord/SeaGOAT/commit/32b9f6d8940c7f630df12ddccbfda2942f5fdb21))
 
-
 ## v0.7.3 (2023-07-30)
 
 ### Ci
@@ -2447,20 +2333,17 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 * refactor: remove unnecessary persist() logic ([`112138e`](https://github.com/kantord/SeaGOAT/commit/112138ef66924848c5b8977903afc3c58edd8eaf))
 
-
 ## v0.7.2 (2023-07-30)
 
 ### Fix
 
 * fix: fix single-sourced version ([`2a97445`](https://github.com/kantord/SeaGOAT/commit/2a974452e0f5fa68bdd407018a6e7de00bd80b25))
 
-
 ## v0.7.1 (2023-07-30)
 
 ### Fix
 
 * fix: incorrect version number is displayed with --version ([`3e3d553`](https://github.com/kantord/SeaGOAT/commit/3e3d553eb4da332104d1aa319470f71f1a718bb0))
-
 
 ## v0.7.0 (2023-07-29)
 
@@ -2480,13 +2363,11 @@ https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
 
 This reverts commit 5f230cc388085ea248421630a4cd826a3bfb699b. ([`917504a`](https://github.com/kantord/SeaGOAT/commit/917504adc5a7e68777bfb989b9427a34e6dd5a2f))
 
-
 ## v0.6.1 (2023-07-28)
 
 ### Fix
 
 * fix(deps): update dependency chromadb to ^0.4.0 ([`5f230cc`](https://github.com/kantord/SeaGOAT/commit/5f230cc388085ea248421630a4cd826a3bfb699b))
-
 
 ## v0.6.0 (2023-07-28)
 
@@ -2512,7 +2393,6 @@ This reverts commit 5f230cc388085ea248421630a4cd826a3bfb699b. ([`917504a`](https
 
 * feat: add --version option to cli ([`6bf15c9`](https://github.com/kantord/SeaGOAT/commit/6bf15c970811e2cd7a18a9752326ba898073d89b))
 
-
 ## v0.5.6 (2023-07-28)
 
 ### Chore
@@ -2536,7 +2416,6 @@ This reverts commit 5f230cc388085ea248421630a4cd826a3bfb699b. ([`917504a`](https
 ### Fix
 
 * fix(deps): update dependency nest-asyncio to v1.5.7 ([`e292bbe`](https://github.com/kantord/SeaGOAT/commit/e292bbe25b865af707bbb5b200253b9ed4329cdb))
-
 
 ## v0.5.5 (2023-07-23)
 
@@ -2572,7 +2451,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`376e723`](https://github.com/kantord/SeaGOAT/commit/376e7237b19bb9b2db356b7964283cdeabea2726))
 
-
 ## v0.5.4 (2023-07-20)
 
 ### Fix
@@ -2587,13 +2465,11 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * fix: fix version handling ([`4995ef0`](https://github.com/kantord/SeaGOAT/commit/4995ef0c63dedf037e4256be4075a091381fb8c5))
 
-
 ## v0.5.3 (2023-07-19)
 
 ### Fix
 
 * fix: fix package version in pypi (#31) ([`aaaeda7`](https://github.com/kantord/SeaGOAT/commit/aaaeda747d5f4a57aa901aff9429629f40cef700))
-
 
 ## v0.5.2 (2023-07-19)
 
@@ -2601,13 +2477,11 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * fix: fix build for semantic release (#30) ([`4e93c88`](https://github.com/kantord/SeaGOAT/commit/4e93c88db5180d82f3fcdb7ffa36d4e17a816772))
 
-
 ## v0.5.1 (2023-07-19)
 
 ### Fix
 
 * fix: server reported as running when process died ([`2758c18`](https://github.com/kantord/SeaGOAT/commit/2758c181b637e5eb1d947992b43bd5ea7611d8d2))
-
 
 ## v0.5.0 (2023-07-19)
 
@@ -2633,7 +2507,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 
 * test: run fast tests first ([`c7c60cf`](https://github.com/kantord/SeaGOAT/commit/c7c60cfa5085cb51faf3194450b3fcf7aff03720))
 
-
 ## v0.4.0 (2023-07-18)
 
 ### Ci
@@ -2647,7 +2520,6 @@ Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.co
 ### Test
 
 * test: move server fixture to conftest ([`d510e87`](https://github.com/kantord/SeaGOAT/commit/d510e87ef7c2dbfab464e929703ba2b4299e7be3))
-
 
 ## v0.3.1 (2023-07-18)
 
@@ -2671,7 +2543,6 @@ it&#39;s needed because pkg_resources is used ([`efc23a3`](https://github.com/ka
 
 * fix: use importlib.metadata for getting the version ([`d0c442c`](https://github.com/kantord/SeaGOAT/commit/d0c442cb63aa6dcfe8640c4bc02bb42df788528a))
 
-
 ## v0.3.0 (2023-07-18)
 
 ### Ci
@@ -2682,13 +2553,11 @@ it&#39;s needed because pkg_resources is used ([`efc23a3`](https://github.com/ka
 
 * feat: reveal seagoat version in query response ([`cd5c0ba`](https://github.com/kantord/SeaGOAT/commit/cd5c0ba86e75062a10a25118c68a0598bb5d9c13))
 
-
 ## v0.2.1 (2023-07-18)
 
 ### Fix
 
 * fix: fix server imports ([`7d01530`](https://github.com/kantord/SeaGOAT/commit/7d015305582bb5a674b7abc7be1e12311bc18a04))
-
 
 ## v0.2.0 (2023-07-18)
 
