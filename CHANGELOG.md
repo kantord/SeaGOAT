@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.48.2 (2024-06-30)
+
+### Fix
+
+* fix: fix git --object-only usage
+
+I don&#39;t have such in my git 2.34.1, so I had to fix it in an obvious way
+
+style: apply auto-formatting to the code ([`22f9fd5`](https://github.com/kantord/SeaGOAT/commit/22f9fd5ba60f16a911a1668ca16a9026617699cb))
+
 ## v0.48.1 (2024-06-28)
 
 ### Chore
