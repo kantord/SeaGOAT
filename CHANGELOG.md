@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.48.3 (2024-07-01)
+
+### Chore
+
+* chore(deps): update dependency ipykernel to v6.29.5 ([`cf5bcbb`](https://github.com/kantord/SeaGOAT/commit/cf5bcbb0be9a915ac3eed0b1e3b697a2f2df7090))
+
+* chore: remove benchmark folder
+
+this benchmark approach didn&#39;t work well because it was
+not too accurate and people didn&#39;t understand how to run
+the benchmark anyways ([`4297ab6`](https://github.com/kantord/SeaGOAT/commit/4297ab694eb80b4c11554dc58a75c6f2d36579b4))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v70.2.0 ([`093176e`](https://github.com/kantord/SeaGOAT/commit/093176e8e88cc7fa119deb7b8dcdd5cb5c2d3281))
+
 ## v0.48.2 (2024-06-30)
 
 ### Fix
