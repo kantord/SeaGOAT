@@ -58,7 +58,7 @@ jobs:
                   cat python-seagoat/PKGBUILD
 
             - name: Publish AUR package
-              uses: KSXGitHub/github-actions-deploy-aur@f253a99125c1ca6bf2451d5a126fe04214d884bd # v2.7.1
+              uses: KSXGitHub/github-actions-deploy-aur@9dfe151cf48f26a957bbd0379c120e79cb990e13 # v2.7.2
               # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
               # See https://github.com/actions/runner/issues/1173
               if: steps.release.outputs.released == 'true'
