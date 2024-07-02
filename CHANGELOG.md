@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.48.4 (2024-07-02)
+
+### Chore
+
+* chore(deps): update ksxgithub/github-actions-deploy-aur action to v2.7.2 ([`038e0cf`](https://github.com/kantord/SeaGOAT/commit/038e0cff4d70a08739e68411731e4776fe59a706))
+
+* chore(deps): update dependency mkdocs-material to v9.5.28 ([`ed64e59`](https://github.com/kantord/SeaGOAT/commit/ed64e59aa999f689557ab854f72152243b2db460))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.10.6 ([`1f6f6d2`](https://github.com/kantord/SeaGOAT/commit/1f6f6d25428d7df23bd90f24fa56f3b8db9c52cb))
+
 ## v0.48.3 (2024-07-01)
 
 ### Chore
