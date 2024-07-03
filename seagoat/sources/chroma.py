@@ -1,4 +1,5 @@
 from pathlib import Path
+import threading
 
 import chromadb
 from chromadb.config import Settings
@@ -11,6 +12,9 @@ from seagoat.result import Result
 from seagoat.utils.config import get_config_values
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
+
+
+lock = threading.Lock()
 
 
 def get_metadata_and_distance_from_chromadb_result(chromadb_results):
@@ -64,6 +68,7 @@ def initialize(repository: Repository):
             anonymized_telemetry=False,
         ),
     )
+
     embedding_function_name = config["server"]["chroma"]["embeddingFunction"]["name"]
     embedding_function_kwargs = config["server"]["chroma"]["embeddingFunction"][
         "arguments"
@@ -80,28 +85,30 @@ def initialize(repository: Repository):
         maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
         n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
 
-        chromadb_results = chroma_collection.query(
-            query_texts=[query_text],
-            n_results=n_results,
-        )
+        with lock:
+            chromadb_results = chroma_collection.query(
+                query_texts=[query_text],
+                n_results=n_results,
+            )
 
         return format_results(query_text, repository, chromadb_results)
 
     def cache_chunk(chunk):
-        try:
-            chroma_collection.add(
-                ids=[chunk.chunk_id],
-                documents=[chunk.chunk],
-                metadatas=[
-                    {
-                        "path": chunk.path,
-                        "line": chunk.codeline,
-                        "git_object_id": chunk.object_id,
-                    }
-                ],
-            )
-        except IDAlreadyExistsError:
-            pass
+        with lock:
+            try:
+                chroma_collection.add(
+                    ids=[chunk.chunk_id],
+                    documents=[chunk.chunk],
+                    metadatas=[
+                        {
+                            "path": chunk.path,
+                            "line": chunk.codeline,
+                            "git_object_id": chunk.object_id,
+                        }
+                    ],
+                )
+            except IDAlreadyExistsError:
+                pass
 
     def cache_repo():
         # chromadb does not need any repo cache action

@@ -20,11 +20,17 @@ class Task:
 
 
 class BaseQueue:
+    workers = 2
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self._task_queue = PriorityQueue()
-        self._worker_thread = threading.Thread(target=self._worker_function)
-        self._worker_thread.start()
+        self._workers = [
+            threading.Thread(target=self._worker_function) for _ in range(self.workers)
+        ]
+
+        for worker in self._workers:
+            worker.start()
 
     def _get_context(self) -> Dict[str, Any]:
         return {}
@@ -56,7 +62,9 @@ class BaseQueue:
         self._task_queue.put(
             Task(priority=HIGH_PRIORITY, name="shutdown", args=(), kwargs={})
         )
-        self._worker_thread.join()
+
+        for worker in self._workers:
+            worker.join()
 
     def _handle_task(self, context, task: Task):
         logging.info("Handling task: %s", task.name)
