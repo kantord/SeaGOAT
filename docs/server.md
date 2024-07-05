@@ -74,7 +74,7 @@ You will receive a response similar to this:
 
 In this output, you can also see information about where databases/caches
 related to your projects are stored. `globalCache` is the parent folder of
-all the cache directories, and withing each server, you can find an attribute
+all the cache directories, and within each server, you can find an attribute
 called `cacheLocation` which contains the path to the cache directory for
 each different type of cache associated with that project.
 
