@@ -11,7 +11,7 @@ from stop_words import get_stop_words
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
-from seagoat.sources.chroma import MAXIMUM_VECTOR_DISTANCE
+from seagoat.sources.vector import MAXIMUM_VECTOR_DISTANCE
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import is_file_type_supported
 
@@ -144,7 +144,7 @@ def initialize(repository: Repository):
             if relative_path not in files:
                 files[relative_path] = Result(query_text, gitfile)
 
-            # This is so that ripgrep results are on comparable levels with chroma results
+            # This is so that ripgrep results are on comparable levels with vector results
             files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
 
         return files.values()

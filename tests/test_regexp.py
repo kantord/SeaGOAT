@@ -29,7 +29,7 @@ async def test_simple_regexp(repo):
 
 
 @pytest.mark.asyncio
-async def test_regexp_combined_with_chroma(repo):
+async def test_regexp_combined_with_vector(repo):
     repo.add_file_change_commit(
         file_name="line_positions.txt",
         contents="""samsung iphone

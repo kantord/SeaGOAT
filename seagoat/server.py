@@ -265,8 +265,8 @@ def _server_info():
         formatted_servers_info[normalized_repo_path] = {
             "repoPath": normalized_repo_path,
             "cacheLocation": {
-                "chroma": str(
-                    Cache("chroma", Path(normalized_repo_path), {}).get_cache_folder(),
+                "vector": str(
+                    Cache("vector", Path(normalized_repo_path), {}).get_cache_folder(),
                 ),
                 "ripgrep": str(
                     Cache("ripgrep", Path(normalized_repo_path), {}).get_cache_folder(),

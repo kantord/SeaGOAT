@@ -27,7 +27,7 @@ from seagoat.engine import Engine
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.server import create_app, start_server
-from seagoat.sources import chroma, ripgrep
+from seagoat.sources import vector, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import ServerDoesNotExist, get_server_info
 from seagoat.utils.wait import wait_for
@@ -483,7 +483,7 @@ def managed_process():
 
 
 @contextmanager
-def mock_sources_context(repo, ripgrep_lines, chroma_lines):
+def mock_sources_context(repo, ripgrep_lines, vector_lines):
     def noop(*args, **kwargs):
         pass
 
@@ -504,7 +504,7 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
 
         return mock_query
 
-    for file_path in set(list(ripgrep_lines.keys()) + list(chroma_lines.keys())):
+    for file_path in set(list(ripgrep_lines.keys()) + list(vector_lines.keys())):
         repo.add_file_change_commit(
             file_name=file_path,
             contents="\n" * 50,
@@ -513,15 +513,15 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
         )
 
     with patch.object(ripgrep, "initialize") as mock_ripgrep, patch.object(
-        chroma, "initialize"
-    ) as mock_chroma:
+        vector, "initialize"
+    ) as mock_vector:
         mock_ripgrep.return_value = {
             "fetch": create_mock_query(repo, ripgrep_lines),
             "cache_chunk": noop,
             "cache_repo": noop,
         }
-        mock_chroma.return_value = {
-            "fetch": create_mock_query(repo, chroma_lines),
+        mock_vector.return_value = {
+            "fetch": create_mock_query(repo, vector_lines),
             "cache_chunk": noop,
             "cache_repo": noop,
         }
@@ -530,8 +530,8 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
 
 @pytest.fixture(name="create_prepared_seagoat")
 def _create_prepared_seagoat(repo):
-    def _prepared_seagoat(query, ripgrep_lines, chroma_lines):
-        with mock_sources_context(repo, ripgrep_lines, chroma_lines):
+    def _prepared_seagoat(query, ripgrep_lines, vector_lines):
+        with mock_sources_context(repo, ripgrep_lines, vector_lines):
             seagoat = Engine(repo.working_dir)
             seagoat.analyze_codebase()
             seagoat.query_sync(query)
@@ -559,12 +559,12 @@ def mock_sources(create_prepared_seagoat):
         "docs1.md": [(1, 15.0), (2, 6.0)],
         "docs2.md": [(1, 4.81)],
     }
-    chroma_lines = {
+    vector_lines = {
         "docs2.md": [(2, 7.5)],
         "docs3.md": [(1, 5.332)],
     }
     my_query = "fake query"
-    create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    create_prepared_seagoat(my_query, ripgrep_lines, vector_lines)
 
 
 @pytest.fixture

@@ -55,23 +55,23 @@ def format_results(query_text: str, repository, chromadb_results):
 
 
 def initialize(repository: Repository):
-    cache = Cache("chroma", Path(repository.path), {})
+    cache = Cache("vector", Path(repository.path), {})
     config = get_config_values(Path(repository.path))
 
-    chroma_client = chromadb.PersistentClient(
+    vector_client = chromadb.PersistentClient(
         path=str(cache.get_cache_folder()),
         settings=Settings(
             anonymized_telemetry=False,
         ),
     )
-    embedding_function_name = config["server"]["chroma"]["embeddingFunction"]["name"]
-    embedding_function_kwargs = config["server"]["chroma"]["embeddingFunction"][
+    embedding_function_name = config["server"]["vector"]["embeddingFunction"]["name"]
+    embedding_function_kwargs = config["server"]["vector"]["embeddingFunction"][
         "arguments"
     ]
     embedding_function = getattr(embedding_functions, embedding_function_name)(
         **embedding_function_kwargs
     )
-    chroma_collection = chroma_client.get_or_create_collection(
+    vector_collection = vector_client.get_or_create_collection(
         name="code_data", embedding_function=embedding_function
     )
 
@@ -80,7 +80,7 @@ def initialize(repository: Repository):
         maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
         n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
 
-        chromadb_results = chroma_collection.query(
+        chromadb_results = vector_collection.query(
             query_texts=[query_text],
             n_results=n_results,
         )
@@ -89,7 +89,7 @@ def initialize(repository: Repository):
 
     def cache_chunk(chunk):
         try:
-            chroma_collection.add(
+            vector_collection.add(
                 ids=[chunk.chunk_id],
                 documents=[chunk.chunk],
                 metadatas=[

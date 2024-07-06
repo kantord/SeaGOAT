@@ -356,7 +356,7 @@ async def test_user_defined_execution_provider(repo, create_config_file):
     create_config_file(
         {
             "server": {
-                "chroma": {
+                "vector": {
                     "embeddingFunction": {
                         "name": "ONNXMiniLM_L6_V2",
                         "arguments": {"preferred_providers": ["CPUExecutionProvider"]},

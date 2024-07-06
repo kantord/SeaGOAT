@@ -3,13 +3,13 @@ def test_sort_results_test1(create_prepared_seagoat):
         "file1.md": [(1, 10.0), (2, 4.0)],
         "file2.md": [(1, 5.0)],
     }
-    chroma_lines = {
+    vector_lines = {
         "file2.md": [(2, 6.0)],
         "file3.md": [(1, 4.5)],
     }
     my_query = "fake query"
 
-    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, vector_lines)
     results = seagoat.query_sync(my_query)
 
     assert [result.gitfile.path for result in results] == [
@@ -24,12 +24,12 @@ def test_sort_results_test2(create_prepared_seagoat):
         "file1.md": [(1, 10.0)],
         "file2.md": [(1, 15.0)],
     }
-    chroma_lines = {
+    vector_lines = {
         "file3.md": [(1, 5.0)],
     }
     my_query = "fake query"
 
-    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, vector_lines)
     results = seagoat.query_sync(my_query)
 
     assert [result.gitfile.path for result in results] == [
@@ -44,12 +44,12 @@ def test_missing_file_in_one_source(create_prepared_seagoat):
         "file1.md": [(1, 10.0)],
         "file2.md": [(1, 5.0)],
     }
-    chroma_lines = {
+    vector_lines = {
         "file1.md": [(1, 6.0)],
     }
     my_query = "fake query"
 
-    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, vector_lines)
     results = seagoat.query_sync(my_query)
 
     assert [result.gitfile.path for result in results] == ["file2.md", "file1.md"]
@@ -57,10 +57,10 @@ def test_missing_file_in_one_source(create_prepared_seagoat):
 
 def test_no_lines(create_prepared_seagoat):
     ripgrep_lines = {}
-    chroma_lines = {}
+    vector_lines = {}
     my_query = "fake query"
 
-    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, vector_lines)
     results = seagoat.query_sync(my_query)
 
     assert results == []
@@ -97,7 +97,7 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
         "file_few_edits.md": [(1, 5.0)],
         "file_many_edits.md": [(1, 6.0)],
     }
-    chroma_lines = {
+    vector_lines = {
         "file_few_edits.md": [(2, 5.0)],
         "file_many_edits.md": [(1, 6.0)],
         "random.py": [(1, 60.01)],
@@ -105,7 +105,7 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     }
     my_query = "asdfadsfdfdffdafafdsfadsf"
 
-    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
+    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, vector_lines)
     seagoat.analyze_codebase()
     results = seagoat.query_sync(my_query)
 

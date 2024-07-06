@@ -356,8 +356,8 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
         assert server["host"] in server["address"]
         assert server["isRunning"] in {False, True}
         assert server["repoPath"] == repo_path
-        assert os.path.isdir(server["cacheLocation"]["chroma"])
-        parent_folder_of_repo_cache = os.path.dirname(server["cacheLocation"]["chroma"])
+        assert os.path.isdir(server["cacheLocation"]["vector"])
+        parent_folder_of_repo_cache = os.path.dirname(server["cacheLocation"]["vector"])
         assert parent_folder_of_repo_cache == servers_data["globalCache"]
 
     assert len(servers_data["servers"]) >= 1

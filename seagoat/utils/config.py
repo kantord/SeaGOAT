@@ -13,7 +13,7 @@ DEFAULT_CONFIG = {
     "server": {
         "port": None,
         "ignorePatterns": [],
-        "chroma": {
+        "vector": {
             "embeddingFunction": {
                 "name": "DefaultEmbeddingFunction",
                 "arguments": {},
@@ -39,7 +39,7 @@ CONFIG_SCHEMA = {
                     "type": "array",
                     "items": {"type": "string"},
                 },
-                "chroma": {
+                "vector": {
                     "type": "object",
                     "additionalProperties": False,
                     "properties": {

@@ -16,7 +16,7 @@ from seagoat.cache import Cache
 from seagoat.gitfile import GitFile
 from seagoat.repository import Repository
 from seagoat.result import get_best_score
-from seagoat.sources import chroma, ripgrep
+from seagoat.sources import vector, ripgrep
 from seagoat.utils.config import get_config_values
 
 
@@ -66,7 +66,7 @@ class Engine:
                 ripgrep.initialize(self.repository),
             ],
             "sync": [
-                chroma.initialize(self.repository),
+                vector.initialize(self.repository),
             ],
         }
 
