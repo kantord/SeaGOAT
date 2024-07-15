@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## v0.48.5 (2024-07-15)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.5.2 ([`59719c8`](https://github.com/kantord/SeaGOAT/commit/59719c8bf8b37f58dcb6188caea934d062accde9))
+
+* chore(deps): update dependency pyright to v1.1.371 ([`d1b186d`](https://github.com/kantord/SeaGOAT/commit/d1b186de3533cec2dadb4348f7761f48b50678c1))
+
+* chore(deps): update dependency exceptiongroup to v1.2.2 ([`3434f23`](https://github.com/kantord/SeaGOAT/commit/3434f23c75f24804303708768d8615490a385800))
+
+* chore(deps): update dependency mkdocs-material to v9.5.29 ([`b5c5167`](https://github.com/kantord/SeaGOAT/commit/b5c5167647e06cac6bc6042e773985546a121ed1))
+
+* chore(deps): update actions/setup-python digest to 39cd149 ([`ebf07f5`](https://github.com/kantord/SeaGOAT/commit/ebf07f5e59b022b0dcc06ab962c43026b51f9cda))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.8.5 ([`0025e48`](https://github.com/kantord/SeaGOAT/commit/0025e48b9924391cb1eab6eb69afe312deafe187))
+
+* chore(deps): update dependency python-semantic-release to v9.8.5 ([`f053814`](https://github.com/kantord/SeaGOAT/commit/f0538143944245df15a57dc759c16d2e6cdc2561))
+
+* chore(deps): update python docker tag to v3.12 ([`d504a90`](https://github.com/kantord/SeaGOAT/commit/d504a902561c208a51eb8ca7d6ebe971d0dcee92))
+
+* chore: add .python-version ([`46c18fb`](https://github.com/kantord/SeaGOAT/commit/46c18fbf320f42fe078dd02986e072af2722eee6))
+
+* chore(deps): update dependency ruff to v0.5.1 ([`b11660b`](https://github.com/kantord/SeaGOAT/commit/b11660b2cbc535d4cb825220ff1bbbf27371b1fb))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.8.4 ([`c48b9be`](https://github.com/kantord/SeaGOAT/commit/c48b9bef7fcac3043927a8f7de62487398da01f3))
+
+* chore(deps): update dependency python-semantic-release to v9.8.4 ([`4c4442e`](https://github.com/kantord/SeaGOAT/commit/4c4442e0c8ac9825ffbb94f270254a3d91bb6414))
+
+* chore(deps): update dependency matplotlib to v3.9.1 ([`8194e4a`](https://github.com/kantord/SeaGOAT/commit/8194e4a03d8a5bfc03b448eac5ca4d97625afc43))
+
+* chore(deps): update dependency pyright to v1.1.370 ([`06919fe`](https://github.com/kantord/SeaGOAT/commit/06919fed8ea47ffe49472ba9d40a4e7f6e125a4a))
+
+### Documentation
+
+* docs: update server.md
+
+withing -&gt; within ([`f6e7b9c`](https://github.com/kantord/SeaGOAT/commit/f6e7b9cda724adfaec26cdf2b5cff6c4c4d24a81))
+
+### Fix
+
+* fix(deps): update dependency jsonschema to v4.23.0 ([`ecc2517`](https://github.com/kantord/SeaGOAT/commit/ecc2517347c0102f59119ad52f8d276d447729f3))
+
 ## v0.48.4 (2024-07-02)
 
 ### Chore
@@ -2597,7 +2639,7 @@ it&#39;s needed because pkg_resources is used ([`efc23a3`](https://github.com/ka
 
 * fix: fix server imports ([`7d01530`](https://github.com/kantord/SeaGOAT/commit/7d015305582bb5a674b7abc7be1e12311bc18a04))
 
-## v0.2.0 (2023-07-18)
+## v0.1.0 (2023-07-18)
 
 ### Chore
 
