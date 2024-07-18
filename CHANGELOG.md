@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.48.7 (2024-07-18)
+
+### Chore
+
+* chore(deps): update dependency pytest-asyncio to v0.23.8 ([`2b99fa3`](https://github.com/kantord/SeaGOAT/commit/2b99fa384ce94189b0140012bb8855499eba35db))
+
+* chore(deps): update dependency pyright to v1.1.372 ([`d847712`](https://github.com/kantord/SeaGOAT/commit/d8477124f2f11a6fff8eac1f7bd0e7464f6d1ee3))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v71 ([`f27eb66`](https://github.com/kantord/SeaGOAT/commit/f27eb66309ba792ded8f9cae35d85b5abe20414e))
+
 ## v0.48.6 (2024-07-15)
 
 ### Fix
