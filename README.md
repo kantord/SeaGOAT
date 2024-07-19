@@ -14,12 +14,6 @@ leverages vector embeddings to enable you to search your codebase semantically.
   <img src="assets/demo-slideshow.gif" alt="" />
 </p>
 
-*Note: I was recently laid off my job and I am looking for new
-opportunities. If you need a Senior Full Stack Developer,
-[contact me](mailto:github@daniel-kantor.com)! I have experience with
-React, Node and Python and I'm located in Spain (European Union).
-10+ years in software development professionally.*
-
 ## Getting started
 
 ### Install SeaGOAT
