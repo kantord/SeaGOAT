@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.48.9 (2024-07-19)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.5.3 ([`6601c63`](https://github.com/kantord/SeaGOAT/commit/6601c63a6aaca44eacc0973f79c0b433864951b7))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v71.0.3 ([`ec62444`](https://github.com/kantord/SeaGOAT/commit/ec624441465cdf425b2ffa0e7a04e448328bc561))
+
 ## v0.48.8 (2024-07-18)
 
 ### Fix
