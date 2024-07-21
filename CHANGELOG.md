@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.48.11 (2024-07-21)
+
+### Chore
+
+* chore(deps): update dependency pytest to v8.3.1 ([`b793896`](https://github.com/kantord/SeaGOAT/commit/b7938967b86e8821bfffdf6aad11745a93c78ab0))
+
+* chore(deps): update dependency ruff to v0.5.4 ([`3e0e32c`](https://github.com/kantord/SeaGOAT/commit/3e0e32cc9f2ce571d59fb35c41638f5854f187d4))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.8.6 ([`e2d060c`](https://github.com/kantord/SeaGOAT/commit/e2d060ca210de8a11d0f748af6cd9eb385ce066f))
+
+* chore(deps): update dependency python-semantic-release to v9.8.6 ([`ce98bdc`](https://github.com/kantord/SeaGOAT/commit/ce98bdc15676f6986c73135516cd0732cff6aa77))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v71.1.0 ([`761284d`](https://github.com/kantord/SeaGOAT/commit/761284d7d912a56d5f4821a55234c3dc91b977f2))
+
 ## v0.48.10 (2024-07-20)
 
 ### Fix
