@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.48.12 (2024-07-23)
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.5.5 ([`a933f79`](https://github.com/kantord/SeaGOAT/commit/a933f796af2aee7cc0e9b2a1dbf7721825523792))
+
 ## v0.48.11 (2024-07-21)
 
 ### Chore
