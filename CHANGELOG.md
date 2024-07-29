@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.48.13 (2024-07-29)
+
+### Chore
+
+* chore(deps): update dependency pre-commit to v3.8.0 ([`8bbb558`](https://github.com/kantord/SeaGOAT/commit/8bbb558f169cbbee29ed86f4be249acf96e0cd7b))
+
+* chore(deps): update dependency ruff to v0.5.5 ([`1a6d2b9`](https://github.com/kantord/SeaGOAT/commit/1a6d2b9f50d8e6a3ca47d039769c2f516b158e8c))
+
+* chore(deps): update dependency pytest to v8.3.2 ([`eb30212`](https://github.com/kantord/SeaGOAT/commit/eb3021202cf76682edf7d8067a83558e10916fe7))
+
+* chore(deps): update dependency pyright to v1.1.373 ([`568181d`](https://github.com/kantord/SeaGOAT/commit/568181dfe10eb13f82565a8f1fc613db1b0f39fb))
+
+* chore(deps): update dependency mkdocs-material to v9.5.30 ([`9647ea6`](https://github.com/kantord/SeaGOAT/commit/9647ea600657e02ed8c21376688350b59ab337f2))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v72 ([`a64ba50`](https://github.com/kantord/SeaGOAT/commit/a64ba5013de6ef9e62c256a1c8c5113473dc4e32))
+
 ## v0.48.12 (2024-07-23)
 
 ### Fix
