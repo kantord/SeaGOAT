@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.48.14 (2024-07-29)
+
+### Fix
+
+* fix(deps): update dependency setuptools to v72.1.0 ([`80213c4`](https://github.com/kantord/SeaGOAT/commit/80213c4cd930ac4622c61a4fa94e0bdc5a3685d1))
+
 ## v0.48.13 (2024-07-29)
 
 ### Chore
