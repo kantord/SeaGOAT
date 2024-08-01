@@ -39,7 +39,7 @@ jobs:
                   fi
 
             - name: Install Poetry
-              uses: snok/install-poetry@93ada01c735cc8a383ce0ce2ae205a21c415379b # v1
+              uses: snok/install-poetry@972a0e78ffdebf9e98f6fe404b77831716cdd4aa # v1
 
             - name: Install dependencies on macOS
               if: runner.os == 'macOS'
