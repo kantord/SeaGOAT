@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.48.15 (2024-08-07)
+
+### Chore
+
+* chore(deps): update dependency locust to v2.31.2 ([`55f4a9b`](https://github.com/kantord/SeaGOAT/commit/55f4a9b7dc2cfbda22a7799dbc3f6b2b75fa02cd))
+
+* chore(deps): update dependency locust to v2.31.1 ([`cdee6cc`](https://github.com/kantord/SeaGOAT/commit/cdee6cc4120d60331e223938bae510a976081f3e))
+
+* chore(deps): update dependency ruff to v0.5.6 ([`9e00f28`](https://github.com/kantord/SeaGOAT/commit/9e00f2828373283b89632d7973287d914cb5e42f))
+
+* chore(deps): update dependency mkdocs-material to v9.5.31 ([`2d5993e`](https://github.com/kantord/SeaGOAT/commit/2d5993ea4b34ecc8eacc1e637f3f0f2cbcc862f5))
+
+* chore(deps): update snok/install-poetry digest to 76e04a9 ([`64ab0c2`](https://github.com/kantord/SeaGOAT/commit/64ab0c239b63d86adc3ebe24c7e5acd50fa73336))
+
+* chore(deps): update snok/install-poetry digest to 972a0e7 ([`f4458a2`](https://github.com/kantord/SeaGOAT/commit/f4458a2186c7af91ec3d0ccf1b96fe395ce82878))
+
+* chore(deps): update dependency locust to v2.30.0 ([`3b0820d`](https://github.com/kantord/SeaGOAT/commit/3b0820ddc00cbcfb81b40ecaf586028cd4fd900b))
+
+* chore(deps): update dependency pyright to v1.1.374 ([`9083f4c`](https://github.com/kantord/SeaGOAT/commit/9083f4c6e0b9b103a24ac6b5c45adce304982fdd))
+
+### Fix
+
+* fix(deps): update dependency pyyaml to v6.0.2 ([`e1e8d7a`](https://github.com/kantord/SeaGOAT/commit/e1e8d7ab2de5d2f15073df470867476c6047db8c))
+
 ## v0.48.14 (2024-07-29)
 
 ### Fix
