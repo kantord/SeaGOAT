@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.48.16 (2024-08-09)
+
+### Chore
+
+* chore(deps): update dependency ruff to v0.5.7 ([`d8a2a4d`](https://github.com/kantord/SeaGOAT/commit/d8a2a4d8af02db1f305fc338fde9bd91fe4ba34a))
+
+* chore(deps): update dependency pyright to v1.1.375 ([`9581fe3`](https://github.com/kantord/SeaGOAT/commit/9581fe31493b80e86a5ce8197e982aae7a9b8076))
+
+### Fix
+
+* fix(deps): update dependency orjson to v3.10.7 ([`9da1afb`](https://github.com/kantord/SeaGOAT/commit/9da1afb94e379c1bb1bfe990cb020cca7eaa759d))
+
 ## v0.48.15 (2024-08-07)
 
 ### Chore
