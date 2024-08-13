@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.48.17 (2024-08-13)
+
+### Chore
+
+* chore(deps): update dependency matplotlib to v3.9.2 ([`b059260`](https://github.com/kantord/SeaGOAT/commit/b059260c1e7b4c2aab557cfb9c6d00fda35295d8))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v72.2.0 ([`7a43db3`](https://github.com/kantord/SeaGOAT/commit/7a43db324e668a216bd9a2f313cc6d1cc49c36eb))
+
 ## v0.48.16 (2024-08-09)
 
 ### Chore
