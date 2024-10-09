@@ -1,5 +1,79 @@
 # CHANGELOG
 
+## v0.48.18 (2024-10-09)
+
+### Chore
+
+* chore(deps): update dependency syrupy to v4.7.2 ([`891da64`](https://github.com/kantord/SeaGOAT/commit/891da643454dc73498484f3259bd74e962bb1cf0))
+
+* chore(deps): update dependency pyright to v1.1.384 ([`10d3a30`](https://github.com/kantord/SeaGOAT/commit/10d3a30d3a473b50448c647dd6ba97c914228cbf))
+
+* chore(deps): update dependency ruff to v0.6.9 ([`a86ec77`](https://github.com/kantord/SeaGOAT/commit/a86ec77271e1f7ebc097577d35c5ac68874eb35a))
+
+* chore(deps): update dependency pytest to v8.3.3 ([`7bf0ad4`](https://github.com/kantord/SeaGOAT/commit/7bf0ad4e5ce1919e10cd9735aa3be8f0513c78c6))
+
+* chore(deps): update dependency pyright to v1.1.383 ([`dd4e20a`](https://github.com/kantord/SeaGOAT/commit/dd4e20afa98c70f9daad66ed16a1cfa612b32769))
+
+* chore(deps): update dependency pandas to v2.2.3 ([`a5be513`](https://github.com/kantord/SeaGOAT/commit/a5be51368895da8c31d8919fea7a65c11ac49380))
+
+* chore(deps): update dependency mkdocs-material to v9.5.39 ([`2078af3`](https://github.com/kantord/SeaGOAT/commit/2078af3104b4c65d473abaa339d0f326e26f9afb))
+
+* chore(deps): update dependency locust to v2.31.8 ([`217fa23`](https://github.com/kantord/SeaGOAT/commit/217fa230b910faa4a69b34434dec2596c9dc4e3b))
+
+* chore(deps): update pypa/gh-action-pypi-publish digest to f760068 ([`7e2ba52`](https://github.com/kantord/SeaGOAT/commit/7e2ba52faddcfd7c52b4c1eb5ad560e64b71cd04))
+
+* chore(deps): update codecov/codecov-action digest to b9fd7d1 ([`3eaf924`](https://github.com/kantord/SeaGOAT/commit/3eaf924d2e233422e6e6059aa0f08fa92a243e86))
+
+* chore(deps): update actions/checkout digest to eef6144 ([`dfd0355`](https://github.com/kantord/SeaGOAT/commit/dfd035520fcde6060456330effccad34b1ea6884))
+
+* chore(deps): update dependency python-semantic-release to v9.10.0 ([`62996db`](https://github.com/kantord/SeaGOAT/commit/62996dbf05fcc6bb4a47f09c8f9a36554821cda5))
+
+* chore(deps): update pypa/gh-action-pypi-publish digest to 3697819 ([`060f1a9`](https://github.com/kantord/SeaGOAT/commit/060f1a9f91409747fb7569e49c67fc33a461dba3))
+
+* chore(deps): update pypa/gh-action-pypi-publish digest to 0ab0b79 ([`9f7cf3b`](https://github.com/kantord/SeaGOAT/commit/9f7cf3b4a00f1c27c06e4be8e169e58e2c9a66d1))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.8.8 ([`ad0eac6`](https://github.com/kantord/SeaGOAT/commit/ad0eac653a944d34121f7e6b7df4946b094a634e))
+
+* chore(deps): update pypa/gh-action-pypi-publish digest to 8a08d61 ([`71a17da`](https://github.com/kantord/SeaGOAT/commit/71a17da6b6c9b65b0a9d58a96676f9555ca762ad))
+
+* chore(deps): update actions/setup-python digest to f677139 ([`426078e`](https://github.com/kantord/SeaGOAT/commit/426078e3c78a53dc5b8465f7cd42fa43e2b9c9a5))
+
+* chore(deps): update ksxgithub/github-actions-deploy-aur action to v3.0.1 ([`cbaa908`](https://github.com/kantord/SeaGOAT/commit/cbaa9088ce97bb9831465a9882eb098e43404929))
+
+* chore(deps): update dependency mkdocs-material to v9.5.33 ([`7fb4a99`](https://github.com/kantord/SeaGOAT/commit/7fb4a99f63558fd48bacecbb1857143c2cf88cb9))
+
+* chore(deps): update dependency syrupy to v4.7.1 ([`f5db24b`](https://github.com/kantord/SeaGOAT/commit/f5db24ba4a0e459c483a34c1fd4806c10c4d6adc))
+
+* chore(deps): update dependency ruff to v0.6.2 ([`f731dda`](https://github.com/kantord/SeaGOAT/commit/f731ddae4a830a059fe2c72704e9932284e30d62))
+
+* chore(deps): update dependency jupyterlab-widgets to v3.0.13 ([`f4bd6a6`](https://github.com/kantord/SeaGOAT/commit/f4bd6a6d97dbd2137e81433454247b876a87e9a1))
+
+* chore(deps): update dependency pytest-asyncio to ^0.24.0 ([`e8a52ec`](https://github.com/kantord/SeaGOAT/commit/e8a52ecb58d609e6c8c9b15486091801e979fd80))
+
+* chore(deps): update ksxgithub/github-actions-deploy-aur action to v3 ([`64f56b8`](https://github.com/kantord/SeaGOAT/commit/64f56b8a45cb6e2a32f716431e86462e5461ea83))
+
+* chore(deps): update dependency pyright to v1.1.377 ([`e106466`](https://github.com/kantord/SeaGOAT/commit/e1064668c846111ac242ddb5600460841ee70d4e))
+
+* chore(deps): update dependency syrupy to v4.6.3 ([`eaaf7c7`](https://github.com/kantord/SeaGOAT/commit/eaaf7c7541f35102bd3add6ea02fae041425cadb))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.8.7 ([`90b57ec`](https://github.com/kantord/SeaGOAT/commit/90b57ec00b4d395490245ec1bc32cdf8698a2ff4))
+
+* chore(deps): update dependency python-semantic-release to v9.8.7 ([`bea018f`](https://github.com/kantord/SeaGOAT/commit/bea018fd4a70449803ac9b5c34f697ea3940cb59))
+
+* chore(deps): update dependency mkdocs-material to v9.5.32 ([`af1f398`](https://github.com/kantord/SeaGOAT/commit/af1f398ded626ee92071a3ff316ab85855b5a4d9))
+
+* chore(deps): update dependency ruff to v0.6.1 ([`f1c7611`](https://github.com/kantord/SeaGOAT/commit/f1c7611d568c14d79d95fecbd90595a1c1ae29a0))
+
+* chore(deps): update dependency locust to v2.31.3 ([`247dc08`](https://github.com/kantord/SeaGOAT/commit/247dc0809dc1db8d2131bba3197504aa1d8a3f36))
+
+* chore(deps): update dependency ruff to ^0.6.0 ([`0875511`](https://github.com/kantord/SeaGOAT/commit/087551169b03d34b01a00dac258d5a3cb9a5ad0a))
+
+* chore(deps): update dependency pyright to v1.1.376 ([`a71cd53`](https://github.com/kantord/SeaGOAT/commit/a71cd533b347a651618c15fbff3b7550b299b4b2))
+
+### Fix
+
+* fix(deps): update dependency chromadb to v0.5.12 ([`0d3a3a5`](https://github.com/kantord/SeaGOAT/commit/0d3a3a52670750ed257b289f92129267835cd6a2))
+
 ## v0.48.17 (2024-08-13)
 
 ### Chore
