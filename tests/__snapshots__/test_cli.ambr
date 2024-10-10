@@ -22,6 +22,26 @@
   
   '''
 # ---
+# name: test_reverse_ordering[default]
+  '''
+  hello.txt:1:foo
+  hello.txt:2:a context line
+  hello.txt:3:baz
+  foobar.py:1:def hello():
+  foobar.py:2:    print('world')
+  
+  '''
+# ---
+# name: test_reverse_ordering[reversed]
+  '''
+  foobar.py:1:def hello():
+  foobar.py:2:    print('world')
+  hello.txt:1:foo
+  hello.txt:2:a context line
+  hello.txt:3:baz
+  
+  '''
+# ---
 # name: test_server_is_not_running_error[/another/path/to/repo2]
   '''
   The SeaGOAT server is not running. Please start the server using the following command:

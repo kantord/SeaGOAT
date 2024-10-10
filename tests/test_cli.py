@@ -570,6 +570,27 @@ def test_context_lines_are_not_included_from_other_files_when_limit_exceeded(
     assert result.exit_code == 0
 
 
+@pytest.mark.usefixtures("mock_accuracy_warning")
+@pytest.mark.parametrize("args", [(), ("--reverse",)], ids=["default", "reversed"])
+def test_reverse_ordering(
+    repo, mock_server_factory, runner, snapshot, args: tuple[str, ...]
+):
+    mock_server_factory(
+        [
+            ["hello.txt", ["foo", "a context line", "baz"]],
+            ["foobar.py", ["def hello():", "    print('world')"]],
+        ]
+    )
+    query = "JavaScript"
+    result = runner.invoke(
+        seagoat,
+        [query, repo.working_dir, "--no-color", *args],
+    )
+
+    assert str(result.output) == snapshot
+    assert result.exit_code == 0
+
+
 @pytest.mark.parametrize(
     "error_message, error_code",
     [("File Not Found on Server", 500), ("Database Connection Failed", 503)],
