@@ -123,6 +123,13 @@ def remove_results_from_unavailable_files(results):
     default=None,
     help="Include this many lines of context after and before each result",
 )
+@click.option(
+    "-r",
+    "--reverse",
+    is_flag=True,
+    default=False,
+    help="Display results in the opposite order, with the most relevant at the bottom.",
+)
 @click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(
     query,
@@ -133,6 +140,7 @@ def seagoat(
     context_below,
     context,
     vimgrep,
+    reverse: bool,
 ):
     """
     Query your codebase for your QUERY in the Git repository REPO_PATH.
@@ -168,6 +176,8 @@ def seagoat(
 
         results = rewrite_full_paths_to_use_local_path(repo_path, results)
         results = remove_results_from_unavailable_files(results)
+        if reverse:
+            results = reversed(results)
 
         color_enabled = os.isatty(0) and not no_color and not vimgrep
 
