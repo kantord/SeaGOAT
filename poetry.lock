@@ -4033,13 +4033,13 @@ dev = ["atomicwrites (==1.4.1)", "attrs (==23.2.0)", "coverage (==7.4.1)", "hatc
 
 [[package]]
 name = "python-semantic-release"
-version = "9.10.0"
+version = "9.10.1"
 description = "Automatic Semantic Versioning for Python projects"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python_semantic_release-9.10.0-py3-none-any.whl", hash = "sha256:05a29ce7441e486cfd09d455cfb32abeb64b9c94eb4d2d148ff280578fd95558"},
-    {file = "python_semantic_release-9.10.0.tar.gz", hash = "sha256:45a0199f7805dfe76bb57b932be4a9a5a3f7ff03a897c375eb5a1fa5dcfe5608"},
+    {file = "python_semantic_release-9.10.1-py3-none-any.whl", hash = "sha256:04b9cb4a795da913f59dabc8dee48a44abd5b65b04262f9658eddb28caace1cf"},
+    {file = "python_semantic_release-9.10.1.tar.gz", hash = "sha256:aaef61324e615203dfa791b731512a1ce576ea17d84436bc339d3fef071b9aa2"},
 ]
 
 [package.dependencies]
