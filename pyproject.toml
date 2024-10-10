@@ -40,7 +40,7 @@ create = true
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
-pre-commit = "^3.3.3"
+pre-commit = "^4.0.0"
 pyright = "^1.1.314"
 pytest-watch = "^4.2.0"
 freezegun = "^1.2.2"
