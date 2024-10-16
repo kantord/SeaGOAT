@@ -2176,13 +2176,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.31.8"
+version = "2.32.0"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "locust-2.31.8-py3-none-any.whl", hash = "sha256:4194e3d4a0472f1206c51532ed527017f3da1a7d1037ca4b2f0735d5dcd2f78f"},
-    {file = "locust-2.31.8.tar.gz", hash = "sha256:b240c0d3e1724317d9211e81e99fbe42a3469071ef4d34d2ae6a727776d56377"},
+    {file = "locust-2.32.0-py3-none-any.whl", hash = "sha256:e004514332b8631ca91382d11d224baee4ced040c5f5c8b2233800ebcbc73c0e"},
+    {file = "locust-2.32.0.tar.gz", hash = "sha256:d8f7f5d9d4e801b2e7b0ee3f31109333673da744ccedf85e7da0151f2d263dd9"},
 ]
 
 [package.dependencies]
@@ -2190,7 +2190,7 @@ ConfigArgParse = ">=1.5.5"
 flask = ">=2.0.0"
 Flask-Cors = ">=3.0.10"
 Flask-Login = ">=0.6.3"
-gevent = ">=22.10.2"
+gevent = {version = ">=22.10.2", markers = "python_full_version <= \"3.12.0\""}
 geventhttpclient = ">=2.3.1"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
