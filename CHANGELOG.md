@@ -1,6 +1,68 @@
 # CHANGELOG
 
 
+## v0.49.2 (2024-10-16)
+
+### Chores
+
+* chore(deps): update dependency locust to v2.32.0 ([`ef52fe6`](https://github.com/kantord/SeaGOAT/commit/ef52fe6b224e80e0396081cab14f32209e3e655e))
+
+* chore(deps): update dependency python-semantic-release to v9.11.1 ([`1c824e1`](https://github.com/kantord/SeaGOAT/commit/1c824e1f3a0a8901edbd1684eab938936c62a34d))
+
+* chore(deps): update dependency mkdocs-material to v9.5.41 ([`9744ef7`](https://github.com/kantord/SeaGOAT/commit/9744ef7c663615de4a2de3aa8cafa5bf62718e6d))
+
+### Fixes
+
+* fix(deps): update dependency tqdm to v4.66.5 ([`af52f6e`](https://github.com/kantord/SeaGOAT/commit/af52f6e8e3c3eb865ecdf8f9243718f171450265))
+
+* fix(deps): update dependency setuptools to v75 ([`01948cf`](https://github.com/kantord/SeaGOAT/commit/01948cf9d266e3fabaa02a1b30bfbee54f9463fc))
+
+### Unknown
+
+* Bump starlette from 0.37.2 to 0.40.0
+
+Bumps [starlette](https://github.com/encode/starlette) from 0.37.2 to 0.40.0.
+- [Release notes](https://github.com/encode/starlette/releases)
+- [Changelog](https://github.com/encode/starlette/blob/master/docs/release-notes.md)
+- [Commits](https://github.com/encode/starlette/compare/0.37.2...0.40.0)
+
+---
+updated-dependencies:
+- dependency-name: starlette
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com> ([`a7dd945`](https://github.com/kantord/SeaGOAT/commit/a7dd945f1eca7b85567d32c083a2e52a3c46b17a))
+
+* Bump flask-cors from 4.0.1 to 4.0.2
+
+Bumps [flask-cors](https://github.com/corydolphin/flask-cors) from 4.0.1 to 4.0.2.
+- [Release notes](https://github.com/corydolphin/flask-cors/releases)
+- [Changelog](https://github.com/corydolphin/flask-cors/blob/main/CHANGELOG.md)
+- [Commits](https://github.com/corydolphin/flask-cors/compare/4.0.1...4.0.2)
+
+---
+updated-dependencies:
+- dependency-name: flask-cors
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com> ([`cbb6f04`](https://github.com/kantord/SeaGOAT/commit/cbb6f040d283d1e4c4df48797c5af7b5b19e5589))
+
+* Bump certifi from 2024.6.2 to 2024.7.4
+
+Bumps [certifi](https://github.com/certifi/python-certifi) from 2024.6.2 to 2024.7.4.
+- [Commits](https://github.com/certifi/python-certifi/compare/2024.06.02...2024.07.04)
+
+---
+updated-dependencies:
+- dependency-name: certifi
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com> ([`4e65b75`](https://github.com/kantord/SeaGOAT/commit/4e65b75c6413c749e241c6267e8ca18d79db960b))
+
+
 ## v0.49.1 (2024-10-16)
 
 ### Chores
