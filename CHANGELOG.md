@@ -1,6 +1,23 @@
 # CHANGELOG
 
 
+## v0.49.0 (2024-10-16)
+
+### Chores
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.11.1 ([`455e30e`](https://github.com/kantord/SeaGOAT/commit/455e30ecbaa4290804b73ec14fab94eaeff70d40))
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.11.0 ([`54f4bf6`](https://github.com/kantord/SeaGOAT/commit/54f4bf62079e3b3438ee914e473c19ea0b2c756b))
+
+* chore(deps): update dependency python-semantic-release to v9.11.0 ([`f64f6c4`](https://github.com/kantord/SeaGOAT/commit/f64f6c43b3aad62f22deb6750a6f2d6b4b214b8c))
+
+### Features
+
+* feat: Add --reverse option
+
+Refs #610 ([`3f37df4`](https://github.com/kantord/SeaGOAT/commit/3f37df4837f33158b37e1b178f048ac840004578))
+
+
 ## v0.48.19 (2024-10-11)
 
 ### Chores
