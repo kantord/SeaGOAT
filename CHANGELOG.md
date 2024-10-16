@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.49.1 (2024-10-16)
+
+### Chores
+
+* chore(deps): update dependency pyright to v1.1.385 ([`b24078c`](https://github.com/kantord/SeaGOAT/commit/b24078c6bbde7d74b26b0cae05ac4046ba264a40))
+
+### Fixes
+
+* fix(deps): update dependency chromadb to v0.5.15 ([`ed586be`](https://github.com/kantord/SeaGOAT/commit/ed586be0bcbe6bfa8c314fc8fbab736531178959))
+
+
 ## v0.49.0 (2024-10-16)
 
 ### Chores
