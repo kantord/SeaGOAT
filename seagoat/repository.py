@@ -73,10 +73,13 @@ class Repository:
         return hashlib.sha256(combined.encode()).hexdigest()
 
     def analyze_files(self):
-        cmd = [
+        git_cmd = [
             "git",
             "-C",
             self.path,
+        ]
+        cmd = [
+            *git_cmd,
             "log",
             "--name-only",
             "--pretty=format:###%h:::%ai:::%an <%ae>:::%s",
@@ -84,6 +87,8 @@ class Repository:
         ]
 
         self.file_changes.clear()
+
+        git_files = subprocess.check_output([*git_cmd, "ls-files"], text=True).split()
 
         current_commit_info = None
         with subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True) as proc:
@@ -98,7 +103,7 @@ class Repository:
                     if not is_file_type_supported(filename):
                         continue
 
-                    if not (self.path / filename).exists():
+                    if filename not in git_files:
                         continue
 
                     self.file_changes[filename].append(current_commit_info)
