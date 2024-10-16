@@ -1,0 +1,975 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../configuration/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.40">
+    
+    
+      
+        <title>Developer Documentation - SeaGOAT</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.8c3ca2c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#developer-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  This documentation is for an old version of SeaGOAT.
+  <a href="../..">
+    <strong>Click here to go to latest documentation.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SeaGOAT" class="md-header__button md-logo" aria-label="SeaGOAT" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SeaGOAT
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Developer Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kantord/SeaGOAT" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SeaGOAT" class="md-nav__button md-logo" aria-label="SeaGOAT" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    SeaGOAT
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kantord/SeaGOAT" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../server/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SeaGOAT Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuring SeaGOAT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Developer Documentation
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Developer Documentation
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up the development environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the development environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-optional-install-seagoat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: (Optional) Install SeaGOAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-make-sure-you-have-all-developer-dependencies-installed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Make sure you have all developer dependencies installed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-clone-the-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Clone the repository
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-run-poetry-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Run poetry install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-run-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Run tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-optional-set-up-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: (Optional) Set up pre-commit hooks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#developing-seagoat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Developing SeaGOAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Developing SeaGOAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automated-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automated testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Automated testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#watch-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Watch mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-changed-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test changed files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-all-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test all files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Snapshot testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-checks-linting-and-automatic-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatic checks (linting) and automatic formatting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-to-seagoat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing to SeaGOAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contributing to SeaGOAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contribution-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribution Process
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-development-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up the development environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the development environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-optional-install-seagoat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: (Optional) Install SeaGOAT
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-make-sure-you-have-all-developer-dependencies-installed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Make sure you have all developer dependencies installed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-clone-the-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Clone the repository
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-run-poetry-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Run poetry install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-run-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Run tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-optional-set-up-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 6: (Optional) Set up pre-commit hooks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#developing-seagoat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Developing SeaGOAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Developing SeaGOAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automated-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automated testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Automated testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#watch-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Watch mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-changed-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test changed files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-all-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test all files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Snapshot testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatic-checks-linting-and-automatic-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatic checks (linting) and automatic formatting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-to-seagoat" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing to SeaGOAT
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contributing to SeaGOAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contribution-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribution Process
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/kantord/SeaGOAT/edit/main/docs/developer.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="developer-documentation">Developer documentation</h1>
+<p>This document was created to help you set up your development environment
+and to understand the project structure.</p>
+<h2 id="setting-up-the-development-environment">Setting up the development environment</h2>
+<h3 id="step-1-optional-install-seagoat">Step 1: (Optional) Install SeaGOAT</h3>
+<p>This step is recommended in order to make sure that SeaGOAT works properly
+on your computer.</p>
+<p><a href="../#install-seagoat">Follow the official documentation</a></p>
+<h3 id="step-2-make-sure-you-have-all-developer-dependencies-installed">Step 2: Make sure you have all developer dependencies installed</h3>
+<p>The following dependencies need to be installed:</p>
+<ul>
+<li><a href="https://git-scm.com/downloads">Git</a></li>
+<li><a href="https://www.python.org/downloads/">Python 3.11 or newer</a></li>
+<li><a href="https://python-poetry.org/docs/#installation">Poetry</a></li>
+</ul>
+<h3 id="step-3-clone-the-repository">Step 3: Clone the repository</h3>
+<p>Use Git to clone the repository:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:kantord/SeaGOAT.git
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>SeaGOAT
+</span></code></pre></div>
+<h3 id="step-4-run-poetry-install">Step 4: Run <code>poetry install</code></h3>
+<p>Poetry is used to manage dependencies in this project. Poetry also manages
+virtualenvs automatically.</p>
+<p>If you have Poetry installed correctly, automatically setting up a virtualenv
+and installing all dependencies is as easy as running:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>poetry<span class="w"> </span>install
+</span></code></pre></div>
+<h3 id="step-5-run-tests">Step 5: Run tests</h3>
+<p>To make sure that your development environment was set up correctly, run
+tests:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest
+</span></code></pre></div>
+<p>If all tests pass, you have set up your development environment correctly.</p>
+<h3 id="step-6-optional-set-up-pre-commit-hooks">Step 6: (Optional) Set up pre-commit hooks</h3>
+<p>There are several tools in use in SeaGOAT to make sure that code is ready to
+merge. Some of these tools will automatically fix issues with the code, such
+as reformatting the code to enforce code style. Other tools will merely point
+out issues before you commit your code.</p>
+<p>It is recommended to set up pre-commit hooks so that these checks are
+executed automatically. You can do so by running this command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pre-commit<span class="w"> </span>install
+</span></code></pre></div>
+<p>If you do <em>not</em> wish to use pre-commit hooks, you can still execute all
+checks manually by running:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</span></code></pre></div>
+<h2 id="developing-seagoat">Developing SeaGOAT</h2>
+<h3 id="automated-testing">Automated testing</h3>
+<p>Automated testing is done using <code>pytest</code>. Here are some example use cases:</p>
+<h4 id="watch-mode">Watch mode</h4>
+<p>Automatically runs tests for <strong>all</strong> files when you save your changes:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ptw
+</span></code></pre></div>
+<h4 id="test-changed-files">Test changed files</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w"> </span>--testmon
+</span></code></pre></div>
+<h4 id="test-all-files">Test all files</h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
+</span></code></pre></div>
+<h4 id="snapshot-testing">Snapshot testing</h4>
+<p>Snapshot testing is used in a few test cases.
+You can update snapshots by running</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">  </span>--snapshot-update
+</span></code></pre></div>
+<h3 id="manual-testing">Manual testing</h3>
+<p>In order to test your local changes to SeaGOAT manually, you can prefix
+the command by <code>poetry run</code>. For example to run your local
+version of <code>seagoat-server</code>, just run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server
+</span></code></pre></div>
+<p>Similarly, to run your local version of <code>gt</code>/<code>seagoat</code>, you can run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>gt
+</span></code></pre></div>
+<p>You can run an <code>ipython</code> in the correct virtualenv also by prefixing it
+with <code>poetry run</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ipython
+</span></code></pre></div>
+<h3 id="automatic-checks-linting-and-automatic-formatting">Automatic checks (linting) and automatic formatting</h3>
+<p>This repository uses <code>pre-commit</code> to run automatic checks and fixes on the
+codebase in addition to automatic and manual testing.</p>
+<p>If you have
+<a href="http://localhost:8000/developer/#step-6-optional-set-up-pre-commit-hooks">set up commit hooks</a>
+(recommended), then these checks and fixes are automatically executed
+each time you attempt to make a commit.</p>
+<p>If you don't like commit hooks, or <em>if you want to run the checks for all
+files, not just changed files</em> then you can run the following command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</span></code></pre></div>
+<!-- markdownlint-disable MD041 -->
+<h2 id="contributing-to-seagoat">Contributing to SeaGOAT</h2>
+<p>Welcome to SeaGOAT!</p>
+<p>We value your contributions and ask you to please adhere to
+our
+<a href="https://github.com/kantord/SeaGOAT/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>
+and follow these brief guidelines.</p>
+<h3 id="getting-started">Getting Started</h3>
+<ul>
+<li>Follow the
+  <a href="https://kantord.github.io/SeaGOAT/latest/developer/#setting-up-the-development-environment">guide on how set up the development environment</a></li>
+<li>Look for issues labeled
+  <a href="https://github.com/kantord/SeaGOAT/issues?q=is%3Aopen+is%3Aissue+label%3A%22up+for+grabs%22"><code>up for grabs</code></a>
+  or
+  <a href="https://github.com/kantord/SeaGOAT/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22"><code>good first issue</code></a>
+  as starting points.</li>
+<li>Report bugs or suggest enhancements by
+  <a href="https://github.com/kantord/SeaGOAT/issues/new">creating an issue</a>
+  with the <code>bug</code> or <code>enhancement</code> label.</li>
+</ul>
+<h3 id="contribution-process">Contribution Process</h3>
+<ol>
+<li><strong>Fork &amp; Create a Branch:</strong>
+   <a href="https://docs.github.com/en/get-started/quickstart/fork-a-repo">Fork the repo</a>
+   and create a branch with a descriptive name in your fork.</li>
+<li><strong>Develop &amp; Test Changes:</strong> Make and test your changes, adhering to existing
+   coding standards. If you have configured your development environment
+   correctly, automated tools will help you with this.</li>
+<li><strong>Submit a Pull Request:</strong>
+   <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request">Open a Pull Request</a>
+   targeting the <code>main</code> branch of the original repo.</li>
+<li><strong>Address Review Comments:</strong> After you submitted a pull request, it will
+   be reviewed by a maintainer as soon as possible. In order to make sure
+   your changes get merged, you have to address any comments in your pull
+   request until it is finally approved. After your changes are approved and
+   merged, they will be released automatically if there are any user facing
+   changes.</li>
+</ol>
+<p><em>By contributing to SeaGOAT you agree to release your contributions
+under the same license SeaGOAT is licensed to, including future
+relicensing or double licensing of the codebase</em></p>
+<!-- markdownlint-enable MD041 -->
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.action.edit", "content.code.copy", "navigation.instant", "navigation.tracking"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.525ec568.min.js"></script>
+      
+    
+  </body>
+</html>
