@@ -3,6 +3,7 @@ from pathlib import Path
 from freezegun import freeze_time
 
 from seagoat.engine import Engine
+from tests.conftest import MockRepo
 from tests.test_server import pytest
 
 
@@ -263,6 +264,38 @@ def test_does_not_crash_because_of_non_existent_files(repo):
         "file4.js",
         "file4.md",
     }
+
+
+def test_ignored_ignored_files_is_really_ignored(repo: MockRepo):
+    file_name = "node_modules/acorn/README.md"
+    repo.add_file_change_commit(
+        file_name=file_name,
+        contents="Hello",
+        author=repo.actors["John Doe"],
+        commit_message="Incidentally commited node_modules.",
+    )
+    repo.add_file_change_commit(
+        file_name=".gitignore",
+        contents="node_modules",
+        author=repo.actors["John Doe"],
+        commit_message="Added node_modules to gitignore.",
+    )
+    repo.add_file_change_commit(
+        file_name=file_name,
+        contents=None,
+        author=repo.actors["John Doe"],
+        commit_message="Removed node_modules.",
+    )
+    # File is added in the filesystem, but should be ignored by git.
+    file_path = Path(repo.working_dir) / file_name
+    file_path.write_text("Hello.")
+
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    top_files = set(file.path for file, _ in seagoat.repository.top_files())
+
+    assert "node_modules/acorn/README.md" not in top_files
 
 
 @pytest.mark.asyncio

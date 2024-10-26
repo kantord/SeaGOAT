@@ -154,7 +154,7 @@ class MockRepo(Repo):
     def add_file_change_commit(
         self,
         file_name,
-        contents,
+        contents: str | None,
         author,
         commit_message,
         encoding="utf-8",
@@ -164,12 +164,16 @@ class MockRepo(Repo):
         if parent_folder:
             os.makedirs(parent_folder, exist_ok=True)
 
-        with open(
-            os.path.join(self.working_dir, file_name), "w", encoding=encoding
-        ) as output_file:
-            output_file.write(contents)
+        file_path = os.path.join(self.working_dir, file_name)
 
-        self.index.add([file_name])
+        if contents is None:
+            os.unlink(file_path)
+            self.index.remove(file_name)
+        else:
+            with open(file_path, "w", encoding=encoding) as output_file:
+                output_file.write(contents)
+            self.index.add([file_name])
+
         return self.index.commit(
             commit_message,
             author=author,
