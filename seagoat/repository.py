@@ -6,6 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from seagoat.gitfile import GitFile
+from seagoat.utils.config import get_config_values
 from seagoat.utils.file_reader import autodecode_bytes
 from seagoat.utils.file_types import is_file_type_supported
 
@@ -23,6 +24,7 @@ def parse_commit_info(raw_line: str):
 class Repository:
     def __init__(self, repo_path: str):
         self.path = Path(repo_path)
+        self.config = get_config_values(self.path)
         self.file_changes = defaultdict(list)
         self.frecency_scores = {}
 
@@ -35,6 +37,13 @@ class Repository:
         return subprocess.check_output(
             ["git", "-C", str(self.path), "diff"], text=True
         ).strip()
+
+    def _is_file_ignored(self, path: str):
+        for pattern in self.config["server"]["ignorePatterns"]:
+            if Path(path).match(pattern):
+                return True
+
+        return False
 
     def get_file_object_id(self, file_path: str):
         """
@@ -100,10 +109,11 @@ class Repository:
                 elif line:
                     filename = line
 
-                    if not is_file_type_supported(filename):
-                        continue
-
-                    if filename not in git_files:
+                    if (
+                        not is_file_type_supported(filename)
+                        or self._is_file_ignored(filename)
+                        or filename not in git_files
+                    ):
                         continue
 
                     self.file_changes[filename].append(current_commit_info)
