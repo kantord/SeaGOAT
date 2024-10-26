@@ -295,7 +295,7 @@ def test_ignored_ignored_files_is_really_ignored(repo: MockRepo):
 
     top_files = set(file.path for file, _ in seagoat.repository.top_files())
 
-    assert "node_modules/acorn/README.md" not in top_files
+    assert file_name not in top_files
 
 
 @pytest.mark.asyncio
