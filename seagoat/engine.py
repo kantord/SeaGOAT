@@ -1,6 +1,7 @@
 """
-    This module allows you to use seagoat as a library
+This module allows you to use seagoat as a library
 """
+
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial

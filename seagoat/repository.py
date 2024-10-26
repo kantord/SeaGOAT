@@ -97,7 +97,15 @@ class Repository:
 
         self.file_changes.clear()
 
-        git_files = subprocess.check_output([*git_cmd, "ls-files"], text=True).split()
+        git_files = set(
+            subprocess.check_output([*git_cmd, "ls-files"], text=True).split()
+        )
+        # Exclude deleted files
+        git_files.difference_update(
+            subprocess.check_output(
+                [*git_cmd, "ls-files", "--deleted"], text=True
+            ).split()
+        )
 
         current_commit_info = None
         with subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True) as proc:
