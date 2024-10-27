@@ -63,14 +63,14 @@ It is recommended to set up pre-commit hooks so that these checks are
 executed automatically. You can do so by running this command:
 
 ```bash
-pre-commit install
+poetry run pre-commit install
 ```
 
 If you do *not* wish to use pre-commit hooks, you can still execute all
 checks manually by running:
 
 ```bash
-pre-commit run --all-files
+poetry run pre-commit run --all-files
 ```
 
 ## Developing SeaGOAT

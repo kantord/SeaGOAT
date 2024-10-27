@@ -68,7 +68,8 @@ gt "Where are the numbers rounded"
 ```
 
 You can also use
-[Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression) in your queries, for example
+[Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)
+in your queries, for example
 
 ```bash
 gt "function calc_.* that deals with taxes"
