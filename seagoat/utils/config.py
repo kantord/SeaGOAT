@@ -13,7 +13,7 @@ DEFAULT_CONFIG = {
     "server": {
         "port": None,
         "ignorePatterns": [],
-        "readMaxCommits": 1000,
+        "readMaxCommits": 5_000,
         "chroma": {
             "embeddingFunction": {
                 "name": "DefaultEmbeddingFunction",
