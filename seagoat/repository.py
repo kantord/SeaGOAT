@@ -82,13 +82,10 @@ class Repository:
         return hashlib.sha256(combined.encode()).hexdigest()
 
     def analyze_files(self):
-        git_cmd = [
+        cmd = [
             "git",
             "-C",
             self.path,
-        ]
-        cmd = [
-            *git_cmd,
             "log",
             "--name-only",
             "--pretty=format:###%h:::%ai:::%an <%ae>:::%s",
@@ -97,14 +94,8 @@ class Repository:
 
         self.file_changes.clear()
 
-        git_files = set(
-            subprocess.check_output([*git_cmd, "ls-files"], text=True).split()
-        )
-        # Exclude deleted files
-        git_files.difference_update(
-            subprocess.check_output(
-                [*git_cmd, "ls-files", "--deleted"], text=True
-            ).split()
+        files = set(
+            subprocess.check_output(["rg", "--files"], cwd=self.path, text=True).split()
         )
 
         current_commit_info = None
@@ -120,7 +111,7 @@ class Repository:
                     if (
                         not is_file_type_supported(filename)
                         or self._is_file_ignored(filename)
-                        or filename not in git_files
+                        or filename not in files
                     ):
                         continue
 
