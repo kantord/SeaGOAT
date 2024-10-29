@@ -13,6 +13,7 @@ DEFAULT_CONFIG = {
     "server": {
         "port": None,
         "ignorePatterns": [],
+        "readMaxCommits": 1000,
         "chroma": {
             "embeddingFunction": {
                 "name": "DefaultEmbeddingFunction",
@@ -35,6 +36,11 @@ CONFIG_SCHEMA = {
             "additionalProperties": False,
             "properties": {
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+                "readMaxCommits": {
+                    "type": ["integer", "null"],
+                    "minimum": 1,
+                    "maximum": 65535,
+                },
                 "ignorePatterns": {
                     "type": "array",
                     "items": {"type": "string"},

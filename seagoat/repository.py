@@ -92,6 +92,9 @@ class Repository:
             "--no-merges",
         ]
 
+        if (max_commits := self.config["server"]["readMaxCommits"]) is not None:
+            cmd.append(f"--max-count={max_commits}")
+
         self.file_changes.clear()
 
         files = set(

@@ -25,6 +25,9 @@ This is an example of a configuration file:
 
 server:
   port: 31134  # A port number to run the server on
+  # Increase number of commits used for computing frecency score
+  # Default is `1000`, set to `null` to read all history
+  readMaxCommits: 5000
 
   # globs to ignore in addition to .gitignore
   ignorePatterns:
