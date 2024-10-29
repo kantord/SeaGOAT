@@ -280,9 +280,8 @@ def test_ignored_ignored_files_is_really_ignored(repo: MockRepo):
         author=repo.actors["John Doe"],
         commit_message="Added node_modules to gitignore.",
     )
-    repo.add_file_change_commit(
+    repo.add_file_delete_commit(
         file_name=file_name,
-        contents=None,
         author=repo.actors["John Doe"],
         commit_message="Removed node_modules.",
     )
