@@ -266,7 +266,7 @@ def test_does_not_crash_because_of_non_existent_files(repo):
     }
 
 
-def test_ignored_ignored_files_is_really_ignored(repo: MockRepo):
+def test_ignored_files_is_really_ignored(repo: MockRepo):
     file_name = "node_modules/acorn/README.md"
     repo.add_file_change_commit(
         file_name=file_name,
