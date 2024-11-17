@@ -1,6 +1,7 @@
 """
-    This module allows you to use seagoat as a library
+This module allows you to use seagoat as a library
 """
+
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
@@ -82,13 +83,6 @@ class Engine:
         for source in chain(*self._fetchers.values()):
             source["cache_chunk"](chunk)
 
-    def _is_file_ignored(self, path: str):
-        for pattern in self.config["server"]["ignorePatterns"]:
-            if Path(path).match(pattern):
-                return True
-
-        return False
-
     def process_chunk(self, chunk):
         if chunk.chunk_id in self.cache.data["chunks_already_analyzed"]:
             return
@@ -105,8 +99,6 @@ class Engine:
         chunks_to_process = []
 
         for file, _ in self.repository.top_files():
-            if self._is_file_ignored(file.path):
-                continue
             for chunk in file.get_chunks():
                 if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
                     chunks_to_process.append(chunk)
@@ -189,9 +181,6 @@ class Engine:
         merged_results = {}
 
         for result_item in self._results:
-            if self._is_file_ignored(result_item.gitfile.path):
-                continue
-
             if result_item.gitfile.path not in merged_results:
                 merged_results[result_item.gitfile.path] = result_item
                 continue

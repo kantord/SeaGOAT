@@ -6,6 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from seagoat.gitfile import GitFile
+from seagoat.utils.config import get_config_values
 from seagoat.utils.file_reader import autodecode_bytes
 from seagoat.utils.file_types import is_file_type_supported
 
@@ -23,6 +24,7 @@ def parse_commit_info(raw_line: str):
 class Repository:
     def __init__(self, repo_path: str):
         self.path = Path(repo_path)
+        self.config = get_config_values(self.path)
         self.file_changes = defaultdict(list)
         self.frecency_scores = {}
 
@@ -35,6 +37,13 @@ class Repository:
         return subprocess.check_output(
             ["git", "-C", str(self.path), "diff"], text=True
         ).strip()
+
+    def _is_file_ignored(self, path: str):
+        for pattern in self.config["server"]["ignorePatterns"]:
+            if Path(path).match(pattern):
+                return True
+
+        return False
 
     def get_file_object_id(self, file_path: str):
         """
@@ -85,6 +94,10 @@ class Repository:
 
         self.file_changes.clear()
 
+        files = set(
+            subprocess.check_output(["rg", "--files"], cwd=self.path, text=True).split()
+        )
+
         current_commit_info = None
         with subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True) as proc:
             assert proc.stdout is not None
@@ -95,10 +108,11 @@ class Repository:
                 elif line:
                     filename = line
 
-                    if not is_file_type_supported(filename):
-                        continue
-
-                    if not (self.path / filename).exists():
+                    if (
+                        not is_file_type_supported(filename)
+                        or self._is_file_ignored(filename)
+                        or filename not in files
+                    ):
                         continue
 
                     self.file_changes[filename].append(current_commit_info)

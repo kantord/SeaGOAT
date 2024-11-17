@@ -55,7 +55,7 @@ def test_handle_get_stats(
 def test_important_files_are_analyzed_first(create_task_queue, mocker, repo):
     enqueue = mocker.patch("seagoat.queue.task_queue.TaskQueue.enqueue")
     create_task_queue()
-    sleep(0.5)
+    sleep(2.0)
     repository = Repository(repo.working_dir)
     repository.analyze_files()
     order_of_files_analyzed = []

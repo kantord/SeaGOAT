@@ -153,23 +153,26 @@ class MockRepo(Repo):
 
     def add_file_change_commit(
         self,
-        file_name,
-        contents,
-        author,
-        commit_message,
+        file_name: str,
+        contents: str,
+        author: Actor,
+        commit_message: str,
         encoding="utf-8",
-    ):
+    ) -> str:
         # Create parent directory if it doesn't exist:
         parent_folder = os.path.dirname(os.path.join(self.working_dir, file_name))
         if parent_folder:
             os.makedirs(parent_folder, exist_ok=True)
 
-        with open(
-            os.path.join(self.working_dir, file_name), "w", encoding=encoding
-        ) as output_file:
-            output_file.write(contents)
+        file_path = os.path.join(self.working_dir, file_name)
 
+        with open(file_path, "w", encoding=encoding) as output_file:
+            output_file.write(contents)
         self.index.add([file_name])
+
+        return self._commit_changes(commit_message, author)
+
+    def _commit_changes(self, commit_message: str, author: Actor) -> str:
         return self.index.commit(
             commit_message,
             author=author,
@@ -178,6 +181,19 @@ class MockRepo(Repo):
             commit_date=self.fake_commit_date,
             skip_hooks=True,
         ).hexsha
+
+    def add_file_delete_commit(
+        self,
+        file_name: str,
+        author: Actor,
+        commit_message: str,
+    ) -> str:
+        file_path = os.path.join(self.working_dir, file_name)
+
+        os.unlink(file_path)
+        self.index.remove(file_name)
+
+        return self._commit_changes(commit_message, author)
 
 
 @pytest.fixture
