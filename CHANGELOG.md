@@ -1,6 +1,49 @@
 # CHANGELOG
 
 
+## v0.49.5 (2024-11-18)
+
+### Bug Fixes
+
+* fix(deps): update dependency setuptools to v75.5.0 (#746)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`67527b9`](https://github.com/kantord/SeaGOAT/commit/67527b9ab89de01e8a68c8b1777428eb9ca677a3))
+
+* fix(deps): update dependency tqdm to v4.67.0 (#742)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`075fd42`](https://github.com/kantord/SeaGOAT/commit/075fd42d607cf4f866c22c15e49fbee38ef8af61))
+
+* fix(deps): update dependency chromadb to v0.5.18 (#743)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`ca01afa`](https://github.com/kantord/SeaGOAT/commit/ca01afa58a30f0fa420a771000a1e9827191f683))
+
+### Chores
+
+* chore(deps): update dependency pyright to v1.1.389 (#750)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`366e68b`](https://github.com/kantord/SeaGOAT/commit/366e68bf190e2f7e3b149498ac4aaf29acb18cfe))
+
+* chore(deps): update dependency ruff to v0.7.4 (#753)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`314eb4b`](https://github.com/kantord/SeaGOAT/commit/314eb4bad5188289420e1236a638132bb45b15c7))
+
+* chore(deps): update dependency python-semantic-release to v9.14.0 (#755)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`b79a122`](https://github.com/kantord/SeaGOAT/commit/b79a12294f27d03a0bfdb702e4b0619a84f8dab1))
+
+* chore(deps): update dependency mkdocs-material to v9.5.44 (#752)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`587938a`](https://github.com/kantord/SeaGOAT/commit/587938a9fa622466f1cc3aef1b978a0e499ccff5))
+
+* chore(deps): update dependency locust to v2.32.3 (#745)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`9fce5aa`](https://github.com/kantord/SeaGOAT/commit/9fce5aa56076c0559aa5f74525207df4725d2826))
+
+* chore(deps): update pypa/gh-action-pypi-publish digest to 93e8795 (#749)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`f2de1d3`](https://github.com/kantord/SeaGOAT/commit/f2de1d3b67d05bd6c057f9b98b0001a915de8c94))
+
+
 ## v0.49.4 (2024-11-18)
 
 ### Bug Fixes
