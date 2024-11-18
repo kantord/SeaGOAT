@@ -90,10 +90,8 @@ class Repository:
             "--name-only",
             "--pretty=format:###%h:::%ai:::%an <%ae>:::%s",
             "--no-merges",
+            *self._git_log_extra_options(),
         ]
-
-        if (max_commits := self.config["server"]["readMaxCommits"]) is not None:
-            cmd.append(f"--max-count={max_commits}")
 
         self.file_changes.clear()
 
@@ -121,6 +119,14 @@ class Repository:
                     self.file_changes[filename].append(current_commit_info)
 
         self._compute_frecency()
+
+    def _git_log_extra_options(self):
+        cmd = []
+
+        if (max_commits := self.config["server"]["readMaxCommits"]) is not None:
+            cmd.append(f"--max-count={max_commits}")
+
+        return cmd
 
     def _compute_frecency(self):
         self.frecency_scores = {}

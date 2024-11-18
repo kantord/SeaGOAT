@@ -1,7 +1,8 @@
 from pathlib import Path
+from typing import Any
 
 from freezegun import freeze_time
-
+from pytest_mock import MockerFixture
 from seagoat.engine import Engine
 from tests.conftest import MockRepo
 from tests.test_server import pytest
@@ -312,3 +313,28 @@ async def test_allows_limiting_how_many_files_are_automatically_analized(
     seagoat.analyze_codebase(minimum_chunks_to_analyze=chunks_to_analyze)
 
     assert len(seagoat.cache.data["chunks_already_analyzed"]) == chunks_to_analyze
+
+
+@pytest.mark.parametrize(
+    "config,expected_extra_args",
+    [
+        pytest.param({}, ["--max-count=5000"], id="default"),
+        pytest.param(
+            {"readMaxCommits": 100}, ["--max-count=100"], id="specific-number"
+        ),
+        pytest.param({"readMaxCommits": None}, [], id="unlimited"),
+    ],
+)
+def test_max_count_is_added_for_read_max_commits_setting(
+    repo: MockRepo,
+    mocker: MockerFixture,
+    config: dict[str, Any],
+    expected_extra_args: list[str],
+):
+    repository = Engine(repo.working_dir).repository
+    repository.config["server"].update(config)
+    mock = mocker.spy(repository, "_git_log_extra_options")
+
+    repository.analyze_files()
+
+    assert mock.spy_return == expected_extra_args
