@@ -2344,13 +2344,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.32.0"
+version = "2.32.3"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "locust-2.32.0-py3-none-any.whl", hash = "sha256:e004514332b8631ca91382d11d224baee4ced040c5f5c8b2233800ebcbc73c0e"},
-    {file = "locust-2.32.0.tar.gz", hash = "sha256:d8f7f5d9d4e801b2e7b0ee3f31109333673da744ccedf85e7da0151f2d263dd9"},
+    {file = "locust-2.32.3-py3-none-any.whl", hash = "sha256:ebfce96f82b0b31418a498ae97724fdba9a41754e88471de56920339f3974347"},
+    {file = "locust-2.32.3.tar.gz", hash = "sha256:2b92df32c414a272dde321da4afd9e148b5fec32213fe2a260885a469374132b"},
 ]
 
 [package.dependencies]
@@ -2368,6 +2368,7 @@ requests = [
     {version = ">=2.26.0", markers = "python_full_version <= \"3.11.0\""},
     {version = ">=2.32.2", markers = "python_full_version > \"3.11.0\""},
 ]
+setuptools = ">=65.5.1"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 typing_extensions = {version = ">=4.6.0", markers = "python_version < \"3.11\""}
 Werkzeug = ">=2.0.0"
