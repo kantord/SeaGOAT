@@ -1,6 +1,51 @@
 # CHANGELOG
 
 
+## v0.49.4 (2024-11-18)
+
+### Bug Fixes
+
+* fix(deps): update dependency waitress to v3.0.1 [security] (#747)
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com> ([`9382b6b`](https://github.com/kantord/SeaGOAT/commit/9382b6b025ff5ca70e2692a108e039640439f29e))
+
+* fix: fix ignore logic
+
+* fix: Fix processing files from .gitignore
+
+Refs #711
+
+* refactor: Move filtering ignored files to Repository class
+
+* ruff format
+
+* chore: Add a test
+
+* chore: Cleanup
+
+* chore: Smallest possible working sleep time
+
+* refactor: Add separate add_file_delete_commit function
+
+* refactor: Use rg instead of git ls-files
+
+* chore: Fix test name ([`9d302ae`](https://github.com/kantord/SeaGOAT/commit/9d302ae5832f57cd9ae02904a5fa3d067ca05541))
+
+### Chores
+
+* chore: update lockfile ([`5b0079e`](https://github.com/kantord/SeaGOAT/commit/5b0079e986aa8b3527f9f063dc3fc294b71da76f))
+
+### Documentation
+
+* docs: fixes in docs ([`b2f661d`](https://github.com/kantord/SeaGOAT/commit/b2f661d6b5183acccba9459114f8459fce00e614))
+
+### Unknown
+
+* Spacing mistake
+
+Changed "Expressionsin" into "Expressions in" ([`c1a7de3`](https://github.com/kantord/SeaGOAT/commit/c1a7de30883b1c70fd364f4119bcf08185b22c95))
+
+
 ## v0.49.3 (2024-10-26)
 
 ### Bug Fixes
