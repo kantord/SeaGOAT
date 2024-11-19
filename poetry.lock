@@ -651,13 +651,13 @@ numpy = "*"
 
 [[package]]
 name = "chromadb"
-version = "0.5.18"
+version = "0.5.20"
 description = "Chroma."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "chromadb-0.5.18-py3-none-any.whl", hash = "sha256:9dd3827b5e04b4ff0a5ea0df28a78bac88a09f45be37fcd7fe20f879b57c43cf"},
-    {file = "chromadb-0.5.18.tar.gz", hash = "sha256:cfbb3e5aeeb1dd532b47d80ed9185e8a9886c09af41c8e6123edf94395d76aec"},
+    {file = "chromadb-0.5.20-py3-none-any.whl", hash = "sha256:9550ba1b6dce911e35cac2568b301badf4b42f457b99a432bdeec2b6b9dd3680"},
+    {file = "chromadb-0.5.20.tar.gz", hash = "sha256:19513a23b2d20059866216bfd80195d1d4a160ffba234b8899f5e80978160ca7"},
 ]
 
 [package.dependencies]
