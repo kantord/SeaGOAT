@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.49.7 (2024-11-19)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v0.5.20
+  ([#761](https://github.com/kantord/SeaGOAT/pull/761),
+  [`869dec8`](https://github.com/kantord/SeaGOAT/commit/869dec8c6984161c93adee21123cd420faa0ff3f))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update codecov/codecov-action action to v5
+  ([#759](https://github.com/kantord/SeaGOAT/pull/759),
+  [`1a795b4`](https://github.com/kantord/SeaGOAT/commit/1a795b4b2a8e7632a748f3df7939ade028571202))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.49.6 (2024-11-18)
 
 ### Bug Fixes
