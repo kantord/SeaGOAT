@@ -1,6 +1,54 @@
 # CHANGELOG
 
 
+## v0.50.0 (2024-11-23)
+
+### Chores
+
+- **deps**: Update dependency ruff to ^0.8.0 ([#767](https://github.com/kantord/SeaGOAT/pull/767),
+  [`275bafd`](https://github.com/kantord/SeaGOAT/commit/275bafddbfda1c70c59e1952dc9c7e2f9396db83))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update codecov/codecov-action digest to 015f24e
+  ([#765](https://github.com/kantord/SeaGOAT/pull/765),
+  [`fb350cc`](https://github.com/kantord/SeaGOAT/commit/fb350ccd20447167e193b8e0c0e32f25bdd33360))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.5.45
+  ([#764](https://github.com/kantord/SeaGOAT/pull/764),
+  [`c23f07f`](https://github.com/kantord/SeaGOAT/commit/c23f07f23579d7e39cffa1437533f03bff16f23f))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update codecov/codecov-action digest to 985343d
+  ([#763](https://github.com/kantord/SeaGOAT/pull/763),
+  [`5efea72`](https://github.com/kantord/SeaGOAT/commit/5efea72436739e0f09c2fef9ad31ecd2b22e3713))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update codecov/codecov-action digest to 05f5a9c
+  ([#762](https://github.com/kantord/SeaGOAT/pull/762),
+  [`cbc55d7`](https://github.com/kantord/SeaGOAT/commit/cbc55d76dbaa33c2a5a9a2d2a83ad912d5f67fa7))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Features
+
+- Add an option to limit maximum commits used for frecency
+  ([#756](https://github.com/kantord/SeaGOAT/pull/756),
+  [`44bd95e`](https://github.com/kantord/SeaGOAT/commit/44bd95e3af48d0e6cff590275d6a2a798ae60557))
+
+* feat: Add an option to limit maximum commits used for frecency
+
+Refs #711
+
+* chore: Add debug logging
+
+* chore: Add tests/refactor
+
+
 ## v0.49.7 (2024-11-19)
 
 ### Bug Fixes
