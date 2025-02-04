@@ -3,8 +3,6 @@
 > [!TIP]
 > Check out [CodeGate](https://github.com/stacklok/codegate), the AI project I am currently working on. It's all about **security** in AI code generation.
 
-
-
 <h1>
   <p align="center">
     <img src="assets/logo-small.png" alt="Logo" width="200"/>
