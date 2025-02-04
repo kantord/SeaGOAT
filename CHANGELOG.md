@@ -1,6 +1,46 @@
 # CHANGELOG
 
 
+## v0.51.0 (2025-02-04)
+
+### Chores
+
+- **deps**: Update dependency ruff to v0.8.1 ([#773](https://github.com/kantord/SeaGOAT/pull/773),
+  [`f973eb9`](https://github.com/kantord/SeaGOAT/commit/f973eb9459e6649783e2fd67a246e44592a625c0))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.5.46
+  ([#772](https://github.com/kantord/SeaGOAT/pull/772),
+  [`5882888`](https://github.com/kantord/SeaGOAT/commit/58828884f5f6f3d34a0d2fbf4128ff9f3f9382c5))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update pypa/gh-action-pypi-publish digest to 218af42
+  ([#770](https://github.com/kantord/SeaGOAT/pull/770),
+  [`f2a9564`](https://github.com/kantord/SeaGOAT/commit/f2a95649dd4573558c38f173879654de56bf1774))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency syrupy to v4.8.0 ([#769](https://github.com/kantord/SeaGOAT/pull/769),
+  [`4101ba2`](https://github.com/kantord/SeaGOAT/commit/4101ba23d497a1b5bff6f8454e77c5ded21af46b))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Documentation
+
+- Avoid lint failure because of CodeGate note
+  ([`f919d29`](https://github.com/kantord/SeaGOAT/commit/f919d291f93442c7be44989904404dbf19db49da))
+
+- Add note about codegate
+  ([`c9320c7`](https://github.com/kantord/SeaGOAT/commit/c9320c79573fbc52b4326554f8eb693242463a4b))
+
+### Features
+
+- Support python 3.13
+  ([`51949e4`](https://github.com/kantord/SeaGOAT/commit/51949e4193e89f394d42b947a26ab9629bd4fb3b))
+
+
 ## v0.50.1 (2024-11-24)
 
 ### Bug Fixes
