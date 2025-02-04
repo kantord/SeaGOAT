@@ -15,7 +15,7 @@ jobs:
                   fetch-depth: 0 # fetch all history for all branches and tags
             - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5
               with:
-                  python-version: 3.11
+                  python-version: 3.13
             - name: Install Poetry
               uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1
             - name: Install dependencies
