@@ -13,7 +13,7 @@ seagoat-server = "seagoat.server:server"
 
 [tool.poetry.dependencies]
 python = "^3.10, < 3.14"
-chromadb = "^0.5.15"
+chromadb = "^0.6.0"
 gitpython = "^3.1.31"
 tqdm = "^4.65.0"
 appdirs = "^1.4.4"
