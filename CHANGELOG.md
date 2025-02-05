@@ -1,6 +1,48 @@
 # CHANGELOG
 
 
+## v0.51.1 (2025-02-05)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to ^0.6.0
+  ([`68ac885`](https://github.com/kantord/SeaGOAT/commit/68ac885e732b3a24b03b9989cf01d97d585497b4))
+
+### Chores
+
+- **deps**: Update python docker tag to v3.13
+  ([`825bc5f`](https://github.com/kantord/SeaGOAT/commit/825bc5f4e029424922343147c42528a1d9938fac))
+
+- **deps**: Update dependency ruff to ^0.9.0 ([#785](https://github.com/kantord/SeaGOAT/pull/785),
+  [`b1fb303`](https://github.com/kantord/SeaGOAT/commit/b1fb303acb9ef6954a831bbc9421909097101cfe))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pytest-asyncio to ^0.25.0
+  ([#784](https://github.com/kantord/SeaGOAT/pull/784),
+  [`41a0ec9`](https://github.com/kantord/SeaGOAT/commit/41a0ec9a3eb3e430bc838affd953f9a6561c8c5e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update pypa/gh-action-pypi-publish digest to e1dad8a
+  ([#783](https://github.com/kantord/SeaGOAT/pull/783),
+  [`1503652`](https://github.com/kantord/SeaGOAT/commit/1503652ddcf154aa566e73c6be2deaafbb47cc8f))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update codecov/codecov-action digest to 13ce06b
+  ([#782](https://github.com/kantord/SeaGOAT/pull/782),
+  [`5971e18`](https://github.com/kantord/SeaGOAT/commit/5971e1881567683a280391a4d2363aa9b13c2ab4))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update actions/setup-python digest to 4237552
+  ([#781](https://github.com/kantord/SeaGOAT/pull/781),
+  [`127a1a6`](https://github.com/kantord/SeaGOAT/commit/127a1a65d20ad6f8d317568c8e41e6bcc90f5e6e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.51.0 (2025-02-04)
 
 ### Chores
