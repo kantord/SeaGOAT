@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.51.3 (2025-02-15)
+
+### Bug Fixes
+
+- **deps**: Update dependency deepmerge to v2 ([#802](https://github.com/kantord/SeaGOAT/pull/802),
+  [`68b545b`](https://github.com/kantord/SeaGOAT/commit/68b545b65243dc295a3300bf3a0a8b0234ecbb86))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.51.2 (2025-02-14)
 
 ### Bug Fixes
