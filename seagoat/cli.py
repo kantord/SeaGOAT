@@ -5,9 +5,11 @@ from pathlib import Path
 import click
 import orjson
 import requests
+from ollama import chat
+from ollama import ChatResponse
 
 from seagoat import __version__
-from seagoat.utils.cli_display import display_results
+from seagoat.utils.cli_display import display_results, iterate_result_blocks
 from seagoat.utils.config import get_config_values
 from seagoat.utils.server import ServerDoesNotExist, get_server_info
 
@@ -130,6 +132,13 @@ def remove_results_from_unavailable_files(results):
     default=False,
     help="Display results in the opposite order, with the most relevant at the bottom.",
 )
+@click.option(
+    "-g",
+    "--generative",
+    is_flag=True,
+    default=False,
+    help="Use a generative model to enhance results",
+)
 @click.version_option(version=__version__, prog_name="seagoat")
 def seagoat(
     query,
@@ -141,6 +150,7 @@ def seagoat(
     context,
     vimgrep,
     reverse: bool,
+    generative: bool,
 ):
     """
     Query your codebase for your QUERY in the Git repository REPO_PATH.
@@ -176,8 +186,47 @@ def seagoat(
 
         results = rewrite_full_paths_to_use_local_path(repo_path, results)
         results = remove_results_from_unavailable_files(results)
-        if reverse:
+        if reverse or generative:
             results = reversed(results)
+
+        if generative:
+            if reverse:
+                click.echo("--reverse has no effect when using --generative", err=True)
+
+            serialized_results = ""
+
+            for result, block in iterate_result_blocks(results, max_results):
+                start_line = block["lines"][0]["line"]
+                end_line = block["lines"][-1]["line"]
+                serialized_results += f"{result['path']}:{start_line}:{end_line}\n"
+                for line in block["lines"]:
+                    serialized_results += f"{line['lineText']}\n"
+
+                serialized_results += "\n"
+
+            response: ChatResponse = chat(
+                model="deepseek-r1:8b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"""
+Context:
+{serialized_results}
+
+You are an assistant that helps the user find code in the codebase who always responds in the following format:
+
+===
+foo/bar/tests/test_log.py:45
+frontend/lorem/ipsum/index.html:34
+===
+
+The user query: {query}
+                """.strip(),
+                    },
+                ],
+            )
+            click.echo(response["message"]["content"])
+            return
 
         color_enabled = os.isatty(0) and not no_color and not vimgrep
 

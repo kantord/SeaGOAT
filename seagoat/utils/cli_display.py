@@ -1,7 +1,7 @@
 import math
 import subprocess
 from functools import cache
-from typing import Optional
+from typing import Any, Dict, Iterator, Optional, Tuple
 
 import click
 
@@ -48,7 +48,9 @@ def print_result_line(result, block, line, color_enabled, vimgrep):
                 break
 
 
-def iterate_result_blocks(results, max_results: Optional[int]):
+def iterate_result_blocks(
+    results, max_results: Optional[int]
+) -> Iterator[Tuple[Dict[str, Any], Dict[str, Any]]]:
     lines_left_to_print = max_results if max_results is not None else math.inf
     number_of_blocks_printed = 0
 
