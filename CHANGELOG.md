@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.53.1 (2025-02-16)
+
+### Bug Fixes
+
+- **deps**: Update dependency deepmerge to v2
+  ([`5ac4059`](https://github.com/kantord/SeaGOAT/commit/5ac4059236032346c2206941901cf513aad3954c))
+
+### Chores
+
+- **deps**: Update ksxgithub/github-actions-deploy-aur action to v4.1.1
+  ([`932e649`](https://github.com/kantord/SeaGOAT/commit/932e6498dd7f4ad85dbf652f3cae600421e8d669))
+
+
 ## v0.53.0 (2025-02-16)
 
 ### Features
