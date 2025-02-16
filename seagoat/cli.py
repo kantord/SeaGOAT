@@ -7,6 +7,7 @@ import orjson
 import requests
 from ollama import chat
 from ollama import ChatResponse
+from halo import Halo
 
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results, iterate_result_blocks
@@ -164,6 +165,8 @@ def seagoat(
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
     config = get_config_values(Path(repo_path))
+    spinner = Halo(text="Generating response...", spinner="dots")
+    spinner.start()
 
     try:
         if config["client"]["host"] is None:
@@ -246,6 +249,7 @@ The user query: {query}
             f"Please start the server using the following command:\n\n"
             f"seagoat-server start {repo_path}\n"
         )
+        spinner.fail()
         sys.exit(ExitCode.SERVER_NOT_RUNNING)
 
     try:

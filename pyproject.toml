@@ -33,6 +33,7 @@ deepmerge = "^2.0.0"
 stop-words = "^2018.7.23"
 flask = "^3.0.0"
 ollama = "^0.4.7"
+halo = "^0.0.31"
 
 
 [virtualenvs]
