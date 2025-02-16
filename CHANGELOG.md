@@ -1,6 +1,33 @@
 # CHANGELOG
 
 
+## v0.54.0 (2025-02-16)
+
+### Chores
+
+- Update dependencies
+  ([`e55ef6a`](https://github.com/kantord/SeaGOAT/commit/e55ef6af9b6803fdb1292ca62ad7195b2e9dc970))
+
+### Features
+
+- Add loading spinner
+  ([`7d62aa7`](https://github.com/kantord/SeaGOAT/commit/7d62aa7345229601675077cf918b9232aaa8c2a9))
+
+- Stream response from ollama
+  ([`4506a85`](https://github.com/kantord/SeaGOAT/commit/4506a85a03d1ec8ca7d975ac3a058c04f7dff757))
+
+### Refactoring
+
+- Extract enhance_results()
+  ([`78472f2`](https://github.com/kantord/SeaGOAT/commit/78472f23521c8875bbb553ba5f182ddbfa2f2273))
+
+- Extract enhance_results()
+  ([`0facb1b`](https://github.com/kantord/SeaGOAT/commit/0facb1b394e2b70ebc1c91fa55a9f95be4cfff40))
+
+- Extract get_prompt()
+  ([`1091a1d`](https://github.com/kantord/SeaGOAT/commit/1091a1d8155ccc4544c38127e7b142d198562adc))
+
+
 ## v0.53.1 (2025-02-16)
 
 ### Bug Fixes
