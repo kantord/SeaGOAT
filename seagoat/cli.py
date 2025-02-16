@@ -5,12 +5,12 @@ from pathlib import Path
 import click
 import orjson
 import requests
-from ollama import chat
 from halo import Halo
 
 from seagoat import __version__
-from seagoat.utils.cli_display import display_results, iterate_result_blocks
+from seagoat.utils.cli_display import display_results
 from seagoat.utils.config import get_config_values
+from seagoat.utils.generative import enhance_results
 from seagoat.utils.server import ServerDoesNotExist, get_server_info
 
 
@@ -195,53 +195,7 @@ def seagoat(
             if reverse:
                 click.echo("--reverse has no effect when using --generative", err=True)
 
-            serialized_results = ""
-            results = list(results)
-
-            for result, block in iterate_result_blocks(results, max_results):
-                start_line = block["lines"][0]["line"]
-                end_line = block["lines"][-1]["line"]
-                serialized_results += f"{result['path']}:{start_line}:{end_line}\n"
-                for line in block["lines"]:
-                    serialized_results += f"{line['lineText']}\n"
-
-                serialized_results += "\n"
-
-            response = chat(
-                model="deepseek-r1:8b",
-                stream=True,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"""
-Context:
-{serialized_results}
-
-You are an assistant that helps the user find code in the codebase who always responds in the following format:
-Make sure to explicitly mention the full file path of each file that is important for the user query.
-
-The user query: {query}
-                """.strip(),
-                    },
-                ],
-            )
-            full_raw_response = ""
-            for chunk in response:
-                chunk_text = chunk["message"]["content"]
-                full_raw_response += chunk_text
-                spinner.text = (
-                    full_raw_response.replace("\n", " ")[-200:]
-                    .replace("<think>", " ")
-                    .replace("</think>", " ")
-                )
-            response_text = (full_raw_response).split("</think>")[1]
-
-            new_results = []
-            for result in results:
-                if result["path"] in response_text:
-                    new_results.append(result)
-
-            results = new_results
+            results = enhance_results(query, results, spinner)
 
         spinner.succeed()
         color_enabled = os.isatty(0) and not no_color and not vimgrep
