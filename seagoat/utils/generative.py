@@ -10,6 +10,18 @@ def get_spinner_text(full_raw_response):
     )
 
 
+def get_prompt(serialized_results, query):
+    return f"""
+Context:
+{serialized_results}
+
+You are an assistant that helps the user find code in the codebase who always responds in the following format:
+Make sure to explicitly mention the full file path of each file that is important for the user query.
+
+The user query: {query}
+        """.strip()
+
+
 def enhance_results(query, results, spinner):
     serialized_results = ""
     results = list(results)
@@ -29,15 +41,7 @@ def enhance_results(query, results, spinner):
         messages=[
             {
                 "role": "user",
-                "content": f"""
-Context:
-{serialized_results}
-
-You are an assistant that helps the user find code in the codebase who always responds in the following format:
-Make sure to explicitly mention the full file path of each file that is important for the user query.
-
-The user query: {query}
-        """.strip(),
+                "content": get_prompt(serialized_results, query),
             },
         ],
     )
