@@ -6,7 +6,6 @@ import click
 import orjson
 import requests
 from ollama import chat
-from ollama import ChatResponse
 from halo import Halo
 
 from seagoat import __version__
@@ -208,8 +207,9 @@ def seagoat(
 
                 serialized_results += "\n"
 
-            response: ChatResponse = chat(
+            response = chat(
                 model="deepseek-r1:8b",
+                stream=True,
                 messages=[
                     {
                         "role": "user",
@@ -225,7 +225,16 @@ The user query: {query}
                     },
                 ],
             )
-            response_text = (response["message"]["content"]).split("</think>")[1]
+            full_raw_response = ""
+            for chunk in response:
+                chunk_text = chunk["message"]["content"]
+                full_raw_response += chunk_text
+                spinner.text = (
+                    full_raw_response.replace("\n", " ")[-200:]
+                    .replace("<think>", " ")
+                    .replace("</think>", " ")
+                )
+            response_text = (full_raw_response).split("</think>")[1]
 
             new_results = []
             for result in results:
@@ -234,6 +243,7 @@ The user query: {query}
 
             results = new_results
 
+        spinner.succeed()
         color_enabled = os.isatty(0) and not no_color and not vimgrep
 
         display_results(results, max_results, color_enabled, vimgrep)
