@@ -2,6 +2,14 @@ from ollama import chat
 from seagoat.utils.cli_display import iterate_result_blocks
 
 
+def get_spinner_text(full_raw_response):
+    return (
+        full_raw_response.replace("\n", " ")[-200:]
+        .replace("<think>", " ")
+        .replace("</think>", " ")
+    )
+
+
 def enhance_results(query, results, spinner):
     serialized_results = ""
     results = list(results)
@@ -37,11 +45,7 @@ The user query: {query}
     for chunk in response:
         chunk_text = chunk["message"]["content"]
         full_raw_response += chunk_text
-        spinner.text = (
-            full_raw_response.replace("\n", " ")[-200:]
-            .replace("<think>", " ")
-            .replace("</think>", " ")
-        )
+        spinner.text = get_spinner_text(full_raw_response)
     response_text = (full_raw_response).split("</think>")[1]
 
     new_results = []
