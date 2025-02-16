@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.53.0 (2025-02-16)
+
+### Features
+
+- Use existing formatting options for --generative
+  ([`02abe94`](https://github.com/kantord/SeaGOAT/commit/02abe946d534fb2c1af6ed38ce99ec370a1a02ce))
+
+
 ## v0.52.0 (2025-02-16)
 
 ### Features
