@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.52.0 (2025-02-16)
+
+### Features
+
+- Add experimental --generative option
+  ([`a4d0c75`](https://github.com/kantord/SeaGOAT/commit/a4d0c755463f9f6cefa9a331fa14451b504ec99e))
+
+
 ## v0.51.3 (2025-02-15)
 
 ### Bug Fixes
