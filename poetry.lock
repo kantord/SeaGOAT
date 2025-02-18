@@ -2327,37 +2327,34 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.32.9"
+version = "2.32.10"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "locust-2.32.9-py3-none-any.whl", hash = "sha256:d9447c26d2bbaec5a0ace7cadefa1a31820ed392234257b309965a43d5e8d26f"},
-    {file = "locust-2.32.9.tar.gz", hash = "sha256:4c297afa5cdc3de15dfa79279576e5f33c1d69dd70006b51d079dcbd212201cc"},
+    {file = "locust-2.32.10-py3-none-any.whl", hash = "sha256:f2e8567a070b17048049022981566af4c6f5944db215b129dee6ed69379277f1"},
+    {file = "locust-2.32.10.tar.gz", hash = "sha256:09dc28a788cdcd5b0c5ec5b34e2577e45f9b43d349b8614b74f0de86779c8856"},
 ]
 
 [package.dependencies]
-ConfigArgParse = ">=1.5.5"
+configargparse = ">=1.5.5"
 flask = ">=2.0.0"
-Flask-Cors = ">=3.0.10"
-Flask-Login = ">=0.6.3"
-gevent = [
-    {version = ">=22.10.2", markers = "python_full_version <= \"3.12.0\""},
-    {version = ">=24.10.1", markers = "python_full_version > \"3.13.0\""},
-]
+flask-cors = ">=3.0.10"
+flask-login = ">=0.6.3"
+gevent = {version = ">=22.10.2", markers = "python_version <= \"3.12\""}
 geventhttpclient = ">=2.3.1"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
 pyzmq = ">=25.0.0"
 requests = [
-    {version = ">=2.26.0", markers = "python_full_version <= \"3.11.0\""},
-    {version = ">=2.32.2", markers = "python_full_version > \"3.11.0\""},
+    {version = ">=2.26.0", markers = "python_version <= \"3.11\""},
+    {version = ">=2.32.2", markers = "python_version > \"3.11\""},
 ]
 setuptools = ">=70.0.0"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing_extensions = {version = ">=4.6.0", markers = "python_version < \"3.11\""}
-Werkzeug = ">=2.0.0"
+typing-extensions = {version = ">=4.6.0", markers = "python_version < \"3.11\""}
+werkzeug = ">=2.0.0"
 
 [[package]]
 name = "log-symbols"
