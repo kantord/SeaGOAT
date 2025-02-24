@@ -41,7 +41,7 @@ jobs:
                   git push origin --tags
 
             - name: publish to pypi
-              uses: pypa/gh-action-pypi-publish@31b23f5a660aa0186e00cf381c491ff4edf3d002 # release/v1
+              uses: pypa/gh-action-pypi-publish@db8f07d3871a0a180efa06b95d467625c19d5d5f # release/v1
               # NOTE: DO NOT wrap the conditional in ${{ }} as it will always evaluate to true.
               # See https://github.com/actions/runner/issues/1173
               if: steps.release.outputs.released == 'true'
