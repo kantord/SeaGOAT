@@ -2327,13 +2327,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.32.10"
+version = "2.33.0"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "locust-2.32.10-py3-none-any.whl", hash = "sha256:f2e8567a070b17048049022981566af4c6f5944db215b129dee6ed69379277f1"},
-    {file = "locust-2.32.10.tar.gz", hash = "sha256:09dc28a788cdcd5b0c5ec5b34e2577e45f9b43d349b8614b74f0de86779c8856"},
+    {file = "locust-2.33.0-py3-none-any.whl", hash = "sha256:77fcc5cc35cceee5e12d99f5bb23bc441d145bdef6967c2e93d6e4d93451553e"},
+    {file = "locust-2.33.0.tar.gz", hash = "sha256:ba291b7ab2349cc2db540adb8888bc93feb89ea4e4e10d80b935e5065091e8e9"},
 ]
 
 [package.dependencies]
