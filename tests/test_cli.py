@@ -399,7 +399,7 @@ def test_version_option(runner):
         ("/another/path/to/repo2"),
     ],
 )
-def test_server_is_not_running_error(mocker, repo_path, snapshot):
+def test_server_is_not_running_error(mocker, repo_path, snapshot, mock_halo):
     update_server_info(
         repo_path,
         {
