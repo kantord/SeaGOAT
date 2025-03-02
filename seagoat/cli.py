@@ -211,7 +211,8 @@ def seagoat(
         click.echo(
             f"The SeaGOAT server is not running. "
             f"Please start the server using the following command:\n\n"
-            f"seagoat-server start {repo_path}\n"
+            f"seagoat-server start {repo_path}\n",
+            err=True,
         )
         spinner.fail()
         sys.exit(ExitCode.SERVER_NOT_RUNNING)
@@ -220,7 +221,8 @@ def seagoat(
         warn_if_update_available()
     except requests.exceptions.ConnectionError:
         click.echo(
-            "Could not check for updates because the pypi.org API is not accessible"
+            "Could not check for updates because the pypi.org API is not accessible",
+            err=True,
         )
 
 
