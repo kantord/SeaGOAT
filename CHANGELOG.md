@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.54.2 (2025-03-02)
+
+### Bug Fixes
+
+- Skip empty lines in vimgrep output
+  ([`177955d`](https://github.com/kantord/SeaGOAT/commit/177955d38f44751e5373f8662c82071326f2f257))
+
+
 ## v0.54.1 (2025-03-02)
 
 ### Bug Fixes
