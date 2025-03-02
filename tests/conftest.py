@@ -441,12 +441,19 @@ class CustomCliRunner(CliRunner):
 
 
 @pytest.fixture
-def runner():
+def runner(mock_halo):
     return CustomCliRunner()
 
 
 @pytest.fixture
-def runner_with_error():
+def mock_halo(mocker):
+    mocker.patch("seagoat.cli.Halo")
+
+    yield
+
+
+@pytest.fixture
+def runner_with_error(mocker, mock_halo):
     return CliRunner(mix_stderr=False)
 
 

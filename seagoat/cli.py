@@ -164,7 +164,7 @@ def seagoat(
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
     config = get_config_values(Path(repo_path))
-    spinner = Halo(text="Generating response...", spinner="dots")
+    spinner = Halo(text="Generating response...", spinner="dots", stream=sys.stderr)
     spinner.start()
 
     try:
