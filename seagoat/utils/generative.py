@@ -18,7 +18,7 @@ def get_prompt(serialized_results, query):
 
     We explicitly ask for a JSON structure with:
     - "answer" (the final answer for the user)
-    - "mentioned_paths" (a list of file paths relevant to the query)
+    - "files" (a list of file paths relevant to the query). It mentions also the most important line numbers.
     """
     return f"""
 Context:
@@ -27,11 +27,11 @@ Context:
 User Query:
 {query}
 
-Please provide your final answer in valid JSON with the following format:
+Please provide your final answer in valid JSON with the following format, even if there are no results:
 
 {{
-  "answer": "<Your explanation or summary>",
-  "mentioned_paths": ["path/one", "path/two"]
+    "answer": "<Your explanation or summary>",
+    "files": [{{"path": "path/one", "lines": [34, 56]}}, {{"path": "path/two", "lines": [12, 45]}}]
 }}
 """.strip()
 
@@ -88,17 +88,30 @@ def enhance_results(query, results, spinner):
         full_raw_response += chunk_text
         spinner.text = get_spinner_text(full_raw_response)
 
-    mentioned_paths = []
     json_start = full_raw_response.find("{")
     json_end = full_raw_response.rfind("}") + 1
     raw_json = full_raw_response[json_start:json_end]
     parsed_response = json.loads(raw_json)
-    if isinstance(parsed_response, dict):
-        mentioned_paths = parsed_response.get("mentioned_paths", [])
+    files = parsed_response.get("files", [])
 
     new_results = []
     for result in results_list:
-        if result["path"] in mentioned_paths:
+        lines_mentioned = set()
+        for file in files:
+            if result["path"] != file["path"]:
+                continue
+
+            lines_mentioned.update(file["lines"])
+
+        if lines_mentioned:
+            filtered_blocks = []
+
+            for block in result["blocks"]:
+                # add entire block if any line is mentioned
+                if any(line["line"] in lines_mentioned for line in block["lines"]):
+                    filtered_blocks.append(block)
+
+            result["blocks"] = filtered_blocks
             new_results.append(result)
 
     return new_results
