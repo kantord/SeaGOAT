@@ -1,60 +1,104 @@
+import json
 from ollama import chat
 from seagoat.utils.cli_display import iterate_result_blocks
 
 
 def get_spinner_text(full_raw_response):
-    return (
-        full_raw_response.replace("\n", " ")[-200:]
-        .replace("<think>", " ")
-        .replace("</think>", " ")
-    )
+    """
+    Returns a shortened version of the latest response,
+    which can be used for spinner or console feedback.
+    """
+    return full_raw_response.replace("\n", " ")[-200:]
 
 
 def get_prompt(serialized_results, query):
+    """
+    This function constructs the user-facing context.
+    It includes the relevant snippets and the user's query.
+
+    We explicitly ask for a JSON structure with:
+    - "answer" (the final answer for the user)
+    - "mentioned_paths" (a list of file paths relevant to the query)
+    """
     return f"""
 Context:
 {serialized_results}
 
-You are an assistant that helps the user find code in the codebase who always responds in the following format:
-Make sure to explicitly mention the full file path of each file that is important for the user query.
+User Query:
+{query}
 
-The user query: {query}
-        """.strip()
+Please provide your final answer in valid JSON with the following format:
+
+{{
+  "answer": "<Your explanation or summary>",
+  "mentioned_paths": ["path/one", "path/two"]
+}}
+""".strip()
 
 
 def enhance_results(query, results, spinner):
+    """
+    1. Serialize results into a single string (serialized_results).
+    2. Provide system (common) instructions and user context (snippets + query) requesting JSON output.
+    3. Capture the model's streaming output.
+    4. Parse the JSON and filter original results to those paths explicitly mentioned in the response.
+    """
     serialized_results = ""
-    results = list(results)
+    results_list = list(results)
 
-    for result, block in iterate_result_blocks(results, max_results=None):
+    for result, block in iterate_result_blocks(results_list, max_results=None):
         start_line = block["lines"][0]["line"]
         end_line = block["lines"][-1]["line"]
         serialized_results += f"{result['path']}:{start_line}:{end_line}\n"
         for line in block["lines"]:
             serialized_results += f"{line['lineText']}\n"
-
         serialized_results += "\n"
+
+    system_message = {
+        "role": "system",
+        "content": (
+            "You are a helpful assistant that locates relevant code snippets from a codebase. "
+            "Please follow these rules:\n"
+            "1. Always mention the full file paths that are relevant to the user's query.\n"
+            "2. Summarize or highlight the relevant code sections.\n"
+            "3. Provide a brief explanation of how they address the user's request.\n"
+            "4. If something is unclear, politely ask clarifying questions.\n"
+            "\n"
+            "IMPORTANT: You must respond in valid JSON (UTF-8) only, with two fields:\n"
+            "  - 'answer': a string\n"
+            "  - 'mentioned_paths': a list of strings\n"
+        ),
+    }
+
+    user_message = {
+        "role": "user",
+        "content": get_prompt(serialized_results, query),
+    }
 
     response = chat(
         model="deepseek-r1:8b",
         stream=True,
-        messages=[
-            {
-                "role": "user",
-                "content": get_prompt(serialized_results, query),
-            },
-        ],
+        options={"temperature": 0.1},
+        messages=[system_message, user_message],
     )
+
     full_raw_response = ""
     for chunk in response:
         chunk_text = chunk["message"]["content"]
         full_raw_response += chunk_text
         spinner.text = get_spinner_text(full_raw_response)
-    response_text = (full_raw_response).split("</think>")[1]
+
+    mentioned_paths = []
+    json_start = full_raw_response.find("{")
+    json_end = full_raw_response.rfind("}") + 1
+    raw_json = full_raw_response[json_start:json_end]
+    parsed_response = json.loads(raw_json)
+    if isinstance(parsed_response, dict):
+        mentioned_paths = parsed_response.get("mentioned_paths", [])
 
     new_results = []
-    for result in results:
-        if result["path"] in response_text:
+    for result in results_list:
+        if result["path"] in mentioned_paths:
             new_results.append(result)
 
     return new_results
