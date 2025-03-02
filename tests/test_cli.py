@@ -763,7 +763,7 @@ def test_server_does_not_exist_error(runner_with_error, mocker, repo):
     result = runner_with_error.invoke(seagoat, [query, repo.working_dir])
 
     assert result.exit_code == 3
-    assert "The SeaGOAT server is not running" in result.output
+    assert "The SeaGOAT server is not running" in result.stderr
 
 
 @pytest.mark.usefixtures("mock_query_server")
@@ -786,7 +786,7 @@ def test_no_network_to_update(runner_with_error, mocker, mock_response, repo):
     result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
 
     assert result.exit_code == 0
-    assert "Could not check for updates" in result.output
+    assert "Could not check for updates" in result.stderr
 
 
 @pytest.mark.usefixtures("server", "mock_accuracy_warning")
