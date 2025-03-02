@@ -1,9 +1,11 @@
 from pathlib import Path
 
+
 import chromadb
 from chromadb.config import Settings
 from chromadb.errors import IDAlreadyExistsError
 from chromadb.utils import embedding_functions
+from ollama import chat
 
 from seagoat.cache import Cache
 from seagoat.repository import Repository
@@ -11,6 +13,22 @@ from seagoat.result import Result
 from seagoat.utils.config import get_config_values
 
 MAXIMUM_VECTOR_DISTANCE = 1.5
+
+
+def get_prompt(chunk):
+    return f"""
+You are an expert coding building a search database for our codebase.
+Your task is to summarize a code base in a maximum of 100 characters
+(the length of a short tweet).
+
+This is the code:
+
+```
+{chunk}
+```
+
+Respond with nothing else, only the short summary!
+"""
 
 
 def get_metadata_and_distance_from_chromadb_result(chromadb_results):
@@ -88,17 +106,36 @@ def initialize(repository: Repository):
         return format_results(query_text, repository, chromadb_results)
 
     def cache_chunk(chunk):
+        metadata = {
+            "path": chunk.path,
+            "line": chunk.codeline,
+            "git_object_id": chunk.object_id,
+        }
+        ids = [chunk.chunk_id]
+        documents = [chunk.chunk]
+        if not any(chunk.path.endswith(f".{extension}") for extension in ["txt", "md"]):
+            response = chat(
+                model="qwen2.5-coder:0.5b",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": get_prompt(chunk),
+                    },
+                ],
+            )
+            response_text = response["message"]["content"]
+
+            ids.append(f"{chunk.chunk_id}_summarized")
+            documents.append(response_text)
+
+        else:
+            pass
+
         try:
             chroma_collection.add(
-                ids=[chunk.chunk_id],
-                documents=[chunk.chunk],
-                metadatas=[
-                    {
-                        "path": chunk.path,
-                        "line": chunk.codeline,
-                        "git_object_id": chunk.object_id,
-                    }
-                ],
+                ids=ids,
+                documents=documents,
+                metadatas=[metadata for _ in range(len(documents))],
             )
         except IDAlreadyExistsError:
             pass

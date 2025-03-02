@@ -15,10 +15,10 @@ def get_prompt(serialized_results, query):
 Context:
 {serialized_results}
 
-You are an assistant that helps the user find code in the codebase who always responds in the following format:
-Make sure to explicitly mention the full file path of each file that is important for the user query.
+You are an assistant that helps the user find code in the codebase who always responds accurately.
+Always mention the FULL file path of each relevant result!
 
-The user query: {query}
+The user query: "{query}"
         """.strip()
 
 

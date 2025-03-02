@@ -181,7 +181,7 @@ def seagoat(
         results = query_server(
             query,
             server_address,
-            max_results,
+            max_results if not generative else 500,
             context_above if context_above is not None else 3,
             context_below if context_below is not None else 3,
         )
@@ -220,7 +220,8 @@ def seagoat(
         warn_if_update_available()
     except requests.exceptions.ConnectionError:
         click.echo(
-            "Could not check for updates because the pypi.org API is not accessible"
+            "Could not check for updates because the pypi.org API is not accessible",
+            err=True,
         )
 
 
