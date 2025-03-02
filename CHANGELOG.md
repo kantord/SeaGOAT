@@ -1,6 +1,129 @@
 # CHANGELOG
 
 
+## v0.54.1 (2025-03-02)
+
+### Bug Fixes
+
+- Show all error messages on stderr
+  ([`0e47cab`](https://github.com/kantord/SeaGOAT/commit/0e47cabe4c6ecd5d46830333ec4baf50e37d8643))
+
+- Show halo on stderr
+  ([`7d4435a`](https://github.com/kantord/SeaGOAT/commit/7d4435ad002e01966059ac2245b04a6eb95062ab))
+
+### Chores
+
+- **deps**: Update codecov/codecov-action digest to 0565863
+  ([#822](https://github.com/kantord/SeaGOAT/pull/822),
+  [`2a08a5f`](https://github.com/kantord/SeaGOAT/commit/2a08a5fa517184207295074c0cf84b7aee1165a6))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ipython to v8.33.0
+  ([#827](https://github.com/kantord/SeaGOAT/pull/827),
+  [`ab69043`](https://github.com/kantord/SeaGOAT/commit/ab69043db0d60fd9b00d820dcb59071d82c0bbbe))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.32.10
+  ([#812](https://github.com/kantord/SeaGOAT/pull/812),
+  [`5ab6429`](https://github.com/kantord/SeaGOAT/commit/5ab6429d58dbc0e9b0d9e8ec3a79c81de51dce65))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.33.0
+  ([#820](https://github.com/kantord/SeaGOAT/pull/820),
+  [`567ba2a`](https://github.com/kantord/SeaGOAT/commit/567ba2a20a7e22b0fb09c0133af9f1b439ffadcb))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency matplotlib to v3.10.1
+  ([#825](https://github.com/kantord/SeaGOAT/pull/825),
+  [`9904f8b`](https://github.com/kantord/SeaGOAT/commit/9904f8bccdc007e1fdd66325db9723282f4dfff3))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.5
+  ([#813](https://github.com/kantord/SeaGOAT/pull/813),
+  [`6c3f630`](https://github.com/kantord/SeaGOAT/commit/6c3f6302e6325e0b27752d936295d5474669cf55))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.6
+  ([#829](https://github.com/kantord/SeaGOAT/pull/829),
+  [`a00917e`](https://github.com/kantord/SeaGOAT/commit/a00917e14fafd28130970f985c15e490a4c7aa29))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.395
+  ([#823](https://github.com/kantord/SeaGOAT/pull/823),
+  [`dbabc02`](https://github.com/kantord/SeaGOAT/commit/dbabc02c4e96c146fd4ef02c23b0bf4e9c85d326))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.396
+  ([`9beb75d`](https://github.com/kantord/SeaGOAT/commit/9beb75de603a2515ec945132b94dd849761542e7))
+
+- **deps**: Update dependency pytest to v8.3.5
+  ([`d685c2f`](https://github.com/kantord/SeaGOAT/commit/d685c2f985a4bd0f0f3a8781ff88d3ca3471e88b))
+
+- **deps**: Update dependency python-semantic-release to v9.20.0
+  ([#810](https://github.com/kantord/SeaGOAT/pull/810),
+  [`7700e1d`](https://github.com/kantord/SeaGOAT/commit/7700e1d4054346dae237ccc08074a0aa951cf7e5))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency python-semantic-release to v9.21.0
+  ([#817](https://github.com/kantord/SeaGOAT/pull/817),
+  [`924d9cc`](https://github.com/kantord/SeaGOAT/commit/924d9cc827d3649f9a59eff0a4026b7cf3abe0a1))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.9.7 ([#815](https://github.com/kantord/SeaGOAT/pull/815),
+  [`78ff12e`](https://github.com/kantord/SeaGOAT/commit/78ff12e95de2f57e9e1d145fd29f6a6a9719677a))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.9.8 ([#824](https://github.com/kantord/SeaGOAT/pull/824),
+  [`8368927`](https://github.com/kantord/SeaGOAT/commit/8368927eb329776fedeeae9b3e619677fb5a5385))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.9.9 ([#826](https://github.com/kantord/SeaGOAT/pull/826),
+  [`8d06eef`](https://github.com/kantord/SeaGOAT/commit/8d06eefc1b74f5a123541c438a46ca7da216b54e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency syrupy to v4.8.2 ([#816](https://github.com/kantord/SeaGOAT/pull/816),
+  [`1b9b33c`](https://github.com/kantord/SeaGOAT/commit/1b9b33c3cdd878b34950f7ce889b9f6f7907cb4e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update pypa/gh-action-pypi-publish digest to 31b23f5
+  ([#814](https://github.com/kantord/SeaGOAT/pull/814),
+  [`d859358`](https://github.com/kantord/SeaGOAT/commit/d85935857804ef02a7c7e3e71853bcf4d32eb30c))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update pypa/gh-action-pypi-publish digest to db8f07d
+  ([#819](https://github.com/kantord/SeaGOAT/pull/819),
+  [`e9e4b07`](https://github.com/kantord/SeaGOAT/commit/e9e4b07cd9fb874f7f73fcd84d2c19eadf75ba22))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update python-semantic-release/python-semantic-release action to v9.20.0
+  ([#811](https://github.com/kantord/SeaGOAT/pull/811),
+  [`6d02083`](https://github.com/kantord/SeaGOAT/commit/6d02083ae76eb2ec990c8b967d56d9981de6b95e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update python-semantic-release/python-semantic-release action to v9.21.0
+  ([#818](https://github.com/kantord/SeaGOAT/pull/818),
+  [`66c18fa`](https://github.com/kantord/SeaGOAT/commit/66c18fa44a7261fd50e7526df697c22118ffbecf))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.0 (2025-02-16)
 
 ### Chores
