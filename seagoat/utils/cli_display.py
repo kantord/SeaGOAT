@@ -42,6 +42,8 @@ def print_result_line(result, block, line, color_enabled, vimgrep):
         for line_content in block["lines"]:
             if line_content["line"] == line:
                 if vimgrep:
+                    if not len(line_content["lineText"].strip()) > 0:
+                        continue
                     click.echo(f"{result['path']}:{line}:0:{line_content['lineText']}")
                 else:
                     click.echo(f"{result['path']}:{line}:{line_content['lineText']}")
