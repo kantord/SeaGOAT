@@ -208,13 +208,13 @@ def seagoat(
         requests.exceptions.RequestException,
         ServerDoesNotExist,
     ):
+        spinner.fail()
         click.echo(
             f"The SeaGOAT server is not running. "
-            f"Please start the server using the following command:\n\n"
-            f"seagoat-server start {repo_path}\n",
+            f"Please start the server using the following command: "
+            f"seagoat-server start {repo_path}",
             err=True,
         )
-        spinner.fail()
         sys.exit(ExitCode.SERVER_NOT_RUNNING)
 
     try:

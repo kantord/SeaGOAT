@@ -44,19 +44,13 @@
 # ---
 # name: test_server_is_not_running_error[/another/path/to/repo2]
   '''
-  The SeaGOAT server is not running. Please start the server using the following command:
-  
-  seagoat-server start /another/path/to/repo2
-  
+  The SeaGOAT server is not running. Please start the server using the following command: seagoat-server start /another/path/to/repo2
   
   '''
 # ---
 # name: test_server_is_not_running_error[/path/to/repo1]
   '''
-  The SeaGOAT server is not running. Please start the server using the following command:
-  
-  seagoat-server start /path/to/repo1
-  
+  The SeaGOAT server is not running. Please start the server using the following command: seagoat-server start /path/to/repo1
   
   '''
 # ---
