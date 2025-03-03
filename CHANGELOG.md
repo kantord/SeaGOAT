@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.54.3 (2025-03-03)
+
+### Bug Fixes
+
+- Stop spinner before printing error
+  ([`a775043`](https://github.com/kantord/SeaGOAT/commit/a77504339b943be4267dd9a2f63f457c952c3d64))
+
+### Chores
+
+- **deps**: Update dependency mkdocs-material to v9.6.7
+  ([#834](https://github.com/kantord/SeaGOAT/pull/834),
+  [`2d74e39`](https://github.com/kantord/SeaGOAT/commit/2d74e3951321083b11f907eb0f22e12ff75594f5))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.2 (2025-03-02)
 
 ### Bug Fixes
