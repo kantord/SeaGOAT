@@ -1,6 +1,96 @@
 # CHANGELOG
 
 
+## v0.54.4 (2025-03-25)
+
+### Bug Fixes
+
+- **deps**: Update dependency orjson to v3.10.16
+  ([#853](https://github.com/kantord/SeaGOAT/pull/853),
+  [`d1ccd90`](https://github.com/kantord/SeaGOAT/commit/d1ccd900ee44e87e725685a541e0ae1113bd149a))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency ipython to v8.34.0
+  ([#837](https://github.com/kantord/SeaGOAT/pull/837),
+  [`b5c21f6`](https://github.com/kantord/SeaGOAT/commit/b5c21f6d4b7961730c5d0790df0b1fea0197badc))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.33.1
+  ([#839](https://github.com/kantord/SeaGOAT/pull/839),
+  [`e7b627c`](https://github.com/kantord/SeaGOAT/commit/e7b627c3d96a92301e990f98b0da28811edc0102))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.33.2
+  ([#844](https://github.com/kantord/SeaGOAT/pull/844),
+  [`962556f`](https://github.com/kantord/SeaGOAT/commit/962556f54272f472082c77da6a438f28d251118b))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.8
+  ([#841](https://github.com/kantord/SeaGOAT/pull/841),
+  [`c433930`](https://github.com/kantord/SeaGOAT/commit/c4339304f5db43cf9764442bfd49abe3680483b5))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.9
+  ([#845](https://github.com/kantord/SeaGOAT/pull/845),
+  [`3f12397`](https://github.com/kantord/SeaGOAT/commit/3f12397985ddc2709fc92ab859103c37277e01c1))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pre-commit to v4.2.0
+  ([#846](https://github.com/kantord/SeaGOAT/pull/846),
+  [`792dfa9`](https://github.com/kantord/SeaGOAT/commit/792dfa9658f0af26c6ddd417f0ecb8f2c4ea3bda))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.397
+  ([#847](https://github.com/kantord/SeaGOAT/pull/847),
+  [`5a33822`](https://github.com/kantord/SeaGOAT/commit/5a33822981b22f2de8516aae0f2c33d97bbcdf26))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to ^0.10.0 ([#842](https://github.com/kantord/SeaGOAT/pull/842),
+  [`fd60cbc`](https://github.com/kantord/SeaGOAT/commit/fd60cbc8c15533a9dab2da39805bfaa0b1e22d5b))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to ^0.11.0 ([#843](https://github.com/kantord/SeaGOAT/pull/843),
+  [`b126c38`](https://github.com/kantord/SeaGOAT/commit/b126c38f74d2fe21c7980472b24872143cdb8692))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.1 ([#849](https://github.com/kantord/SeaGOAT/pull/849),
+  [`ff3399a`](https://github.com/kantord/SeaGOAT/commit/ff3399a6101f32eb1d031c65b2c28db5531341bd))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.2 ([#850](https://github.com/kantord/SeaGOAT/pull/850),
+  [`e334988`](https://github.com/kantord/SeaGOAT/commit/e3349880d72476a739b43c36c5627bbfba64d2ea))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.9.10 ([#836](https://github.com/kantord/SeaGOAT/pull/836),
+  [`2092008`](https://github.com/kantord/SeaGOAT/commit/209200853fb6a6d39ef50d05be2f71eb6bbf9864))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency syrupy to v4.9.0 ([#838](https://github.com/kantord/SeaGOAT/pull/838),
+  [`38f8fad`](https://github.com/kantord/SeaGOAT/commit/38f8fad55907f500151147d444e899ea37db46b1))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency syrupy to v4.9.1 ([#851](https://github.com/kantord/SeaGOAT/pull/851),
+  [`2641cc5`](https://github.com/kantord/SeaGOAT/commit/2641cc5d8eb28890d65b39b77875562566ec870f))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.3 (2025-03-03)
 
 ### Bug Fixes
