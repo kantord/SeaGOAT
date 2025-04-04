@@ -1,6 +1,59 @@
 # CHANGELOG
 
 
+## v0.54.5 (2025-04-04)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1 ([#861](https://github.com/kantord/SeaGOAT/pull/861),
+  [`d63f5e3`](https://github.com/kantord/SeaGOAT/commit/d63f5e3482b0f17353bac2716fdcb5f536e109e7))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update actions/setup-python digest to 8d9ed9a
+  ([#854](https://github.com/kantord/SeaGOAT/pull/854),
+  [`edc796a`](https://github.com/kantord/SeaGOAT/commit/edc796a7ef9ead6eff27055d8cd0baadf931e0e3))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.10
+  ([#857](https://github.com/kantord/SeaGOAT/pull/857),
+  [`8946925`](https://github.com/kantord/SeaGOAT/commit/894692507c26a5eb189310b0935f4b853a8973a1))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.11
+  ([#858](https://github.com/kantord/SeaGOAT/pull/858),
+  [`37e3f8f`](https://github.com/kantord/SeaGOAT/commit/37e3f8f1dc5e94f6fbc0dc422a5cadf66eb560a8))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.398
+  ([#856](https://github.com/kantord/SeaGOAT/pull/856),
+  [`301a675`](https://github.com/kantord/SeaGOAT/commit/301a67500b5af4cb81a78e6655db6cb72ba992f3))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pytest-asyncio to ^0.26.0
+  ([#855](https://github.com/kantord/SeaGOAT/pull/855),
+  [`ef6d5eb`](https://github.com/kantord/SeaGOAT/commit/ef6d5eb8541a93b8926b473cbbc8c63ef177b23a))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pytest-cov to v6.1.0
+  ([#859](https://github.com/kantord/SeaGOAT/pull/859),
+  [`02bee6b`](https://github.com/kantord/SeaGOAT/commit/02bee6b36c122852afbdcc9b60d616f3ca8e42ac))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.3 ([#860](https://github.com/kantord/SeaGOAT/pull/860),
+  [`3f0b699`](https://github.com/kantord/SeaGOAT/commit/3f0b699505aab2af5306b37ea1c40f4e9a887698))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.4 (2025-03-25)
 
 ### Bug Fixes
