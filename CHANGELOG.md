@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## v0.54.6 (2025-04-08)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.3
+  ([#866](https://github.com/kantord/SeaGOAT/pull/866),
+  [`49fc531`](https://github.com/kantord/SeaGOAT/commit/49fc531359f898b715bc72fcc17848d558bebd37))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency ipython to v8.35.0
+  ([#865](https://github.com/kantord/SeaGOAT/pull/865),
+  [`ba184ba`](https://github.com/kantord/SeaGOAT/commit/ba184baeabdc3ea52750c61b2cdde7f9deae08be))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.34.0
+  ([#864](https://github.com/kantord/SeaGOAT/pull/864),
+  [`82274b3`](https://github.com/kantord/SeaGOAT/commit/82274b32c997d8fa9e70038d1184b270404d4a42))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pytest-cov to v6.1.1
+  ([#863](https://github.com/kantord/SeaGOAT/pull/863),
+  [`cb1432d`](https://github.com/kantord/SeaGOAT/commit/cb1432d7e5d654bfa2eeaa4064b679fdf269c517))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.4 ([#862](https://github.com/kantord/SeaGOAT/pull/862),
+  [`140d78e`](https://github.com/kantord/SeaGOAT/commit/140d78e96e4d4130d0c90f8d0761f1705c8107da))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.5 (2025-04-04)
 
 ### Bug Fixes
