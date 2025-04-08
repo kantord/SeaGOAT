@@ -651,17 +651,17 @@ numpy = "*"
 
 [[package]]
 name = "chromadb"
-version = "1.0.0"
+version = "1.0.3"
 description = "Chroma."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "chromadb-1.0.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:752926de6e440dd853a4966490cfa29ef6b07b6c7a0867caf1c507f2c1db217d"},
-    {file = "chromadb-1.0.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:bf2e856632ca37133ec591a4d5004e8deaaf890c3b326ba51c0e4b17ac9ec2f3"},
-    {file = "chromadb-1.0.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c1581b56e4679a512c75b9076ded1dad1466b04efeac2938c7ce77db7cd23f1d"},
-    {file = "chromadb-1.0.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1831588ecd975b59e67548d3aff7f18746b1527c5efb8e8641caf0e7845a4627"},
-    {file = "chromadb-1.0.0-cp39-abi3-win_amd64.whl", hash = "sha256:11112eaac165f4771951dd74e7d9d6e1b25591461c2251bfe454332ee12721f4"},
-    {file = "chromadb-1.0.0.tar.gz", hash = "sha256:e6da3a0aab87e17b07cdb1704238865cdeb093706cbbacba02603df3c03a6c91"},
+    {file = "chromadb-1.0.3-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:55d514189998734470f700a9d7094ee578949e5df9f891a177e690413071f234"},
+    {file = "chromadb-1.0.3-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:9d7a0c59c5ce95c78f711cf435526b6fdde5158d015132c04af8cb3b04c742d0"},
+    {file = "chromadb-1.0.3-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:582c5307a03a766bf321a023ce9e3c34b0cb7427658e102aacf6742c9d900a5d"},
+    {file = "chromadb-1.0.3-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:51d6adf1859774535f7ab6c6b5492f514970aa26a3e636861dbc7766418d6c08"},
+    {file = "chromadb-1.0.3-cp39-abi3-win_amd64.whl", hash = "sha256:4a604f212312c5c10b7470104de45123b75eb7239e1599b22127aa9a414ca78e"},
+    {file = "chromadb-1.0.3.tar.gz", hash = "sha256:a29e12c4ac0fdfb12b3ee22ea3c66d2fa4e3516ee9fe3cad0f44b3086d1c50c4"},
 ]
 
 [package.dependencies]
