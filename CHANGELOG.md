@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.54.7 (2025-04-10)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.4
+  ([#868](https://github.com/kantord/SeaGOAT/pull/868),
+  [`94bb559`](https://github.com/kantord/SeaGOAT/commit/94bb559b763f414d4930043d7f4b87ba61f427c0))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency locust to v2.34.1
+  ([#867](https://github.com/kantord/SeaGOAT/pull/867),
+  [`2f66b73`](https://github.com/kantord/SeaGOAT/commit/2f66b738a521bc786c4c189e575c052358b80455))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.6 (2025-04-08)
 
 ### Bug Fixes
