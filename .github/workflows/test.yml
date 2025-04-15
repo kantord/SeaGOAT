@@ -58,7 +58,7 @@ jobs:
                   poetry run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
 
             - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5-beta
+              uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5-beta
               if: matrix.os == 'ubuntu-latest'
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
