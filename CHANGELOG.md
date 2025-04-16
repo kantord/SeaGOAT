@@ -1,6 +1,48 @@
 # CHANGELOG
 
 
+## v0.54.8 (2025-04-16)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.5
+  ([#874](https://github.com/kantord/SeaGOAT/pull/874),
+  [`cff01b0`](https://github.com/kantord/SeaGOAT/commit/cff01b038295d30afc64d0ef29e0a8a7de3239d9))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update codecov/codecov-action digest to ad3126e
+  ([#872](https://github.com/kantord/SeaGOAT/pull/872),
+  [`9ca4fc9`](https://github.com/kantord/SeaGOAT/commit/9ca4fc9f5ece457e76c8b204354da90398fd44d7))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency jupyterlab-widgets to v3.0.14
+  ([#870](https://github.com/kantord/SeaGOAT/pull/870),
+  [`be4393e`](https://github.com/kantord/SeaGOAT/commit/be4393ef43c4e70bfd62428087e5dd91db3dd988))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.35.0
+  ([#873](https://github.com/kantord/SeaGOAT/pull/873),
+  [`7a39c3a`](https://github.com/kantord/SeaGOAT/commit/7a39c3adc3ce7215261df2defa75aea51cff6226))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.399
+  ([#869](https://github.com/kantord/SeaGOAT/pull/869),
+  [`692d842`](https://github.com/kantord/SeaGOAT/commit/692d8424d6b3029152656818c36dea9c2b59a11a))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.5 ([#871](https://github.com/kantord/SeaGOAT/pull/871),
+  [`a7385de`](https://github.com/kantord/SeaGOAT/commit/a7385de2492d03de1737f6b886024c5abf8db302))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.7 (2025-04-10)
 
 ### Bug Fixes
