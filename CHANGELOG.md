@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.54.9 (2025-04-17)
+
+### Bug Fixes
+
+- **deps**: Update dependency ollama to v0.4.8 ([#875](https://github.com/kantord/SeaGOAT/pull/875),
+  [`7f50d68`](https://github.com/kantord/SeaGOAT/commit/7f50d682c04b6f106bd494692a3d680edf340fcd))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.8 (2025-04-16)
 
 ### Bug Fixes
