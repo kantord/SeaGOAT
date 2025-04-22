@@ -1,6 +1,30 @@
 # CHANGELOG
 
 
+## v0.54.10 (2025-04-22)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.6
+  ([#879](https://github.com/kantord/SeaGOAT/pull/879),
+  [`8296487`](https://github.com/kantord/SeaGOAT/commit/82964871866f46016ee4c509c5eeee404c6b380d))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency mkdocs-material to v9.6.12
+  ([#876](https://github.com/kantord/SeaGOAT/pull/876),
+  [`830cb8c`](https://github.com/kantord/SeaGOAT/commit/830cb8cd495a45ec5c32cb5f49923b31934c0a6d))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.6 ([#877](https://github.com/kantord/SeaGOAT/pull/877),
+  [`ce0efcd`](https://github.com/kantord/SeaGOAT/commit/ce0efcdfb42a37dd22d930927899c017be53ff71))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.9 (2025-04-17)
 
 ### Bug Fixes
