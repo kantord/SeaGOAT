@@ -199,6 +199,17 @@ tests = ["pytest (>=3.2.1,!=3.3.0)"]
 typecheck = ["mypy"]
 
 [[package]]
+name = "bidict"
+version = "0.23.1"
+description = "The bidirectional mapping library for Python."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "bidict-0.23.1-py3-none-any.whl", hash = "sha256:5dae8d4d79b552a71cbabc7deb25dfe8ce710b17ff41711e13010ead2abfc3e5"},
+    {file = "bidict-0.23.1.tar.gz", hash = "sha256:03069d763bc387bbd20e7d49914e75fc4132a41937fa3405417e1a5a2d006d71"},
+]
+
+[[package]]
 name = "blessed"
 version = "1.20.0"
 description = "Easy, practical library for making terminal apps, by providing an elegant, well-documented interface to Colors, Keyboard input, and screen Positioning capabilities."
@@ -2350,13 +2361,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.35.0"
+version = "2.36.1"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust-2.35.0-py3-none-any.whl", hash = "sha256:fb9e0ec25c5db3ed6a3c6d48e7236d7c2c370b0ddae102e9badcb2d3d101abde"},
-    {file = "locust-2.35.0.tar.gz", hash = "sha256:97f83e591646ca3227644cfb6d4fa590e9a3e3d791ab18b216ca98be235b9b24"},
+    {file = "locust-2.36.1-py3-none-any.whl", hash = "sha256:4fcdc8ffc4efa7013157c7144524acde0942746741211e41c87b58e0e3ef197c"},
+    {file = "locust-2.36.1.tar.gz", hash = "sha256:4f3f4df666561f037cf2b085f1f49025b0107046ea5918c4b1391c7479b6bea7"},
 ]
 
 [package.dependencies]
@@ -2364,8 +2375,9 @@ configargparse = ">=1.5.5"
 flask = ">=2.0.0"
 flask-cors = ">=3.0.10"
 flask-login = ">=0.6.3"
-gevent = {version = ">=22.10.2", markers = "python_version <= \"3.12\""}
+gevent = ">=24.10.1,<25.0.0"
 geventhttpclient = ">=2.3.1"
+locust-cloud = ">=1.20.1"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
@@ -2378,6 +2390,22 @@ setuptools = ">=70.0.0"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 typing-extensions = {version = ">=4.6.0", markers = "python_version < \"3.11\""}
 werkzeug = ">=2.0.0"
+
+[[package]]
+name = "locust-cloud"
+version = "1.20.3"
+description = "Locust Cloud"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "locust_cloud-1.20.3-py3-none-any.whl", hash = "sha256:0b131a2e4a0291b97775e21e3d39708e39131801cafa0f388964796098c7c211"},
+]
+
+[package.dependencies]
+locust = ">=2.36.1"
+platformdirs = ">=4.3.6,<5.0.0"
+pyjwt = ">=2.0,<3.0"
+python-socketio = {version = "5.13.0", extras = ["client"]}
 
 [[package]]
 name = "log-symbols"
@@ -3893,6 +3921,23 @@ files = [
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pyjwt"
+version = "2.10.1"
+description = "JSON Web Token implementation in Python"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "PyJWT-2.10.1-py3-none-any.whl", hash = "sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb"},
+    {file = "pyjwt-2.10.1.tar.gz", hash = "sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953"},
+]
+
+[package.extras]
+crypto = ["cryptography (>=3.4.0)"]
+dev = ["coverage[toml] (==5.0.4)", "cryptography (>=3.4.0)", "pre-commit", "pytest (>=6.0.0,<7.0.0)", "sphinx", "sphinx-rtd-theme", "zope.interface"]
+docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
+tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
+
+[[package]]
 name = "pymdown-extensions"
 version = "10.14.3"
 description = "Extension pack for Python Markdown."
@@ -4205,6 +4250,25 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-engineio"
+version = "4.12.0"
+description = "Engine.IO server and client for Python"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "python_engineio-4.12.0-py3-none-any.whl", hash = "sha256:a0c47c129c39777e8ebc6d18011efd50db2144e4e8f08983acae8a3614626535"},
+    {file = "python_engineio-4.12.0.tar.gz", hash = "sha256:f42a36a868d7063aa10ddccf6bd6117a169b6bd00d7ca53999772093b62014f9"},
+]
+
+[package.dependencies]
+simple-websocket = ">=0.10.0"
+
+[package.extras]
+asyncio-client = ["aiohttp (>=3.4)"]
+client = ["requests (>=2.21.0)", "websocket-client (>=0.54.0)"]
+docs = ["sphinx"]
+
+[[package]]
 name = "python-gitlab"
 version = "4.13.0"
 description = "A python wrapper for the GitLab API"
@@ -4256,6 +4320,28 @@ dev = ["pre-commit (>=3.5,<4.0)", "ruff (==0.6.1)", "tox (>=4.11,<5.0)"]
 docs = ["Sphinx (>=6.0,<7.0)", "furo (>=2024.1,<2025.0)", "sphinx-autobuild (==2024.2.4)", "sphinxcontrib-apidoc (==0.5.0)"]
 mypy = ["mypy (==1.15.0)", "types-Deprecated (>=1.2,<2.0)", "types-pyyaml (>=6.0,<7.0)", "types-requests (>=2.32.0,<2.33.0)"]
 test = ["coverage[toml] (>=7.0,<8.0)", "filelock (>=3.15,<4.0)", "flatdict (>=4.0,<5.0)", "freezegun (>=1.5,<2.0)", "pytest (>=8.3,<9.0)", "pytest-clarity (>=1.0,<2.0)", "pytest-cov (>=5.0,<6.0)", "pytest-env (>=1.0,<2.0)", "pytest-lazy-fixtures (>=1.1.1,<1.2.0)", "pytest-mock (>=3.0,<4.0)", "pytest-order (>=1.3,<2.0)", "pytest-pretty (>=1.2,<2.0)", "pytest-xdist (>=3.0,<4.0)", "pyyaml (>=6.0,<7.0)", "requests-mock (>=1.10,<2.0)", "responses (>=0.25.0,<0.26.0)"]
+
+[[package]]
+name = "python-socketio"
+version = "5.13.0"
+description = "Socket.IO server and client for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python_socketio-5.13.0-py3-none-any.whl", hash = "sha256:51f68d6499f2df8524668c24bcec13ba1414117cfb3a90115c559b601ab10caf"},
+    {file = "python_socketio-5.13.0.tar.gz", hash = "sha256:ac4e19a0302ae812e23b712ec8b6427ca0521f7c582d6abb096e36e24a263029"},
+]
+
+[package.dependencies]
+bidict = ">=0.21.0"
+python-engineio = ">=4.11.0"
+requests = {version = ">=2.21.0", optional = true, markers = "extra == \"client\""}
+websocket-client = {version = ">=0.54.0", optional = true, markers = "extra == \"client\""}
+
+[package.extras]
+asyncio-client = ["aiohttp (>=3.4)"]
+client = ["requests (>=2.21.0)", "websocket-client (>=0.54.0)"]
+docs = ["sphinx"]
 
 [[package]]
 name = "pytz"
@@ -4784,6 +4870,24 @@ files = [
     {file = "shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686"},
     {file = "shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de"},
 ]
+
+[[package]]
+name = "simple-websocket"
+version = "1.1.0"
+description = "Simple WebSocket server and client for Python"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "simple_websocket-1.1.0-py3-none-any.whl", hash = "sha256:4af6069630a38ed6c561010f0e11a5bc0d4ca569b36306eb257cd9a192497c8c"},
+    {file = "simple_websocket-1.1.0.tar.gz", hash = "sha256:7939234e7aa067c534abdab3a9ed933ec9ce4691b0713c78acb195560aa52ae4"},
+]
+
+[package.dependencies]
+wsproto = "*"
+
+[package.extras]
+dev = ["flake8", "pytest", "pytest-cov", "tox"]
+docs = ["sphinx"]
 
 [[package]]
 name = "six"
@@ -5577,6 +5681,20 @@ files = [
     {file = "wrapt-1.17.2-py3-none-any.whl", hash = "sha256:b18f2d1533a71f069c7f82d524a52599053d4c7166e9dd374ae2136b7f40f7c8"},
     {file = "wrapt-1.17.2.tar.gz", hash = "sha256:41388e9d4d1522446fe79d3213196bd9e3b301a336965b9e27ca2788ebd122f3"},
 ]
+
+[[package]]
+name = "wsproto"
+version = "1.2.0"
+description = "WebSockets state-machine based protocol implementation"
+optional = false
+python-versions = ">=3.7.0"
+files = [
+    {file = "wsproto-1.2.0-py3-none-any.whl", hash = "sha256:b9acddd652b585d75b20477888c56642fdade28bdfd3579aa24a4d2c037dd736"},
+    {file = "wsproto-1.2.0.tar.gz", hash = "sha256:ad565f26ecb92588a3e43bc3d96164de84cd9902482b130d0ddbaa9664a85065"},
+]
+
+[package.dependencies]
+h11 = ">=0.9.0,<1"
 
 [[package]]
 name = "zipp"
