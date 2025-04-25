@@ -2058,13 +2058,13 @@ test = ["flaky", "ipyparallel", "pre-commit", "pytest (>=7.0)", "pytest-asyncio 
 
 [[package]]
 name = "ipython"
-version = "8.35.0"
+version = "8.36.0"
 description = "IPython: Productive Interactive Computing"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "ipython-8.35.0-py3-none-any.whl", hash = "sha256:e6b7470468ba6f1f0a7b116bb688a3ece2f13e2f94138e508201fad677a788ba"},
-    {file = "ipython-8.35.0.tar.gz", hash = "sha256:d200b7d93c3f5883fc36ab9ce28a18249c7706e51347681f80a0aef9895f2520"},
+    {file = "ipython-8.36.0-py3-none-any.whl", hash = "sha256:12b913914d010dcffa2711505ec8be4bf0180742d97f1e5175e51f22086428c1"},
+    {file = "ipython-8.36.0.tar.gz", hash = "sha256:24658e9fe5c5c819455043235ba59cfffded4a35936eefceceab6b192f7092ff"},
 ]
 
 [package.dependencies]
