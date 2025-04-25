@@ -1,6 +1,48 @@
 # CHANGELOG
 
 
+## v0.54.11 (2025-04-25)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.7
+  ([#885](https://github.com/kantord/SeaGOAT/pull/885),
+  [`970a33a`](https://github.com/kantord/SeaGOAT/commit/970a33ac83197ee038503cbce18e6d49ee948916))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update actions/setup-python digest to a26af69
+  ([#881](https://github.com/kantord/SeaGOAT/pull/881),
+  [`3a30ac7`](https://github.com/kantord/SeaGOAT/commit/3a30ac7c841447d56caab50c5e8edbd5d02cff25))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.36.1
+  ([#884](https://github.com/kantord/SeaGOAT/pull/884),
+  [`e236e3a`](https://github.com/kantord/SeaGOAT/commit/e236e3af531ae45810f800c977ee92b81e750955))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.400
+  ([#882](https://github.com/kantord/SeaGOAT/pull/882),
+  [`31d9b4f`](https://github.com/kantord/SeaGOAT/commit/31d9b4f11e41905c6bd2ff9ff185efed22edf593))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.7 ([#883](https://github.com/kantord/SeaGOAT/pull/883),
+  [`480a903`](https://github.com/kantord/SeaGOAT/commit/480a9033202407efca1e7355b2b88a0f87ec355a))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update stacklok/frizbee-action action to v0.0.3
+  ([#880](https://github.com/kantord/SeaGOAT/pull/880),
+  [`2d3bbbb`](https://github.com/kantord/SeaGOAT/commit/2d3bbbb9945d653f8171284b5c76e80c3ec26579))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.10 (2025-04-22)
 
 ### Bug Fixes
