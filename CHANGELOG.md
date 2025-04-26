@@ -1,6 +1,31 @@
 # CHANGELOG
 
 
+## v0.54.12 (2025-04-26)
+
+### Bug Fixes
+
+- **deps**: Update dependency blessed to v1.21.0
+  ([#888](https://github.com/kantord/SeaGOAT/pull/888),
+  [`c75d087`](https://github.com/kantord/SeaGOAT/commit/c75d0878555dc392206c01671781cfa8d6b3a9bb))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency ipython to v8.36.0
+  ([#887](https://github.com/kantord/SeaGOAT/pull/887),
+  [`be48d37`](https://github.com/kantord/SeaGOAT/commit/be48d37bf13685998bdc454acb997e9b22cbaf75))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.36.2
+  ([#886](https://github.com/kantord/SeaGOAT/pull/886),
+  [`2f30b1d`](https://github.com/kantord/SeaGOAT/commit/2f30b1d6b81ee259e00729480fa50c3cda9f7a74))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.11 (2025-04-25)
 
 ### Bug Fixes
