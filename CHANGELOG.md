@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.54.13 (2025-04-29)
+
+### Bug Fixes
+
+- **deps**: Update dependency orjson to v3.10.17
+  ([#890](https://github.com/kantord/SeaGOAT/pull/890),
+  [`a6a8d38`](https://github.com/kantord/SeaGOAT/commit/a6a8d38b64b2d8bbef4f9eb206c79dfec669bd94))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.12 (2025-04-26)
 
 ### Bug Fixes
