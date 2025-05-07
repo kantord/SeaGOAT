@@ -13,7 +13,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - uses: stacklok/frizbee-action@v0.0.3
+            - uses: stacklok/frizbee-action@v0.0.5
               env:
                   GITHUB_TOKEN: ${{ secrets.FRIZBEE_TOKEN }}
               with:
