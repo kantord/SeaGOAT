@@ -1,6 +1,54 @@
 # CHANGELOG
 
 
+## v0.54.15 (2025-05-09)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.8
+  ([#895](https://github.com/kantord/SeaGOAT/pull/895),
+  [`4357a4f`](https://github.com/kantord/SeaGOAT/commit/4357a4fb65c5948c9f9b332c97cb44a1a8f20db6))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency jupyterlab-widgets to v3.0.15
+  ([#898](https://github.com/kantord/SeaGOAT/pull/898),
+  [`6c28395`](https://github.com/kantord/SeaGOAT/commit/6c283959a7349c381763cdca118d5555e7396dfd))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency matplotlib to v3.10.3
+  ([#899](https://github.com/kantord/SeaGOAT/pull/899),
+  [`6d4ff89`](https://github.com/kantord/SeaGOAT/commit/6d4ff8984020fe745d522adc6415a2969bf99626))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency python-semantic-release to v9.21.1
+  ([#893](https://github.com/kantord/SeaGOAT/pull/893),
+  [`ce02c97`](https://github.com/kantord/SeaGOAT/commit/ce02c9730c7d4a77f70984360d0add2b4d2aecf7))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.8 ([#892](https://github.com/kantord/SeaGOAT/pull/892),
+  [`f08b116`](https://github.com/kantord/SeaGOAT/commit/f08b116b687e6a360eddc6ef13a22ab8351012d2))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update python-semantic-release/python-semantic-release action to v9.21.1
+  ([#894](https://github.com/kantord/SeaGOAT/pull/894),
+  [`a5ce8db`](https://github.com/kantord/SeaGOAT/commit/a5ce8dba2da603a46a81f1cf2e477ba0e79e4094))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update stacklok/frizbee-action action to v0.0.5
+  ([#897](https://github.com/kantord/SeaGOAT/pull/897),
+  [`ddad5c7`](https://github.com/kantord/SeaGOAT/commit/ddad5c70194cd51be68e7eb86ec56c10aed0aa0e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.14 (2025-04-30)
 
 ### Bug Fixes
