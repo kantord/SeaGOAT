@@ -1,6 +1,48 @@
 # CHANGELOG
 
 
+## v0.54.16 (2025-05-13)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.9
+  ([#905](https://github.com/kantord/SeaGOAT/pull/905),
+  [`53d1668`](https://github.com/kantord/SeaGOAT/commit/53d16680212dcb8b3cf594dcdf9a3f65b9d98ec9))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency exceptiongroup to v1.3.0
+  ([#903](https://github.com/kantord/SeaGOAT/pull/903),
+  [`9643308`](https://github.com/kantord/SeaGOAT/commit/96433086c1faf0f0a2d8781be7c81b3de8265eb2))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.37.1
+  ([#896](https://github.com/kantord/SeaGOAT/pull/896),
+  [`308fe21`](https://github.com/kantord/SeaGOAT/commit/308fe212ca15a420a3787d840a9fa2880a30f221))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.13
+  ([#902](https://github.com/kantord/SeaGOAT/pull/902),
+  [`d22ba8d`](https://github.com/kantord/SeaGOAT/commit/d22ba8d42752c191df60b7a578b2880ccf135951))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pytest-timeout to v2.4.0
+  ([#900](https://github.com/kantord/SeaGOAT/pull/900),
+  [`ae922e4`](https://github.com/kantord/SeaGOAT/commit/ae922e480d6b84a45c5c2c87f401fde215a0e320))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.9 ([#901](https://github.com/kantord/SeaGOAT/pull/901),
+  [`210f312`](https://github.com/kantord/SeaGOAT/commit/210f31217137684af9c8ccef211cbaae4fe0962a))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.15 (2025-05-09)
 
 ### Bug Fixes
