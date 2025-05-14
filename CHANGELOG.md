@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.54.17 (2025-05-14)
+
+### Bug Fixes
+
+- **deps**: Update dependency flask to v3.1.1 [security]
+  ([#908](https://github.com/kantord/SeaGOAT/pull/908),
+  [`326bd9a`](https://github.com/kantord/SeaGOAT/commit/326bd9ae09d8f276eae4322e3443a1086c4eec63))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency locust to v2.37.2
+  ([#906](https://github.com/kantord/SeaGOAT/pull/906),
+  [`1dab986`](https://github.com/kantord/SeaGOAT/commit/1dab986943da3e8221ba5a8f846d05980fddcf1f))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.16 (2025-05-13)
 
 ### Bug Fixes
