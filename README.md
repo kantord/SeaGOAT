@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD033 -->
 
 > [!TIP]
-> Check out [CodeGate](https://github.com/stacklok/codegate), the AI project I am currently working on. It's all about **security** in AI code generation.
+> Check out [zeitgrep](https://github.com/kantord/zeitgrep), another search tool I am working on!
 
 <h1>
   <p align="center">
