@@ -1,6 +1,54 @@
 # CHANGELOG
 
 
+## v0.54.18 (2025-05-22)
+
+### Bug Fixes
+
+- **deps**: Update dependency chromadb to v1.0.10
+  ([#916](https://github.com/kantord/SeaGOAT/pull/916),
+  [`fc560b3`](https://github.com/kantord/SeaGOAT/commit/fc560b30b5c499afd95daa7c19e64850d75db16b))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update codecov/codecov-action digest to 18283e0
+  ([#911](https://github.com/kantord/SeaGOAT/pull/911),
+  [`1ea9623`](https://github.com/kantord/SeaGOAT/commit/1ea9623a3b45fa94e0e055468bc878a355a16d95))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.37.3
+  ([#909](https://github.com/kantord/SeaGOAT/pull/909),
+  [`b942d4e`](https://github.com/kantord/SeaGOAT/commit/b942d4e284220e11c7bb2f8ecf7e5073a32c199b))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency locust to v2.37.4
+  ([#912](https://github.com/kantord/SeaGOAT/pull/912),
+  [`b617a31`](https://github.com/kantord/SeaGOAT/commit/b617a3132169408588620dd7e021838662bf197e))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency mkdocs-material to v9.6.14
+  ([#907](https://github.com/kantord/SeaGOAT/pull/907),
+  [`5dc9e4c`](https://github.com/kantord/SeaGOAT/commit/5dc9e4cf191a29345e15835b7415fe1340ab676c))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency pyright to v1.1.401
+  ([#915](https://github.com/kantord/SeaGOAT/pull/915),
+  [`7f58f1b`](https://github.com/kantord/SeaGOAT/commit/7f58f1b85a5fdef58d8bdfaf4128ae5f09c4d0c6))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+- **deps**: Update dependency ruff to v0.11.10 ([#910](https://github.com/kantord/SeaGOAT/pull/910),
+  [`2d78423`](https://github.com/kantord/SeaGOAT/commit/2d78423566ac3a495c25bc45290451dfd3885e9c))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v0.54.17 (2025-05-14)
 
 ### Bug Fixes
