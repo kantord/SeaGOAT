@@ -4249,17 +4249,17 @@ yaml = ["PyYaml (>=6.0.1)"]
 
 [[package]]
 name = "python-semantic-release"
-version = "9.21.1"
+version = "10.0.0"
 description = "Automatic Semantic Versioning for Python projects"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python_semantic_release-9.21.1-py3-none-any.whl", hash = "sha256:e69afe5100106390eec9e800132c947ed774bdcf9aa8f0df29589ea9ef375a21"},
-    {file = "python_semantic_release-9.21.1.tar.gz", hash = "sha256:b5c509a573899e88e8f29504d2f83e9ddab9a66af861ec1baf39f2b86bbf3517"},
+    {file = "python_semantic_release-10.0.0-py3-none-any.whl", hash = "sha256:1aacc2406540517302bdd58fb62c0338814005067c695cb48986844b48a2da68"},
+    {file = "python_semantic_release-10.0.0.tar.gz", hash = "sha256:c8888176f3676f150f61375a1cd6e26243aa18e5954698316caa6d4b53d4aa15"},
 ]
 
 [package.dependencies]
-click = ">=8.0,<9.0"
+click = ">=8.1.0,<8.2.0"
 click-option-group = ">=0.5,<1.0"
 Deprecated = ">=1.2,<2.0"
 dotty-dict = ">=1.3,<2.0"
@@ -5749,4 +5749,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10, < 3.14"
-content-hash = "24b92b8cbe51d1a118b178ad43356d1c0b0038e55dfbcaed85c68a55c6f57ca8"
+content-hash = "232eed285fc11749924ac7774d61b1772f4279fa2812e0c9c0aff6d000362070"
