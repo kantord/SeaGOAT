@@ -72,6 +72,15 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
             arguments:
               preferred_providers: ["TensorrtExecutionProvider"]
         ```
+  * `batchSize`: Number of chunks to batch before sending to ChromaDB. 
+    Default is 1 (no batching). Maximum allowed value is 250.
+    Batching can improve performance when indexing large codebases.
+
+    ```yaml
+    server:
+      chroma:
+        batchSize: 100  # Process 100 chunks at a time
+    ```
 
 ### Client
 
