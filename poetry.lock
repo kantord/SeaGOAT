@@ -4249,13 +4249,13 @@ yaml = ["PyYaml (>=6.0.1)"]
 
 [[package]]
 name = "python-semantic-release"
-version = "10.0.0"
+version = "10.0.2"
 description = "Automatic Semantic Versioning for Python projects"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python_semantic_release-10.0.0-py3-none-any.whl", hash = "sha256:1aacc2406540517302bdd58fb62c0338814005067c695cb48986844b48a2da68"},
-    {file = "python_semantic_release-10.0.0.tar.gz", hash = "sha256:c8888176f3676f150f61375a1cd6e26243aa18e5954698316caa6d4b53d4aa15"},
+    {file = "python_semantic_release-10.0.2-py3-none-any.whl", hash = "sha256:b943a821cb371e066ec06ffe67bc551aaacfd8efb3fe130efa32b13b9d68a3e4"},
+    {file = "python_semantic_release-10.0.2.tar.gz", hash = "sha256:bf9244b4b83941d699929546d4dd3a72d421cc37865a6257ec779aee56862d35"},
 ]
 
 [package.dependencies]
