@@ -746,13 +746,13 @@ test = ["pytest"]
 
 [[package]]
 name = "configargparse"
-version = "1.7"
+version = "1.7.1"
 description = "A drop-in replacement for argparse that allows options to also be set via config files and/or environment variables."
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 files = [
-    {file = "ConfigArgParse-1.7-py3-none-any.whl", hash = "sha256:d249da6591465c6c26df64a9f73d2536e743be2f244eb3ebe61114af2f94f86b"},
-    {file = "ConfigArgParse-1.7.tar.gz", hash = "sha256:e7067471884de5478c58a511e529f0f9bd1c66bfef1dea90935438d6c23306d1"},
+    {file = "configargparse-1.7.1-py3-none-any.whl", hash = "sha256:8b586a31f9d873abd1ca527ffbe58863c99f36d896e2829779803125e83be4b6"},
+    {file = "configargparse-1.7.1.tar.gz", hash = "sha256:79c2ddae836a1e5914b71d58e4b9adbd9f7779d4e6351a637b7d2d9b6c46d3d9"},
 ]
 
 [package.extras]
@@ -2331,23 +2331,23 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.37.5"
+version = "2.37.6"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust-2.37.5-py3-none-any.whl", hash = "sha256:9922a2718b42f1c57a05c822e47b66555b3c61292694ec5edaf7a166fac6d112"},
-    {file = "locust-2.37.5.tar.gz", hash = "sha256:c90824c4cb6a01cdede220684c7c8381253fcca47fc689dbca4f6c46d740c99f"},
+    {file = "locust-2.37.6-py3-none-any.whl", hash = "sha256:caae6f5dc3b897775473772aebe2485f907201b9dde72b95f65e46b7bd4d6de4"},
+    {file = "locust-2.37.6.tar.gz", hash = "sha256:2ea16f7e4bb1b9c41aa666eff5ea9737977a297503644043208180dd0d3dd883"},
 ]
 
 [package.dependencies]
-configargparse = ">=1.5.5"
+configargparse = ">=1.7.1"
 flask = ">=2.0.0"
 flask-cors = ">=3.0.10"
 flask-login = ">=0.6.3"
 gevent = ">=24.10.1,<25.0.0"
 geventhttpclient = ">=2.3.1"
-locust-cloud = ">=1.21.8"
+locust-cloud = ">=1.21.9"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
@@ -2363,13 +2363,13 @@ werkzeug = ">=2.0.0"
 
 [[package]]
 name = "locust-cloud"
-version = "1.21.8"
+version = "1.21.9"
 description = "Locust Cloud"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust_cloud-1.21.8-py3-none-any.whl", hash = "sha256:4f06b5d8a26ba91840a768008f4870965b13cc71481de9797409556de2edc007"},
-    {file = "locust_cloud-1.21.8.tar.gz", hash = "sha256:e8bde0da013c8731a45cc834cdf9fec2fc21738a5f2807d93c2c5eeb3008a80e"},
+    {file = "locust_cloud-1.21.9-py3-none-any.whl", hash = "sha256:a81351ee6dd8071c3eb28bfafb1325273462dff037e8105896559ae3db4092c1"},
+    {file = "locust_cloud-1.21.9.tar.gz", hash = "sha256:f3c81447cadfb533d1e2bbdbf95fac97316233cbbde779df56a7b447d77bd8ea"},
 ]
 
 [package.dependencies]
