@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "seagoat"
-version = "1.0.0"
+version = "1.0.3"
 description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
 readme = "README.md"
@@ -47,7 +47,7 @@ pyright = "^1.1.314"
 pytest-watch = "^4.2.0"
 freezegun = "^1.2.2"
 syrupy = "^4.0.4"
-pytest-asyncio = "^0.26.0"
+pytest-asyncio = "^1.0.0"
 ipython = "^8.14.0"
 exceptiongroup = "^1.1.2"
 pytest-mock = "^3.11.1"

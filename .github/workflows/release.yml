@@ -25,7 +25,7 @@ jobs:
 
             - name: release
               id: release
-              uses: python-semantic-release/python-semantic-release@917a2c730cb8f6c8cd3d00f23c876d724a4a844c # v10.0.1
+              uses: python-semantic-release/python-semantic-release@1a324000f2251a9e722e77b128bf72712653813f # v10.0.2
               with:
                   github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 

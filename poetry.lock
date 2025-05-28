@@ -620,17 +620,17 @@ files = [
 
 [[package]]
 name = "chromadb"
-version = "1.0.10"
+version = "1.0.11"
 description = "Chroma."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "chromadb-1.0.10-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:7e962123c27e85e9bf2112f6c60ffdaa0a4666502f205eadc34760284f4ca72f"},
-    {file = "chromadb-1.0.10-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:81381e80a2cb74235816987ca601a8ebba467fae494b37c315efb1cb38c3ca9e"},
-    {file = "chromadb-1.0.10-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9cca63ffa9316e3a1672ef8948e243dd3ae858559eda58eaf4826930f3a4faf5"},
-    {file = "chromadb-1.0.10-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:44f498f734f7396a21bf244b304dbae0f5e6d60d81f2ec4311807e3f13df403e"},
-    {file = "chromadb-1.0.10-cp39-abi3-win_amd64.whl", hash = "sha256:a12b0fbded699b00ffb7bb72e6ddce574d8fad381e783dc7cef08fc1fe268b19"},
-    {file = "chromadb-1.0.10.tar.gz", hash = "sha256:171ba48283e579debed920279f33d340ded80d8986802c2472df40e00a1d68eb"},
+    {file = "chromadb-1.0.11-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:6ac200bc1104a914c9098082d7ce10f00f58a2e0cb03bdf86d3cddd5995ba599"},
+    {file = "chromadb-1.0.11-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:ae5036a3370b1430aa5e75d6d8c8ffc46fb76d5765efcc892c390870ae4c5b8e"},
+    {file = "chromadb-1.0.11-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3e05ef601487ac77d88ce508ead26530b21a3de8a4190948fbacdfe7c586949f"},
+    {file = "chromadb-1.0.11-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:23dc4321afcede0f6247129a9b7a19dc454c76a82d043eea5458ccc3401ee8a2"},
+    {file = "chromadb-1.0.11-cp39-abi3-win_amd64.whl", hash = "sha256:492d9bc612367a4d8f37ebc21e3b35883081a45e8aadb207ad6d7a965177807e"},
+    {file = "chromadb-1.0.11.tar.gz", hash = "sha256:43676e2990fd4044bf9891e81795cc031b0bd15079dd00b990a08b11b9b02b69"},
 ]
 
 [package.dependencies]
@@ -2127,13 +2127,13 @@ ansicon = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "jsonschema"
-version = "4.23.0"
+version = "4.24.0"
 description = "An implementation of JSON Schema validation for Python"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "jsonschema-4.23.0-py3-none-any.whl", hash = "sha256:fbadb6f8b144a8f8cf9f0b89ba94501d143e50411a1278633f56a7acf7fd5566"},
-    {file = "jsonschema-4.23.0.tar.gz", hash = "sha256:d71497fef26351a33265337fa77ffeb82423f3ea21283cd9467bb03999266bc4"},
+    {file = "jsonschema-4.24.0-py3-none-any.whl", hash = "sha256:a462455f19f5faf404a7902952b6f0e3ce868f3ee09a359b05eca6673bd8412d"},
+    {file = "jsonschema-4.24.0.tar.gz", hash = "sha256:0b4e8069eb12aedfa881333004bccaec24ecef5a8a6a4b6df142b2cc9599d196"},
 ]
 
 [package.dependencies]
@@ -3001,18 +3001,18 @@ signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 name = "ollama"
-version = "0.4.8"
+version = "0.4.9"
 description = "The official Python client for Ollama."
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = ">=3.8"
 files = [
-    {file = "ollama-0.4.8-py3-none-any.whl", hash = "sha256:04312af2c5e72449aaebac4a2776f52ef010877c554103419d3f36066fe8af4c"},
-    {file = "ollama-0.4.8.tar.gz", hash = "sha256:1121439d49b96fa8339842965d0616eba5deb9f8c790786cdf4c0b3df4833802"},
+    {file = "ollama-0.4.9-py3-none-any.whl", hash = "sha256:18c8c85358c54d7f73d6a66cda495b0e3ba99fdb88f824ae470d740fbb211a50"},
+    {file = "ollama-0.4.9.tar.gz", hash = "sha256:5266d4d29b5089a01489872b8e8f980f018bccbdd1082b3903448af1d5615ce7"},
 ]
 
 [package.dependencies]
-httpx = ">=0.27,<0.29"
-pydantic = ">=2.9.0,<3.0.0"
+httpx = ">=0.27"
+pydantic = ">=2.9"
 
 [[package]]
 name = "onnxruntime"
@@ -4007,13 +4007,13 @@ dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments
 
 [[package]]
 name = "pytest-asyncio"
-version = "0.26.0"
+version = "1.0.0"
 description = "Pytest support for asyncio"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "pytest_asyncio-0.26.0-py3-none-any.whl", hash = "sha256:7b51ed894f4fbea1340262bdae5135797ebbe21d8638978e35d31c6d19f72fb0"},
-    {file = "pytest_asyncio-0.26.0.tar.gz", hash = "sha256:c4df2a697648241ff39e7f0e4a73050b03f123f760673956cf0d72a4990e312f"},
+    {file = "pytest_asyncio-1.0.0-py3-none-any.whl", hash = "sha256:4f024da9f1ef945e680dc68610b52550e36590a67fd31bb3b4943979a1f90ef3"},
+    {file = "pytest_asyncio-1.0.0.tar.gz", hash = "sha256:d15463d13f4456e1ead2594520216b225a16f781e144f8fdf6c5bb4667c48b3f"},
 ]
 
 [package.dependencies]
@@ -4085,13 +4085,13 @@ pytest = ">=3"
 
 [[package]]
 name = "pytest-mock"
-version = "3.14.0"
+version = "3.14.1"
 description = "Thin-wrapper around the mock package for easier use with pytest"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-mock-3.14.0.tar.gz", hash = "sha256:2719255a1efeceadbc056d6bf3df3d1c5015530fb40cf347c0f9afac88410bd0"},
-    {file = "pytest_mock-3.14.0-py3-none-any.whl", hash = "sha256:0b72c38033392a5f4621342fe11e9219ac11ec9d375f8e2a0c164539e0d70f6f"},
+    {file = "pytest_mock-3.14.1-py3-none-any.whl", hash = "sha256:178aefcd11307d874b4cd3100344e7e2d888d9791a6a1d9bfe90fbc1b74fd1d0"},
+    {file = "pytest_mock-3.14.1.tar.gz", hash = "sha256:159e9edac4c451ce77a5cdb9fc5d1100708d2dd4ba3c3df572f14097351af80e"},
 ]
 
 [package.dependencies]
@@ -4249,13 +4249,13 @@ yaml = ["PyYaml (>=6.0.1)"]
 
 [[package]]
 name = "python-semantic-release"
-version = "10.0.0"
+version = "10.0.2"
 description = "Automatic Semantic Versioning for Python projects"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python_semantic_release-10.0.0-py3-none-any.whl", hash = "sha256:1aacc2406540517302bdd58fb62c0338814005067c695cb48986844b48a2da68"},
-    {file = "python_semantic_release-10.0.0.tar.gz", hash = "sha256:c8888176f3676f150f61375a1cd6e26243aa18e5954698316caa6d4b53d4aa15"},
+    {file = "python_semantic_release-10.0.2-py3-none-any.whl", hash = "sha256:b943a821cb371e066ec06ffe67bc551aaacfd8efb3fe130efa32b13b9d68a3e4"},
+    {file = "python_semantic_release-10.0.2.tar.gz", hash = "sha256:bf9244b4b83941d699929546d4dd3a72d421cc37865a6257ec779aee56862d35"},
 ]
 
 [package.dependencies]
@@ -5749,4 +5749,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10, < 3.14"
-content-hash = "232eed285fc11749924ac7774d61b1772f4279fa2812e0c9c0aff6d000362070"
+content-hash = "25f1af2e157730874f0c5b2d55b27f87b0f1ae21c9f73b9486c85a3415cf96af"
