@@ -3001,18 +3001,18 @@ signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 name = "ollama"
-version = "0.4.8"
+version = "0.4.9"
 description = "The official Python client for Ollama."
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = ">=3.8"
 files = [
-    {file = "ollama-0.4.8-py3-none-any.whl", hash = "sha256:04312af2c5e72449aaebac4a2776f52ef010877c554103419d3f36066fe8af4c"},
-    {file = "ollama-0.4.8.tar.gz", hash = "sha256:1121439d49b96fa8339842965d0616eba5deb9f8c790786cdf4c0b3df4833802"},
+    {file = "ollama-0.4.9-py3-none-any.whl", hash = "sha256:18c8c85358c54d7f73d6a66cda495b0e3ba99fdb88f824ae470d740fbb211a50"},
+    {file = "ollama-0.4.9.tar.gz", hash = "sha256:5266d4d29b5089a01489872b8e8f980f018bccbdd1082b3903448af1d5615ce7"},
 ]
 
 [package.dependencies]
-httpx = ">=0.27,<0.29"
-pydantic = ">=2.9.0,<3.0.0"
+httpx = ">=0.27"
+pydantic = ">=2.9"
 
 [[package]]
 name = "onnxruntime"
