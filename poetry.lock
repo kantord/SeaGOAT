@@ -3001,13 +3001,13 @@ signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 name = "ollama"
-version = "0.4.9"
+version = "0.5.0"
 description = "The official Python client for Ollama."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ollama-0.4.9-py3-none-any.whl", hash = "sha256:18c8c85358c54d7f73d6a66cda495b0e3ba99fdb88f824ae470d740fbb211a50"},
-    {file = "ollama-0.4.9.tar.gz", hash = "sha256:5266d4d29b5089a01489872b8e8f980f018bccbdd1082b3903448af1d5615ce7"},
+    {file = "ollama-0.5.0-py3-none-any.whl", hash = "sha256:625371de663ccb48f14faa49bd85ae409da5e40d84cab42366371234b4dbaf68"},
+    {file = "ollama-0.5.0.tar.gz", hash = "sha256:ed6a343b64de22f69309ac930d8ac12b46775aebe21cbb91b859b99f59c53fa7"},
 ]
 
 [package.dependencies]
@@ -5749,4 +5749,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10, < 3.14"
-content-hash = "25f1af2e157730874f0c5b2d55b27f87b0f1ae21c9f73b9486c85a3415cf96af"
+content-hash = "972ef07b94d5e06ec46aa05376dbf83bef330eee6dbf68bbde02e06bca72b79a"
