@@ -57,6 +57,12 @@ CONFIG_SCHEMA = {
                                 "arguments": {"type": "object"},
                             },
                         },
+                        "batchSize": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 250,
+                            "description": "Number of chunks to batch before sending to ChromaDB. Default is 1 (no batching)."
+                        },
                     },
                 },
             },
