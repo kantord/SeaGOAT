@@ -3001,13 +3001,13 @@ signedtoken = ["cryptography (>=3.0.0)", "pyjwt (>=2.0.0,<3)"]
 
 [[package]]
 name = "ollama"
-version = "0.5.0"
+version = "0.5.1"
 description = "The official Python client for Ollama."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ollama-0.5.0-py3-none-any.whl", hash = "sha256:625371de663ccb48f14faa49bd85ae409da5e40d84cab42366371234b4dbaf68"},
-    {file = "ollama-0.5.0.tar.gz", hash = "sha256:ed6a343b64de22f69309ac930d8ac12b46775aebe21cbb91b859b99f59c53fa7"},
+    {file = "ollama-0.5.1-py3-none-any.whl", hash = "sha256:4c8839f35bc173c7057b1eb2cbe7f498c1a7e134eafc9192824c8aecb3617506"},
+    {file = "ollama-0.5.1.tar.gz", hash = "sha256:5a799e4dc4e7af638b11e3ae588ab17623ee019e496caaf4323efbaa8feeff93"},
 ]
 
 [package.dependencies]
