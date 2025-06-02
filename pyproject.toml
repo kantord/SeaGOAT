@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "seagoat"
-version = "1.0.3"
+version = "1.0.6"
 description = "A semantic-code search engine"
 authors = ["Daniel Kantor <git@daniel-kantor.com>"]
 readme = "README.md"
@@ -32,7 +32,7 @@ jsonschema = "^4.19.1"
 deepmerge = "^2.0.0"
 stop-words = "^2018.7.23"
 flask = "^3.0.0"
-ollama = "^0.4.7"
+ollama = "^0.5.0"
 halo = "^0.0.31"
 
 
