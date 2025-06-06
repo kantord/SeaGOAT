@@ -2331,13 +2331,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.37.7"
+version = "2.37.9"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust-2.37.7-py3-none-any.whl", hash = "sha256:925d78f4834d6434ec9a9c4f3984228f762d2c2d95b2804e9b0e9fc856f2d3b5"},
-    {file = "locust-2.37.7.tar.gz", hash = "sha256:9421ff51ce023a5ddff74f2544a13310f7929ca02452be2663130ffab26585a1"},
+    {file = "locust-2.37.9-py3-none-any.whl", hash = "sha256:e17da439f3a252d1fb6d4c34daf00d7e8b87e99d833a32e8a79f4f8ebb07767d"},
+    {file = "locust-2.37.9.tar.gz", hash = "sha256:e43673b594ec5ecde4f9ba6e0d5c66c00d7c0ae93591951abe83e8d186c67175"},
 ]
 
 [package.dependencies]
@@ -2345,9 +2345,9 @@ configargparse = ">=1.7.1"
 flask = ">=2.0.0"
 flask-cors = ">=3.0.10"
 flask-login = ">=0.6.3"
-gevent = ">=24.10.1,<25.0.0"
+gevent = ">=24.10.1,<26.0.0"
 geventhttpclient = ">=2.3.1"
-locust-cloud = ">=1.23.0"
+locust-cloud = ">=1.23.1"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
@@ -2363,19 +2363,20 @@ werkzeug = ">=2.0.0"
 
 [[package]]
 name = "locust-cloud"
-version = "1.23.0"
+version = "1.23.1"
 description = "Locust Cloud"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust_cloud-1.23.0-py3-none-any.whl", hash = "sha256:936cc4feb0b0dd89e113f6318a1205f318ed49a9df4e0feca8d40f2d9b353d30"},
-    {file = "locust_cloud-1.23.0.tar.gz", hash = "sha256:4038a09eda858b483ced20f5cb82caf3f866244c2c7864e0da5c32722b97f532"},
+    {file = "locust_cloud-1.23.1-py3-none-any.whl", hash = "sha256:11677895c6ed6d0beef1b425a6f04f10ea2cfcaeaefbf00a97fb3c9134296e54"},
+    {file = "locust_cloud-1.23.1.tar.gz", hash = "sha256:a09161752b8c9a9205e97cef5223ee3ad967bc2d91c52d61952aaa3da6802a55"},
 ]
 
 [package.dependencies]
 configargparse = ">=1.7.1"
-gevent = ">=24.10.1,<25.0.0"
+gevent = ">=24.10.1,<26.0.0"
 platformdirs = ">=4.3.6,<5.0.0"
+python-engineio = ">=4.12.2"
 python-socketio = {version = "5.13.0", extras = ["client"]}
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 
@@ -4195,13 +4196,13 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-engineio"
-version = "4.12.0"
+version = "4.12.2"
 description = "Engine.IO server and client for Python"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "python_engineio-4.12.0-py3-none-any.whl", hash = "sha256:a0c47c129c39777e8ebc6d18011efd50db2144e4e8f08983acae8a3614626535"},
-    {file = "python_engineio-4.12.0.tar.gz", hash = "sha256:f42a36a868d7063aa10ddccf6bd6117a169b6bd00d7ca53999772093b62014f9"},
+    {file = "python_engineio-4.12.2-py3-none-any.whl", hash = "sha256:8218ab66950e179dfec4b4bbb30aecf3f5d86f5e58e6fc1aa7fde2c698b2804f"},
+    {file = "python_engineio-4.12.2.tar.gz", hash = "sha256:e7e712ffe1be1f6a05ee5f951e72d434854a32fcfc7f6e4d9d3cae24ec70defa"},
 ]
 
 [package.dependencies]
