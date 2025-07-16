@@ -2304,13 +2304,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.37.13"
+version = "2.37.14"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust-2.37.13-py3-none-any.whl", hash = "sha256:1d551efcf5ec11de740cf40466314f535e8cb0ec34258bde0e48b5c52a0465b1"},
-    {file = "locust-2.37.13.tar.gz", hash = "sha256:82ba0a694963c9a34b868757ac9c8a5e3f6e9c7832a2fb7a6be807c3b601880b"},
+    {file = "locust-2.37.14-py3-none-any.whl", hash = "sha256:f3cc7a32673b54b3b1b9aa2214a665b3c6a0b0c90c2cc75b0f3bf49d27e07abf"},
+    {file = "locust-2.37.14.tar.gz", hash = "sha256:1d6d9e49d335216d456c3be77c04cc79674581c0f8860c910cd3152d0b9bb26b"},
 ]
 
 [package.dependencies]
@@ -2320,7 +2320,7 @@ flask-cors = ">=3.0.10"
 flask-login = ">=0.6.3"
 gevent = ">=24.10.1,<26.0.0"
 geventhttpclient = ">=2.3.1"
-locust-cloud = ">=1.26.0"
+locust-cloud = ">=1.26.3"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
@@ -2336,13 +2336,13 @@ werkzeug = ">=2.0.0"
 
 [[package]]
 name = "locust-cloud"
-version = "1.26.1"
+version = "1.26.3"
 description = "Locust Cloud"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust_cloud-1.26.1-py3-none-any.whl", hash = "sha256:eee80dd8c6a27efb7363ee2391255a499ccd40fa6d0e1997ab1a2d12d0741225"},
-    {file = "locust_cloud-1.26.1.tar.gz", hash = "sha256:86c9f4780712eb5c5aa70bd92940eccef73282ab35fdf5a130f6fbd127e1e742"},
+    {file = "locust_cloud-1.26.3-py3-none-any.whl", hash = "sha256:8cb4b8bb9adcd5b99327bc8ed1d98cf67a29d9d29512651e6e94869de6f1faa8"},
+    {file = "locust_cloud-1.26.3.tar.gz", hash = "sha256:587acfd4d2dee715fb5f0c3c2d922770babf0b7cff7b2927afbb693a9cd193cc"},
 ]
 
 [package.dependencies]
