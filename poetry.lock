@@ -4214,13 +4214,13 @@ six = "*"
 
 [[package]]
 name = "pytest-sugar"
-version = "1.1.0"
+version = "1.1.1"
 description = "pytest-sugar is a plugin for pytest that changes the default look and feel of pytest (e.g. progressbar, show tests that fail instantly)."
 optional = false
 python-versions = "*"
 files = [
-    {file = "pytest-sugar-1.1.0.tar.gz", hash = "sha256:53138645cabc311a677bb09c307eab41681a563e498318cd2a0d7cd184837af4"},
-    {file = "pytest_sugar-1.1.0-py3-none-any.whl", hash = "sha256:c853866512288f1b679efc10c565303de4617854287e977781f07904f4560668"},
+    {file = "pytest-sugar-1.1.1.tar.gz", hash = "sha256:73b8b65163ebf10f9f671efab9eed3d56f20d2ca68bda83fa64740a92c08f65d"},
+    {file = "pytest_sugar-1.1.1-py3-none-any.whl", hash = "sha256:2f8319b907548d5b9d03a171515c1d43d2e38e32bd8182a1781eb20b43344cc8"},
 ]
 
 [package.dependencies]
