@@ -64,4 +64,3 @@ hello foo bar baz 23
     file = fetched_results[0]
     assert file.gitfile.path == "sample.txt"
     assert set(file.lines) != set()  # we should have some matching lines
-
