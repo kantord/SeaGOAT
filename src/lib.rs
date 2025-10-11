@@ -1,4 +1,4 @@
-use axum::{extract::{State, Query}, routing::get, Json, Router};
+use axum::{extract::State, routing::post, Json, Router};
 use lancedb::{connect, Connection};
 use std::{collections::HashMap, sync::Arc};
 use serde::Deserialize;
@@ -12,17 +12,17 @@ pub struct AppState {
 }
 
 #[derive(Deserialize)]
-struct QueryParams {
+struct QueryBody {
     /// Database ID (future: path on disk)
     path: String,
 }
 
-async fn query_handler(State(state): State<AppState>, Query(params): Query<QueryParams>) -> Json<JsonValue> {
-    let Some(db) = state.dbs.get(&params.path) else {
+async fn query_handler(State(state): State<AppState>, Json(body): Json<QueryBody>) -> Json<JsonValue> {
+    let Some(db) = state.dbs.get(&body.path) else {
         return Json(json!({
             "error": "unknown_database",
             "message": "database with given path not found",
-            "path": params.path,
+            "path": body.path,
         }));
     };
 
@@ -47,7 +47,7 @@ async fn query_handler(State(state): State<AppState>, Query(params): Query<Query
 }
 
 pub fn build_router(state: AppState) -> Router {
-    Router::new().route("/v1/query", get(query_handler)).with_state(state)
+    Router::new().route("/v1/query", post(query_handler)).with_state(state)
 }
 
 pub async fn initialize_example_databases() -> anyhow::Result<Arc<HashMap<String, Arc<Connection>>>> {

@@ -13,11 +13,11 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
     });
 
     let client = reqwest::Client::new();
-    let url = format!("http://{}/v1/query?path=%2Fmock%2Fdb%2Falpha", addr);
+    let url = format!("http://{}/v1/query", addr);
 
     let mut last_err: Option<reqwest::Error> = None;
     for _ in 0..50u32 {
-        match client.get(&url).send().await {
+        match client.post(&url).json(&serde_json::json!({"path": "/mock/db/alpha"})).send().await {
             Ok(resp) => {
                 assert_eq!(resp.status(), 200);
                 let json: serde_json::Value = resp.json().await?;
@@ -51,8 +51,7 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
 
     let client = reqwest::Client::new();
     for id in seagoat::default_database_ids() {
-        let enc = id.replace('/', "%2F");
-        let url = format!("http://{}/v1/query?path={}", addr, enc);
+        let url = format!("http://{}/v1/query", addr);
 
         // poll a few times in case server not ready yet
         let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(3);
@@ -61,7 +60,7 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
                 server_task.abort();
                 anyhow::bail!("server did not respond in time for {}", id);
             }
-            match client.get(&url).send().await {
+            match client.post(&url).json(&serde_json::json!({"path": id})).send().await {
                 Ok(resp) if resp.status().is_success() => {
                     let json: serde_json::Value = resp.json().await?;
                     break json;

@@ -15,7 +15,7 @@ async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
 
     // Wait for readiness and fetch JSON
     let client = reqwest::Client::new();
-    let url = format!("http://{}/v1/query?path=%2Fmock%2Fdb%2Falpha", addr);
+    let url = format!("http://{}/v1/query", addr);
 
     let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
     let json = loop {
@@ -23,7 +23,7 @@ async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
             server_task.abort();
             anyhow::bail!("server did not respond in time");
         }
-        match client.get(&url).send().await {
+        match client.post(&url).json(&serde_json::json!({"path": "/mock/db/alpha"})).send().await {
             Ok(resp) if resp.status().is_success() => {
                 let json: serde_json::Value = resp.json().await?;
                 break json;
