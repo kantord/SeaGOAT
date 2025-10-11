@@ -23,3 +23,5 @@ criterion = "0.7.0"
 insta = "1.43.2"
 proptest = "1.8.0"
 reqwest = { version = "0.12.7", default-features = false, features = ["json", "rustls-tls"] }
+assert_cmd = "2.0.16"
+portpicker = "0.1.1"
