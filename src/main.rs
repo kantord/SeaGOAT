@@ -1,6 +1,6 @@
-use axum::{routing::get, Json, Router};
+use axum::Router;
 use clap::Parser;
-use serde_json::{json, Value as JsonValue};
+use seagoat::build_router;
 use std::{io::ErrorKind, net::SocketAddr};
 use tokio::net::TcpListener;
 use tracing_subscriber::EnvFilter;
@@ -17,10 +17,6 @@ struct Cli {
     port: u16,
 }
 
-async fn query_handler() -> Json<JsonValue> {
-    Json(json!({ "message": "Hello World" }))
-}
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
@@ -28,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
         .without_time()
         .init();
 
-    let app_router: Router = Router::new().route("/v1/query", get(query_handler));
+    let app_router: Router = build_router();
 
     let cli: Cli = Cli::parse();
     let requested_addr: SocketAddr = format!("{}:{}", cli.host, cli.port).parse()?;
