@@ -126,3 +126,40 @@ async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
     server_task.abort();
     Err(anyhow::anyhow!("server did not respond: {:?}", last_err))
 }
+
+#[tokio::test]
+async fn e2e_list_databases_includes_paths() -> anyhow::Result<()> {
+    let dbs = seagoat::initialize_example_databases().await?;
+    let app = seagoat::build_router(seagoat::AppState { dbs });
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
+    let addr = listener.local_addr()?;
+
+    let server_task = tokio::spawn(async move {
+        axum::serve(listener, app).await.unwrap();
+    });
+
+    let client = reqwest::Client::new();
+    let url = format!("http://{}/v1/databases", addr);
+
+    for _ in 0..100u32 {
+        match client.get(&url).send().await {
+            Ok(resp) if resp.status().is_success() => {
+                let json: serde_json::Value = resp.json().await?;
+                let arr = json.as_array().unwrap();
+                assert!(arr.len() >= 3);
+                let paths: Vec<String> = arr.iter().map(|d| d["path"].as_str().unwrap().to_string()).collect();
+                for id in seagoat::default_database_ids() {
+                    assert!(paths.contains(&id.to_string()));
+                }
+                server_task.abort();
+                return Ok(());
+            }
+            _ => {}
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+    }
+
+    server_task.abort();
+    Err(anyhow::anyhow!("server did not respond in time"))
+}

@@ -1,4 +1,4 @@
-use axum::{extract::State, routing::post, Json, Router, http::StatusCode, response::IntoResponse};
+use axum::{extract::State, routing::{post, get}, Json, Router, http::StatusCode, response::IntoResponse};
 use lancedb::Connection;
 use std::{collections::HashMap, sync::Arc};
 use serde::Deserialize;
@@ -47,5 +47,24 @@ async fn query_handler(State(state): State<AppState>, Json(body): Json<QueryBody
 }
 
 pub fn build_router(state: AppState) -> Router {
-    Router::new().route("/v1/query", post(query_handler)).with_state(state)
+    Router::new()
+        .route("/v1/query", post(query_handler))
+        .route("/v1/databases", get(list_databases_handler))
+        .with_state(state)
+}
+
+#[derive(serde::Serialize)]
+struct DatabaseInfo {
+    path: String,
+}
+
+async fn list_databases_handler(State(state): State<AppState>) -> (StatusCode, Json<serde_json::Value>) {
+    // Return only the list of database paths
+    let dbs: Vec<DatabaseInfo> = state
+        .dbs
+        .keys()
+        .cloned()
+        .map(|path| DatabaseInfo { path })
+        .collect();
+    (StatusCode::OK, Json(serde_json::to_value(dbs).unwrap()))
 }
