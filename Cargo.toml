@@ -20,6 +20,15 @@ tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 lancedb = "0.22.2"
 arrow-array = "56.2.0"
 arrow-schema = "56.2.0"
+sha2 = "0.10.8"
+
+# Optional ML deps for future real embeddings (disabled by default)
+# Enable via: `--features embed-qwen3`
+candle-core = { version = "0.7", optional = true }
+candle-nn = { version = "0.7", optional = true }
+candle-transformers = { version = "0.7", optional = true }
+hf-hub = { version = "0.3", optional = true }
+tokenizers = { version = "0.15", optional = true }
 
 [dev-dependencies]
 criterion = "0.7.0"
@@ -28,3 +37,14 @@ proptest = "1.8.0"
 reqwest = { version = "0.12.7", default-features = false, features = ["json", "rustls-tls"] }
 assert_cmd = "2.0.16"
 portpicker = "0.1.1"
+
+[features]
+default = []
+# Pulls in Candle + hf-hub for real Qwen3 embeddings implementation.
+embed-qwen3 = [
+    "dep:candle-core",
+    "dep:candle-nn",
+    "dep:candle-transformers",
+    "dep:hf-hub",
+    "dep:tokenizers",
+]

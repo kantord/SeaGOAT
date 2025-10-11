@@ -3,6 +3,8 @@ use lancedb::{connect, Connection};
 use std::sync::Arc;
 use serde_json::{json, Value as JsonValue};
 
+pub mod embedder;
+
 #[derive(Clone)]
 pub struct AppState {
     pub db: Arc<Connection>,
@@ -41,12 +43,28 @@ pub async fn initialize_dummy_lancedb() -> anyhow::Result<Arc<Connection>> {
     let table_name = "hello";
     let existing: Vec<String> = db.table_names().execute().await?;
     if !existing.iter().any(|n| n == table_name) {
-        use arrow_array::{ArrayRef, Int64Array, RecordBatch, RecordBatchIterator, StringArray};
+        use arrow_array::{
+            builder::{FixedSizeListBuilder, Float32Builder},
+            ArrayRef, FixedSizeListArray, Int64Array, RecordBatch, RecordBatchIterator, StringArray,
+        };
         use arrow_schema::{DataType, Field, Schema};
+        use crate::embedder::Embedder;
+
+        // Determine embedding dimension from implementation
+        let temp_embedder = Embedder::default();
+        let temp_dim = temp_embedder.embed(&["probe"]).unwrap()[0].len() as i32;
 
         let schema: Arc<Schema> = Arc::new(Schema::new(vec![
             Field::new("id", DataType::Int64, false),
             Field::new("text", DataType::Utf8, false),
+            Field::new(
+                "vector",
+                DataType::FixedSizeList(
+                    Arc::new(Field::new("item", DataType::Float32, false)),
+                    temp_dim,
+                ),
+                false,
+            ),
         ]));
 
         let table = db
@@ -55,10 +73,31 @@ pub async fn initialize_dummy_lancedb() -> anyhow::Result<Arc<Connection>> {
             .await?;
 
         let id_array = Int64Array::from(vec![1_i64, 2_i64]);
-        let text_array = StringArray::from(vec!["hello", "world"]);
+        let text_values = vec!["hello", "world"];
+        let text_array = StringArray::from(text_values.clone());
+
+        // Compute embeddings for dummy data using the fallback embedder.
+        let embedder = temp_embedder;
+        let embeddings: Vec<Vec<f32>> = embedder.embed(&text_values)?;
+
+        // Build a FixedSizeList<Float32> arrow array for embeddings
+        let values_builder = Float32Builder::new();
+        let mut list_builder = FixedSizeListBuilder::new(values_builder, temp_dim);
+        for emb in embeddings.iter() {
+            let vb = list_builder.values();
+            for &x in emb.iter() {
+                vb.append_value(x);
+            }
+            list_builder.append(true);
+        }
+        let embedding_array: FixedSizeListArray = list_builder.finish();
         let batch = RecordBatch::try_new(
             schema.clone(),
-            vec![Arc::new(id_array) as ArrayRef, Arc::new(text_array) as ArrayRef],
+            vec![
+                Arc::new(id_array) as ArrayRef,
+                Arc::new(text_array) as ArrayRef,
+                Arc::new(embedding_array) as ArrayRef,
+            ],
         )?;
 
         let batches = vec![Ok(batch)];
