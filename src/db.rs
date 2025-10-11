@@ -35,12 +35,10 @@ pub struct SemanticSearchResponse {
 }
 
 pub async fn semantic_search(_db: &Connection, query_text: &str, top_k: usize) -> anyhow::Result<SemanticSearchResponse> {
-    // NOTE: For now we use the known seeded dummy data. Later, read rows from the table.
+    // Temporary: compute against seeded strings; next step will iterate Lance rows
     let candidates: Vec<(i64, &str)> = vec![(1, "hello"), (2, "world")];
-
     let embedder = Embedder::default();
     let query_vec = embedder.embed(&[query_text])?.remove(0);
-
     let mut hits: Vec<SearchHit> = candidates
         .into_iter()
         .map(|(id, text)| {
@@ -49,7 +47,6 @@ pub async fn semantic_search(_db: &Connection, query_text: &str, top_k: usize) -
             SearchHit { id, text: text.to_string(), score }
         })
         .collect();
-
     hits.sort_by(|a, b| b.score.total_cmp(&a.score));
     hits.truncate(top_k);
     Ok(SemanticSearchResponse { hits })
@@ -111,114 +108,77 @@ pub fn default_database_ids() -> &'static [&'static str] {
 }
 
 async fn ensure_hello_table_seeded(db: &Connection) -> anyhow::Result<()> {
-    use arrow_array::{
-        builder::{FixedSizeListBuilder, Float32Builder},
-        ArrayRef, FixedSizeListArray, Int64Array, RecordBatch, RecordBatchIterator, StringArray,
-    };
-    use arrow_schema::{DataType, Field, Schema};
-
-    // Seed a tiny table with two rows if it doesn't exist yet.
-    let table_name = "hello";
-    let existing: Vec<String> = db.table_names().execute().await?;
-    if existing.iter().any(|n| n == table_name) {
-        // If table exists but is empty, seed it; otherwise nothing to do.
-        match db.open_table(table_name).execute().await {
-            Ok(table) => {
-                let row_count = table.count_rows(None).await.unwrap_or(0) as i64;
-                if row_count > 0 {
-                    return Ok(());
-                }
-                // Derive dim from existing schema
-                use arrow_schema::DataType as DT;
-                let schema = table.schema().await?;
-                let dim = schema
-                    .fields()
-                    .iter()
-                    .find(|f| f.name() == "vector")
-                    .and_then(|f| match f.data_type() {
-                        DT::FixedSizeList(_, d) => Some(*d),
-                        _ => None,
-                    })
-                    .unwrap_or_else(|| {
-                        // Fallback to embedder's dim
-                        let e = Embedder::default();
-                        e.embed(&["probe"]).unwrap()[0].len() as i32
-                    });
-
-                // Build and append rows
-                let id_array = Int64Array::from(vec![1_i64, 2_i64]);
-                let text_values = vec!["hello", "world"];
-                let text_array = StringArray::from(text_values.clone());
-                let embeddings = Embedder::default().embed(&text_values)?;
-                let values_builder = Float32Builder::new();
-                let mut list_builder = FixedSizeListBuilder::new(values_builder, dim);
-                for emb in embeddings.iter() {
-                    let vb = list_builder.values();
-                    for &x in emb.iter() { vb.append_value(x); }
-                    list_builder.append(true);
-                }
-                let embedding_array: FixedSizeListArray = list_builder.finish();
-                let batch = RecordBatch::try_new(
-                    schema.into(),
-                    vec![
-                        Arc::new(id_array) as ArrayRef,
-                        Arc::new(text_array) as ArrayRef,
-                        Arc::new(embedding_array) as ArrayRef,
-                    ],
-                )?;
-                let batches = vec![Ok(batch)];
-                let reader = RecordBatchIterator::new(batches.into_iter(), table.schema().await?.into());
-                table.add(reader).execute().await?;
-                return Ok(());
-            }
-            Err(_) => {
-                // Fall through to create path below
-            }
+    // Seed a tiny table using the generic add_embedding API.
+    let embedder = Embedder::default();
+    let hello_vec = embedder.embed(&["hello"])?.remove(0);
+    let world_vec = embedder.embed(&["world"])?.remove(0);
+    ensure_vector_table(db, "hello", hello_vec.len() as i32).await?;
+    // If already seeded, skip
+    if let Ok(table) = db.open_table("hello").execute().await {
+        let count = table.count_rows(None).await.unwrap_or(0);
+        if count > 0 {
+            return Ok(());
         }
     }
+    add_embedding(db, "hello", 1, "hello", &hello_vec).await?;
+    add_embedding(db, "hello", 2, "world", &world_vec).await?;
+    Ok(())
+}
 
-    // Determine embedding dimension from implementation
-    let temp_embedder = Embedder::default();
-    let temp_dim = temp_embedder.embed(&["probe"]).unwrap()[0].len() as i32;
+// keep Arc imported above
+use arrow_array::{
+    builder::{FixedSizeListBuilder, Float32Builder},
+    ArrayRef, FixedSizeListArray, Int64Array, RecordBatch, RecordBatchIterator, StringArray,
+};
+use arrow_schema::{DataType, Field, Schema};
 
+pub async fn ensure_vector_table(db: &Connection, table_name: &str, dim: i32) -> anyhow::Result<()> {
+    let existing: Vec<String> = db.table_names().execute().await?;
+    if existing.iter().any(|n| n == table_name) {
+        return Ok(());
+    }
     let schema: Arc<Schema> = Arc::new(Schema::new(vec![
         Field::new("id", DataType::Int64, false),
         Field::new("text", DataType::Utf8, false),
         Field::new(
             "vector",
             DataType::FixedSizeList(
-                Arc::new(Field::new("item", DataType::Float32, false)),
-                temp_dim,
+                Arc::new(Field::new("item", DataType::Float32, true)),
+                dim,
             ),
             false,
         ),
     ]));
+    let _ = db.create_empty_table(table_name, schema).execute().await?;
+    Ok(())
+}
 
-    let table = db
-        .create_empty_table(table_name, schema.clone())
-        .execute()
-        .await?;
+pub async fn add_embedding(
+    db: &Connection,
+    table_name: &str,
+    id: i64,
+    text: &str,
+    vector: &[f32],
+) -> anyhow::Result<()> {
+    // Ensure table exists
+    ensure_vector_table(db, table_name, vector.len() as i32).await?;
+    let table = db.open_table(table_name).execute().await?;
 
-    let id_array = Int64Array::from(vec![1_i64, 2_i64]);
-    let text_values = vec!["hello", "world"];
-    let text_array = StringArray::from(text_values.clone());
-
-    // Compute embeddings for dummy data using the fallback embedder.
-    let embeddings: Vec<Vec<f32>> = temp_embedder.embed(&text_values)?;
-
-    // Build a FixedSizeList<Float32> arrow array for embeddings
-    let values_builder = Float32Builder::new();
-    let mut list_builder = FixedSizeListBuilder::new(values_builder, temp_dim);
-    for emb in embeddings.iter() {
-        let vb = list_builder.values();
-        for &x in emb.iter() {
-            vb.append_value(x);
-        }
-        list_builder.append(true);
+    // Build single-row batch
+    let id_array = Int64Array::from(vec![id]);
+    let text_array = StringArray::from(vec![text]);
+    let mut values_builder = Float32Builder::new();
+    for &x in vector {
+        values_builder.append_value(x);
     }
+    let mut list_builder = FixedSizeListBuilder::new(values_builder, vector.len() as i32);
+    // we already appended values, now mark one list entry
+    list_builder.append(true);
     let embedding_array: FixedSizeListArray = list_builder.finish();
+
+    let batch_schema: Arc<Schema> = table.schema().await?.into();
     let batch = RecordBatch::try_new(
-        schema.clone(),
+        batch_schema,
         vec![
             Arc::new(id_array) as ArrayRef,
             Arc::new(text_array) as ArrayRef,
@@ -226,8 +186,7 @@ async fn ensure_hello_table_seeded(db: &Connection) -> anyhow::Result<()> {
         ],
     )?;
 
-    let batches = vec![Ok(batch)];
-    let reader = RecordBatchIterator::new(batches.into_iter(), schema.clone());
+    let reader = RecordBatchIterator::new(vec![Ok(batch)].into_iter(), table.schema().await?.into());
     table.add(reader).execute().await?;
     Ok(())
 }

@@ -1,4 +1,4 @@
-use axum::{extract::State, routing::post, Json, Router};
+use axum::{extract::State, routing::post, Json, Router, http::StatusCode, response::IntoResponse};
 use lancedb::Connection;
 use std::{collections::HashMap, sync::Arc};
 use serde::Deserialize;
@@ -22,26 +22,26 @@ enum QueryBody {
 
 fn default_top_k() -> usize { 5 }
 
-async fn query_handler(State(state): State<AppState>, Json(body): Json<QueryBody>) -> Json<JsonValue> {
+async fn query_handler(State(state): State<AppState>, Json(body): Json<QueryBody>) -> (StatusCode, Json<serde_json::Value>) {
     let path = match &body {
         QueryBody::Overview { path } | QueryBody::Search { path, .. } => path,
     };
     let Some(db) = state.dbs.get(path) else {
-        return Json(json!({
+        return (StatusCode::NOT_FOUND, Json(json!({
             "error": "unknown_database",
             "message": "database with given path not found",
             "path": path,
-        }));
+        })));
     };
 
     match body {
         QueryBody::Overview { .. } => match crate::db::db_overview(db).await {
-            Ok(resp) => Json(serde_json::to_value(resp).unwrap()),
-            Err(err) => Json(json!({ "error": "internal_error", "message": err.to_string() })),
+            Ok(resp) => (StatusCode::OK, Json(serde_json::to_value(resp).unwrap())),
+            Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": "internal_error", "message": err.to_string() }))),
         },
         QueryBody::Search { query, top_k, .. } => match crate::db::semantic_search(db, &query, top_k).await {
-            Ok(resp) => Json(serde_json::to_value(resp).unwrap()),
-            Err(err) => Json(json!({ "error": "internal_error", "message": err.to_string() })),
+            Ok(resp) => (StatusCode::OK, Json(serde_json::to_value(resp).unwrap())),
+            Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": "internal_error", "message": err.to_string() }))),
         },
     }
 }
