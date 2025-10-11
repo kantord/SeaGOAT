@@ -20,7 +20,7 @@ async fn cli_e2e_binary_serves_query() -> anyhow::Result<()> {
 
     // Wait until server responds
     let client = Client::new();
-    let url = format!("http://127.0.0.1:{}/v1/query", port);
+    let url = format!("http://127.0.0.1:{}/v1/query?path=%2Fmock%2Fdb%2Falpha", port);
 
     let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
     let mut last_err: Option<anyhow::Error> = None;

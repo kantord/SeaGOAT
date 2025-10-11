@@ -2,8 +2,8 @@ use std::time::Duration;
 
 #[tokio::test]
 async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
-    let db = seagoat::initialize_dummy_lancedb().await.unwrap();
-    let app = seagoat::build_router(seagoat::AppState { db });
+    let dbs = seagoat::initialize_example_databases().await.unwrap();
+    let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let addr = listener.local_addr()?;
@@ -13,7 +13,7 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
     });
 
     let client = reqwest::Client::new();
-    let url = format!("http://{}/v1/query", addr);
+    let url = format!("http://{}/v1/query?path=%2Fmock%2Fdb%2Falpha", addr);
 
     let mut last_err: Option<reqwest::Error> = None;
     for _ in 0..50u32 {

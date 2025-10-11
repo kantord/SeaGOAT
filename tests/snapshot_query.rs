@@ -3,8 +3,8 @@ use std::time::Duration;
 #[tokio::test]
 async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
     // Boot the app on an ephemeral port
-    let db = seagoat::initialize_dummy_lancedb().await?;
-    let app = seagoat::build_router(seagoat::AppState { db });
+    let dbs = seagoat::initialize_example_databases().await?;
+    let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let addr = listener.local_addr()?;
@@ -15,7 +15,7 @@ async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
 
     // Wait for readiness and fetch JSON
     let client = reqwest::Client::new();
-    let url = format!("http://{}/v1/query", addr);
+    let url = format!("http://{}/v1/query?path=%2Fmock%2Fdb%2Falpha", addr);
 
     let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
     let json = loop {
