@@ -3,3 +3,4 @@ target
 **/*.rs.bk
 *.pdb
 **/mutants.out*/
+.lancedb

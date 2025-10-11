@@ -1,6 +1,6 @@
 use axum::Router;
 use clap::Parser;
-use seagoat::build_router;
+use seagoat::{build_router, initialize_dummy_lancedb};
 use std::{io::ErrorKind, net::SocketAddr};
 use tokio::net::TcpListener;
 use tracing_subscriber::EnvFilter;
@@ -28,6 +28,11 @@ async fn main() -> anyhow::Result<()> {
 
     let cli: Cli = Cli::parse();
     let requested_addr: SocketAddr = format!("{}:{}", cli.host, cli.port).parse()?;
+
+    // Initialize LanceDB with dummy data (best-effort; continue on failure but log it)
+    if let Err(err) = initialize_dummy_lancedb().await {
+        tracing::warn!("failed to initialize LanceDB: {:#}", err);
+    }
 
     let tcp_listener: TcpListener = match TcpListener::bind(requested_addr).await {
         Ok(listener) => listener,
