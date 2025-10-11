@@ -2,7 +2,8 @@ use std::time::Duration;
 
 #[tokio::test]
 async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
-    let app = seagoat::build_router();
+    let db = seagoat::initialize_dummy_lancedb().await.unwrap();
+    let app = seagoat::build_router(seagoat::AppState { db });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let addr = listener.local_addr()?;
@@ -20,7 +21,8 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
             Ok(resp) => {
                 assert_eq!(resp.status(), 200);
                 let json: serde_json::Value = resp.json().await?;
-                assert_eq!(json, serde_json::json!({"message": "Hello World"}));
+                assert_eq!(json["hello_count"], serde_json::json!(2));
+                assert!(json["tables"].as_array().unwrap().contains(&serde_json::json!("hello")));
                 server_task.abort();
                 return Ok(());
             }

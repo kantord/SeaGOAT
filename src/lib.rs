@@ -1,17 +1,39 @@
-use axum::{routing::get, Json, Router};
+use axum::{extract::State, routing::get, Json, Router};
 use lancedb::{connect, Connection};
 use std::sync::Arc;
 use serde_json::{json, Value as JsonValue};
 
-async fn query_handler() -> Json<JsonValue> {
-    Json(json!({ "message": "Hello World" }))
+#[derive(Clone)]
+pub struct AppState {
+    pub db: Arc<Connection>,
 }
 
-pub fn build_router() -> Router {
-    Router::new().route("/v1/query", get(query_handler))
+async fn query_handler(State(state): State<AppState>) -> Json<JsonValue> {
+    // Basic query against dummy DB: list tables and count rows in "hello"
+    let tables = match state.db.table_names().execute().await {
+        Ok(names) => names,
+        Err(_) => Vec::new(),
+    };
+
+    let hello_count: i64 = match state.db.open_table("hello").execute().await {
+        Ok(table) => match table.count_rows(None).await {
+            Ok(c) => c as i64,
+            Err(_) => 0,
+        },
+        Err(_) => 0,
+    };
+
+    Json(json!({
+        "tables": tables,
+        "hello_count": hello_count,
+    }))
 }
 
-pub async fn initialize_dummy_lancedb() -> anyhow::Result<Connection> {
+pub fn build_router(state: AppState) -> Router {
+    Router::new().route("/v1/query", get(query_handler)).with_state(state)
+}
+
+pub async fn initialize_dummy_lancedb() -> anyhow::Result<Arc<Connection>> {
     // Open or create a local LanceDB directory in the project root.
     let db: Connection = connect(".lancedb").execute().await?;
 
@@ -44,5 +66,5 @@ pub async fn initialize_dummy_lancedb() -> anyhow::Result<Connection> {
         table.add(reader).execute().await?;
     }
 
-    Ok(db)
+    Ok(Arc::new(db))
 }

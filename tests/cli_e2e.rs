@@ -40,7 +40,8 @@ async fn cli_e2e_binary_serves_query() -> anyhow::Result<()> {
         match client.get(&url).send().await {
             Ok(resp) if resp.status().is_success() => {
                 let json: serde_json::Value = resp.json().await?;
-                assert_eq!(json, serde_json::json!({"message": "Hello World"}));
+                assert_eq!(json["hello_count"], serde_json::json!(2));
+                assert!(json["tables"].as_array().unwrap().contains(&serde_json::json!("hello")));
                 child.kill()?;
                 let _ = child.wait();
                 return Ok(());
