@@ -37,7 +37,12 @@ async fn cli_e2e_binary_serves_query() -> anyhow::Result<()> {
             ));
         }
 
-        match client.post(&url).json(&serde_json::json!({"path": "/mock/db/alpha"})).send().await {
+        match client
+            .post(&url)
+            .json(&serde_json::json!({"type": "Overview", "path": "/mock/db/alpha"}))
+            .send()
+            .await
+        {
             Ok(resp) if resp.status().is_success() => {
                 let json: serde_json::Value = resp.json().await?;
                 assert_eq!(json["hello_count"], serde_json::json!(2));

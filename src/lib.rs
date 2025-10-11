@@ -14,38 +14,36 @@ pub struct AppState {
 }
 
 #[derive(Deserialize)]
-struct QueryBody {
-    /// Database ID (future: path on disk)
-    path: String,
+#[serde(tag = "type")]
+enum QueryBody {
+    Overview { path: String },
+    Search { path: String, query: String, #[serde(default = "default_top_k")] top_k: usize },
 }
 
+fn default_top_k() -> usize { 5 }
+
 async fn query_handler(State(state): State<AppState>, Json(body): Json<QueryBody>) -> Json<JsonValue> {
-    let Some(db) = state.dbs.get(&body.path) else {
+    let path = match &body {
+        QueryBody::Overview { path } | QueryBody::Search { path, .. } => path,
+    };
+    let Some(db) = state.dbs.get(path) else {
         return Json(json!({
             "error": "unknown_database",
             "message": "database with given path not found",
-            "path": body.path,
+            "path": path,
         }));
     };
 
-    // Basic query against selected DB: list tables and count rows in "hello"
-    let tables = match db.table_names().execute().await {
-        Ok(names) => names,
-        Err(_) => Vec::new(),
-    };
-
-    let hello_count: i64 = match db.open_table("hello").execute().await {
-        Ok(table) => match table.count_rows(None).await {
-            Ok(c) => c as i64,
-            Err(_) => 0,
+    match body {
+        QueryBody::Overview { .. } => match crate::db::db_overview(db).await {
+            Ok(resp) => Json(serde_json::to_value(resp).unwrap()),
+            Err(err) => Json(json!({ "error": "internal_error", "message": err.to_string() })),
         },
-        Err(_) => 0,
-    };
-
-    Json(json!({
-        "tables": tables,
-        "hello_count": hello_count,
-    }))
+        QueryBody::Search { query, top_k, .. } => match crate::db::semantic_search(db, &query, top_k).await {
+            Ok(resp) => Json(serde_json::to_value(resp).unwrap()),
+            Err(err) => Json(json!({ "error": "internal_error", "message": err.to_string() })),
+        },
+    }
 }
 
 pub fn build_router(state: AppState) -> Router {

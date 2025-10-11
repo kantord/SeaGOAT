@@ -4,6 +4,73 @@ use lancedb::{connect, Connection};
 
 use crate::embedder::Embedder;
 
+#[derive(Debug, serde::Serialize)]
+pub struct DbOverviewResponse {
+    pub tables: Vec<String>,
+    pub hello_count: i64,
+}
+
+pub async fn db_overview(db: &Connection) -> anyhow::Result<DbOverviewResponse> {
+    let tables = db.table_names().execute().await.unwrap_or_default();
+    let hello_count: i64 = match db.open_table("hello").execute().await {
+        Ok(table) => match table.count_rows(None).await {
+            Ok(c) => c as i64,
+            Err(_) => 0,
+        },
+        Err(_) => 0,
+    };
+    Ok(DbOverviewResponse { tables, hello_count })
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct SearchHit {
+    pub id: i64,
+    pub text: String,
+    pub score: f32,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct SemanticSearchResponse {
+    pub hits: Vec<SearchHit>,
+}
+
+pub async fn semantic_search(_db: &Connection, query_text: &str, top_k: usize) -> anyhow::Result<SemanticSearchResponse> {
+    // NOTE: For now we use the known seeded dummy data. Later, read rows from the table.
+    let candidates: Vec<(i64, &str)> = vec![(1, "hello"), (2, "world")];
+
+    let embedder = Embedder::default();
+    let query_vec = embedder.embed(&[query_text])?.remove(0);
+
+    let mut hits: Vec<SearchHit> = candidates
+        .into_iter()
+        .map(|(id, text)| {
+            let vec = embedder.embed(&[text]).unwrap().remove(0);
+            let score = cosine_similarity(&query_vec, &vec);
+            SearchHit { id, text: text.to_string(), score }
+        })
+        .collect();
+
+    hits.sort_by(|a, b| b.score.total_cmp(&a.score));
+    hits.truncate(top_k);
+    Ok(SemanticSearchResponse { hits })
+}
+
+fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
+    let mut dot = 0.0f64;
+    let mut na = 0.0f64;
+    let mut nb = 0.0f64;
+    let len = a.len().min(b.len());
+    for i in 0..len {
+        let x = a[i] as f64;
+        let y = b[i] as f64;
+        dot += x * y;
+        na += x * x;
+        nb += y * y;
+    }
+    if na == 0.0 || nb == 0.0 { return 0.0; }
+    (dot / (na.sqrt() * nb.sqrt())) as f32
+}
+
 pub async fn initialize_example_databases() -> anyhow::Result<Arc<HashMap<String, Arc<Connection>>>> {
     let mut map: HashMap<String, Arc<Connection>> = HashMap::new();
 

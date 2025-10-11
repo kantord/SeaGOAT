@@ -17,7 +17,7 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
 
     let mut last_err: Option<reqwest::Error> = None;
     for _ in 0..50u32 {
-        match client.post(&url).json(&serde_json::json!({"path": "/mock/db/alpha"})).send().await {
+        match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": "/mock/db/alpha"})).send().await {
             Ok(resp) => {
                 assert_eq!(resp.status(), 200);
                 let json: serde_json::Value = resp.json().await?;
@@ -60,7 +60,7 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
                 server_task.abort();
                 anyhow::bail!("server did not respond in time for {}", id);
             }
-            match client.post(&url).json(&serde_json::json!({"path": id})).send().await {
+            match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": id})).send().await {
                 Ok(resp) if resp.status().is_success() => {
                     let json: serde_json::Value = resp.json().await?;
                     break json;
