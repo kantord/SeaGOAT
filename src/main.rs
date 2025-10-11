@@ -1,8 +1,21 @@
 use axum::{routing::get, Json, Router};
+use clap::Parser;
 use serde_json::{json, Value as JsonValue};
-use std::{env, io::ErrorKind, net::SocketAddr};
+use std::{io::ErrorKind, net::SocketAddr};
 use tokio::net::TcpListener;
 use tracing_subscriber::EnvFilter;
+
+#[derive(Parser, Debug)]
+#[command(name = "SeaGOAT", version, about = "SeaGOAT server", long_about = None)]
+struct Cli {
+    /// Interface to bind the HTTP server to
+    #[arg(long, env = "HOST", default_value = "0.0.0.0")]
+    host: String,
+
+    /// Port to bind the HTTP server to
+    #[arg(long, env = "PORT", default_value_t = 3000)]
+    port: u16,
+}
 
 async fn query_handler() -> Json<JsonValue> {
     Json(json!({ "message": "Hello World" }))
@@ -17,18 +30,18 @@ async fn main() -> anyhow::Result<()> {
 
     let app_router: Router = Router::new().route("/v1/query", get(query_handler));
 
-    let port_env: Option<u16> = env::var("PORT").ok().and_then(|v| v.parse::<u16>().ok());
-    let requested_port: u16 = port_env.unwrap_or(3000);
-    let requested_addr: SocketAddr = format!("0.0.0.0:{}", requested_port).parse()?;
+    let cli: Cli = Cli::parse();
+    let requested_addr: SocketAddr = format!("{}:{}", cli.host, cli.port).parse()?;
 
     let tcp_listener: TcpListener = match TcpListener::bind(requested_addr).await {
         Ok(listener) => listener,
         Err(err) if err.kind() == ErrorKind::AddrInUse => {
             tracing::warn!(
                 "port {} in use, falling back to ephemeral port (0)",
-                requested_port
+                cli.port
             );
-            TcpListener::bind("0.0.0.0:0").await?
+            let fallback_addr: SocketAddr = format!("{}:0", cli.host).parse()?;
+            TcpListener::bind(fallback_addr).await?
         }
         Err(err) => return Err(err.into()),
     };
