@@ -1,8 +1,8 @@
-use axum::{extract::State, routing::{post, get}, Json, Router, http::StatusCode, response::IntoResponse};
+use axum::{extract::State, routing::{post, get}, Json, Router, http::StatusCode};
 use lancedb::Connection;
 use std::{collections::HashMap, sync::Arc};
 use serde::Deserialize;
-use serde_json::{json, Value as JsonValue};
+use serde_json::json;
 
 pub mod embedder;
 pub mod db;
