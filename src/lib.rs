@@ -6,7 +6,7 @@ use serde_json::json;
 
 pub mod embedder;
 pub mod db;
-pub use db::{default_database_ids, initialize_example_databases};
+pub use db::default_database_ids;
 
 #[derive(Clone)]
 pub struct AppState {

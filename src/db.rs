@@ -68,27 +68,29 @@ fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
     (dot / (na.sqrt() * nb.sqrt())) as f32
 }
 
-pub async fn initialize_example_databases() -> anyhow::Result<Arc<HashMap<String, Arc<Connection>>>> {
+#[derive(Debug, serde::Deserialize)]
+pub struct DatabasesConfig {
+    pub databases: Vec<String>,
+}
+
+pub async fn initialize_databases_from_config(config: &DatabasesConfig) -> anyhow::Result<Arc<HashMap<String, Arc<Connection>>>> {
     let mut map: HashMap<String, Arc<Connection>> = HashMap::new();
 
-    let examples: Vec<(&str, &str)> = vec![
-        ("/mock/db/alpha", ".lancedb/mock_alpha"),
-        ("/mock/db/beta", ".lancedb/mock_beta"),
-        ("/mock/db/gamma", ".lancedb/mock_gamma"),
-    ];
-
-    for (id, path) in examples {
+    for id in &config.databases {
+        // Map id to on-disk location (namespace under .lancedb)
+        let sanitized = id.trim_start_matches('/').replace('/', "_");
+        let path = format!(".lancedb/{}", sanitized);
         // Ensure directory exists before connecting
-        if let Err(err) = std::fs::create_dir_all(path) {
-            tracing::warn!("failed to create db dir {}: {:#}", path, err);
+        if let Err(err) = std::fs::create_dir_all(&path) {
+            tracing::warn!("failed to create db dir {}: {:#}", sanitized, err);
         }
-        match connect(path).execute().await {
+        match connect(&path).execute().await {
             Ok(db) => {
                 if let Err(err) = ensure_hello_table_seeded(&db).await {
                     tracing::warn!("failed to seed {} at {}: {:#}", id, path, err);
                     continue;
                 }
-                map.insert(id.to_string(), Arc::new(db));
+                map.insert(id.clone(), Arc::new(db));
             }
             Err(err) => {
                 tracing::warn!("failed to connect {} at {}: {:#}", id, path, err);
@@ -97,15 +99,13 @@ pub async fn initialize_example_databases() -> anyhow::Result<Arc<HashMap<String
     }
 
     if map.is_empty() {
-        anyhow::bail!("no example databases could be initialized")
+        tracing::warn!("config contained zero databases or all failed to initialize");
     }
 
     Ok(Arc::new(map))
 }
 
-pub fn default_database_ids() -> &'static [&'static str] {
-    &["/mock/db/alpha", "/mock/db/beta", "/mock/db/gamma"]
-}
+pub fn default_database_ids() -> &'static [&'static str] { &[] }
 
 async fn ensure_hello_table_seeded(db: &Connection) -> anyhow::Result<()> {
     // Seed a tiny table using the generic add_embedding API.

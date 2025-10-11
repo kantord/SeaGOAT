@@ -4,5 +4,5 @@ expression: "serde_json::to_string_pretty(&normalized).unwrap()"
 ---
 {
   "contains_hello": true,
-  "hello_count": 4
+  "hello_count": 2
 }

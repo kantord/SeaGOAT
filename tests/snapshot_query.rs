@@ -3,7 +3,8 @@ use std::time::Duration;
 #[tokio::test]
 async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
     // Boot the app on an ephemeral port
-    let dbs = seagoat::initialize_example_databases().await?;
+    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;

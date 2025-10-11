@@ -1,6 +1,6 @@
 use axum::Router;
 use clap::Parser;
-use seagoat::{build_router, initialize_example_databases, AppState};
+use seagoat::{build_router, AppState, db::DatabasesConfig, db::initialize_databases_from_config};
 use std::{io::ErrorKind, net::SocketAddr};
 use tokio::net::TcpListener;
 use tracing_subscriber::EnvFilter;
@@ -15,6 +15,10 @@ struct Cli {
     /// Port to bind the HTTP server to
     #[arg(long, env = "PORT", default_value_t = 3000)]
     port: u16,
+
+    /// Path to YAML config specifying databases to load
+    #[arg(long, env = "CONFIG", default_value = "")]
+    config: String,
 }
 
 #[tokio::main]
@@ -24,17 +28,25 @@ async fn main() -> anyhow::Result<()> {
         .without_time()
         .init();
 
-    // Initialize example LanceDB databases in local folders
-    let dbs = match initialize_example_databases().await {
-        Ok(dbs) => dbs,
-        Err(err) => {
-            tracing::warn!("failed to initialize example databases: {:#}", err);
-            std::sync::Arc::new(std::collections::HashMap::new())
-        }
+    // Initialize databases from YAML config if provided
+    let cli: Cli = Cli::parse();
+    let dbs = if !cli.config.is_empty() {
+        let cfg_text = if cli.config == "-" {
+            use std::io::Read;
+            let mut buf = String::new();
+            std::io::stdin().read_to_string(&mut buf)?;
+            buf
+        } else {
+            std::fs::read_to_string(&cli.config)?
+        };
+        let cfg: DatabasesConfig = serde_yaml::from_str(&cfg_text)?;
+        initialize_databases_from_config(&cfg).await?
+    } else {
+        tracing::warn!("no CONFIG provided; starting with zero databases");
+        std::sync::Arc::new(std::collections::HashMap::new())
     };
     let app_router: Router = build_router(AppState { dbs });
 
-    let cli: Cli = Cli::parse();
     let requested_addr: SocketAddr = format!("{}:{}", cli.host, cli.port).parse()?;
 
     let tcp_listener: TcpListener = match TcpListener::bind(requested_addr).await {

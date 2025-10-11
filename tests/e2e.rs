@@ -2,7 +2,8 @@ use std::time::Duration;
 
 #[tokio::test]
 async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
-    let dbs = seagoat::initialize_example_databases().await.unwrap();
+    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await.unwrap();
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
@@ -39,7 +40,8 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
-    let dbs = seagoat::initialize_example_databases().await?;
+    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string(), "/mock/db/beta".to_string(), "/mock/db/gamma".to_string()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
@@ -50,7 +52,7 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
     });
 
     let client = reqwest::Client::new();
-    for id in seagoat::default_database_ids() {
+    for id in ["/mock/db/alpha", "/mock/db/beta", "/mock/db/gamma"].iter() {
         let url = format!("http://{}/v1/query", addr);
 
         // poll a few times in case server not ready yet
@@ -79,7 +81,8 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
-    let dbs = seagoat::initialize_example_databases().await?;
+    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
@@ -129,7 +132,8 @@ async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn e2e_list_databases_includes_paths() -> anyhow::Result<()> {
-    let dbs = seagoat::initialize_example_databases().await?;
+    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string(), "/mock/db/beta".to_string(), "/mock/db/gamma".to_string()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
@@ -149,9 +153,111 @@ async fn e2e_list_databases_includes_paths() -> anyhow::Result<()> {
                 let arr = json.as_array().unwrap();
                 assert!(arr.len() >= 3);
                 let paths: Vec<String> = arr.iter().map(|d| d["path"].as_str().unwrap().to_string()).collect();
-                for id in seagoat::default_database_ids() {
+                for id in ["/mock/db/alpha", "/mock/db/beta", "/mock/db/gamma"].iter() {
                     assert!(paths.contains(&id.to_string()));
                 }
+                server_task.abort();
+                return Ok(());
+            }
+            _ => {}
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+    }
+
+    server_task.abort();
+    Err(anyhow::anyhow!("server did not respond in time"))
+}
+
+#[tokio::test]
+async fn e2e_cli_binary_works_with_stdin_config() -> anyhow::Result<()> {
+    use std::process::{Command, Stdio};
+    use assert_cmd::prelude::*;
+    use reqwest::Client;
+    use std::io::Write;
+
+    let port: u16 = portpicker::pick_unused_port().expect("no free port found");
+
+    let mut cmd = Command::cargo_bin("seagoat")?;
+    cmd.env("RUST_LOG", "info")
+        .arg("--host").arg("127.0.0.1")
+        .arg("--port").arg(port.to_string())
+        .arg("--config").arg("-")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .stdin(Stdio::piped());
+
+    let mut child = cmd.spawn()?;
+    let yaml = "databases:\n  - /mock/db/alpha\n";
+    if let Some(mut stdin) = child.stdin.take() {
+        stdin.write_all(yaml.as_bytes())?;
+    }
+
+    // Wait until server responds
+    let client = Client::new();
+    let url = format!("http://127.0.0.1:{}/v1/query", port);
+
+    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(5);
+    let mut last_err: Option<anyhow::Error> = None;
+    loop {
+        if tokio::time::Instant::now() > deadline {
+            // collect child output for debugging
+            let _ = child.kill();
+            let output = child.wait_with_output()?;
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!(
+                "server did not become ready: {:?}\nstdout:\n{}\nstderr:\n{}",
+                last_err, stdout, stderr
+            ));
+        }
+
+        match client
+            .post(&url)
+            .json(&serde_json::json!({"type": "Overview", "path": "/mock/db/alpha"}))
+            .send()
+            .await
+        {
+            Ok(resp) if resp.status().is_success() => {
+                let json: serde_json::Value = resp.json().await?;
+                assert!(json["hello_count"].as_i64().unwrap_or(0) >= 2);
+                assert!(json["tables"].as_array().unwrap().contains(&serde_json::json!("hello")));
+                child.kill()?;
+                let _ = child.wait();
+                return Ok(());
+            }
+            Ok(resp) => {
+                last_err = Some(anyhow::anyhow!("status {}", resp.status()));
+            }
+            Err(err) => {
+                last_err = Some(anyhow::Error::new(err));
+            }
+        }
+
+        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+    }
+}
+
+#[tokio::test]
+async fn e2e_zero_databases() -> anyhow::Result<()> {
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
+    let app = seagoat::build_router(seagoat::AppState { dbs });
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
+    let addr = listener.local_addr()?;
+
+    let server_task = tokio::spawn(async move {
+        axum::serve(listener, app).await.unwrap();
+    });
+
+    let client = reqwest::Client::new();
+    let url_dbs = format!("http://{}/v1/databases", addr);
+    for _ in 0..100u32 {
+        match client.get(&url_dbs).send().await {
+            Ok(resp) if resp.status().is_success() => {
+                let json: serde_json::Value = resp.json().await?;
+                let arr = json.as_array().unwrap();
+                assert_eq!(arr.len(), 0);
                 server_task.abort();
                 return Ok(());
             }
