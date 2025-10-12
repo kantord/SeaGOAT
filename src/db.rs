@@ -175,18 +175,7 @@ pub async fn ensure_vector_table(db: &Connection, table_name: &str, dim: i32) ->
     if existing.iter().any(|n| n == table_name) {
         return Ok(());
     }
-    let schema: Arc<Schema> = Arc::new(Schema::new(vec![
-        Field::new("id", DataType::Int64, false),
-        Field::new("text", DataType::Utf8, false),
-        Field::new(
-            "vector",
-            DataType::FixedSizeList(
-                Arc::new(Field::new("item", DataType::Float32, true)),
-                dim,
-            ),
-            false,
-        ),
-    ]));
+    let schema: Arc<Schema> = build_vector_table_schema(dim);
     let _ = db.create_empty_table(table_name, schema).execute().await?;
     Ok(())
 }
@@ -240,4 +229,19 @@ fn load_local_config(marker_path: &std::path::Path) -> anyhow::Result<DbLocalCon
     let text = std::fs::read_to_string(marker_path)?;
     let cfg: DbLocalConfig = serde_yaml::from_str(&text)?;
     Ok(cfg)
+}
+
+fn build_vector_table_schema(dim: i32) -> Arc<Schema> {
+    Arc::new(Schema::new(vec![
+        Field::new("id", DataType::Int64, false),
+        Field::new("text", DataType::Utf8, false),
+        Field::new(
+            "vector",
+            DataType::FixedSizeList(
+                Arc::new(Field::new("item", DataType::Float32, true)),
+                dim,
+            ),
+            false,
+        ),
+    ]))
 }
