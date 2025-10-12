@@ -77,23 +77,30 @@ pub async fn initialize_databases_from_config(config: &DatabasesConfig) -> anyho
     let mut map: HashMap<String, Arc<Connection>> = HashMap::new();
 
     for id in &config.databases {
-        // Map id to on-disk location (namespace under .lancedb)
-        let sanitized = id.trim_start_matches('/').replace('/', "_");
-        let path = format!(".lancedb/{}", sanitized);
-        // Ensure directory exists before connecting
-        if let Err(err) = std::fs::create_dir_all(&path) {
-            tracing::warn!("failed to create db dir {}: {:#}", sanitized, err);
+        // Validate that the configured path exists and contains a .seagoatdb.yaml marker file
+        let configured_path = std::path::Path::new(id);
+        let marker = configured_path.join(".seagoatdb.yaml");
+        if !(configured_path.is_dir() && marker.exists()) {
+            tracing::warn!("skipping db '{}': missing .seagoatdb.yaml in the exact folder", id);
+            continue;
         }
-        match connect(&path).execute().await {
+
+        // Map logical path to LanceDB storage namespace under .lancedb
+        let sanitized = id.trim_start_matches('/').replace('/', "_");
+        let storage_path = format!(".lancedb/{}", sanitized);
+        if let Err(err) = std::fs::create_dir_all(&storage_path) {
+            tracing::warn!("failed to create storage dir {}: {:#}", storage_path, err);
+        }
+        match connect(&storage_path).execute().await {
             Ok(db) => {
                 if let Err(err) = ensure_hello_table_seeded(&db).await {
-                    tracing::warn!("failed to seed {} at {}: {:#}", id, path, err);
+                    tracing::warn!("failed to seed {} at {}: {:#}", id, storage_path, err);
                     continue;
                 }
                 map.insert(id.clone(), Arc::new(db));
             }
             Err(err) => {
-                tracing::warn!("failed to connect {} at {}: {:#}", id, path, err);
+                tracing::warn!("failed to connect {} at {}: {:#}", id, storage_path, err);
             }
         }
     }

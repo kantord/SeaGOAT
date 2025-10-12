@@ -3,7 +3,11 @@ use std::time::Duration;
 #[tokio::test]
 async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
     // Boot the app on an ephemeral port
-    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string()] };
+    let tmp = assert_fs::TempDir::new()?;
+    let alpha_dir = tmp.path().join("alpha");
+    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    let alpha_path = alpha_dir.to_string_lossy().to_string();
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
@@ -24,7 +28,7 @@ async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
             server_task.abort();
             anyhow::bail!("server did not respond in time");
         }
-        match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": "/mock/db/alpha"})).send().await {
+        match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": alpha_path})).send().await {
             Ok(resp) if resp.status().is_success() => {
                 let json: serde_json::Value = resp.json().await?;
                 break json;

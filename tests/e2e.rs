@@ -1,8 +1,24 @@
 use std::time::Duration;
+use std::path::PathBuf;
+use assert_fs::TempDir;
+mod support;
+
+fn make_db(tmp: &TempDir, name: &str) -> anyhow::Result<String> {
+    let d = tmp.path().join(name);
+    std::fs::create_dir_all(&d)?;
+    std::fs::write(d.join(".seagoatdb.yaml"), b"")?;
+    Ok(d.to_string_lossy().to_string())
+}
 
 #[tokio::test]
 async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
-    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string()] };
+    // Create fixture DB folder with .seagoatdb marker
+    let tmp = TempDir::new()?;
+    let alpha_dir: PathBuf = tmp.path().join("alpha");
+    std::fs::create_dir_all(&alpha_dir)?;
+    std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    let alpha_path = alpha_dir.to_string_lossy().to_string();
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await.unwrap();
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
@@ -18,7 +34,7 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
 
     let mut last_err: Option<reqwest::Error> = None;
     for _ in 0..50u32 {
-        match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": "/mock/db/alpha"})).send().await {
+        match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": alpha_path})).send().await {
             Ok(resp) => {
                 assert_eq!(resp.status(), 200);
                 let json: serde_json::Value = resp.json().await?;
@@ -40,7 +56,9 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
-    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string(), "/mock/db/beta".to_string(), "/mock/db/gamma".to_string()] };
+    let tmp = TempDir::new()?;
+    let alpha = make_db(&tmp, "alpha")?; let beta = make_db(&tmp, "beta")?; let gamma = make_db(&tmp, "gamma")?;
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha.clone(), beta.clone(), gamma.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
@@ -52,7 +70,7 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
     });
 
     let client = reqwest::Client::new();
-    for id in ["/mock/db/alpha", "/mock/db/beta", "/mock/db/gamma"].iter() {
+    for id in [alpha.as_str(), beta.as_str(), gamma.as_str()].iter() {
         let url = format!("http://{}/v1/query", addr);
 
         // poll a few times in case server not ready yet
@@ -81,7 +99,11 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
-    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string()] };
+    let tmp = TempDir::new()?;
+    let alpha_dir = tmp.path().join("alpha");
+    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    let alpha_path = alpha_dir.to_string_lossy().to_string();
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
@@ -97,7 +119,7 @@ async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
 
     let body = serde_json::json!({
         "type": "Search",
-        "path": "/mock/db/alpha",
+        "path": alpha_path,
         "query": "hello",
         "top_k": 2
     });
@@ -132,7 +154,9 @@ async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn e2e_list_databases_includes_paths() -> anyhow::Result<()> {
-    let cfg = seagoat::db::DatabasesConfig { databases: vec!["/mock/db/alpha".to_string(), "/mock/db/beta".to_string(), "/mock/db/gamma".to_string()] };
+    let tmp = TempDir::new()?;
+    let alpha = make_db(&tmp, "alpha")?; let beta = make_db(&tmp, "beta")?; let gamma = make_db(&tmp, "gamma")?;
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha.clone(), beta.clone(), gamma.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });
 
@@ -153,7 +177,7 @@ async fn e2e_list_databases_includes_paths() -> anyhow::Result<()> {
                 let arr = json.as_array().unwrap();
                 assert!(arr.len() >= 3);
                 let paths: Vec<String> = arr.iter().map(|d| d["path"].as_str().unwrap().to_string()).collect();
-                for id in ["/mock/db/alpha", "/mock/db/beta", "/mock/db/gamma"].iter() {
+                for id in [alpha.as_str(), beta.as_str(), gamma.as_str()].iter() {
                     assert!(paths.contains(&id.to_string()));
                 }
                 server_task.abort();
@@ -176,6 +200,10 @@ async fn e2e_cli_binary_works_with_stdin_config() -> anyhow::Result<()> {
     use std::io::Write;
 
     let port: u16 = portpicker::pick_unused_port().expect("no free port found");
+    // Build fixture
+    let tmp = TempDir::new()?; let alpha_dir = tmp.path().join("alpha");
+    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    let alpha_path = alpha_dir.to_string_lossy().to_string();
 
     let mut cmd = Command::cargo_bin("seagoat")?;
     cmd.env("RUST_LOG", "info")
@@ -187,7 +215,7 @@ async fn e2e_cli_binary_works_with_stdin_config() -> anyhow::Result<()> {
         .stdin(Stdio::piped());
 
     let mut child = cmd.spawn()?;
-    let yaml = "databases:\n  - /mock/db/alpha\n";
+    let yaml = format!("databases:\n  - {}\n", alpha_path);
     if let Some(mut stdin) = child.stdin.take() {
         stdin.write_all(yaml.as_bytes())?;
     }
@@ -213,7 +241,7 @@ async fn e2e_cli_binary_works_with_stdin_config() -> anyhow::Result<()> {
 
         match client
             .post(&url)
-            .json(&serde_json::json!({"type": "Overview", "path": "/mock/db/alpha"}))
+            .json(&serde_json::json!({"type": "Overview", "path": alpha_path}))
             .send()
             .await
         {
