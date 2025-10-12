@@ -5,7 +5,7 @@ async fn snapshot_v1_query_minimal() -> anyhow::Result<()> {
     // Boot the app on an ephemeral port
     let tmp = assert_fs::TempDir::new()?;
     let alpha_dir = tmp.path().join("alpha");
-    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
     let alpha_path = alpha_dir.to_string_lossy().to_string();
     let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;

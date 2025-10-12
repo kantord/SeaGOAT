@@ -6,7 +6,7 @@ mod support;
 fn make_db(tmp: &TempDir, name: &str) -> anyhow::Result<String> {
     let d = tmp.path().join(name);
     std::fs::create_dir_all(&d)?;
-    std::fs::write(d.join(".seagoatdb.yaml"), b"")?;
+    std::fs::write(d.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
     Ok(d.to_string_lossy().to_string())
 }
 
@@ -16,7 +16,7 @@ async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
     let tmp = TempDir::new()?;
     let alpha_dir: PathBuf = tmp.path().join("alpha");
     std::fs::create_dir_all(&alpha_dir)?;
-    std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
     let alpha_path = alpha_dir.to_string_lossy().to_string();
     let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await.unwrap();
@@ -101,7 +101,7 @@ async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
 async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
     let tmp = TempDir::new()?;
     let alpha_dir = tmp.path().join("alpha");
-    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
     let alpha_path = alpha_dir.to_string_lossy().to_string();
     let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
@@ -202,7 +202,7 @@ async fn e2e_cli_binary_works_with_stdin_config() -> anyhow::Result<()> {
     let port: u16 = portpicker::pick_unused_port().expect("no free port found");
     // Build fixture
     let tmp = TempDir::new()?; let alpha_dir = tmp.path().join("alpha");
-    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"")?;
+    std::fs::create_dir_all(&alpha_dir)?; std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
     let alpha_path = alpha_dir.to_string_lossy().to_string();
 
     let mut cmd = Command::cargo_bin("seagoat")?;
@@ -296,4 +296,85 @@ async fn e2e_zero_databases() -> anyhow::Result<()> {
 
     server_task.abort();
     Err(anyhow::anyhow!("server did not respond in time"))
+}
+
+#[tokio::test]
+async fn e2e_tables_created_from_config_single_db() -> anyhow::Result<()> {
+    let tmp = TempDir::new()?;
+    let alpha_dir = tmp.path().join("alpha");
+    std::fs::create_dir_all(&alpha_dir)?;
+    // Configure three tables
+    let yaml = b"tables:\n  - name: hello\n  - name: notes\n  - name: chunks\n";
+    std::fs::write(alpha_dir.join(".seagoatdb.yaml"), yaml)?;
+    let alpha_path = alpha_dir.to_string_lossy().to_string();
+
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
+    let app = seagoat::build_router(seagoat::AppState { dbs });
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
+    let addr = listener.local_addr()?;
+    let server_task = tokio::spawn(async move { axum::serve(listener, app).await.unwrap(); });
+
+    let client = reqwest::Client::new();
+    let url = format!("http://{}/v1/query", addr);
+    let resp = client.post(&url).json(&serde_json::json!({"type":"Overview","path": alpha_path})).send().await?;
+    assert_eq!(resp.status(), 200);
+    let json: serde_json::Value = resp.json().await?;
+    let mut tables: Vec<String> = json["tables"].as_array().unwrap().iter().map(|v| v.as_str().unwrap().to_string()).collect();
+    tables.sort();
+    assert_eq!(tables, vec!["chunks", "hello", "notes"]);
+
+    server_task.abort();
+    Ok(())
+}
+
+#[tokio::test]
+async fn e2e_tables_created_from_config_multiple_dbs() -> anyhow::Result<()> {
+    let tmp = TempDir::new()?;
+    // DB alpha with two tables
+    let alpha_dir = tmp.path().join("alpha");
+    std::fs::create_dir_all(&alpha_dir)?;
+    std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n  - name: notes\n")?;
+    let alpha_path = alpha_dir.to_string_lossy().to_string();
+    // DB beta with one table
+    let beta_dir = tmp.path().join("beta");
+    std::fs::create_dir_all(&beta_dir)?;
+    std::fs::write(beta_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: chunks\n")?;
+    let beta_path = beta_dir.to_string_lossy().to_string();
+
+    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone(), beta_path.clone()] };
+    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
+    let app = seagoat::build_router(seagoat::AppState { dbs });
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
+    let addr = listener.local_addr()?;
+    let server_task = tokio::spawn(async move { axum::serve(listener, app).await.unwrap(); });
+
+    let client = reqwest::Client::new();
+    let url = format!("http://{}/v1/query", addr);
+
+    // Alpha
+    let resp_a = client.post(&url).json(&serde_json::json!({"type":"Overview","path": alpha_path})).send().await?;
+    assert_eq!(resp_a.status(), 200);
+    let mut tables_a: Vec<String> = resp_a.json::<serde_json::Value>().await?[
+        "tables"
+    ]
+    .as_array()
+    .unwrap()
+    .iter()
+    .map(|v| v.as_str().unwrap().to_string())
+    .collect();
+    tables_a.sort();
+    assert_eq!(tables_a, vec!["hello", "notes"]);
+
+    // Beta
+    let resp_b = client.post(&url).json(&serde_json::json!({"type":"Overview","path": beta_path})).send().await?;
+    assert_eq!(resp_b.status(), 200);
+    let json_b: serde_json::Value = resp_b.json().await?;
+    let tables_b: Vec<String> = json_b["tables"].as_array().unwrap().iter().map(|v| v.as_str().unwrap().to_string()).collect();
+    assert_eq!(tables_b, vec!["chunks"]);
+
+    server_task.abort();
+    Ok(())
 }

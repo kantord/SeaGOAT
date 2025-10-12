@@ -73,6 +73,26 @@ pub struct DatabasesConfig {
     pub databases: Vec<String>,
 }
 
+#[derive(Debug, serde::Deserialize)]
+pub struct DbLocalConfig {
+    pub tables: Vec<TableConfig>,
+}
+
+#[derive(Debug, serde::Deserialize, Clone)]
+pub struct TableConfig {
+    pub name: String,
+    #[serde(default)]
+    pub model: Option<String>,
+    #[serde(default)]
+    pub blob: Option<BlobConfig>,
+}
+
+#[derive(Debug, serde::Deserialize, Clone)]
+pub struct BlobConfig {
+    #[serde(default)]
+    pub include: Vec<String>,
+}
+
 pub async fn initialize_databases_from_config(config: &DatabasesConfig) -> anyhow::Result<Arc<HashMap<String, Arc<Connection>>>> {
     let mut map: HashMap<String, Arc<Connection>> = HashMap::new();
 
@@ -85,6 +105,15 @@ pub async fn initialize_databases_from_config(config: &DatabasesConfig) -> anyho
             continue;
         }
 
+        // Load local DB config to discover tables
+        let local_cfg = match load_local_config(&marker) {
+            Ok(cfg) => cfg,
+            Err(err) => {
+                tracing::warn!("skipping db '{}': failed to parse .seagoatdb.yaml: {:#}", id, err);
+                continue;
+            }
+        };
+
         // Map logical path to LanceDB storage namespace under .lancedb
         let sanitized = id.trim_start_matches('/').replace('/', "_");
         let storage_path = format!(".lancedb/{}", sanitized);
@@ -93,8 +122,8 @@ pub async fn initialize_databases_from_config(config: &DatabasesConfig) -> anyho
         }
         match connect(&storage_path).execute().await {
             Ok(db) => {
-                if let Err(err) = ensure_hello_table_seeded(&db).await {
-                    tracing::warn!("failed to seed {} at {}: {:#}", id, storage_path, err);
+                if let Err(err) = ensure_tables_seeded(&db, &local_cfg).await {
+                    tracing::warn!("failed to seed tables for {} at {}: {:#}", id, storage_path, err);
                     continue;
                 }
                 map.insert(id.clone(), Arc::new(db));
@@ -114,21 +143,21 @@ pub async fn initialize_databases_from_config(config: &DatabasesConfig) -> anyho
 
 pub fn default_database_ids() -> &'static [&'static str] { &[] }
 
-async fn ensure_hello_table_seeded(db: &Connection) -> anyhow::Result<()> {
-    // Seed a tiny table using the generic add_embedding API.
+async fn ensure_tables_seeded(db: &Connection, cfg: &DbLocalConfig) -> anyhow::Result<()> {
+    // Seed each configured table with dummy rows if empty / not exists
     let embedder = Embedder::default();
-    let hello_vec = embedder.embed(&["hello"])?.remove(0);
-    let world_vec = embedder.embed(&["world"])?.remove(0);
-    ensure_vector_table(db, "hello", hello_vec.len() as i32).await?;
-    // If already seeded, skip
-    if let Ok(table) = db.open_table("hello").execute().await {
-        let count = table.count_rows(None).await.unwrap_or(0);
-        if count > 0 {
-            return Ok(());
+    for table in &cfg.tables {
+        let table_name = table.name.as_str();
+        let hello_vec = embedder.embed(&["hello"])?.remove(0);
+        ensure_vector_table(db, table_name, hello_vec.len() as i32).await?;
+        if let Ok(t) = db.open_table(table_name).execute().await {
+            let count = t.count_rows(None).await.unwrap_or(0);
+            if count > 0 { continue; }
         }
+        let world_vec = embedder.embed(&["world"])?.remove(0);
+        add_embedding(db, table_name, 1, "hello", &hello_vec).await?;
+        add_embedding(db, table_name, 2, "world", &world_vec).await?;
     }
-    add_embedding(db, "hello", 1, "hello", &hello_vec).await?;
-    add_embedding(db, "hello", 2, "world", &world_vec).await?;
     Ok(())
 }
 
@@ -196,4 +225,10 @@ pub async fn add_embedding(
     let reader = RecordBatchIterator::new(vec![Ok(batch)].into_iter(), table.schema().await?.into());
     table.add(reader).execute().await?;
     Ok(())
+}
+
+fn load_local_config(marker_path: &std::path::Path) -> anyhow::Result<DbLocalConfig> {
+    let text = std::fs::read_to_string(marker_path)?;
+    let cfg: DbLocalConfig = serde_yaml::from_str(&text)?;
+    Ok(cfg)
 }
