@@ -1,93 +1,29 @@
 use std::time::Duration;
-use std::path::PathBuf;
 use assert_fs::TempDir;
 mod support;
-
-fn make_db(tmp: &TempDir, name: &str) -> anyhow::Result<String> {
-    let d = tmp.path().join(name);
-    std::fs::create_dir_all(&d)?;
-    std::fs::write(d.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
-    Ok(d.to_string_lossy().to_string())
-}
 
 #[tokio::test]
 async fn e2e_query_returns_hello_world() -> anyhow::Result<()> {
     // Create fixture DB folder with .seagoatdb marker
     let tmp = TempDir::new()?;
-    let alpha_dir: PathBuf = tmp.path().join("alpha");
-    std::fs::create_dir_all(&alpha_dir)?;
-    std::fs::write(alpha_dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
-    let alpha_path = alpha_dir.to_string_lossy().to_string();
-    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha_path.clone()] };
-    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await.unwrap();
-    let app = seagoat::build_router(seagoat::AppState { dbs });
+    let alpha_path = support::make_db(&tmp, "alpha")?;
+    let (addr, server_task) = support::start_app_with_dbs(vec![alpha_path.clone()]).await?;
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
-    let addr = listener.local_addr()?;
-
-    let server_task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
-    });
-
-    let client = reqwest::Client::new();
-    let url = format!("http://{}/v1/query", addr);
-
-    let mut last_err: Option<reqwest::Error> = None;
-    for _ in 0..50u32 {
-        match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": alpha_path})).send().await {
-            Ok(resp) => {
-                assert_eq!(resp.status(), 200);
-                let json: serde_json::Value = resp.json().await?;
-                assert!(json["hello_count"].as_i64().unwrap_or(0) >= 2);
-                assert!(json["tables"].as_array().unwrap().contains(&serde_json::json!("hello")));
-                server_task.abort();
-                return Ok(());
-            }
-            Err(err) => {
-                last_err = Some(err);
-                tokio::time::sleep(Duration::from_millis(20)).await;
-            }
-        }
-    }
-
+    let json = support::post_overview(addr, &alpha_path).await?;
+    assert!(json["hello_count"].as_i64().unwrap_or(0) >= 2);
+    assert!(json["tables"].as_array().unwrap().contains(&serde_json::json!("hello")));
     server_task.abort();
-    Err(anyhow::anyhow!("server did not respond: {:?}", last_err))
+    Ok(())
 }
 
 #[tokio::test]
 async fn e2e_queries_across_multiple_dbs() -> anyhow::Result<()> {
     let tmp = TempDir::new()?;
-    let alpha = make_db(&tmp, "alpha")?; let beta = make_db(&tmp, "beta")?; let gamma = make_db(&tmp, "gamma")?;
-    let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha.clone(), beta.clone(), gamma.clone()] };
-    let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
-    let app = seagoat::build_router(seagoat::AppState { dbs });
+    let paths = support::make_dbs(&tmp, &["alpha", "beta", "gamma"])?.into_iter().collect::<Vec<_>>();
+    let (addr, server_task) = support::start_app_with_dbs(paths.clone()).await?;
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
-    let addr = listener.local_addr()?;
-
-    let server_task = tokio::spawn(async move {
-        axum::serve(listener, app).await.unwrap();
-    });
-
-    let client = reqwest::Client::new();
-    for id in [alpha.as_str(), beta.as_str(), gamma.as_str()].iter() {
-        let url = format!("http://{}/v1/query", addr);
-
-        // poll a few times in case server not ready yet
-        let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(3);
-        let json = loop {
-            if tokio::time::Instant::now() > deadline {
-                server_task.abort();
-                anyhow::bail!("server did not respond in time for {}", id);
-            }
-            match client.post(&url).json(&serde_json::json!({"type": "Overview", "path": id})).send().await {
-                Ok(resp) if resp.status().is_success() => {
-                    let json: serde_json::Value = resp.json().await?;
-                    break json;
-                }
-                _ => tokio::time::sleep(std::time::Duration::from_millis(20)).await,
-            }
-        };
+    for id in paths.iter() {
+        let json = support::post_overview(addr, id).await?;
 
         assert!(json["hello_count"].as_i64().unwrap_or(0) >= 2, "db={}", id);
         assert!(json["tables"].as_array().unwrap().contains(&serde_json::json!("hello")), "db={}", id);
@@ -155,7 +91,7 @@ async fn e2e_search_returns_embedded_texts() -> anyhow::Result<()> {
 #[tokio::test]
 async fn e2e_list_databases_includes_paths() -> anyhow::Result<()> {
     let tmp = TempDir::new()?;
-    let alpha = make_db(&tmp, "alpha")?; let beta = make_db(&tmp, "beta")?; let gamma = make_db(&tmp, "gamma")?;
+    let alpha = support::make_db(&tmp, "alpha")?; let beta = support::make_db(&tmp, "beta")?; let gamma = support::make_db(&tmp, "gamma")?;
     let cfg = seagoat::db::DatabasesConfig { databases: vec![alpha.clone(), beta.clone(), gamma.clone()] };
     let dbs = seagoat::db::initialize_databases_from_config(&cfg).await?;
     let app = seagoat::build_router(seagoat::AppState { dbs });

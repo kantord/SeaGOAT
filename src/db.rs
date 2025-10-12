@@ -148,15 +148,17 @@ async fn ensure_tables_seeded(db: &Connection, cfg: &DbLocalConfig) -> anyhow::R
     let embedder = Embedder::default();
     for table in &cfg.tables {
         let table_name = table.name.as_str();
-        let hello_vec = embedder.embed(&["hello"])?.remove(0);
-        ensure_vector_table(db, table_name, hello_vec.len() as i32).await?;
+        // Batch-embed seed texts in one call
+        let seed_texts: Vec<&str> = vec!["hello", "world"];
+        let vectors = embedder.embed(&seed_texts)?;
+        ensure_vector_table(db, table_name, vectors[0].len() as i32).await?;
         if let Ok(t) = db.open_table(table_name).execute().await {
             let count = t.count_rows(None).await.unwrap_or(0);
             if count > 0 { continue; }
         }
-        let world_vec = embedder.embed(&["world"])?.remove(0);
-        add_embedding(db, table_name, 1, "hello", &hello_vec).await?;
-        add_embedding(db, table_name, 2, "world", &world_vec).await?;
+        let ids: Vec<i64> = vec![1, 2];
+        let texts: Vec<String> = seed_texts.into_iter().map(|s| s.to_string()).collect();
+        add_embeddings_batch(db, table_name, &ids, &texts, &vectors).await?;
     }
     Ok(())
 }
@@ -189,32 +191,39 @@ pub async fn ensure_vector_table(db: &Connection, table_name: &str, dim: i32) ->
     Ok(())
 }
 
-pub async fn add_embedding(
+// Single-row embedding insertion has been removed in favor of batch-only API
+
+pub async fn add_embeddings_batch(
     db: &Connection,
     table_name: &str,
-    id: i64,
-    text: &str,
-    vector: &[f32],
+    ids: &[i64],
+    texts: &[String],
+    vectors: &[Vec<f32>],
 ) -> anyhow::Result<()> {
-    // Ensure table exists
-    ensure_vector_table(db, table_name, vector.len() as i32).await?;
+    assert_eq!(ids.len(), texts.len());
+    assert_eq!(ids.len(), vectors.len());
+    ensure_vector_table(db, table_name, vectors[0].len() as i32).await?;
     let table = db.open_table(table_name).execute().await?;
 
-    // Build single-row batch
-    let id_array = Int64Array::from(vec![id]);
-    let text_array = StringArray::from(vec![text]);
+    // Build column arrays
+    let id_array = Int64Array::from(ids.to_vec());
+    let text_array = StringArray::from(texts.to_vec());
+
     let mut values_builder = Float32Builder::new();
-    for &x in vector {
-        values_builder.append_value(x);
+    let dim = vectors[0].len() as i32;
+    for vec in vectors {
+        for &x in vec {
+            values_builder.append_value(x);
+        }
     }
-    let mut list_builder = FixedSizeListBuilder::new(values_builder, vector.len() as i32);
-    // we already appended values, now mark one list entry
-    list_builder.append(true);
+    let mut list_builder = FixedSizeListBuilder::new(values_builder, dim);
+    for _ in 0..vectors.len() {
+        list_builder.append(true);
+    }
     let embedding_array: FixedSizeListArray = list_builder.finish();
 
-    let batch_schema: Arc<Schema> = table.schema().await?.into();
     let batch = RecordBatch::try_new(
-        batch_schema,
+        table.schema().await?.into(),
         vec![
             Arc::new(id_array) as ArrayRef,
             Arc::new(text_array) as ArrayRef,

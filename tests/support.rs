@@ -9,7 +9,7 @@ use tokio::task::JoinHandle;
 pub fn make_db(tmp: &TempDir, name: &str) -> Result<String> {
     let dir = tmp.path().join(name);
     std::fs::create_dir_all(&dir)?;
-    std::fs::write(dir.join(".seagoatdb.yaml"), b"")?;
+    std::fs::write(dir.join(".seagoatdb.yaml"), b"tables:\n  - name: hello\n")?;
     Ok(dir.to_string_lossy().to_string())
 }
 
