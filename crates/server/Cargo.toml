@@ -1,0 +1,49 @@
+[package]
+name = "seagoat-server"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "seagoat_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "seagoat-server"
+path = "src/main.rs"
+
+authors = []
+
+[dependencies]
+anyhow = "1.0.100"
+axum = "0.8.6"
+clap = { version = "4.5.48", features = ["derive", "env"] }
+hyper = "1.7.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+serde_yaml = "0.9.34"
+thiserror = "2.0.17"
+tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+lancedb = "0.22.2"
+arrow-array = "56.2.0"
+arrow-schema = "56.2.0"
+sha2 = "0.10.8"
+
+# Optional ML deps for future real embeddings (disabled by default)
+# Enable via: `--features embed-qwen3`
+candle-core = { version = "0.7", optional = true }
+candle-nn = { version = "0.7", optional = true }
+candle-transformers = { version = "0.7", optional = true }
+hf-hub = { version = "0.3", optional = true }
+tokenizers = { version = "0.15", optional = true }
+
+[features]
+default = []
+embed-qwen3 = [
+    "dep:candle-core",
+    "dep:candle-nn",
+    "dep:candle-transformers",
+    "dep:hf-hub",
+    "dep:tokenizers",
+]

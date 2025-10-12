@@ -1,0 +1,70 @@
+use axum::{extract::State, routing::{post, get}, Json, Router, http::StatusCode};
+use lancedb::Connection;
+use std::{collections::HashMap, sync::Arc};
+use serde::Deserialize;
+use serde_json::json;
+
+pub mod embedder;
+pub mod db;
+pub use db::*;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub dbs: Arc<HashMap<String, Arc<Connection>>>,
+}
+
+#[derive(Deserialize)]
+#[serde(tag = "type")]
+enum QueryBody {
+    Overview { path: String },
+    Search { path: String, query: String, #[serde(default = "default_top_k")] top_k: usize },
+}
+
+fn default_top_k() -> usize { 5 }
+
+async fn query_handler(State(state): State<AppState>, Json(body): Json<QueryBody>) -> (StatusCode, Json<serde_json::Value>) {
+    let path = match &body {
+        QueryBody::Overview { path } | QueryBody::Search { path, .. } => path,
+    };
+    let Some(db) = state.dbs.get(path) else {
+        return (StatusCode::NOT_FOUND, Json(json!({
+            "error": "unknown_database",
+            "message": "database with given path not found",
+            "path": path,
+        })));
+    };
+
+    match body {
+        QueryBody::Overview { .. } => match crate::db::db_overview(db).await {
+            Ok(resp) => (StatusCode::OK, Json(serde_json::to_value(resp).unwrap())),
+            Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": "internal_error", "message": err.to_string() }))),
+        },
+        QueryBody::Search { query, top_k, .. } => match crate::db::semantic_search(db, &query, top_k).await {
+            Ok(resp) => (StatusCode::OK, Json(serde_json::to_value(resp).unwrap())),
+            Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": "internal_error", "message": err.to_string() }))),
+        },
+    }
+}
+
+pub fn build_router(state: AppState) -> Router {
+    Router::new()
+        .route("/v1/query", post(query_handler))
+        .route("/v1/databases", get(list_databases_handler))
+        .with_state(state)
+}
+
+#[derive(serde::Serialize)]
+struct DatabaseInfo {
+    path: String,
+}
+
+async fn list_databases_handler(State(state): State<AppState>) -> (StatusCode, Json<serde_json::Value>) {
+    // Return only the list of database paths
+    let dbs: Vec<DatabaseInfo> = state
+        .dbs
+        .keys()
+        .cloned()
+        .map(|path| DatabaseInfo { path })
+        .collect();
+    (StatusCode::OK, Json(serde_json::to_value(dbs).unwrap()))
+}
