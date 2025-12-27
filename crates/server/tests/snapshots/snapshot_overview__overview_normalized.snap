@@ -1,5 +1,5 @@
 ---
-source: tests/snapshot_query.rs
+source: crates/server/tests/snapshot_overview.rs
 expression: "serde_json::to_string_pretty(&normalized).unwrap()"
 ---
 {
