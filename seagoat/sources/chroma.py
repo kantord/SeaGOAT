@@ -2,7 +2,6 @@ from pathlib import Path
 
 import chromadb
 from chromadb.config import Settings
-from chromadb.errors import IDAlreadyExistsError
 from chromadb.utils import embedding_functions
 
 from seagoat.cache import Cache
@@ -75,6 +74,21 @@ def initialize(repository: Repository):
         name="code_data", embedding_function=embedding_function
     )
 
+    batch_size = config["server"]["chroma"]["batchSize"]
+    batch_buffer = {"ids": [], "documents": [], "metadatas": []}
+
+    def _flush_batch():
+        if not batch_buffer["ids"]:
+            return
+        chroma_collection.upsert(
+            ids=batch_buffer["ids"],
+            documents=batch_buffer["documents"],
+            metadatas=batch_buffer["metadatas"],
+        )
+        batch_buffer["ids"].clear()
+        batch_buffer["documents"].clear()
+        batch_buffer["metadatas"].clear()
+
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
         maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
@@ -88,20 +102,15 @@ def initialize(repository: Repository):
         return format_results(query_text, repository, chromadb_results)
 
     def cache_chunk(chunk):
-        try:
-            chroma_collection.add(
-                ids=[chunk.chunk_id],
-                documents=[chunk.chunk],
-                metadatas=[
-                    {
-                        "path": chunk.path,
-                        "line": chunk.codeline,
-                        "git_object_id": chunk.object_id,
-                    }
-                ],
-            )
-        except IDAlreadyExistsError:
-            pass
+        batch_buffer["ids"].append(chunk.chunk_id)
+        batch_buffer["documents"].append(chunk.chunk)
+        batch_buffer["metadatas"].append({
+            "path": chunk.path,
+            "line": chunk.codeline,
+            "git_object_id": chunk.object_id,
+        })
+        if len(batch_buffer["ids"]) >= batch_size:
+            _flush_batch()
 
     def cache_repo():
         # chromadb does not need any repo cache action
@@ -111,4 +120,5 @@ def initialize(repository: Repository):
         "fetch": fetch,
         "cache_chunk": cache_chunk,
         "cache_repo": cache_repo,
+        "flush_batch": _flush_batch,
     }

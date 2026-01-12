@@ -15,6 +15,7 @@ DEFAULT_CONFIG = {
         "ignorePatterns": [],
         "readMaxCommits": 5_000,
         "chroma": {
+            "batchSize": 20,
             "embeddingFunction": {
                 "name": "DefaultEmbeddingFunction",
                 "arguments": {},
@@ -49,6 +50,7 @@ CONFIG_SCHEMA = {
                     "type": "object",
                     "additionalProperties": False,
                     "properties": {
+                        "batchSize": {"type": "integer", "minimum": 1},
                         "embeddingFunction": {
                             "type": "object",
                             "additionalProperties": False,
