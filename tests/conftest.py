@@ -1,6 +1,10 @@
+import os
+
+# Must be set before seagoat imports - config.py reads this at module load time
+os.environ["PYTEST_CURRENT_TEST"] = "true"
+
 import logging
 import multiprocessing
-import os
 import shutil
 import signal
 import subprocess

@@ -117,6 +117,9 @@ class Engine:
             chunk = chunks_to_process.pop(0)
             self.process_chunk(chunk)
 
+        for source in chain(*self._fetchers.values()):
+            source.get("flush_batch", lambda: None)()
+
         return chunks_to_process
 
     async def query(self, query: str, limit_clue=50, context_above=0, context_below=0):
