@@ -4,7 +4,11 @@ MCP Server implementation for SeaGOAT.
 
 from mcp.server.fastmcp import FastMCP
 import requests
-from seagoat.utils.server import get_server_info, normalize_repo_path, ServerDoesNotExist
+from seagoat.utils.server import (
+    get_server_info,
+    normalize_repo_path,
+    ServerDoesNotExist,
+)
 
 mcp = FastMCP("seagoat")
 
