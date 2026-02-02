@@ -2,21 +2,28 @@
 Tests for the MCP server.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+
+import pytest
 
 from seagoat.mcp_server import search_code
 from seagoat.utils.server import ServerDoesNotExist
 
 
-@patch("seagoat.mcp_server.get_server_info")
-@patch("seagoat.mcp_server.normalize_repo_path")
-@patch("seagoat.mcp_server.requests.post")
-def test_search_code_success(
-    mock_post: MagicMock, mock_normalize: MagicMock, mock_get_server_info: MagicMock
-) -> None:
+@pytest.fixture
+def mock_mcp_deps(mocker):
+    """Mock dependencies for MCP server tests."""
+    return {
+        "normalize": mocker.patch("seagoat.mcp_server.normalize_repo_path"),
+        "get_server_info": mocker.patch("seagoat.mcp_server.get_server_info"),
+        "post": mocker.patch("seagoat.mcp_server.requests.post"),
+    }
+
+
+def test_search_code_success(mock_mcp_deps) -> None:
     """Test successful code search."""
-    mock_normalize.return_value = "/abs/path/to/repo"
-    mock_get_server_info.return_value = {
+    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["get_server_info"].return_value = {
         "address": "http://localhost:1234",
         "port": 1234,
     }
@@ -37,7 +44,7 @@ def test_search_code_success(
             }
         ]
     }
-    mock_post.return_value = mock_response
+    mock_mcp_deps["post"].return_value = mock_response
 
     result = search_code("test query", repo_path=".")
 
@@ -45,14 +52,12 @@ def test_search_code_success(
     assert "def test_func():" in result
 
 
-@patch("seagoat.mcp_server.get_server_info")
-@patch("seagoat.mcp_server.normalize_repo_path")
-def test_search_code_server_not_running(
-    mock_normalize: MagicMock, mock_get_server_info: MagicMock
-) -> None:
+def test_search_code_server_not_running(mock_mcp_deps) -> None:
     """Test behavior when server is not running."""
-    mock_normalize.return_value = "/abs/path/to/repo"
-    mock_get_server_info.side_effect = ServerDoesNotExist("Server not found")
+    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["get_server_info"].side_effect = ServerDoesNotExist(
+        "Server not found"
+    )
 
     result = search_code("test query", repo_path=".")
 
@@ -63,19 +68,14 @@ def test_search_code_server_not_running(
     )
 
 
-@patch("seagoat.mcp_server.get_server_info")
-@patch("seagoat.mcp_server.normalize_repo_path")
-@patch("seagoat.mcp_server.requests.post")
-def test_search_code_no_results(
-    mock_post: MagicMock, mock_normalize: MagicMock, mock_get_server_info: MagicMock
-) -> None:
+def test_search_code_no_results(mock_mcp_deps) -> None:
     """Test when no results are found."""
-    mock_normalize.return_value = "/abs/path/to/repo"
-    mock_get_server_info.return_value = {"address": "http://localhost:1234"}
+    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["get_server_info"].return_value = {"address": "http://localhost:1234"}
 
     mock_response = MagicMock()
     mock_response.json.return_value = {"results": []}
-    mock_post.return_value = mock_response
+    mock_mcp_deps["post"].return_value = mock_response
 
     result = search_code("test query", repo_path=".")
 
