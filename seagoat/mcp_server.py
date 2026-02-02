@@ -46,9 +46,6 @@ def search_code(
     except ServerDoesNotExist:
         return f"No server info found for repo: {repo}. Is the seagoat server running?"
 
-    if server_info is None:
-        return f"No server info found for repo: {repo}"
-
     address = server_info["address"]
 
     try:
