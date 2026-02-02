@@ -86,4 +86,3 @@ def test_search_code_missing_query() -> None:
     """Test when query matches nothing."""
     result = search_code("", repo_path=".")
     assert "Error: query is required" in result
-
