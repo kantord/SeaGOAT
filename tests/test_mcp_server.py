@@ -1,4 +1,9 @@
-from unittest.mock import patch, MagicMock
+"""
+Tests for the MCP server.
+"""
+
+from unittest.mock import MagicMock, patch
+
 from seagoat.mcp_server import search_code
 from seagoat.utils.server import ServerDoesNotExist
 
@@ -6,7 +11,10 @@ from seagoat.utils.server import ServerDoesNotExist
 @patch("seagoat.mcp_server.get_server_info")
 @patch("seagoat.mcp_server.normalize_repo_path")
 @patch("seagoat.mcp_server.requests.post")
-def test_search_code_success(mock_post, mock_normalize, mock_get_server_info):
+def test_search_code_success(
+    mock_post: MagicMock, mock_normalize: MagicMock, mock_get_server_info: MagicMock
+) -> None:
+    """Test successful code search."""
     mock_normalize.return_value = "/abs/path/to/repo"
     mock_get_server_info.return_value = {
         "address": "http://localhost:1234",
@@ -39,7 +47,10 @@ def test_search_code_success(mock_post, mock_normalize, mock_get_server_info):
 
 @patch("seagoat.mcp_server.get_server_info")
 @patch("seagoat.mcp_server.normalize_repo_path")
-def test_search_code_server_not_running(mock_normalize, mock_get_server_info):
+def test_search_code_server_not_running(
+    mock_normalize: MagicMock, mock_get_server_info: MagicMock
+) -> None:
+    """Test behavior when server is not running."""
     mock_normalize.return_value = "/abs/path/to/repo"
     mock_get_server_info.side_effect = ServerDoesNotExist("Server not found")
 
@@ -55,7 +66,10 @@ def test_search_code_server_not_running(mock_normalize, mock_get_server_info):
 @patch("seagoat.mcp_server.get_server_info")
 @patch("seagoat.mcp_server.normalize_repo_path")
 @patch("seagoat.mcp_server.requests.post")
-def test_search_code_no_results(mock_post, mock_normalize, mock_get_server_info):
+def test_search_code_no_results(
+    mock_post: MagicMock, mock_normalize: MagicMock, mock_get_server_info: MagicMock
+) -> None:
+    """Test when no results are found."""
     mock_normalize.return_value = "/abs/path/to/repo"
     mock_get_server_info.return_value = {"address": "http://localhost:1234"}
 
@@ -68,6 +82,8 @@ def test_search_code_no_results(mock_post, mock_normalize, mock_get_server_info)
     assert "No results found" in result
 
 
-def test_search_code_missing_query():
+def test_search_code_missing_query() -> None:
+    """Test when query matches nothing."""
     result = search_code("", repo_path=".")
     assert "Error: query is required" in result
+
