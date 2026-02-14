@@ -2304,13 +2304,13 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "locust"
-version = "2.39.0"
+version = "2.43.3"
 description = "Developer-friendly load testing framework"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "locust-2.39.0-py3-none-any.whl", hash = "sha256:3817c4d7cca387b4b871da779c9e145c2a95fbb0b5602be5833976902b967a8f"},
-    {file = "locust-2.39.0.tar.gz", hash = "sha256:71e82a68324f9d63d4b800035288488c08eab12811fa4c24ff07f031643b7b39"},
+    {file = "locust-2.43.3-py3-none-any.whl", hash = "sha256:e032c119b54a9d984cb74a936ee83cfd7d68b3c76c8f308af63d04f11396b553"},
+    {file = "locust-2.43.3.tar.gz", hash = "sha256:b5d2c48f8f7d443e3abdfdd6ec2f7aebff5cd74fab986bcf1e95b375b5c5a54b"},
 ]
 
 [package.dependencies]
@@ -2318,44 +2318,25 @@ configargparse = ">=1.7.1"
 flask = ">=2.0.0"
 flask-cors = ">=3.0.10"
 flask-login = ">=0.6.3"
-gevent = ">=24.10.1,<26.0.0"
+gevent = ">=24.10.1,<25.8.1 || >25.8.1,<26.0.0"
 geventhttpclient = ">=2.3.1"
-locust-cloud = ">=1.26.3"
 msgpack = ">=1.0.0"
 psutil = ">=5.9.1"
-python-socketio = {version = "5.13.0", extras = ["client"]}
+pytest = ">=8.3.3,<10"
+python-engineio = ">=4.12.2"
+python-socketio = {version = ">=5.13.0", extras = ["client"]}
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
 pyzmq = ">=25.0.0"
-requests = [
-    {version = ">=2.26.0", markers = "python_version <= \"3.11\""},
-    {version = ">=2.32.2", markers = "python_version > \"3.11\""},
-]
-setuptools = ">=70.0.0"
+requests = ">=2.32.2"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing-extensions = {version = ">=4.6.0", markers = "python_version < \"3.11\""}
+typing-extensions = {version = ">=4.6.0", markers = "python_version < \"3.12\""}
 werkzeug = ">=2.0.0"
 
 [package.extras]
+dns = ["dnspython (>=2.8.0)"]
 milvus = ["pymilvus (>=2.5.0)"]
-
-[[package]]
-name = "locust-cloud"
-version = "1.26.3"
-description = "Locust Cloud"
-optional = false
-python-versions = ">=3.10"
-files = [
-    {file = "locust_cloud-1.26.3-py3-none-any.whl", hash = "sha256:8cb4b8bb9adcd5b99327bc8ed1d98cf67a29d9d29512651e6e94869de6f1faa8"},
-    {file = "locust_cloud-1.26.3.tar.gz", hash = "sha256:587acfd4d2dee715fb5f0c3c2d922770babf0b7cff7b2927afbb693a9cd193cc"},
-]
-
-[package.dependencies]
-configargparse = ">=1.7.1"
-gevent = ">=24.10.1,<26.0.0"
-platformdirs = ">=4.3.6,<5.0.0"
-python-engineio = ">=4.12.2"
-python-socketio = {version = "5.13.0", extras = ["client"]}
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
+mqtt = ["paho-mqtt (>=2.1.0)"]
+otel = ["opentelemetry-exporter-otlp-proto-grpc (>=1.38.0)", "opentelemetry-exporter-otlp-proto-http (>=1.38.0)", "opentelemetry-instrumentation-requests (>=0.59b0)", "opentelemetry-instrumentation-urllib3 (>=0.59b0)", "opentelemetry-sdk (>=1.38.0)"]
 
 [[package]]
 name = "log-symbols"
