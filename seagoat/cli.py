@@ -195,7 +195,7 @@ def seagoat(
             if reverse:
                 click.echo("--reverse has no effect when using --generative", err=True)
 
-            results = enhance_results(query, results, spinner)
+            results = enhance_results(query, results, spinner, config)
 
         spinner.succeed()
         color_enabled = os.isatty(0) and not no_color and not vimgrep

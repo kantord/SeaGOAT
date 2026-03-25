@@ -99,6 +99,28 @@ server:
   port: 31134  # Specify server port
 ```
 
+#### Generative search providers
+
+The `--generative` flag uses an LLM to enhance search results. By default it
+uses a local [Ollama](https://ollama.com/) server, but you can configure a
+cloud provider instead:
+
+```yaml
+# .seagoat.yml — use MiniMax as the generative provider
+generative:
+  provider: minimax        # ollama | openai | minimax
+  model: MiniMax-M2.5      # optional, provider-specific default used otherwise
+```
+
+| Provider | Default model | API key env var | Base URL |
+|----------|--------------|-----------------|----------|
+| `ollama` (default) | `deepseek-r1:8b` | — | local |
+| `openai` | `gpt-4o-mini` | `OPENAI_API_KEY` | `https://api.openai.com/v1` |
+| `minimax` | `MiniMax-M2.5` | `MINIMAX_API_KEY` | `https://api.minimax.io/v1` |
+
+If no provider is configured, SeaGOAT auto-detects based on environment
+variables (`MINIMAX_API_KEY` > `OPENAI_API_KEY` > Ollama fallback).
+
 [Check out the documentation](https://kantord.github.io/SeaGOAT/latest/configuration/)
 for more details!
 
