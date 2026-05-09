@@ -104,11 +104,13 @@ def initialize(repository: Repository):
     def cache_chunk(chunk):
         batch_buffer["ids"].append(chunk.chunk_id)
         batch_buffer["documents"].append(chunk.chunk)
-        batch_buffer["metadatas"].append({
-            "path": chunk.path,
-            "line": chunk.codeline,
-            "git_object_id": chunk.object_id,
-        })
+        batch_buffer["metadatas"].append(
+            {
+                "path": chunk.path,
+                "line": chunk.codeline,
+                "git_object_id": chunk.object_id,
+            }
+        )
         if len(batch_buffer["ids"]) >= batch_size:
             _flush_batch()
 
