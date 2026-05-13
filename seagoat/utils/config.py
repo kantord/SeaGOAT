@@ -20,6 +20,25 @@ DEFAULT_CONFIG = {
                 "name": "DefaultEmbeddingFunction",
                 "arguments": {},
             },
+            "maxVectorDistance": 1.5,
+            "maxChunksToFetch": 100,
+            "nResultsMultiplier": 2,
+        },
+        "ripgrep": {
+            "maxFileSize": 200,  # 200 KB
+            "maxMmapSize": 500,  # 500 MB
+        },
+        "engine": {
+            "minChunksToAnalyze": {
+                "minValue": 40,
+                "percentage": 0.2,
+            },
+            "maxWorkers": 1,
+        },
+        "query": {
+            "defaultLimitClue": 500,
+            "defaultContextAbove": 3,
+            "defaultContextBelow": 3,
         },
     },
     "client": {
@@ -59,6 +78,41 @@ CONFIG_SCHEMA = {
                                 "arguments": {"type": "object"},
                             },
                         },
+                        "maxVectorDistance": {"type": "number", "minimum": 0.1, "maximum": 10.0},
+                        "maxChunksToFetch": {"type": "integer", "minimum": 10, "maximum": 1000},
+                        "nResultsMultiplier": {"type": "number", "minimum": 1.0, "maximum": 10.0},
+                    },
+                },
+                "ripgrep": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "maxFileSize": {"type": "integer", "minimum": 1, "maximum": 10240},  # 1KB to 10MB
+                        "maxMmapSize": {"type": "integer", "minimum": 10, "maximum": 10000},  # 10MB to 10GB
+                    },
+                },
+                "engine": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "minChunksToAnalyze": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "properties": {
+                                "minValue": {"type": "integer", "minimum": 1, "maximum": 1000},
+                                "percentage": {"type": "number", "minimum": 0.01, "maximum": 1.0},
+                            },
+                        },
+                        "maxWorkers": {"type": "integer", "minimum": 1, "maximum": 32},
+                    },
+                },
+                "query": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "defaultLimitClue": {"type": "integer", "minimum": 10, "maximum": 10000},
+                        "defaultContextAbove": {"type": "integer", "minimum": 0, "maximum": 50},
+                        "defaultContextBelow": {"type": "integer", "minimum": 0, "maximum": 50},
                     },
                 },
             },

@@ -9,8 +9,6 @@ from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.utils.config import get_config_values
 
-MAXIMUM_VECTOR_DISTANCE = 1.5
-
 
 def get_metadata_and_distance_from_chromadb_result(chromadb_results):
     return (
@@ -25,13 +23,14 @@ def get_metadata_and_distance_from_chromadb_result(chromadb_results):
     ) or []
 
 
-def format_results(query_text: str, repository, chromadb_results):
+def format_results(query_text: str, repository, chromadb_results, config):
     files = {}
+    max_vector_distance = config["server"]["chroma"]["maxVectorDistance"]
 
     for metadata, distance in get_metadata_and_distance_from_chromadb_result(
         chromadb_results
     ):
-        if distance > MAXIMUM_VECTOR_DISTANCE:
+        if distance > max_vector_distance:
             break
         path = str(metadata["path"])
         line = int(metadata["line"])
@@ -91,15 +90,16 @@ def initialize(repository: Repository):
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
-        maximum_chunks_to_fetch = 100  # this should be plenty, especially because many times context could be included
-        n_results = min((limit + 1) * 2, maximum_chunks_to_fetch)
+        max_chunks_to_fetch = config["server"]["chroma"]["maxChunksToFetch"]
+        n_results_multiplier = config["server"]["chroma"]["nResultsMultiplier"]
+        n_results = min((limit + 1) * n_results_multiplier, max_chunks_to_fetch)
 
         chromadb_results = chroma_collection.query(
             query_texts=[query_text],
             n_results=n_results,
         )
 
-        return format_results(query_text, repository, chromadb_results)
+        return format_results(query_text, repository, chromadb_results, config)
 
     def cache_chunk(chunk):
         batch_buffer["ids"].append(chunk.chunk_id)
