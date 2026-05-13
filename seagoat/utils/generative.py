@@ -1,5 +1,5 @@
-from ollama import chat
 from seagoat.utils.cli_display import iterate_result_blocks
+from seagoat.utils.llm_provider import is_thinking_model, stream_chat
 
 
 def get_spinner_text(full_raw_response):
@@ -22,7 +22,17 @@ The user query: {query}
         """.strip()
 
 
-def enhance_results(query, results, spinner):
+def _strip_thinking_tags(text):
+    """Remove <think>...</think> blocks from reasoning model output."""
+    if "</think>" in text:
+        return text.split("</think>")[-1]
+    return text
+
+
+def enhance_results(query, results, spinner, config=None):
+    if config is None:
+        config = {}
+
     serialized_results = ""
     results = list(results)
 
@@ -35,22 +45,22 @@ def enhance_results(query, results, spinner):
 
         serialized_results += "\n"
 
-    response = chat(
-        model="deepseek-r1:8b",
-        stream=True,
-        messages=[
-            {
-                "role": "user",
-                "content": get_prompt(serialized_results, query),
-            },
-        ],
-    )
+    messages = [
+        {
+            "role": "user",
+            "content": get_prompt(serialized_results, query),
+        },
+    ]
+
     full_raw_response = ""
-    for chunk in response:
-        chunk_text = chunk["message"]["content"]
+    for chunk_text in stream_chat(config, messages):
         full_raw_response += chunk_text
         spinner.text = get_spinner_text(full_raw_response)
-    response_text = (full_raw_response).split("</think>")[1]
+
+    if is_thinking_model(config):
+        response_text = _strip_thinking_tags(full_raw_response)
+    else:
+        response_text = full_raw_response
 
     new_results = []
     for result in results:

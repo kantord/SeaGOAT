@@ -25,6 +25,13 @@ DEFAULT_CONFIG = {
     "client": {
         "host": None,
     },
+    "generative": {
+        "provider": None,
+        "model": None,
+        "apiKey": None,
+        "baseUrl": None,
+        "temperature": None,
+    },
 }
 
 CONFIG_SCHEMA = {
@@ -68,6 +75,20 @@ CONFIG_SCHEMA = {
             "additionalProperties": False,
             "properties": {
                 "host": {"type": "string"},
+            },
+        },
+        "generative": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "provider": {
+                    "type": "string",
+                    "enum": ["ollama", "openai", "minimax"],
+                },
+                "model": {"type": "string"},
+                "apiKey": {"type": "string"},
+                "baseUrl": {"type": "string"},
+                "temperature": {"type": "number", "minimum": 0, "maximum": 1},
             },
         },
     },
