@@ -40,6 +40,27 @@ To install SeaGOAT using `pipx`, use the following command:
 pipx install seagoat
 ```
 
+#### macOS
+
+On macOS, the recommended setup is Homebrew plus `pipx`:
+
+```bash
+brew install pipx ripgrep bat
+pipx ensurepath
+pipx install seagoat
+```
+
+Then start the server from a Git repository and query it:
+
+```bash
+seagoat-server start /path/to/your/repo
+gt "Where is authentication handled?"
+```
+
+`bat` is optional, but recommended for highlighted output. If you prefer Conda,
+create a Python 3.11+ environment, install `ripgrep` and `bat`, then run
+`pip install seagoat` inside that environment.
+
 ### System requirements
 
 #### Hardware
@@ -49,7 +70,7 @@ Should work on any decent laptop.
 #### Operating system
 
 SeaGOAT is designed to work on Linux (*tested* ✅),
-macOS ([partly tested, **help**](https://github.com/kantord/SeaGOAT/issues/178) 🙏)
+macOS (*community-tested on Apple Silicon and Intel* ✅)
 and Windows ([**help needed**](https://github.com/kantord/SeaGOAT/issues/179) 🙏).
 
 ### Start SeaGOAT server

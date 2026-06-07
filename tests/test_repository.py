@@ -267,6 +267,27 @@ def test_does_not_crash_because_of_non_existent_files(repo):
     }
 
 
+def test_top_files_skips_stale_entries_not_present_in_head(repo):
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+    seagoat.repository.frecency_scores["missing.cc"] = 999
+
+    assert "missing.cc" not in {
+        file.path for file, _ in seagoat.repository.top_files()
+    }
+
+
+def test_missing_file_object_id_is_clear_and_not_index_error(repo):
+    seagoat = Engine(repo.working_dir)
+
+    try:
+        seagoat.repository.get_file_object_id("missing.cc")
+    except FileNotFoundError as exc:
+        assert "missing.cc" in str(exc)
+    else:
+        raise AssertionError("expected missing git object to raise FileNotFoundError")
+
+
 def test_ignored_files_is_really_ignored(repo: MockRepo):
     file_name = "node_modules/acorn/README.md"
     repo.add_file_change_commit(

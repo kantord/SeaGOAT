@@ -44,7 +44,10 @@ def format_results(query_text: str, repository, chromadb_results):
         if not repository.is_up_to_date_git_object(path, git_object_id):
             continue
 
-        gitfile = repository.get_file(path)
+        try:
+            gitfile = repository.get_file(path)
+        except FileNotFoundError:
+            continue
 
         if path not in files:
             files[path] = Result(query_text, gitfile)

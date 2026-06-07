@@ -136,7 +136,10 @@ def initialize(repository: Repository):
         for line in rg_output.splitlines():
             relative_path, raw_line_number, _ = line.split(":", 2)
             line_number = int(raw_line_number)
-            gitfile = repository.get_file(relative_path)
+            try:
+                gitfile = repository.get_file(relative_path)
+            except FileNotFoundError:
+                continue
 
             if not is_file_type_supported(relative_path):
                 continue

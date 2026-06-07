@@ -50,21 +50,21 @@ class Repository:
         Returns the git object id for the current version
         of a file
         """
-        object_id = (
-            subprocess.check_output(
-                [
-                    "git",
-                    "-C",
-                    str(self.path),
-                    "ls-tree",
-                    "HEAD",
-                    str(file_path),
-                ],
-                text=True,
-            )
-            .split()[2]
-            .strip()
+        output = subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(self.path),
+                "ls-tree",
+                "HEAD",
+                str(file_path),
+            ],
+            text=True,
         )
+        parts = output.split()
+        if len(parts) < 3:
+            raise FileNotFoundError(f"file is not present in HEAD: {file_path}")
+        object_id = parts[2].strip()
 
         return object_id
 
@@ -75,7 +75,10 @@ class Repository:
         return autodecode_bytes(data)
 
     def is_up_to_date_git_object(self, file_path: str, git_object_id: str):
-        return self.get_file_object_id(file_path) == git_object_id
+        try:
+            return self.get_file_object_id(file_path) == git_object_id
+        except FileNotFoundError:
+            return False
 
     def get_status_hash(self):
         combined = self._get_head_hash() + self._get_working_tree_diff()
@@ -138,12 +141,16 @@ class Repository:
             self.frecency_scores[file] = score
 
     def top_files(self):
-        return [
-            (self.get_file(filename), score)
-            for filename, score in sorted(
-                self.frecency_scores.items(), key=lambda x: x[0][1]
-            )
-        ]
+        top_files = []
+        for filename, score in sorted(
+            self.frecency_scores.items(), key=lambda x: x[0][1]
+        ):
+            try:
+                top_files.append((self.get_file(filename), score))
+            except FileNotFoundError:
+                continue
+
+        return top_files
 
     def get_file(self, filename: str):
         """
