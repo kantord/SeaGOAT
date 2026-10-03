@@ -88,9 +88,12 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
     * `name`: Name of the embedding function to use.
     See [ChromaDB's docs for more](https://docs.trychroma.com/embeddings)
     * `arguments`: Arguments to pass to the embedding function.
-  * `maxVectorDistance`: Maximum vector distance for results (default: 1.5, range: 0.1-10.0)
-  * `maxChunksToFetch`: Maximum chunks to fetch from vector database (default: 100, range: 10-1000)
-  * `nResultsMultiplier`: Multiplier for over-fetching results (default: 2, range: 1.0-10.0)
+  * `maxVectorDistance`: Maximum vector distance for results
+    (default: 1.5, range: 0.1-10.0)
+  * `maxChunksToFetch`: Maximum chunks to fetch from vector database
+    (default: 100, range: 10-1000)
+  * `nResultsMultiplier`: Multiplier for over-fetching results
+    (default: 2, range: 1.0-10.0)
 
   If you wanted to use the `ONNXMiniLM_L6_V2` embedding model with TensorRT:
 
@@ -108,21 +111,26 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
 
 * `ripgrep`: Configurations for the ripgrep text search engine.
   Has the following attributes:
-  * `maxFileSize`: Maximum file size to cache in KB (default: 200, range: 1-10240 KB)
-  * `maxMmapSize`: Maximum memory-mapped cache size in MB (default: 500, range: 10-10000 MB)
+  * `maxFileSize`: Maximum file size to cache in KB
+    (default: 200, range: 1-10240 KB)
+  * `maxMmapSize`: Maximum memory-mapped cache size in MB
+    (default: 500, range: 10-10000 MB)
 
 * `engine`: Configurations for the search engine processing.
   Has the following attributes:
   * `minChunksToAnalyze`:
     * `minValue`: Minimum number of chunks to analyze (default: 40, range: 1-1000)
     * `percentage`: Percentage of total chunks to analyze (default: 0.2, range: 0.01-1.0)
-  * `maxWorkers`: Maximum worker threads for parallel processing (default: 1, range: 1-32)
+  * `maxWorkers`: Maximum worker threads for parallel processing
+    (default: 1, range: 1-32)
 
 * `query`: Default values for query parameters.
   Has the following attributes:
   * `defaultLimitClue`: Default result limit (default: 500, range: 10-10000)
-  * `defaultContextAbove`: Default context lines above results (default: 3, range: 0-50)
-  * `defaultContextBelow`: Default context lines below results (default: 3, range: 0-50)
+  * `defaultContextAbove`: Default context lines above results
+    (default: 3, range: 0-50)
+  * `defaultContextBelow`: Default context lines below results
+    (default: 3, range: 0-50)
 
 ### Client
 
