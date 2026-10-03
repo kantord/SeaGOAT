@@ -31,5 +31,5 @@ jobs:
                   VERSION=$(uv run semantic-release --noop version --print)
                   # Remove patch version and replace it with 'x'
                   VERSION="${VERSION%.*}.x"
-                  uv run --with mike mike deploy --push --update-aliases $VERSION latest
-                  uv run --with mike mike set-default --push latest
+                  uv run mike deploy --push --update-aliases $VERSION latest
+                  uv run mike set-default --push latest

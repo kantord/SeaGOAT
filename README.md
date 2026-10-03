@@ -24,7 +24,7 @@ leverages vector embeddings to enable you to search your codebase semantically.
 In order to install SeaGOAT, you need to have the following
 dependencies already installed on your computer:
 
-- Python 3.11 or newer
+- Python 3.10 or newer
 - ripgrep
 - [bat](https://github.com/sharkdp/bat) (**optional**, highly recommended)
 
@@ -132,7 +132,7 @@ for more details!
 **Requirements**:
 
 - [uv](https://docs.astral.sh/uv/)
-- Python 3.11 or newer
+- Python 3.10 or newer
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
 
 ### Install dependencies

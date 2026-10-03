@@ -17,7 +17,7 @@ on your computer.
 The following dependencies need to be installed:
 
 * [Git](https://git-scm.com/downloads)
-* [Python 3.11 or newer](https://www.python.org/downloads/)
+* [Python 3.10 or newer](https://www.python.org/downloads/)
 * [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### Step 3: Clone the repository
