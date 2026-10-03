@@ -1,6 +1,6 @@
 import copy
+import logging
 import os
-import sys
 from pathlib import Path
 
 import appdirs
@@ -95,6 +95,8 @@ CONFIG_SCHEMA = {
     },
 }
 
+logger = logging.getLogger(__name__)
+
 GLOBAL_CONFIG_DIR = Path(
     appdirs.user_config_dir(
         "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
@@ -125,14 +127,14 @@ def get_config_values(repo_path: Path):
         config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
 
     if repo_config_file.exists():
-        repo_config = validate_config_file(repo_config_file)
+        repo_config = validate_config_file(str(repo_config_file))
         # The repo file is untrusted: it must not be able to choose the LLM
         # provider or endpoint, since that would send API keys and code there.
         if repo_config.pop("generative", None) is not None:
-            print(
-                f"Ignoring 'generative' in {repo_config_file}: "
-                "set it in the global config file instead.",
-                file=sys.stderr,
+            logger.warning(
+                "Ignoring 'generative' in %s: set it in the global config file "
+                "instead.",
+                repo_config_file,
             )
         config = always_merger.merge(config, repo_config)
 

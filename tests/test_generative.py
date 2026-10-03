@@ -85,9 +85,7 @@ class TestEnhanceResults:
 
     @patch("seagoat.utils.generative.stream_chat")
     def test_returns_all_when_all_match(self, mock_stream):
-        mock_stream.return_value = iter(
-            ["Both main.py and utils.py are relevant"]
-        )
+        mock_stream.return_value = iter(["Both main.py and utils.py are relevant"])
         spinner = MagicMock()
 
         results = [self._make_result("main.py"), self._make_result("utils.py")]

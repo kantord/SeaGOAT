@@ -46,12 +46,14 @@ def _get_provider_config(config):
 def _get_ollama_chat():
     """Lazy import for ollama chat function."""
     from ollama import chat
+
     return chat
 
 
 def _get_openai_client(base_url, api_key):
     """Lazy import for OpenAI client."""
     from openai import OpenAI
+
     return OpenAI(base_url=base_url, api_key=api_key)
 
 
@@ -89,8 +91,7 @@ def _stream_minimax(messages, model, generative_config):
     """Stream responses from MiniMax API (OpenAI-compatible)."""
     api_key = generative_config.get("apiKey") or os.environ.get("MINIMAX_API_KEY")
     base_url = (
-        generative_config.get("baseUrl")
-        or PROVIDER_DEFAULTS["minimax"]["base_url"]
+        generative_config.get("baseUrl") or PROVIDER_DEFAULTS["minimax"]["base_url"]
     )
     temperature = generative_config.get("temperature")
     if temperature is None:
@@ -120,4 +121,3 @@ def stream_chat(config, messages):
     provider_name, model, generative_config = _get_provider_config(config)
     handler = _STREAM_HANDLERS[provider_name]
     yield from handler(messages, model, generative_config)
-

@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import jsonschema
+from jsonschema.exceptions import ValidationError
 import pytest
 
 from seagoat.utils.config import CONFIG_SCHEMA, get_config_values
@@ -50,7 +51,7 @@ class TestConfigIntegration:
                 "provider": "invalid_provider",
             }
         }
-        with pytest.raises(jsonschema.exceptions.ValidationError):
+        with pytest.raises(ValidationError):
             jsonschema.validate(instance=config, schema=CONFIG_SCHEMA)
 
     def test_generative_config_from_global_file(self, repo, create_config_file):
@@ -63,7 +64,7 @@ class TestConfigIntegration:
         assert config["generative"]["model"] == "MiniMax-M2.7"
 
     def test_generative_config_in_repo_file_is_ignored(
-        self, repo, create_config_file, capsys
+        self, repo, create_config_file, caplog
     ):
         create_config_file(
             {
@@ -77,7 +78,7 @@ class TestConfigIntegration:
         config = get_config_values(Path(repo.working_dir))
         assert config["generative"]["provider"] is None
         assert config["generative"]["baseUrl"] is None
-        assert "Ignoring 'generative'" in capsys.readouterr().err
+        assert "Ignoring 'generative'" in caplog.text
 
     def test_default_generative_config(self, repo):
         config = get_config_values(Path(repo.working_dir))
