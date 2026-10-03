@@ -123,3 +123,70 @@ class TestModels:
             "degraded" in result.output.lower()
             or "unavailable" in result.output.lower()
         )
+
+
+class TestCommandsAreRegisteredOnTheCli:
+    """The OrcaRouter commands must be reachable as `gt <command>`.
+
+    Invoking the command objects directly, as the classes above do, passes even
+    when nothing ever attaches them to the CLI, so drive the real entry point.
+    """
+
+    def test_orcarouter_commands_are_subcommands(self):
+        from seagoat.cli import seagoat
+
+        assert {
+            "orcarouter-login",
+            "orcarouter-logout",
+            "orcarouter-status",
+            "orcarouter-models",
+        } <= set(seagoat.commands)
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "orcarouter-login",
+            "orcarouter-logout",
+            "orcarouter-status",
+            "orcarouter-models",
+        ],
+    )
+    def test_command_help_is_reachable_through_the_cli(self, runner, command):
+        from seagoat.cli import seagoat
+
+        result = runner.invoke(seagoat, [command, "--help"])
+
+        assert result.exit_code == 0
+        assert f"Usage: seagoat {command}" in result.output
+
+    def test_status_runs_through_the_cli(self, runner, isolated_store, config):
+        from seagoat.cli import seagoat
+
+        store.write_record({"api_key": FAKE_KEY, "source": "pkce"})
+        result = runner.invoke(seagoat, ["orcarouter-status"])
+
+        assert result.exit_code == 0
+        assert FAKE_KEY not in result.output
+        assert "connected" in result.output
+
+    def test_bare_query_still_reaches_the_search_command(self, runner, mocker):
+        from seagoat.cli import seagoat
+
+        seen = {}
+
+        def fake_query_server(
+            query, server_address, max_results, context_above, context_below
+        ):
+            seen["query"] = query
+            return []
+
+        mocker.patch("seagoat.cli.query_server", fake_query_server)
+        mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
+        mocker.patch("seagoat.cli.display_results")
+        mocker.patch("seagoat.cli.display_accuracy_warning")
+        mocker.patch("seagoat.cli.warn_if_update_available")
+
+        result = runner.invoke(seagoat, ["a search phrase", ".", "--no-color"])
+
+        assert result.exit_code == 0
+        assert seen["query"] == "a search phrase"

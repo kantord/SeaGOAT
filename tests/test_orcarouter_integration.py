@@ -385,3 +385,29 @@ class TestLiveCatalog:
         assert orcarouter_pkg.resolve_api_base({}, {}) == (
             "https://api.orcarouter.ai/v1"
         )
+
+    def test_live_chat_completion_through_the_provider(self):
+        from seagoat.utils.llm_provider import stream_chat
+
+        result = orcarouter_pkg.discover_models(
+            {}, environ={"ORCAROUTER_API_KEY": os.environ["ORCAROUTER_API_KEY"]}
+        )
+        options = orcarouter_pkg.public_options(result, CAPABILITY_CHAT)
+
+        # The catalog is authoritative for which models exist; a key may
+        # additionally be scoped down, so drive real completions until one of
+        # the advertised models actually answers.
+        answered = False
+        for option in options:
+            try:
+                chunks = stream_chat(
+                    {"generative": {"provider": "orcarouter", "model": option["id"]}},
+                    [{"role": "user", "content": "Reply with a single word."}],
+                )
+                if "".join(chunks).strip():
+                    answered = True
+                    break
+            except Exception:
+                continue
+
+        assert answered, "no advertised live chat model produced a completion"

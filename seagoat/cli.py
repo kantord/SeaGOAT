@@ -84,7 +84,28 @@ def remove_results_from_unavailable_files(results):
     return [result for result in results if Path(result["fullPath"]).exists()]
 
 
-@click.command()
+class DefaultCommandGroup(click.Group):
+    """A command group that falls back to a default command.
+
+    ``gt <query>`` predates the subcommands, so a first token that is not a
+    registered subcommand is handed to the default query command unchanged.
+    """
+
+    def __init__(self, *args, default_command_name, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.default_command_name = default_command_name
+
+    def resolve_command(self, ctx, args):
+        if args and args[0] not in self.commands:
+            return (
+                self.default_command_name,
+                self.commands[self.default_command_name],
+                args,
+            )
+        return super().resolve_command(ctx, args)
+
+
+@click.command(name="query")
 @click.argument("query")
 @click.argument("repo_path", required=False, default=os.getcwd())
 @click.option(
@@ -139,8 +160,7 @@ def remove_results_from_unavailable_files(results):
     default=False,
     help="Use a generative model to enhance results",
 )
-@click.version_option(version=__version__, prog_name="seagoat")
-def seagoat(
+def query_command(
     query,
     repo_path,
     no_color,
@@ -224,6 +244,34 @@ def seagoat(
             "Could not check for updates because the pypi.org API is not accessible",
             err=True,
         )
+
+
+@click.group(
+    cls=DefaultCommandGroup,
+    invoke_without_command=True,
+    no_args_is_help=False,
+    default_command_name="query",
+    context_settings={"ignore_unknown_options": True},
+)
+@click.version_option(version=__version__, prog_name="seagoat")
+@click.pass_context
+def seagoat(ctx):
+    """
+    Query your codebase for your QUERY in the Git repository REPO_PATH.
+    Your query can contain keywords, regular expression patterns,
+    or a description of what you are looking for.
+
+    When REPO_PATH is not specified, the current working directory is
+    assumed to be the repository path.
+
+    In order to use seagoat in your repository, you need to run a server
+    that will analyze your codebase. Check seagoat-server --help for more details.
+
+    The OrcaRouter connector is available through the orcarouter-login,
+    orcarouter-status, orcarouter-models and orcarouter-logout commands.
+    """
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @click.command(name="orcarouter-login")
@@ -415,6 +463,13 @@ def orcarouter_models(capability, modality, repo_path):
         f"(source: {catalog.source}).",
         err=True,
     )
+
+
+seagoat.add_command(query_command)
+seagoat.add_command(orcarouter_login)
+seagoat.add_command(orcarouter_logout)
+seagoat.add_command(orcarouter_status)
+seagoat.add_command(orcarouter_models)
 
 
 if __name__ == "__main__":
