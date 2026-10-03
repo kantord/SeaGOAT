@@ -46,7 +46,7 @@ server:
   # Ripgrep text search configuration
   ripgrep:
     maxFileSize: 200        # Maximum file size to cache in KB (1KB-10MB)
-    maxMmapSize: 500        # Maximum memory-mapped cache size in MB (10MB-10GB)
+    maxMmapSize: 500        # Maximum memory-mapped cache size in MB (10-10000 MB)
 
   # Engine processing configuration
   engine:
@@ -90,26 +90,26 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
     * `arguments`: Arguments to pass to the embedding function.
   * `maxVectorDistance`: Maximum vector distance for results (default: 1.5, range: 0.1-10.0)
   * `maxChunksToFetch`: Maximum chunks to fetch from vector database (default: 100, range: 10-1000)
-  * `nResultsMultiplier`: Multiplier for over-fetching results (default: 2.0, range: 1.0-10.0)
-      * If you wanted to use the `ONNXMiniLM_L6_V2` embedding model with TensorRT
+  * `nResultsMultiplier`: Multiplier for over-fetching results (default: 2, range: 1.0-10.0)
 
-        ```yaml
-        server:
-        ...
-        chroma:
-          embeddingFunction:
-            name: "ONNXMiniLM_L6_V2"
-            arguments:
-              preferred_providers: ["TensorrtExecutionProvider"]
-          maxVectorDistance: 1.2
-          maxChunksToFetch: 150
-          nResultsMultiplier: 2.5
-        ```
+  If you wanted to use the `ONNXMiniLM_L6_V2` embedding model with TensorRT:
+
+  ```yaml
+  server:
+    chroma:
+      embeddingFunction:
+        name: "ONNXMiniLM_L6_V2"
+        arguments:
+          preferred_providers: ["TensorrtExecutionProvider"]
+      maxVectorDistance: 1.2
+      maxChunksToFetch: 150
+      nResultsMultiplier: 2.5
+  ```
 
 * `ripgrep`: Configurations for the ripgrep text search engine.
   Has the following attributes:
   * `maxFileSize`: Maximum file size to cache in KB (default: 200, range: 1-10240 KB)
-  * `maxMmapSize`: Maximum memory-mapped cache size in MB (default: 500, range: 10MB-10GB)
+  * `maxMmapSize`: Maximum memory-mapped cache size in MB (default: 500, range: 10-10000 MB)
 
 * `engine`: Configurations for the search engine processing.
   Has the following attributes:

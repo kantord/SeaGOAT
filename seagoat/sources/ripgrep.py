@@ -17,8 +17,6 @@ from seagoat.utils.file_types import is_file_type_supported
 
 KILOBYTE = 1024
 MEGABYTE = KILOBYTE * 1024
-MAX_MMAP_SIZE = 500
-MAX_MMAP_SIZE_BYTES = MAX_MMAP_SIZE * MEGABYTE
 STOP_WORDS = set(get_stop_words("english"))
 
 
@@ -115,7 +113,6 @@ def initialize(repository: Repository):
         memory_cache.rebuild()
 
     def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
-        config = get_config_values(Path(repository.path))
         query_text_without_stopwords = " ".join(
             query for query in query_text.split(" ") if query not in STOP_WORDS
         )
@@ -123,6 +120,7 @@ def initialize(repository: Repository):
             query_text = query_text_without_stopwords
         query_text = re.sub(r"\s+", "|", query_text)
         files = {}
+        max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
 
         cmd = [
             "rg",
@@ -150,7 +148,6 @@ def initialize(repository: Repository):
                 files[relative_path] = Result(query_text, gitfile)
 
             # This is so that ripgrep results are on comparable levels with chroma results
-            max_vector_distance = config["server"]["chroma"]["maxVectorDistance"]
             files[relative_path].add_line(line_number, max_vector_distance * 0.8)
 
         return files.values()

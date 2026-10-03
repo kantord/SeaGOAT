@@ -411,3 +411,22 @@ async def test_does_not_crash_when_file_lines_are_removed(repo):
     results = await seagoat.query(my_query)
 
     assert results[0].gitfile.path == "devices.txt"
+
+
+@pytest.mark.asyncio
+async def test_supports_fractional_n_results_multiplier(repo, create_config_file):
+    create_config_file(
+        {"server": {"chroma": {"nResultsMultiplier": 2.5}}}, global_config=False
+    )
+    repo.add_file_change_commit(
+        file_name="fruit.txt",
+        contents="apple, banana, pear",
+        author=repo.actors["John Doe"],
+        commit_message="Add fruit",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    results = await seagoat.query("apple", limit_clue=5)
+
+    assert "fruit.txt" in {result.gitfile.path for result in results}

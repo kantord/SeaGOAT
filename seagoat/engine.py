@@ -105,8 +105,12 @@ class Engine:
                     self.cache.data["chunks_not_yet_analyzed"].add(chunk.chunk_id)
 
         if minimum_chunks_to_analyze is None:
-            min_value = self.config["server"]["engine"]["minChunksToAnalyze"]["minValue"]
-            percentage = self.config["server"]["engine"]["minChunksToAnalyze"]["percentage"]
+            min_value = self.config["server"]["engine"]["minChunksToAnalyze"][
+                "minValue"
+            ]
+            percentage = self.config["server"]["engine"]["minChunksToAnalyze"][
+                "percentage"
+            ]
             minimum_chunks_to_analyze = min(
                 max(min_value, int(len(chunks_to_process) * percentage)),
                 len(chunks_to_process),
@@ -132,20 +136,21 @@ class Engine:
 
         self._results = []
         max_workers = self.config["server"]["engine"]["maxWorkers"]
-        executor = ThreadPoolExecutor(max_workers=max_workers)
         loop = asyncio.get_event_loop()
-        async_tasks = [
-            loop.run_in_executor(
-                executor,
-                partial(source["fetch"], query, limit_clue),
-            )
-            for source in self._fetchers["async"]
-        ]
 
-        for source in self._fetchers["sync"]:
-            self._results.extend(source["fetch"](query, limit_clue))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            async_tasks = [
+                loop.run_in_executor(
+                    executor,
+                    partial(source["fetch"], query, limit_clue),
+                )
+                for source in self._fetchers["async"]
+            ]
 
-        results = await asyncio.gather(*async_tasks)
+            for source in self._fetchers["sync"]:
+                self._results.extend(source["fetch"](query, limit_clue))
+
+            results = await asyncio.gather(*async_tasks)
 
         for result in results:
             self._results.extend(result)

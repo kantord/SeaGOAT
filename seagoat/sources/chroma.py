@@ -78,7 +78,7 @@ def initialize(repository: Repository):
         # Slightly overfetch results as it will sorted using a different score later
         max_chunks_to_fetch = config["server"]["chroma"]["maxChunksToFetch"]
         n_results_multiplier = config["server"]["chroma"]["nResultsMultiplier"]
-        n_results = min((limit + 1) * n_results_multiplier, max_chunks_to_fetch)
+        n_results = min(int((limit + 1) * n_results_multiplier), max_chunks_to_fetch)
 
         chromadb_results = chroma_collection.query(
             query_texts=[query_text],

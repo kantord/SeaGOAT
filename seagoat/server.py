@@ -43,7 +43,7 @@ def create_app(repo_path):
     app = Flask(__name__)
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.debug = True
-    
+
     config = get_config_values(Path(repo_path))
     app.config["seagoat_config"] = config
 
@@ -68,14 +68,17 @@ def create_app(repo_path):
     @app.route("/lines/query", methods=["POST"])
     def query_lines():
         data = request.json
-        config = current_app.config["seagoat_config"]
+        defaults = current_app.config["seagoat_config"]["server"]["query"]
         query = get_fallback_value(data, "queryText", "")
-        default_limit_clue = str(config["server"]["query"]["defaultLimitClue"])
-        default_context_above = str(config["server"]["query"]["defaultContextAbove"])
-        default_context_below = str(config["server"]["query"]["defaultContextBelow"])
-        limit_clue = int(get_fallback_value(data, "limitClue", default_limit_clue))
-        context_above = int(get_fallback_value(data, "contextAbove", default_context_above))
-        context_below = int(get_fallback_value(data, "contextBelow", default_context_below))
+        limit_clue = int(
+            get_fallback_value(data, "limitClue", defaults["defaultLimitClue"])
+        )
+        context_above = int(
+            get_fallback_value(data, "contextAbove", defaults["defaultContextAbove"])
+        )
+        context_below = int(
+            get_fallback_value(data, "contextBelow", defaults["defaultContextBelow"])
+        )
 
         return execute_query(
             query=query,
@@ -87,10 +90,11 @@ def create_app(repo_path):
     @app.route("/files/query", methods=["POST"])
     def query_files():
         data = request.json
-        config = current_app.config["seagoat_config"]
+        defaults = current_app.config["seagoat_config"]["server"]["query"]
         query = get_fallback_value(data, "queryText", "")
-        default_limit_clue = str(config["server"]["query"]["defaultLimitClue"])
-        limit_clue = int(get_fallback_value(data, "limitClue", default_limit_clue))
+        limit_clue = int(
+            get_fallback_value(data, "limitClue", defaults["defaultLimitClue"])
+        )
 
         result = execute_query(
             query=query, context_above=0, context_below=0, limit_clue=limit_clue
