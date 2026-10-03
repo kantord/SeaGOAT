@@ -83,3 +83,35 @@ The following values can be configured:
 needed when you are hosting your SeaGOAT server on a remote computer. *It is
 recommended to set this value in your project configuration file, so that
 you are still able to use the local server for different projects.*
+
+### Generative
+
+Configuration for the `--generative` flag resides under the `generative`
+attribute. See the
+[generative search providers](https://github.com/kantord/SeaGOAT#generative-search-providers)
+section of the README for the full list of providers.
+
+The following values can be configured:
+
+* `provider`: The LLM provider (`ollama`, `openai`, `minimax`, `orcarouter`)
+* `model`: The model to use. Defaults to the provider's default model
+* `apiKey`: The provider's API key. Prefer the provider's environment
+  variable, or `gt orcarouter-login` for OrcaRouter
+* `baseUrl`: Override the provider's base URL
+* `temperature`: Sampling temperature
+
+OrcaRouter additionally accepts these values:
+
+* `authBaseUrl`: Origin used for the OAuth 2.0 + PKCE sign-in and code
+  exchange. Default is `https://www.orcarouter.ai`
+* `apiBaseUrl`: Origin used for inference and model discovery. Default is
+  `https://api.orcarouter.ai/v1`
+* `authFlow`: `pkce` (default) or `loopback`. See the README's OrcaRouter
+  section
+
+```yaml
+generative:
+  provider: orcarouter
+  model: orcarouter/auto
+  authFlow: pkce
+```

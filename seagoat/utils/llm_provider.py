@@ -5,6 +5,7 @@ Supports multiple LLM backends:
 - ollama: Local Ollama server (default, existing behavior)
 - openai: OpenAI API
 - minimax: MiniMax API (OpenAI-compatible)
+- orcarouter: OrcaRouter gateway (API key or OAuth 2.0 + PKCE login)
 """
 
 import os
@@ -20,6 +21,9 @@ PROVIDER_DEFAULTS = {
     "minimax": {
         "model": "MiniMax-M2.5",
         "base_url": "https://api.minimax.io/v1",
+    },
+    "orcarouter": {
+        "model": "orcarouter/auto",
     },
 }
 
@@ -55,12 +59,14 @@ def _get_provider_config(config):
 def _get_ollama_chat():
     """Lazy import for ollama chat function."""
     from ollama import chat
+
     return chat
 
 
 def _get_openai_client(base_url, api_key):
     """Lazy import for OpenAI client."""
     from openai import OpenAI
+
     return OpenAI(base_url=base_url, api_key=api_key)
 
 
@@ -80,9 +86,13 @@ def _stream_openai_compat(messages, model, base_url, api_key, temperature):
         kwargs["temperature"] = temperature
     response = client.chat.completions.create(**kwargs)
     for chunk in response:
+        # A final usage-only chunk legitimately carries no choices.
+        if not getattr(chunk, "choices", None):
+            continue
         delta = chunk.choices[0].delta
-        if delta.content:
-            yield delta.content
+        content = getattr(delta, "content", None)
+        if content:
+            yield content
 
 
 def _stream_openai(messages, model, generative_config):
@@ -96,17 +106,59 @@ def _stream_minimax(messages, model, generative_config):
     """Stream responses from MiniMax API (OpenAI-compatible)."""
     api_key = generative_config.get("apiKey") or os.environ.get("MINIMAX_API_KEY")
     base_url = (
-        generative_config.get("baseUrl")
-        or PROVIDER_DEFAULTS["minimax"]["base_url"]
+        generative_config.get("baseUrl") or PROVIDER_DEFAULTS["minimax"]["base_url"]
     )
     temperature = max(0.01, min(1.0, generative_config.get("temperature", 0.1)))
     yield from _stream_openai_compat(messages, model, base_url, api_key, temperature)
+
+
+def _resolve_orcarouter_credential(generative_config):
+    """Resolve the OrcaRouter credential through the credential seam.
+
+    Both authentication methods (a pasted API key and the OAuth 2.0 + PKCE
+    connect flow) resolve to the same credential here, so nothing downstream
+    branches on how the key was obtained.
+    """
+    from seagoat.utils.orcarouter import CredentialError, resolve_credential
+
+    try:
+        return resolve_credential(generative_config)
+    except CredentialError as error:
+        raise ValueError(str(error)) from error
+
+
+class OrcaRouterAuthError(ValueError):
+    """The OrcaRouter credential was rejected by the relay (HTTP 401)."""
+
+
+def _stream_orcarouter(messages, model, generative_config):
+    """Stream responses from the OrcaRouter gateway (OpenAI-compatible)."""
+    from seagoat.utils.orcarouter import resolve_api_base
+
+    credential = _resolve_orcarouter_credential(generative_config)
+    base_url = resolve_api_base(generative_config)
+    temperature = generative_config.get("temperature")
+    try:
+        yield from _stream_openai_compat(
+            messages, model, base_url, credential.api_key, temperature
+        )
+    except Exception as error:
+        status = getattr(error, "status_code", None)
+        if status == 401:
+            # A durable OrcaRouter key is not a refresh token: a 401 is a
+            # terminal reauthentication requirement, never a refresh trigger.
+            raise OrcaRouterAuthError(
+                "OrcaRouter rejected the stored API key. The key was probably "
+                "revoked; run `gt orcarouter-login` again to reconnect."
+            ) from error
+        raise
 
 
 _STREAM_HANDLERS = {
     "ollama": _stream_ollama,
     "openai": _stream_openai,
     "minimax": _stream_minimax,
+    "orcarouter": _stream_orcarouter,
 }
 
 

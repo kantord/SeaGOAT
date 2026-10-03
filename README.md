@@ -117,9 +117,56 @@ generative:
 | `ollama` (default) | `deepseek-r1:8b` | — | local |
 | `openai` | `gpt-4o-mini` | `OPENAI_API_KEY` | `https://api.openai.com/v1` |
 | `minimax` | `MiniMax-M2.5` | `MINIMAX_API_KEY` | `https://api.minimax.io/v1` |
+| `orcarouter` | `orcarouter/auto` | `ORCAROUTER_API_KEY` | `https://api.orcarouter.ai/v1` |
 
 If no provider is configured, SeaGOAT auto-detects based on environment
 variables (`MINIMAX_API_KEY` > `OPENAI_API_KEY` > Ollama fallback).
+
+#### OrcaRouter
+
+[OrcaRouter](https://www.orcarouter.ai) is an OpenAI-compatible AI gateway
+that routes many providers behind one endpoint. SeaGOAT can use it as the
+`--generative` provider, with either an existing API key or a browser sign-in:
+
+```yaml
+# .seagoat.yml — use OrcaRouter as the generative provider
+generative:
+  provider: orcarouter
+  model: orcarouter/auto   # optional; defaults to orcarouter/auto
+  apiKey: sk-orca-...      # optional; prefer the env var or the login command
+```
+
+**Authentication.** There are two independent ways to connect:
+
+* **API key** — set `ORCAROUTER_API_KEY`, put `apiKey` in your config, or run
+  `gt orcarouter-login --api-key`. Existing keys are
+  [managed in the OrcaRouter console](https://www.orcarouter.ai/console/token).
+* **Sign in with OrcaRouter (OAuth 2.0 + PKCE)** — run `gt orcarouter-login`.
+  No client secret and no redirect URI registration are needed. The default
+  flow prints a code to paste back, which works over SSH and inside
+  containers; `gt orcarouter-login --flow loopback` instead listens on
+  `127.0.0.1` and returns automatically on a desktop.
+
+Either way the result is a normal OrcaRouter key belonging to *your* account,
+billed to you and revocable from your console. The key is stored in SeaGOAT's
+global configuration file and reused on later runs. An OrcaRouter key is long
+lived and is **not** a refresh token: there is no automatic refresh, and if
+the key is revoked a `401` asks you to run `gt orcarouter-login` again.
+
+**Model selection.** OrcaRouter publishes its live model list at
+`https://api.orcarouter.ai/v1/models`. Run `gt orcarouter-models` to see the
+models available to your key and the capability they serve:
+
+```bash
+gt orcarouter-models                    # text chat models
+gt orcarouter-models --modality image   # models that accept image input
+gt orcarouter-status                    # show how SeaGOAT is connected
+gt orcarouter-logout                    # forget the stored key
+```
+
+Model IDs keep their full `vendor/model` namespace. When the live catalog is
+unreachable SeaGOAT falls back to a small verified offline catalog so a fresh
+installation still works.
 
 [Check out the documentation](https://kantord.github.io/SeaGOAT/latest/configuration/)
 for more details!

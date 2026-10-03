@@ -737,3 +737,8 @@ def realistic_server(start_server):
     del my_engine
 
     shutil.rmtree(realrepo, ignore_errors=True)
+
+
+def as_session(double):
+    """Type a test double as the ``requests.Session`` the code declares."""
+    return cast("requests.Session", double)

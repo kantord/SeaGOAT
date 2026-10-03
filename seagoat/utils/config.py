@@ -31,6 +31,9 @@ DEFAULT_CONFIG = {
         "apiKey": None,
         "baseUrl": None,
         "temperature": None,
+        "authFlow": None,
+        "authBaseUrl": None,
+        "apiBaseUrl": None,
     },
 }
 
@@ -83,12 +86,20 @@ CONFIG_SCHEMA = {
             "properties": {
                 "provider": {
                     "type": "string",
-                    "enum": ["ollama", "openai", "minimax"],
+                    "enum": ["ollama", "openai", "minimax", "orcarouter"],
                 },
                 "model": {"type": "string"},
                 "apiKey": {"type": "string"},
                 "baseUrl": {"type": "string"},
                 "temperature": {"type": "number", "minimum": 0, "maximum": 1},
+                # OrcaRouter connects through either a pasted API key
+                # (default) or the OAuth 2.0 + PKCE connect flow.
+                "authFlow": {"type": "string", "enum": ["pkce", "oob", "loopback"]},
+                # The auth and inference surfaces are separate origins.
+                "authBaseUrl": {"type": "string"},
+                "apiBaseUrl": {"type": "string"},
+                # Records whether the stored key came from a paste or PKCE.
+                "apiKeySource": {"type": "string", "enum": ["api_key", "pkce"]},
             },
         },
     },

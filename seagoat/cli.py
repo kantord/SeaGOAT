@@ -226,5 +226,196 @@ def seagoat(
         )
 
 
+@click.command(name="orcarouter-login")
+@click.option(
+    "--api-key",
+    is_flag=True,
+    default=False,
+    help="Paste an existing OrcaRouter API key instead of signing in.",
+)
+@click.option(
+    "--flow",
+    type=click.Choice(["oob", "loopback"]),
+    default="oob",
+    show_default=True,
+    help=(
+        "OAuth 2.0 + PKCE flow. 'oob' shows a code to paste back (works over "
+        "SSH and in containers); 'loopback' listens on 127.0.0.1 and returns "
+        "automatically."
+    ),
+)
+@click.option(
+    "--repo",
+    "repo_path",
+    default=os.getcwd(),
+    help="Repository whose configuration to use.",
+)
+def orcarouter_login(api_key, flow, repo_path):
+    """Connect SeaGOAT to OrcaRouter.
+
+    Without options this starts the OAuth 2.0 + PKCE sign-in and stores the
+    issued key. Use --api-key to paste a key you already have.
+    """
+    from seagoat.utils.orcarouter import (
+        SOURCE_PKCE,
+        ConnectError,
+        connect,
+        resolve_auth_base,
+        write_record,
+    )
+    from seagoat.utils.orcarouter.credentials import looks_like_api_key
+
+    config = get_config_values(Path(repo_path))
+    generative_config = config.get("generative", {})
+
+    if api_key:
+        key = click.prompt("OrcaRouter API key", hide_input=True).strip()
+        if not looks_like_api_key(key):
+            click.echo(
+                "That does not look like an OrcaRouter API key "
+                "(expected it to start with 'sk-orca-').",
+                err=True,
+            )
+            sys.exit(1)
+        write_record({"api_key": key, "source": "api_key"})
+        click.echo("OrcaRouter API key saved.")
+        return
+
+    try:
+        payload = connect(
+            resolve_auth_base(generative_config),
+            "loopback" if flow == "loopback" else "oob",
+            announce=lambda message: click.echo(message, err=True),
+            prompt=lambda message: click.prompt(message.rstrip(": "), hide_input=True),
+        )
+    except ConnectError as error:
+        click.echo(str(error), err=True)
+        sys.exit(1)
+    write_record(
+        {
+            "api_key": payload["key"],
+            "source": SOURCE_PKCE,
+            "scope": payload.get("scope"),
+            "user_id": payload.get("user_id"),
+        }
+    )
+    click.echo(
+        f"Connected to OrcaRouter at {resolve_auth_base(generative_config)} "
+        f"(scope: {payload.get('scope')}). The key is stored for reuse."
+    )
+
+
+@click.command(name="orcarouter-logout")
+@click.option(
+    "--repo",
+    "repo_path",
+    default=os.getcwd(),
+    help="Repository whose configuration to use.",
+)
+def orcarouter_logout(repo_path):
+    """Forget the stored OrcaRouter key.
+
+    A key supplied through configuration or ORCAROUTER_API_KEY must be removed
+    where it is defined; this command clears the key stored by the connect
+    flow.
+    """
+    from seagoat.utils.orcarouter import clear_record, resolve_source_kind
+
+    config = get_config_values(Path(repo_path))
+    generative_config = config.get("generative", {})
+    removed = clear_record()
+    if removed:
+        click.echo("The stored OrcaRouter key was removed.")
+    else:
+        click.echo("No stored OrcaRouter key to remove.")
+    kind = resolve_source_kind(generative_config)
+    if kind in ("api_key", "pkce"):
+        click.echo(
+            "Note: an OrcaRouter key is still resolvable from configuration or "
+            "the ORCAROUTER_API_KEY environment variable.",
+            err=True,
+        )
+
+
+@click.command(name="orcarouter-status")
+@click.option(
+    "--repo",
+    "repo_path",
+    default=os.getcwd(),
+    help="Repository whose configuration to use.",
+)
+def orcarouter_status(repo_path):
+    """Show how SeaGOAT is currently connected to OrcaRouter."""
+    from seagoat.utils.orcarouter import (
+        mask_secret,
+        read_record,
+        resolve_api_base,
+        resolve_auth_base,
+        resolve_api_key,
+        resolve_source_kind,
+    )
+
+    config = get_config_values(Path(repo_path))
+    generative_config = config.get("generative", {})
+    key = resolve_api_key(generative_config)
+    kind = resolve_source_kind(generative_config)
+    record = read_record()
+
+    click.echo(f"OrcaRouter status: {'connected' if key else 'not connected'}")
+    if key:
+        click.echo(f"  credential: {mask_secret(key)} (source: {kind})")
+    if record.get("state"):
+        click.echo(f"  key state:  {record['state']}")
+    click.echo(f"  auth origin: {resolve_auth_base(generative_config)}")
+    click.echo(f"  api origin:  {resolve_api_base(generative_config)}")
+    click.echo("  key dashboard: https://www.orcarouter.ai/console/token")
+
+
+@click.command(name="orcarouter-models")
+@click.option(
+    "--capability",
+    type=click.Choice(["chat", "embedding", "image", "video", "rerank"]),
+    default="chat",
+    show_default=True,
+    help="Capability to filter the catalog by.",
+)
+@click.option(
+    "--modality",
+    type=click.Choice(["text", "image", "audio", "video"]),
+    default=None,
+    help="Require text-chat models that declare this input modality.",
+)
+@click.option(
+    "--repo",
+    "repo_path",
+    default=os.getcwd(),
+    help="Repository whose configuration to use.",
+)
+def orcarouter_models(capability, modality, repo_path):
+    """List OrcaRouter models compatible with a capability.
+
+    The live catalog at <api origin>/models is authoritative; when it cannot
+    be reached the verified offline catalog is used and reported as degraded.
+    """
+    from seagoat.utils.orcarouter import discover_models, public_options
+
+    config = get_config_values(Path(repo_path))
+    catalog = discover_models(config.get("generative", {}), capability=capability)
+    if catalog.degraded:
+        click.echo(
+            f"Warning: live model discovery was unavailable ({catalog.error}); "
+            f"showing the verified '{catalog.source}' catalog.",
+            err=True,
+        )
+    options = public_options(catalog, capability, modality)
+    for option in options:
+        click.echo(option["id"])
+    click.echo(
+        f"{len(options)} model(s) available for capability '{capability}' "
+        f"(source: {catalog.source}).",
+        err=True,
+    )
+
+
 if __name__ == "__main__":
     seagoat()
