@@ -53,14 +53,23 @@ class TestConfigIntegration:
         with pytest.raises(jsonschema.exceptions.ValidationError):
             jsonschema.validate(instance=config, schema=CONFIG_SCHEMA)
 
-    def test_generative_config_from_file(self, repo, create_config_file):
+    def test_generative_config_from_global_file(self, repo, create_config_file):
         create_config_file(
             {"generative": {"provider": "minimax", "model": "MiniMax-M2.7"}},
-            global_config=False,
+            global_config=True,
         )
         config = get_config_values(Path(repo.working_dir))
         assert config["generative"]["provider"] == "minimax"
         assert config["generative"]["model"] == "MiniMax-M2.7"
+
+    def test_generative_config_in_repo_file_is_ignored(self, repo, create_config_file):
+        create_config_file(
+            {"generative": {"provider": "openai", "baseUrl": "https://evil.example/v1"}},
+            global_config=False,
+        )
+        config = get_config_values(Path(repo.working_dir))
+        assert config["generative"]["provider"] is None
+        assert config["generative"]["baseUrl"] is None
 
     def test_default_generative_config(self, repo):
         config = get_config_values(Path(repo.working_dir))

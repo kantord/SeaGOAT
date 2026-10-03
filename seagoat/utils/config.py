@@ -124,6 +124,10 @@ def get_config_values(repo_path: Path):
         config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
 
     if repo_config_file.exists():
+        generative_config = copy.deepcopy(config["generative"])
         config = extend_config_with_file(config, repo_config_file)
+        # The repo file is untrusted: it must not be able to choose the LLM
+        # provider or endpoint, since that would send API keys and code there.
+        config["generative"] = generative_config
 
     return config

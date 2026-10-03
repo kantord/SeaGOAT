@@ -1,5 +1,5 @@
 from seagoat.utils.cli_display import iterate_result_blocks
-from seagoat.utils.llm_provider import is_thinking_model, stream_chat
+from seagoat.utils.llm_provider import stream_chat
 
 
 def get_spinner_text(full_raw_response):
@@ -57,10 +57,7 @@ def enhance_results(query, results, spinner, config=None):
         full_raw_response += chunk_text
         spinner.text = get_spinner_text(full_raw_response)
 
-    if is_thinking_model(config):
-        response_text = _strip_thinking_tags(full_raw_response)
-    else:
-        response_text = full_raw_response
+    response_text = _strip_thinking_tags(full_raw_response)
 
     new_results = []
     for result in results:

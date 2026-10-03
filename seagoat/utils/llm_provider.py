@@ -26,19 +26,10 @@ PROVIDER_DEFAULTS = {
 SUPPORTED_PROVIDERS = list(PROVIDER_DEFAULTS.keys())
 
 
-def _detect_provider():
-    """Auto-detect provider from environment variables."""
-    if os.environ.get("MINIMAX_API_KEY"):
-        return "minimax"
-    if os.environ.get("OPENAI_API_KEY"):
-        return "openai"
-    return "ollama"
-
-
 def _get_provider_config(config):
-    """Extract generative provider config, with auto-detection fallback."""
+    """Extract generative provider config. Cloud providers are opt-in only."""
     generative_config = config.get("generative", {})
-    provider_name = generative_config.get("provider") or _detect_provider()
+    provider_name = generative_config.get("provider") or "ollama"
 
     if provider_name not in SUPPORTED_PROVIDERS:
         raise ValueError(
@@ -80,6 +71,8 @@ def _stream_openai_compat(messages, model, base_url, api_key, temperature):
         kwargs["temperature"] = temperature
     response = client.chat.completions.create(**kwargs)
     for chunk in response:
+        if not chunk.choices:
+            continue
         delta = chunk.choices[0].delta
         if delta.content:
             yield delta.content
@@ -99,7 +92,10 @@ def _stream_minimax(messages, model, generative_config):
         generative_config.get("baseUrl")
         or PROVIDER_DEFAULTS["minimax"]["base_url"]
     )
-    temperature = max(0.01, min(1.0, generative_config.get("temperature", 0.1)))
+    temperature = generative_config.get("temperature")
+    if temperature is None:
+        temperature = 0.1
+    temperature = max(0.01, min(1.0, temperature))
     yield from _stream_openai_compat(messages, model, base_url, api_key, temperature)
 
 
@@ -125,14 +121,3 @@ def stream_chat(config, messages):
     handler = _STREAM_HANDLERS[provider_name]
     yield from handler(messages, model, generative_config)
 
-
-def is_thinking_model(config):
-    """Check if the configured model is a thinking/reasoning model."""
-    generative_config = config.get("generative", {})
-    provider_name = generative_config.get("provider") or _detect_provider()
-    model = generative_config.get("model") or PROVIDER_DEFAULTS.get(
-        provider_name, {}
-    ).get("model", "")
-
-    thinking_patterns = ["deepseek-r1", "o1", "o3"]
-    return any(pattern in model.lower() for pattern in thinking_patterns)

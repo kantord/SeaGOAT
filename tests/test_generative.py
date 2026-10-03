@@ -47,8 +47,7 @@ class TestEnhanceResults:
         }
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=False)
-    def test_filters_results_by_llm_response(self, mock_thinking, mock_stream):
+    def test_filters_results_by_llm_response(self, mock_stream):
         mock_stream.return_value = iter(["The relevant file is ", "main.py"])
         spinner = MagicMock()
 
@@ -60,8 +59,7 @@ class TestEnhanceResults:
         assert filtered[0]["path"] == "main.py"
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=True)
-    def test_strips_thinking_for_reasoning_models(self, mock_thinking, mock_stream):
+    def test_strips_thinking_for_reasoning_models(self, mock_stream):
         mock_stream.return_value = iter(
             ["<think>let me think</think>", "main.py is relevant"]
         )
@@ -75,8 +73,7 @@ class TestEnhanceResults:
         assert filtered[0]["path"] == "main.py"
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=False)
-    def test_returns_empty_when_no_match(self, mock_thinking, mock_stream):
+    def test_returns_empty_when_no_match(self, mock_stream):
         mock_stream.return_value = iter(["No relevant files found"])
         spinner = MagicMock()
 
@@ -87,8 +84,7 @@ class TestEnhanceResults:
         assert len(filtered) == 0
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=False)
-    def test_returns_all_when_all_match(self, mock_thinking, mock_stream):
+    def test_returns_all_when_all_match(self, mock_stream):
         mock_stream.return_value = iter(
             ["Both main.py and utils.py are relevant"]
         )
@@ -101,8 +97,7 @@ class TestEnhanceResults:
         assert len(filtered) == 2
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=False)
-    def test_updates_spinner_text(self, mock_thinking, mock_stream):
+    def test_updates_spinner_text(self, mock_stream):
         mock_stream.return_value = iter(["chunk1", "chunk2"])
         spinner = MagicMock()
 
@@ -112,8 +107,7 @@ class TestEnhanceResults:
         assert spinner.text is not None
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=False)
-    def test_passes_config_to_stream_chat(self, mock_thinking, mock_stream):
+    def test_passes_config_to_stream_chat(self, mock_stream):
         mock_stream.return_value = iter(["main.py"])
         spinner = MagicMock()
 
@@ -127,8 +121,7 @@ class TestEnhanceResults:
         assert call_args[0][0] == config
 
     @patch("seagoat.utils.generative.stream_chat")
-    @patch("seagoat.utils.generative.is_thinking_model", return_value=False)
-    def test_defaults_config_to_empty_dict(self, mock_thinking, mock_stream):
+    def test_defaults_config_to_empty_dict(self, mock_stream):
         mock_stream.return_value = iter(["main.py"])
         spinner = MagicMock()
 
