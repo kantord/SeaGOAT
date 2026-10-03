@@ -86,8 +86,20 @@ class RipGrepCache(str):
             with open(self.file_path, encoding="utf-8") as cache_file:
                 self._data = cache_file.read()
         else:
+            # On POSIX systems, mmap() cannot map a zero-length file.
+            # If the cache file is empty, avoid mmap and use an empty bytes buffer instead.
+            # See Issue #945 for details.
             with open(self.file_path, "r+b") as cache_file:
-                self._data = mmap.mmap(cache_file.fileno(), 0)
+                try:
+                    cache_file.seek(0, 2)  # move to end to determine size
+                    size = cache_file.tell()
+                    cache_file.seek(0)
+                except Exception:
+                    size = 0
+                if size == 0:
+                    self._data = b""
+                else:
+                    self._data = mmap.mmap(cache_file.fileno(), 0)
 
     def encode(self, *args, **kwargs):  # type: ignore
         return self._data
@@ -128,8 +140,28 @@ def initialize(repository: Repository):
         ]
 
         try:
+            # Determine safe text input for subprocess
+            try:
+                raw = cache.encode("utf-8")  # RipGrepCache overrides encode()
+            except Exception:
+                raw = cache.as_input()
+
+            if isinstance(raw, (bytes, bytearray)):
+                cache_input_text = raw.decode("utf-8", errors="ignore")
+            elif hasattr(raw, "read"):
+                # Likely an mmap object
+                try:
+                    b = bytes(raw)
+                except Exception:
+                    b = b""
+                cache_input_text = b.decode("utf-8", errors="ignore")
+            elif isinstance(raw, str):
+                cache_input_text = raw
+            else:
+                cache_input_text = str(raw)
+
             rg_output = subprocess.check_output(
-                cmd, encoding="utf-8", input=cache.as_input()
+                cmd, encoding="utf-8", input=cache_input_text
             )
         except subprocess.CalledProcessError as exception:
             rg_output = exception.output
