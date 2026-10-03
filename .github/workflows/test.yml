@@ -38,24 +38,24 @@ jobs:
                     brew install ripgrep
                   fi
 
-            - name: Install Poetry
-              uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1
+            - name: Install uv
+              uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
             - name: Install dependencies on macOS
               if: runner.os == 'macOS'
               run: |
                   export HNSWLIB_NO_NATIVE=1
-                  arch -x86_64 poetry install --no-interaction --no-root
+                  arch -x86_64 uv sync --locked --no-install-project
 
             - name: Install dependencies on other OS
               if: runner.os != 'macOS'
               run: |
                   export HNSWLIB_NO_NATIVE=1
-                  poetry install --no-interaction --no-root
+                  uv sync --locked --no-install-project
 
             - name: Run pytest
               run: |
-                  poetry run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
+                  uv run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
 
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5-beta

@@ -18,7 +18,7 @@ The following dependencies need to be installed:
 
 * [Git](https://git-scm.com/downloads)
 * [Python 3.11 or newer](https://www.python.org/downloads/)
-* [Poetry](https://python-poetry.org/docs/#installation)
+* [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### Step 3: Clone the repository
 
@@ -29,16 +29,16 @@ git clone git@github.com:kantord/SeaGOAT.git
 cd SeaGOAT
 ```
 
-### Step 4: Run `poetry install`
+### Step 4: Run `uv sync`
 
-Poetry is used to manage dependencies in this project. Poetry also manages
+uv is used to manage dependencies in this project. uv also manages
 virtualenvs automatically.
 
-If you have Poetry installed correctly, automatically setting up a virtualenv
+If you have uv installed correctly, automatically setting up a virtualenv
 and installing all dependencies is as easy as running:
 
 ```bash
-poetry install
+uv sync
 ```
 
 ### Step 5: Run tests
@@ -47,7 +47,7 @@ To make sure that your development environment was set up correctly, run
 tests:
 
 ```bash
-poetry run pytest
+uv run pytest
 ```
 
 If all tests pass, you have set up your development environment correctly.
@@ -63,14 +63,14 @@ It is recommended to set up pre-commit hooks so that these checks are
 executed automatically. You can do so by running this command:
 
 ```bash
-poetry run pre-commit install
+uv run pre-commit install
 ```
 
 If you do *not* wish to use pre-commit hooks, you can still execute all
 checks manually by running:
 
 ```bash
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Developing SeaGOAT
@@ -84,19 +84,19 @@ Automated testing is done using `pytest`. Here are some example use cases:
 Automatically runs tests for **all** files when you save your changes:
 
 ```bash
-poetry run ptw
+uv run ptw
 ```
 
 #### Test changed files
 
 ```bash
-poetry run pytest . --testmon
+uv run pytest . --testmon
 ```
 
 #### Test all files
 
 ```bash
-poetry run pytest .
+uv run pytest .
 ```
 
 #### Snapshot testing
@@ -105,30 +105,30 @@ Snapshot testing is used in a few test cases.
 You can update snapshots by running
 
 ```bash
-poetry run pytest  --snapshot-update
+uv run pytest  --snapshot-update
 ```
 
 ### Manual testing
 
 In order to test your local changes to SeaGOAT manually, you can prefix
-the command by `poetry run`. For example to run your local
+the command by `uv run`. For example to run your local
 version of `seagoat-server`, just run:
 
 ```bash
-poetry run seagoat-server
+uv run seagoat-server
 ```
 
 Similarly, to run your local version of `gt`/`seagoat`, you can run:
 
 ```bash
-poetry run gt
+uv run gt
 ```
 
 You can run an `ipython` in the correct virtualenv also by prefixing it
-with `poetry run`:
+with `uv run`:
 
 ```bash
-poetry run ipython
+uv run ipython
 ```
 
 ### Automatic checks (linting) and automatic formatting

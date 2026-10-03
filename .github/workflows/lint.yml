@@ -27,12 +27,12 @@ jobs:
               with:
                   python-version: ${{ matrix.python-version }}
 
-            - name: Install Poetry
-              uses: snok/install-poetry@76e04a911780d5b312d89783f7b1cd627778900a # v1
+            - name: Install uv
+              uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
             - name: Install dependencies
-              run: poetry install --no-interaction --no-root
+              run: uv sync --locked --no-install-project
 
             - name: Run pre-commit
               run: |
-                  poetry run pre-commit run --all-files
+                  uv run pre-commit run --all-files
