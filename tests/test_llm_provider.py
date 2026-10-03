@@ -119,9 +119,7 @@ class TestStreamChatMiniMax:
 
         result = list(stream_chat(config, messages))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "test-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "test-key")
         assert result == ["result"]
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
@@ -173,9 +171,7 @@ class TestStreamChatMiniMax:
         config = {"generative": {"provider": "minimax"}}
         list(stream_chat(config, [{"role": "user", "content": "q"}]))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "env-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "env-key")
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
     def test_config_api_key_overrides_env(self, mock_get_client):
@@ -189,9 +185,7 @@ class TestStreamChatMiniMax:
         config = {"generative": {"provider": "minimax", "apiKey": "cfg-key"}}
         list(stream_chat(config, [{"role": "user", "content": "q"}]))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "cfg-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "cfg-key")
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
     def test_custom_base_url(self, mock_get_client):
@@ -229,9 +223,7 @@ class TestStreamChatOpenAI:
 
         result = list(stream_chat(config, messages))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.openai.com/v1", "sk-test"
-        )
+        mock_get_client.assert_called_once_with("https://api.openai.com/v1", "sk-test")
         assert result == ["hello"]
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
@@ -267,8 +259,10 @@ class TestStreamChatNoneContent:
         assert result == ["hello", "", " world"]
 
 
-class TestStreamChatHardening:
-    @patch.dict("os.environ", {"OPENAI_API_KEY": "sk-env", "MINIMAX_API_KEY": "mm"}, clear=True)
+class TestProviderSafetyAndRobustness:
+    @patch.dict(
+        "os.environ", {"OPENAI_API_KEY": "sk-env", "MINIMAX_API_KEY": "mm"}, clear=True
+    )
     def test_api_keys_in_env_do_not_select_a_cloud_provider(self):
         provider, _, _ = _get_provider_config({})
         assert provider == "ollama"

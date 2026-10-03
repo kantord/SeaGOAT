@@ -1,5 +1,6 @@
 import copy
 import os
+import sys
 from pathlib import Path
 
 import appdirs
@@ -124,10 +125,15 @@ def get_config_values(repo_path: Path):
         config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
 
     if repo_config_file.exists():
-        generative_config = copy.deepcopy(config["generative"])
-        config = extend_config_with_file(config, repo_config_file)
+        repo_config = validate_config_file(repo_config_file)
         # The repo file is untrusted: it must not be able to choose the LLM
         # provider or endpoint, since that would send API keys and code there.
-        config["generative"] = generative_config
+        if repo_config.pop("generative", None) is not None:
+            print(
+                f"Ignoring 'generative' in {repo_config_file}: "
+                "set it in the global config file instead.",
+                file=sys.stderr,
+            )
+        config = always_merger.merge(config, repo_config)
 
     return config

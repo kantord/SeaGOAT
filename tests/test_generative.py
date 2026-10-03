@@ -59,7 +59,7 @@ class TestEnhanceResults:
         assert filtered[0]["path"] == "main.py"
 
     @patch("seagoat.utils.generative.stream_chat")
-    def test_strips_thinking_for_reasoning_models(self, mock_stream):
+    def test_strips_thinking_tags(self, mock_stream):
         mock_stream.return_value = iter(
             ["<think>let me think</think>", "main.py is relevant"]
         )
