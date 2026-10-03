@@ -11,15 +11,12 @@ from stop_words import get_stop_words
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
-from seagoat.sources.chroma import MAXIMUM_VECTOR_DISTANCE
+from seagoat.utils.config import get_config_values
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import is_file_type_supported
 
 KILOBYTE = 1024
 MEGABYTE = KILOBYTE * 1024
-MAX_MMAP_SIZE = 500
-MAX_MMAP_SIZE_BYTES = MAX_MMAP_SIZE * MEGABYTE
-MAX_FILE_SIZE = 200 * KILOBYTE
 STOP_WORDS = set(get_stop_words("english"))
 
 
@@ -32,16 +29,19 @@ class RipGrepCache(str):
             self.file_path = tempfile.mktemp()
         self.is_initialized = False
         self._data = ""
+        self.config = get_config_values(Path(repository.path))
 
     def _iterate_files_to_cache(self):
         for file, _ in self.repository.top_files():
             yield file
 
     def _iterate_lines_to_cache(self):
+        max_file_size_kb = self.config["server"]["ripgrep"]["maxFileSize"]
+        max_file_size_bytes = max_file_size_kb * KILOBYTE
         for file in self._iterate_files_to_cache():
             file_contents = read_file_with_correct_encoding(file.absolute_path)
 
-            if len(file_contents) > MAX_FILE_SIZE:
+            if len(file_contents) > max_file_size_bytes:
                 logging.warning("Warning: file %s is too large to cache", file.path)
                 continue
 
@@ -55,6 +55,8 @@ class RipGrepCache(str):
     def _build_cache_file(self):
         total_estimated_cache_size = 0
         line_count = 0
+        max_mmap_size = self.config["server"]["ripgrep"]["maxMmapSize"]
+        max_mmap_size_bytes = max_mmap_size * MEGABYTE
 
         with open(self.file_path, "w", encoding="utf-8") as cache_file:
             for formattted_cache_line in self._generate_cache_lines():
@@ -62,10 +64,10 @@ class RipGrepCache(str):
                 total_estimated_cache_size += len(formattted_cache_line)
                 line_count += 1
 
-                if total_estimated_cache_size > MAX_MMAP_SIZE_BYTES:
+                if total_estimated_cache_size > max_mmap_size_bytes:
                     logging.warning(
                         "Warning: maximum estimated ripgrep cache size of %s megabytes exceeded",
-                        MAX_MMAP_SIZE,
+                        max_mmap_size,
                     )
 
                     break
@@ -130,6 +132,7 @@ def initialize(repository: Repository):
             query_text = query_text_without_stopwords
         query_text = re.sub(r"\s+", "|", query_text)
         files = {}
+        max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
 
         cmd = [
             "rg",
@@ -177,7 +180,7 @@ def initialize(repository: Repository):
                 files[relative_path] = Result(query_text, gitfile)
 
             # This is so that ripgrep results are on comparable levels with chroma results
-            files[relative_path].add_line(line_number, MAXIMUM_VECTOR_DISTANCE * 0.8)
+            files[relative_path].add_line(line_number, max_vector_distance * 0.8)
 
         return files.values()
 

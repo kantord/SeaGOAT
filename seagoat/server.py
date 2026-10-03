@@ -44,6 +44,9 @@ def create_app(repo_path):
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.debug = True
 
+    config = get_config_values(Path(repo_path))
+    app.config["seagoat_config"] = config
+
     app.extensions["task_queue"] = TaskQueue(
         repo_path=repo_path, minimum_chunks_to_analyze=0
     )
@@ -65,10 +68,17 @@ def create_app(repo_path):
     @app.route("/lines/query", methods=["POST"])
     def query_lines():
         data = request.json
+        defaults = current_app.config["seagoat_config"]["server"]["query"]
         query = get_fallback_value(data, "queryText", "")
-        limit_clue = int(get_fallback_value(data, "limitClue", "500"))
-        context_above = int(get_fallback_value(data, "contextAbove", 3))
-        context_below = int(get_fallback_value(data, "contextBelow", 3))
+        limit_clue = int(
+            get_fallback_value(data, "limitClue", defaults["defaultLimitClue"])
+        )
+        context_above = int(
+            get_fallback_value(data, "contextAbove", defaults["defaultContextAbove"])
+        )
+        context_below = int(
+            get_fallback_value(data, "contextBelow", defaults["defaultContextBelow"])
+        )
 
         return execute_query(
             query=query,
@@ -80,8 +90,11 @@ def create_app(repo_path):
     @app.route("/files/query", methods=["POST"])
     def query_files():
         data = request.json
+        defaults = current_app.config["seagoat_config"]["server"]["query"]
         query = get_fallback_value(data, "queryText", "")
-        limit_clue = int(get_fallback_value(data, "limitClue", "500"))
+        limit_clue = int(
+            get_fallback_value(data, "limitClue", defaults["defaultLimitClue"])
+        )
 
         result = execute_query(
             query=query, context_above=0, context_below=0, limit_clue=limit_clue

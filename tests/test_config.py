@@ -92,3 +92,44 @@ def test_invalid_config_throws_exception(
 
     with pytest.raises(jsonschema.exceptions.ValidationError):  # type: ignore
         get_config_values(Path(repo.working_dir))
+
+
+@pytest.mark.parametrize(
+    "section,key,value",
+    [
+        ("chroma", "maxVectorDistance", 0),
+        ("chroma", "maxChunksToFetch", 5),
+        ("chroma", "nResultsMultiplier", 0.5),
+        ("ripgrep", "maxFileSize", 0),
+        ("ripgrep", "maxMmapSize", 5),
+        ("engine", "maxWorkers", 0),
+        ("engine", "maxWorkers", 33),
+        ("query", "defaultLimitClue", 1),
+        ("query", "defaultContextAbove", -1),
+    ],
+)
+def test_rejects_out_of_range_values(repo, section, key, value, create_config_file):
+    create_config_file({"server": {section: {key: value}}}, global_config=False)
+
+    with pytest.raises(jsonschema.ValidationError):
+        get_config_values(Path(repo.working_dir))
+
+
+def test_rejects_zero_min_chunks_to_analyze(repo, create_config_file):
+    create_config_file(
+        {"server": {"engine": {"minChunksToAnalyze": {"minValue": 0}}}},
+        global_config=False,
+    )
+
+    with pytest.raises(jsonschema.ValidationError):
+        get_config_values(Path(repo.working_dir))
+
+
+def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
+    create_config_file(
+        {"server": {"chroma": {"nResultsMultiplier": 2.5}}}, global_config=False
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["chroma"]["nResultsMultiplier"] == 2.5
