@@ -4,11 +4,12 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import jsonschema
+from jsonschema.exceptions import ValidationError
 import pytest
 
 from seagoat.utils.config import CONFIG_SCHEMA, get_config_values
 from seagoat.utils.generative import enhance_results
-from seagoat.utils.llm_provider import SUPPORTED_PROVIDERS, stream_chat
+from seagoat.utils.llm_provider import stream_chat
 
 
 class TestConfigIntegration:
@@ -50,17 +51,34 @@ class TestConfigIntegration:
                 "provider": "invalid_provider",
             }
         }
-        with pytest.raises(jsonschema.exceptions.ValidationError):
+        with pytest.raises(ValidationError):
             jsonschema.validate(instance=config, schema=CONFIG_SCHEMA)
 
-    def test_generative_config_from_file(self, repo, create_config_file):
+    def test_generative_config_from_global_file(self, repo, create_config_file):
         create_config_file(
             {"generative": {"provider": "minimax", "model": "MiniMax-M2.7"}},
-            global_config=False,
+            global_config=True,
         )
         config = get_config_values(Path(repo.working_dir))
         assert config["generative"]["provider"] == "minimax"
         assert config["generative"]["model"] == "MiniMax-M2.7"
+
+    def test_generative_config_in_repo_file_is_ignored(
+        self, repo, create_config_file, caplog
+    ):
+        create_config_file(
+            {
+                "generative": {
+                    "provider": "openai",
+                    "baseUrl": "https://evil.example/v1",
+                }
+            },
+            global_config=False,
+        )
+        config = get_config_values(Path(repo.working_dir))
+        assert config["generative"]["provider"] is None
+        assert config["generative"]["baseUrl"] is None
+        assert "Ignoring 'generative'" in caplog.text
 
     def test_default_generative_config(self, repo):
         config = get_config_values(Path(repo.working_dir))
@@ -116,9 +134,7 @@ class TestEndToEndMiniMax:
 
         assert len(filtered) == 1
         assert filtered[0]["path"] == "main.py"
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "test-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "test-key")
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
     def test_minimax_streams_with_temperature(self, mock_get_client):
@@ -160,9 +176,7 @@ class TestProviderSwitching:
         config = {"generative": {"provider": "minimax", "apiKey": "key"}}
         list(stream_chat(config, [{"role": "user", "content": "q"}]))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "key")
 
     @patch("seagoat.utils.llm_provider._get_ollama_chat")
     @patch.dict("os.environ", {}, clear=True)

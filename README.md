@@ -103,10 +103,12 @@ server:
 
 The `--generative` flag uses an LLM to enhance search results. By default it
 uses a local [Ollama](https://ollama.com/) server, but you can configure a
-cloud provider instead:
+cloud provider instead. Cloud providers send your code snippets to a third
+party, so they are opt-in. This setting is only read from the global config
+file, never from a repository's `.seagoat.yml`:
 
 ```yaml
-# .seagoat.yml — use MiniMax as the generative provider
+# global config file — use MiniMax as the generative provider
 generative:
   provider: minimax        # ollama | openai | minimax
   model: MiniMax-M2.5      # optional, provider-specific default used otherwise
@@ -118,8 +120,9 @@ generative:
 | `openai` | `gpt-4o-mini` | `OPENAI_API_KEY` | `https://api.openai.com/v1` |
 | `minimax` | `MiniMax-M2.5` | `MINIMAX_API_KEY` | `https://api.minimax.io/v1` |
 
-If no provider is configured, SeaGOAT auto-detects based on environment
-variables (`MINIMAX_API_KEY` > `OPENAI_API_KEY` > Ollama fallback).
+If no provider is configured, SeaGOAT uses Ollama. API keys are read from the
+environment variables above; prefer them over putting `apiKey` in the config
+file.
 
 [Check out the documentation](https://kantord.github.io/SeaGOAT/latest/configuration/)
 for more details!

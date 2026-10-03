@@ -7,9 +7,7 @@ import pytest
 from seagoat.utils.llm_provider import (
     PROVIDER_DEFAULTS,
     SUPPORTED_PROVIDERS,
-    _detect_provider,
     _get_provider_config,
-    is_thinking_model,
     stream_chat,
 )
 
@@ -39,28 +37,6 @@ class TestProviderDefaults:
         assert PROVIDER_DEFAULTS["minimax"]["base_url"] == "https://api.minimax.io/v1"
 
 
-class TestDetectProvider:
-    @patch.dict("os.environ", {}, clear=True)
-    def test_defaults_to_ollama(self):
-        assert _detect_provider() == "ollama"
-
-    @patch.dict("os.environ", {"MINIMAX_API_KEY": "test-key"}, clear=True)
-    def test_detects_minimax_from_env(self):
-        assert _detect_provider() == "minimax"
-
-    @patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}, clear=True)
-    def test_detects_openai_from_env(self):
-        assert _detect_provider() == "openai"
-
-    @patch.dict(
-        "os.environ",
-        {"MINIMAX_API_KEY": "mm-key", "OPENAI_API_KEY": "oa-key"},
-        clear=True,
-    )
-    def test_minimax_takes_priority_over_openai(self):
-        assert _detect_provider() == "minimax"
-
-
 class TestGetProviderConfig:
     def test_uses_explicit_provider(self):
         config = {"generative": {"provider": "minimax"}}
@@ -88,24 +64,6 @@ class TestGetProviderConfig:
         config = {"generative": {"provider": "openai", "apiKey": "sk-test"}}
         _, _, gen_config = _get_provider_config(config)
         assert gen_config["apiKey"] == "sk-test"
-
-
-class TestIsThinkingModel:
-    def test_deepseek_r1_is_thinking(self):
-        config = {"generative": {"provider": "ollama", "model": "deepseek-r1:8b"}}
-        assert is_thinking_model(config) is True
-
-    def test_gpt4o_is_not_thinking(self):
-        config = {"generative": {"provider": "openai", "model": "gpt-4o-mini"}}
-        assert is_thinking_model(config) is False
-
-    def test_minimax_is_not_thinking(self):
-        config = {"generative": {"provider": "minimax", "model": "MiniMax-M2.5"}}
-        assert is_thinking_model(config) is False
-
-    @patch.dict("os.environ", {}, clear=True)
-    def test_default_ollama_is_thinking(self):
-        assert is_thinking_model({}) is True
 
 
 class TestStreamChatOllama:
@@ -161,9 +119,7 @@ class TestStreamChatMiniMax:
 
         result = list(stream_chat(config, messages))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "test-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "test-key")
         assert result == ["result"]
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
@@ -215,9 +171,7 @@ class TestStreamChatMiniMax:
         config = {"generative": {"provider": "minimax"}}
         list(stream_chat(config, [{"role": "user", "content": "q"}]))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "env-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "env-key")
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
     def test_config_api_key_overrides_env(self, mock_get_client):
@@ -231,9 +185,7 @@ class TestStreamChatMiniMax:
         config = {"generative": {"provider": "minimax", "apiKey": "cfg-key"}}
         list(stream_chat(config, [{"role": "user", "content": "q"}]))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.minimax.io/v1", "cfg-key"
-        )
+        mock_get_client.assert_called_once_with("https://api.minimax.io/v1", "cfg-key")
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
     def test_custom_base_url(self, mock_get_client):
@@ -271,9 +223,7 @@ class TestStreamChatOpenAI:
 
         result = list(stream_chat(config, messages))
 
-        mock_get_client.assert_called_once_with(
-            "https://api.openai.com/v1", "sk-test"
-        )
+        mock_get_client.assert_called_once_with("https://api.openai.com/v1", "sk-test")
         assert result == ["hello"]
 
     @patch("seagoat.utils.llm_provider._get_openai_client")
@@ -307,3 +257,41 @@ class TestStreamChatNoneContent:
         config = {"generative": {"provider": "ollama"}}
         result = list(stream_chat(config, [{"role": "user", "content": "q"}]))
         assert result == ["hello", "", " world"]
+
+
+class TestProviderSafetyAndRobustness:
+    @patch.dict(
+        "os.environ", {"OPENAI_API_KEY": "sk-env", "MINIMAX_API_KEY": "mm"}, clear=True
+    )
+    def test_api_keys_in_env_do_not_select_a_cloud_provider(self):
+        provider, _, _ = _get_provider_config({})
+        assert provider == "ollama"
+
+    @patch("seagoat.utils.llm_provider._get_openai_client")
+    def test_minimax_with_default_config_values(self, mock_get_client):
+        chunk = MagicMock()
+        chunk.choices[0].delta.content = "hi"
+        mock_get_client.return_value.chat.completions.create.return_value = [chunk]
+        config = {
+            "generative": {
+                "provider": "minimax",
+                "model": None,
+                "apiKey": "k",
+                "baseUrl": None,
+                "temperature": None,
+            }
+        }
+        assert list(stream_chat(config, [])) == ["hi"]
+
+    @patch("seagoat.utils.llm_provider._get_openai_client")
+    def test_skips_chunks_without_choices(self, mock_get_client):
+        usage_chunk = MagicMock()
+        usage_chunk.choices = []
+        chunk = MagicMock()
+        chunk.choices[0].delta.content = "hi"
+        mock_get_client.return_value.chat.completions.create.return_value = [
+            usage_chunk,
+            chunk,
+        ]
+        config = {"generative": {"provider": "openai", "apiKey": "k"}}
+        assert list(stream_chat(config, [])) == ["hi"]
