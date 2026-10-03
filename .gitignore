@@ -94,7 +94,6 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
-
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
 #pdm.lock

@@ -3,7 +3,7 @@ name = "seagoat"
 version = "1.4.0"
 description = "A semantic-code search engine"
 authors = [{ name = "Daniel Kantor", email = "git@daniel-kantor.com" }]
-requires-python = ">=3.10,<4,< 3.14"
+requires-python = ">=3.10,<3.14"
 readme = "README.md"
 license = "MIT"
 classifiers = [
@@ -85,7 +85,6 @@ default-groups = "all"
 [tool.uv.build-backend]
 module-root = ""
 
-
 [build-system]
 requires = ["uv_build>=0.12.13,<0.13.0"]
 build-backend = "uv_build"
@@ -105,7 +104,6 @@ pythonPlatform = "Linux"
 strict = []
 
 executionEnvironments = [ { root = "src" } ]
-
 
 [tool.semantic_release]
 version_toml = [ "pyproject.toml:project.version" ]
