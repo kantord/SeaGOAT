@@ -161,3 +161,6 @@ exclude = [
     "typings",
     ".venv"
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/conftest.py" = ["E402"]
