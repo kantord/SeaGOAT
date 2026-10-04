@@ -453,10 +453,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-4-run-poetry-install" class="md-nav__link">
+  <a href="#step-4-run-uv-sync" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4: Run poetry install
+        Step 4: Run uv sync
       
     </span>
   </a>
@@ -709,10 +709,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-4-run-poetry-install" class="md-nav__link">
+  <a href="#step-4-run-uv-sync" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4: Run poetry install
+        Step 4: Run uv sync
       
     </span>
   </a>
@@ -922,25 +922,25 @@ on your computer.</p>
 <p>The following dependencies need to be installed:</p>
 <ul>
 <li><a href="https://git-scm.com/downloads">Git</a></li>
-<li><a href="https://www.python.org/downloads/">Python 3.11 or newer</a></li>
-<li><a href="https://python-poetry.org/docs/#installation">Poetry</a></li>
+<li><a href="https://www.python.org/downloads/">Python 3.10 or newer</a></li>
+<li><a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a></li>
 </ul>
 <h3 id="step-3-clone-the-repository">Step 3: Clone the repository</h3>
 <p>Use Git to clone the repository:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:kantord/SeaGOAT.git
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>SeaGOAT
 </span></code></pre></div>
-<h3 id="step-4-run-poetry-install">Step 4: Run <code>poetry install</code></h3>
-<p>Poetry is used to manage dependencies in this project. Poetry also manages
+<h3 id="step-4-run-uv-sync">Step 4: Run <code>uv sync</code></h3>
+<p>uv is used to manage dependencies in this project. uv also manages
 virtualenvs automatically.</p>
-<p>If you have Poetry installed correctly, automatically setting up a virtualenv
+<p>If you have uv installed correctly, automatically setting up a virtualenv
 and installing all dependencies is as easy as running:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>poetry<span class="w"> </span>install
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>sync
 </span></code></pre></div>
 <h3 id="step-5-run-tests">Step 5: Run tests</h3>
 <p>To make sure that your development environment was set up correctly, run
 tests:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
 </span></code></pre></div>
 <p>If all tests pass, you have set up your development environment correctly.</p>
 <h3 id="step-6-optional-set-up-pre-commit-hooks">Step 6: (Optional) Set up pre-commit hooks</h3>
@@ -950,42 +950,42 @@ as reformatting the code to enforce code style. Other tools will merely point
 out issues before you commit your code.</p>
 <p>It is recommended to set up pre-commit hooks so that these checks are
 executed automatically. You can do so by running this command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
 </span></code></pre></div>
 <p>If you do <em>not</em> wish to use pre-commit hooks, you can still execute all
 checks manually by running:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 </span></code></pre></div>
 <h2 id="developing-seagoat">Developing SeaGOAT</h2>
 <h3 id="automated-testing">Automated testing</h3>
 <p>Automated testing is done using <code>pytest</code>. Here are some example use cases:</p>
 <h4 id="watch-mode">Watch mode</h4>
 <p>Automatically runs tests for <strong>all</strong> files when you save your changes:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ptw
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ptw
 </span></code></pre></div>
 <h4 id="test-changed-files">Test changed files</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w"> </span>--testmon
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w"> </span>--testmon
 </span></code></pre></div>
 <h4 id="test-all-files">Test all files</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
 </span></code></pre></div>
 <h4 id="snapshot-testing">Snapshot testing</h4>
 <p>Snapshot testing is used in a few test cases.
 You can update snapshots by running</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">  </span>--snapshot-update
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">  </span>--snapshot-update
 </span></code></pre></div>
 <h3 id="manual-testing">Manual testing</h3>
 <p>In order to test your local changes to SeaGOAT manually, you can prefix
-the command by <code>poetry run</code>. For example to run your local
+the command by <code>uv run</code>. For example to run your local
 version of <code>seagoat-server</code>, just run:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>seagoat-server
 </span></code></pre></div>
 <p>Similarly, to run your local version of <code>gt</code>/<code>seagoat</code>, you can run:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>gt
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>run<span class="w"> </span>gt
 </span></code></pre></div>
 <p>You can run an <code>ipython</code> in the correct virtualenv also by prefixing it
-with <code>poetry run</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ipython
+with <code>uv run</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ipython
 </span></code></pre></div>
 <h3 id="automatic-checks-linting-and-automatic-formatting">Automatic checks (linting) and automatic formatting</h3>
 <p>This repository uses <code>pre-commit</code> to run automatic checks and fixes on the

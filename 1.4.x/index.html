@@ -1151,7 +1151,7 @@ leverages vector embeddings to enable you to search your codebase semantically.<
 <p>In order to install SeaGOAT, you need to have the following
 dependencies already installed on your computer:</p>
 <ul>
-<li>Python 3.11 or newer</li>
+<li>Python 3.10 or newer</li>
 <li>ripgrep</li>
 <li><a href="https://github.com/sharkdp/bat">bat</a> (<strong>optional</strong>, highly recommended)</li>
 </ul>
@@ -1247,29 +1247,29 @@ for more details!</p>
 <h2 id="development">Development</h2>
 <p><strong>Requirements</strong>:</p>
 <ul>
-<li><a href="https://python-poetry.org/">Poetry</a></li>
-<li>Python 3.11 or newer</li>
+<li><a href="https://docs.astral.sh/uv/">uv</a></li>
+<li>Python 3.10 or newer</li>
 <li><a href="https://github.com/BurntSushi/ripgrep">ripgrep</a></li>
 </ul>
 <h3 id="install-dependencies">Install dependencies</h3>
 <p>After cloning the repository, install dependencies using the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>install
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>sync
 </span></code></pre></div>
 <h3 id="running-tests">Running tests</h3>
 <h4 id="watch-mode-recommended">Watch mode (recommended)</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ptw
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ptw
 </span></code></pre></div>
 <h4 id="test-changed-files">Test changed files</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.<span class="w">  </span>--testmon
 </span></code></pre></div>
 <h4 id="test-all-files">Test all files</h4>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>.
 </span></code></pre></div>
 <h3 id="manual-testing">Manual testing</h3>
 <p>You can test any SeaGOAT command manually in your local development
 environment. For example to test the development version of the
 <code>seagoat-server</code> command, you can run:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>start<span class="w"> </span>~/path/an/example/repository
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>seagoat-server<span class="w"> </span>start<span class="w"> </span>~/path/an/example/repository
 </span></code></pre></div>
 <h2 id="faq">FAQ</h2>
 <p>The points in this FAQ are indications of how SeaGOAT works, but are not
