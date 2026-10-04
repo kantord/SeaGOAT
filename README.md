@@ -24,7 +24,7 @@ leverages vector embeddings to enable you to search your codebase semantically.
 In order to install SeaGOAT, you need to have the following
 dependencies already installed on your computer:
 
-- Python 3.11 or newer
+- Python 3.10 or newer
 - ripgrep
 - [bat](https://github.com/sharkdp/bat) (**optional**, highly recommended)
 
@@ -131,8 +131,8 @@ for more details!
 
 **Requirements**:
 
-- [Poetry](https://python-poetry.org/)
-- Python 3.11 or newer
+- [uv](https://docs.astral.sh/uv/)
+- Python 3.10 or newer
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
 
 ### Install dependencies
@@ -140,7 +140,7 @@ for more details!
 After cloning the repository, install dependencies using the following command:
 
 ```bash
-poetry install
+uv sync
 ```
 
 ### Running tests
@@ -148,19 +148,19 @@ poetry install
 #### Watch mode (recommended)
 
 ```bash
-poetry run ptw
+uv run ptw
 ```
 
 #### Test changed files
 
 ```bash
-poetry run pytest .  --testmon
+uv run pytest .  --testmon
 ```
 
 #### Test all files
 
 ```bash
-poetry run pytest .
+uv run pytest .
 ```
 
 ### Manual testing
@@ -170,7 +170,7 @@ environment. For example to test the development version of the
 `seagoat-server` command, you can run:
 
 ```bash
-poetry run seagoat-server start ~/path/an/example/repository
+uv run seagoat-server start ~/path/an/example/repository
 ```
 
 ## FAQ
