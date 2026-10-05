@@ -45,28 +45,57 @@ class Repository:
 
         return False
 
-    def get_file_object_id(self, file_path: str):
+    def get_file_object_id(self, file_path: str) -> str | None:
         """
         Returns the git object id for the current version
-        of a file
+        of a file, or None if the file is not part of HEAD
+        (for example a file that was deleted from the repository,
+        but exists in the working tree as an untracked file)
         """
-        object_id = (
-            subprocess.check_output(
-                [
-                    "git",
-                    "-C",
-                    str(self.path),
-                    "ls-tree",
-                    "HEAD",
-                    str(file_path),
-                ],
-                text=True,
-            )
-            .split()[2]
-            .strip()
+        ls_tree_output = subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(self.path),
+                "ls-tree",
+                "HEAD",
+                str(file_path),
+            ],
+            text=True,
+        ).split()
+
+        if len(ls_tree_output) < 3:
+            return None
+
+        return ls_tree_output[2]
+
+    def _get_files_at_head(self) -> set[str]:
+        """
+        Returns the paths of all the files that are part of HEAD, which
+        are the only files that have a git object id to index them by
+        """
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(self.path),
+                "ls-tree",
+                "-r",
+                "--name-only",
+                "-z",
+                "HEAD",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
         )
 
-        return object_id
+        if result.returncode != 0:
+            # There is no HEAD to read from, for example in a
+            # repository that has no commits yet
+            return set()
+
+        return {path for path in result.stdout.split("\0") if path}
 
     def get_blob_data(self, object_id: str) -> str:
         data = subprocess.check_output(
@@ -95,8 +124,17 @@ class Repository:
 
         self.file_changes.clear()
 
-        files = set(
-            subprocess.check_output(["rg", "--files"], cwd=self.path, text=True).split()
+        # Only files that exist in the working tree (and are not ignored) and
+        # are also part of HEAD are considered. Files that appear in the
+        # history but are not part of HEAD any more (e.g. deleted files
+        # that were re-created as untracked files) can't be indexed.
+        files = (
+            set(
+                subprocess.check_output(
+                    ["rg", "--files"], cwd=self.path, text=True
+                ).split()
+            )
+            & self._get_files_at_head()
         )
 
         current_commit_info = None
@@ -149,12 +187,16 @@ class Repository:
         """
         Returns a GitFile object with the current version of the file
         """
+        object_id = self.get_file_object_id(filename)
+
+        if object_id is None:
+            raise FileNotFoundError(f"{filename} is not part of HEAD")
 
         return GitFile(
             self,
             filename,
             str(self.path / filename),
-            self.get_file_object_id(filename),
+            object_id,
             self.frecency_scores[filename],
             [commit[3] for commit in self.file_changes[filename]],
         )
