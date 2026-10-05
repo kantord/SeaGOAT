@@ -4,6 +4,7 @@ from typing import Any
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
 from seagoat.engine import Engine
+from seagoat.repository import Repository
 from tests.conftest import MockRepo
 from tests.test_server import pytest
 
@@ -296,6 +297,57 @@ def test_ignored_files_is_really_ignored(repo: MockRepo):
     top_files = set(file.path for file, _ in seagoat.repository.top_files())
 
     assert file_name not in top_files
+
+
+def test_does_not_crash_because_of_untracked_files_that_used_to_be_tracked(
+    repo: MockRepo,
+):
+    file_name = "notes.py"
+    repo.add_file_change_commit(
+        file_name=file_name,
+        contents="notes = 1",
+        author=repo.actors["John Doe"],
+        commit_message="Added notes.",
+    )
+    repo.add_file_delete_commit(
+        file_name=file_name,
+        author=repo.actors["John Doe"],
+        commit_message="Removed notes.",
+    )
+    # The file is re-created in the filesystem, but it is not tracked by git
+    # and it is not ignored either, so it is part of the history of the
+    # repository and of the working tree, but not of HEAD.
+    (Path(repo.working_dir) / file_name).write_text("notes = 2")
+
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+        "file4.md",
+    }
+
+
+def test_file_that_is_not_part_of_head_has_no_object_id(repo: MockRepo):
+    (Path(repo.working_dir) / "untracked.py").write_text("untracked = 1")
+    repository = Repository(repo.working_dir)
+
+    assert repository.get_file_object_id("file2.py") is not None
+    assert repository.get_file_object_id("untracked.py") is None
+    assert not repository.is_up_to_date_git_object("untracked.py", "0" * 40)
+
+
+def test_does_not_crash_in_a_repository_without_commits(tmp_path: Path):
+    MockRepo.init(str(tmp_path)).close()
+    (tmp_path / "file1.py").write_text("file = 1")
+    repository = Repository(str(tmp_path))
+
+    repository.analyze_files()
+
+    assert repository.top_files() == []
 
 
 @pytest.mark.asyncio
