@@ -80,6 +80,7 @@ ev = ["seaborn>=0.13.0,<0.14"]
 
 [tool.uv]
 default-groups = ["dev"]
+exclude-newer = "3 days"
 
 [tool.uv.build-backend]
 module-root = ""
