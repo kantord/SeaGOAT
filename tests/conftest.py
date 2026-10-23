@@ -458,12 +458,8 @@ def mock_halo(mocker):
 
 @pytest.fixture
 def runner_with_error(mocker, mock_halo):
-    try:
-        return CliRunner(mix_stderr=False)
-    except TypeError:
-        # click >= 8.2 removed `mix_stderr` and always keeps stdout/stderr
-        # separate now, which is exactly what this fixture was asking for.
-        return CliRunner()
+    # click >= 8.2 always keeps stdout and stderr separate
+    return CliRunner()
 
 
 @pytest.fixture
