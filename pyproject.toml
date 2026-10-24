@@ -33,7 +33,7 @@ dependencies = [
     "ollama>=0.6.3,<0.7",
     "openai>=1.0.0,<2",
     "yaspin>=3.5.1,<4",
-    "mcp>=1.26.0,<2",
+    "mcp>=2.3,<3",
     "packaging>=26.0,<27",
 ]
 
