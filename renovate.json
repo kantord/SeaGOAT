@@ -1,21 +1,52 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:best-practices",
+    "helpers:pinGitHubActionDigestsToSemver"
   ],
   "automerge": true,
   "automergeType": "pr",
-  "requiredStatusChecks": [
-    "pipeline"
-  ],
-  "prCreation": "immediate",
+  "minimumReleaseAge": "3 days",
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": null
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  },
+  "pre-commit": {
+    "enabled": true
+  },
   "packageRules": [
     {
-      "depTypeList": [
-        "dependencies",
-        "devDependencies"
-      ],
-      "automerge": true
+      "description": "The 3-day gate matches `exclude-newer = \"3 days\"` in pyproject.toml: without it Renovate proposes releases that `uv lock` is not allowed to resolve yet. Digest and pin updates carry no release timestamp, so the gate would block them forever; Renovate does not support minimumReleaseAge for pin updates either.",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "lockFileMaintenance has no release timestamp of its own -- it is a whole-lockfile refresh, not a single package bump -- so under the default timestamp-required behaviour the age gate never clears and silently disables the automerge above.",
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Patch updates are low-review-effort; land them as one PR.",
+      "matchUpdateTypes": ["patch"],
+      "groupName": "patch updates"
+    },
+    {
+      "description": "Action digest bumps are independent and noisy; one PR is enough.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "description": "Python versions move by hand: requires-python, .python-version and uv.lock together. Renovate's pep621 manager reads `requires-python` as an updatable version and jumps its range past what uv.lock resolves for, so its own `uv lock` artifact update fails.",
+      "matchDepTypes": ["requires-python"],
+      "enabled": false
+    },
+    {
+      "description": "Same for the interpreter file itself: a lone `.python-version` bump runs ahead of requires-python and uv.lock, and `uv run` refuses to start.",
+      "matchManagers": ["python-version"],
+      "enabled": false
     }
   ]
 }
