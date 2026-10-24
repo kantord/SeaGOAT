@@ -6,13 +6,15 @@
   ],
   "automerge": true,
   "automergeType": "pr",
+  "schedule": ["before 6am on monday"],
   "minimumReleaseAge": "3 days",
   "vulnerabilityAlerts": {
     "minimumReleaseAge": null
   },
   "lockFileMaintenance": {
     "enabled": true,
-    "automerge": true
+    "automerge": true,
+    "schedule": ["before 4am on the first day of the month"]
   },
   "pre-commit": {
     "enabled": true
@@ -29,14 +31,19 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "Patch updates are low-review-effort; land them as one PR.",
-      "matchUpdateTypes": ["patch"],
-      "groupName": "patch updates"
+      "description": "One weekly PR for every non-major update, across pip, pre-commit and GitHub Actions. Majors stay separate PRs so none of them rots unnoticed. Security updates are unaffected: vulnerabilityAlerts defaults to no schedule and no group.",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "non-major dependencies"
     },
     {
-      "description": "Action digest bumps are independent and noisy; one PR is enough.",
-      "matchManagers": ["github-actions"],
-      "groupName": "github actions"
+      "description": "ruff is pinned twice (dev dependency group and pre-commit hook); move both together.",
+      "matchPackageNames": ["ruff", "astral-sh/ruff-pre-commit"],
+      "groupName": "ruff"
+    },
+    {
+      "description": "pyright is pinned twice (dev dependency group and pre-commit hook); move both together.",
+      "matchPackageNames": ["pyright", "RobertCraigie/pyright-python"],
+      "groupName": "pyright"
     },
     {
       "description": "Python versions move by hand: requires-python, .python-version and uv.lock together. Renovate's pep621 manager reads `requires-python` as an updatable version and jumps its range past what uv.lock resolves for, so its own `uv lock` artifact update fails.",
