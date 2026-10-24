@@ -47,11 +47,11 @@
     },
     {
       "description": "pyright is pinned twice (dev dependency group and pre-commit hook); move both together.",
-      "matchPackageNames": ["pyright", "RobertCraigie/pyright-python"],
+      "matchPackageNames": ["pyright", "robertcraigie/pyright-python"],
       "groupName": "pyright"
     },
     {
-      "description": "maturin is pinned twice (build-system in pyproject.toml and maturin-version in release.yml, which the github-actions manager reads); move both together.",
+      "description": "maturin is pinned twice (build-system in pyproject.toml and maturin-version in release.yml, which the github-actions manager reads); move both together. maturin-version is written without a leading v, which maturin-action adds itself, so Renovate can look it up on PyPI.",
       "matchPackageNames": ["maturin"],
       "groupName": "maturin"
     },
