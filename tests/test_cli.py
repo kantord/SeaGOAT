@@ -651,9 +651,15 @@ def test_warn_if_update_available_shows_warning(
     )
 
 
-def test_warn_if_update_available_no_warning(mocker, capsys, mock_response):
-    same_version = __version__
-    mock_version_response = {"info": {"version": same_version}}
+@pytest.mark.parametrize(
+    # 0.54.17 is older than 1.x even though "0.54.17" != __version__
+    "older_or_same_version",
+    [__version__, "0.54.17", "0.1.0"],
+)
+def test_warn_if_update_available_no_warning(
+    mocker, capsys, mock_response, older_or_same_version
+):
+    mock_version_response = {"info": {"version": older_or_same_version}}
 
     mocker.patch("requests.get", return_value=mock_response(mock_version_response))
 
@@ -767,7 +773,13 @@ def test_server_does_not_exist_error(runner_with_error, mocker, repo):
 
 
 @pytest.mark.usefixtures("mock_query_server")
-def test_no_network_to_update(runner_with_error, mocker, mock_response, repo):
+@pytest.mark.parametrize(
+    "network_error",
+    [requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout],
+)
+def test_no_network_to_update(
+    runner_with_error, mocker, mock_response, repo, network_error
+):
     mocked_response = {
         "stats": {
             "chunks": {"analyzed": 100, "unanalyzed": 0},
@@ -781,7 +793,7 @@ def test_no_network_to_update(runner_with_error, mocker, mock_response, repo):
     mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
     mocker.patch(
         "seagoat.cli.warn_if_update_available",
-        side_effect=requests.exceptions.ConnectionError,
+        side_effect=network_error,
     )
     result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
 

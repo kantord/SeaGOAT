@@ -6,6 +6,7 @@ import click
 import orjson
 import requests
 from halo import Halo
+from packaging.version import Version
 
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
@@ -19,10 +20,15 @@ class ExitCode:
     SERVER_ERROR = 4
 
 
+UPDATE_CHECK_TIMEOUT_SECONDS = 3
+
+
 def warn_if_update_available():
-    response = requests.get("https://pypi.org/pypi/seagoat/json")
+    response = requests.get(
+        "https://pypi.org/pypi/seagoat/json", timeout=UPDATE_CHECK_TIMEOUT_SECONDS
+    )
     latest_version = orjson.loads(response.text)["info"]["version"]
-    if latest_version != __version__:
+    if Version(latest_version) > Version(__version__):
         click.echo(
             f"Warning: An updated version {latest_version} of SeaGOAT is available. You have {__version__}.",
             err=True,
@@ -219,7 +225,7 @@ def seagoat(
 
     try:
         warn_if_update_available()
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
         click.echo(
             "Could not check for updates because the pypi.org API is not accessible",
             err=True,
