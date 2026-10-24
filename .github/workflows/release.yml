@@ -1,0 +1,193 @@
+---
+# Releases are driven by release-plz (see release-plz.toml): it keeps a release
+# PR up to date on every push to main, and merging that PR creates the vX.Y.Z
+# tag and GitHub release. The same run then builds the wheels and sdist and
+# publishes them to PyPI.
+#
+# PyPI's trusted publisher is registered for this file name: renaming it
+# breaks publishing, and the publish job has to stay in this file.
+name: release
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        paths:
+            - .github/workflows/release.yml
+            - Cargo.toml
+            - Cargo.lock
+            - pyproject.toml
+            - src/**
+    # Builds and publishes an existing tag, e.g. the first release made with
+    # release-plz, or to retry a release whose upload failed
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: Existing tag to build and publish, e.g. v1.5.0
+                required: true
+
+permissions:
+    contents: read
+
+jobs:
+    release-pr:
+        if: github.event_name == 'push' && github.repository_owner == 'kantord'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+        concurrency:
+            group: release-plz-pr
+            cancel-in-progress: false
+        steps:
+            - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+            - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
+            - uses: release-plz/action@8921286633dfa0c4020f7f30bd1c14fe19cbb10e # v0.5.142
+              with:
+                  command: release-pr
+                  version: 0.3.172
+              env:
+                  # Not GITHUB_TOKEN: PRs it opens would not run CI
+                  GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+
+    release:
+        if: github.event_name == 'push' && github.repository_owner == 'kantord'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        concurrency:
+            group: release-plz-release
+            cancel-in-progress: false
+        outputs:
+            tag: ${{ steps.tag.outputs.tag }}
+        steps:
+            - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+            - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
+            - uses: release-plz/action@8921286633dfa0c4020f7f30bd1c14fe19cbb10e # v0.5.142
+              id: release-plz
+              with:
+                  command: release
+                  version: 0.3.172
+              env:
+                  GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+            - id: tag
+              if: steps.release-plz.outputs.releases_created == 'true'
+              run: echo "tag=$(jq -r '.[0].tag' <<< "$RELEASES")" >> "$GITHUB_OUTPUT"
+              env:
+                  RELEASES: ${{ steps.release-plz.outputs.releases }}
+
+    # The tag to build: the one release-plz just created, or the one given to a
+    # manual run. Empty on pull requests, which only check that building works
+    tag:
+        needs: release
+        if: always() && (github.event_name == 'workflow_dispatch' || needs.release.outputs.tag != '')
+        runs-on: ubuntu-latest
+        outputs:
+            tag: ${{ steps.tag.outputs.tag }}
+        steps:
+            - id: tag
+              run: |
+                  # Manual runs must use the workflow from main, so that a
+                  # branch cannot change what gets published
+                  if [ "$EVENT" = workflow_dispatch ] && [ "$REF" != refs/heads/main ]; then
+                      echo "::error::Run this workflow from main"
+                      exit 1
+                  fi
+                  tag="${DISPATCHED_TAG:-$RELEASED_TAG}"
+                  if ! [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "::error::$tag is not a vX.Y.Z tag"
+                      exit 1
+                  fi
+                  echo "tag=$tag" >> "$GITHUB_OUTPUT"
+              env:
+                  EVENT: ${{ github.event_name }}
+                  REF: ${{ github.ref }}
+                  DISPATCHED_TAG: ${{ inputs.tag }}
+                  RELEASED_TAG: ${{ needs.release.outputs.tag }}
+
+    wheels:
+        needs: tag
+        if: always() && (github.event_name == 'pull_request' || needs.tag.result == 'success')
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - {os: ubuntu-latest, target: x86_64, manylinux: '2_28'}
+                    - {os: ubuntu-24.04-arm, target: aarch64, manylinux: '2_28'}
+                    - {os: ubuntu-latest, target: x86_64, manylinux: musllinux_1_2}
+                    - {os: ubuntu-24.04-arm, target: aarch64, manylinux: musllinux_1_2}
+                    - {os: macos-latest, target: x86_64}
+                    - {os: macos-latest, target: aarch64}
+                    - {os: windows-latest, target: x64}
+                    - {os: windows-11-arm, target: aarch64}
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+              with:
+                  ref: ${{ needs.tag.outputs.tag && format('refs/tags/{0}', needs.tag.outputs.tag) || github.sha }}
+                  persist-credentials: false
+            - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+              with:
+                  maturin-version: v1.15.0
+                  target: ${{ matrix.target }}
+                  manylinux: ${{ matrix.manylinux || 'auto' }}
+                  args: --release --locked --compatibility pypi --out dist
+            - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: wheels-${{ matrix.os }}-${{ matrix.target }}-${{ matrix.manylinux || 'native' }}
+                  path: dist
+
+    sdist:
+        needs: tag
+        if: always() && (github.event_name == 'pull_request' || needs.tag.result == 'success')
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+              with:
+                  ref: ${{ needs.tag.outputs.tag && format('refs/tags/{0}', needs.tag.outputs.tag) || github.sha }}
+                  persist-credentials: false
+            - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+              with:
+                  maturin-version: v1.15.0
+                  command: sdist
+                  args: --out dist
+            - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: sdist
+                  path: dist
+
+    pypi:
+        needs: [tag, wheels, sdist]
+        if: >-
+            always() && github.event_name != 'pull_request'
+            && needs.tag.result == 'success'
+            && needs.wheels.result == 'success'
+            && needs.sdist.result == 'success'
+        runs-on: ubuntu-latest
+        environment: pypi
+        permissions:
+            id-token: write
+        steps:
+            - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  path: dist
+                  merge-multiple: true
+            - name: Check that every file is for the tagged version
+              run: |
+                  version="${TAG#v}"
+                  ls dist
+                  for file in dist/*; do
+                      case "$(basename "$file")" in
+                          "seagoat-$version-"*.whl | "seagoat-$version.tar.gz") ;;
+                          *) echo "::error::$file is not for version $version"; exit 1 ;;
+                      esac
+                  done
+              env:
+                  TAG: ${{ needs.tag.outputs.tag }}
+            - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3

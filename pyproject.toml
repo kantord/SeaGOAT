@@ -1,6 +1,7 @@
 [project]
 name = "seagoat"
-version = "1.4.1"
+# The version comes from Cargo.toml (see the comment there)
+dynamic = ["version"]
 description = "A semantic-code search engine"
 authors = [{ name = "Daniel Kantor", email = "git@daniel-kantor.com" }]
 requires-python = ">=3.11,<3.14"

@@ -1,8 +1,9 @@
 ---
 name: docs deployment to github pages
-# Temporarily manual-only: the docs version comes from semantic-release,
-# which was removed until the new release system is in place
 on:
+    push:
+        branches:
+            - main
     workflow_dispatch:
 permissions:
     contents: write
@@ -28,8 +29,10 @@ jobs:
               run: git fetch --all
             - name: Deploy docs with Mike
               run: |
-                  VERSION=$(uv run semantic-release --noop version --print)
+                  # The version of the last release: release PRs bump Cargo.toml
+                  VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
                   # Remove patch version and replace it with 'x'
                   VERSION="${VERSION%.*}.x"
-                  uv run mike deploy --push --update-aliases $VERSION latest
-                  uv run mike set-default --push latest
+                  # --no-sync: the docs don't need SeaGOAT itself, so skip building it
+                  uv run --no-sync mike deploy --push --update-aliases $VERSION latest
+                  uv run --no-sync mike set-default --push latest

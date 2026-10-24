@@ -1,7 +1,16 @@
+# This file is also the source of SeaGOAT's version (pyproject.toml reads it
+# through maturin), and release-plz uses it to decide what to release.
+#
+# Keep it at the repository root without `include`/`exclude`: release-plz only
+# counts commits that touch files listed by `cargo package --list`, so this is
+# what makes Python-only changes count towards releases. CI checks it.
 [package]
 name = "seagoat-native"
-version = "0.1.0"
+version = "1.5.0"
 edition = "2024"
+description = "Native parts of SeaGOAT, a semantic code search engine"
+license = "MIT"
+repository = "https://github.com/kantord/SeaGOAT"
 publish = false
 
 [lib]

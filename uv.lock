@@ -3773,7 +3773,6 @@ wheels = [
 
 [[package]]
 name = "seagoat"
-version = "1.4.1"
 source = { editable = "." }
 dependencies = [
     { name = "appdirs" },

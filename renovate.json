@@ -36,6 +36,11 @@
       "groupName": "non-major dependencies"
     },
     {
+      "description": "Major updates can change behaviour that CI does not cover, so they wait for a human even when CI passes.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
       "description": "ruff is pinned twice (dev dependency group and pre-commit hook); move both together.",
       "matchPackageNames": ["ruff", "astral-sh/ruff-pre-commit"],
       "groupName": "ruff"
@@ -46,14 +51,43 @@
       "groupName": "pyright"
     },
     {
+      "description": "maturin is pinned twice (build-system in pyproject.toml and maturin-version in release.yml, which the github-actions manager reads); move both together.",
+      "matchPackageNames": ["maturin"],
+      "groupName": "maturin"
+    },
+    {
+      "description": "release-plz decides what gets released, so new versions of it get their own PR and a human review instead of joining the automerged weekly group.",
+      "matchDepNames": ["release-plz"],
+      "matchManagers": ["custom.regex"],
+      "groupName": null,
+      "automerge": false
+    },
+    {
       "description": "Python versions move by hand: requires-python, .python-version and uv.lock together. Renovate's pep621 manager reads `requires-python` as an updatable version and jumps its range past what uv.lock resolves for, so its own `uv lock` artifact update fails.",
       "matchDepTypes": ["requires-python"],
       "enabled": false
     },
     {
-      "description": "Same for the interpreter file itself: a lone `.python-version` bump runs ahead of requires-python and uv.lock, and `uv run` refuses to start.",
-      "matchManagers": ["python-version"],
+      "description": "Same for the interpreter file itself: a lone `.python-version` bump runs ahead of requires-python and uv.lock, and `uv run` refuses to start. Renovate reads `.python-version` with its pyenv manager.",
+      "matchManagers": ["pyenv"],
       "enabled": false
+    },
+    {
+      "description": "Same for the Python version that workflows install with actions/setup-python: a bump past requires-python makes `uv sync` fail in CI.",
+      "matchManagers": ["github-actions"],
+      "matchDepNames": ["python"],
+      "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "release-plz's version is pinned as an input of release-plz/action in release.yml, which no built-in manager reads. It is pinned separately from the action, so the binary only changes through its own reviewed PR.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/release\\.yml$/"],
+      "matchStrings": ["\\sversion: (?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "release-plz",
+      "datasourceTemplate": "crate",
+      "versioningTemplate": "semver"
     }
   ]
 }

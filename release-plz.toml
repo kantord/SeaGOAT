@@ -1,0 +1,15 @@
+[workspace]
+# The crate only exists to build SeaGOAT's Python extension and is never
+# published to crates.io: versions come from the vX.Y.Z git tags instead
+git_only = true
+git_tag_name = "v{{ version }}"
+git_release_name = "v{{ version }}"
+# Only release when the release PR itself is merged
+release_always = false
+# Only meaningful for Rust libraries
+semver_check = false
+dependencies_update = false
+# Only trigger releases for commits with meaningful changes. This also breaks
+# the version bump loop (release-plz#1181), where the "chore: release"
+# commit's own Cargo.toml/Cargo.lock changes would count as unreleased work
+release_commits = "^(feat|fix|refactor|perf|build)"
