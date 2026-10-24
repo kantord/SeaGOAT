@@ -59,6 +59,8 @@ class Repository:
                 str(self.path),
                 "ls-tree",
                 "HEAD",
+                # --: a path starting with "-" is a path, not an option
+                "--",
                 str(file_path),
             ],
             text=True,
@@ -102,6 +104,32 @@ class Repository:
             ["git", "-C", str(self.path), "cat-file", "-p", object_id]
         )
         return autodecode_bytes(data)
+
+    def get_blobs_data(self, object_ids: list[str]) -> dict[str, str]:
+        """
+        Same as get_blob_data for many objects, with a single git process
+        """
+        output = subprocess.run(
+            ["git", "-C", str(self.path), "cat-file", "--batch"],
+            input="".join(f"{object_id}\n" for object_id in object_ids).encode(),
+            capture_output=True,
+            check=True,
+        ).stdout
+
+        blobs = {}
+        position = 0
+        for object_id in object_ids:
+            header_end = output.index(b"\n", position)
+            header = output[position:header_end].split()
+            position = header_end + 1
+            if header[-1] == b"missing":
+                continue
+            size = int(header[2])
+            blobs[object_id] = autodecode_bytes(output[position : position + size])
+            # The content is followed by a newline
+            position += size + 1
+
+        return blobs
 
     def is_up_to_date_git_object(self, file_path: str, git_object_id: str):
         return self.get_file_object_id(file_path) == git_object_id

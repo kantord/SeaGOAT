@@ -230,6 +230,10 @@ def seagoat(
             "Could not check for updates because the pypi.org API is not accessible",
             err=True,
         )
+    except (requests.exceptions.RequestException, ValueError, KeyError, TypeError):
+        # Unexpected responses from PyPI (errors, invalid JSON, a version
+        # that cannot be parsed) must not fail the search that already ran
+        click.echo("Could not check for updates", err=True)
 
 
 if __name__ == "__main__":

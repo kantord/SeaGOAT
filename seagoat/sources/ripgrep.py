@@ -16,6 +16,8 @@ from seagoat.utils.config import get_config_values
 from seagoat.utils.file_types import is_file_type_supported
 
 KILOBYTE = 1024
+# Files read per git process when building the cache
+BLOB_BATCH_SIZE = 500
 MEGABYTE = KILOBYTE * 1024
 STOP_WORDS = set(get_stop_words("english"))
 
@@ -38,10 +40,18 @@ class RipGrepCache(str):
     def _iterate_lines_to_cache(self):
         max_file_size_kb = self.config["server"]["ripgrep"]["maxFileSize"]
         max_file_size_bytes = max_file_size_kb * KILOBYTE
-        for file in self._iterate_files_to_cache():
-            # The version in HEAD, which results are displayed from, not the
-            # working tree: uncommitted lines would point past its end
-            file_contents = self.repository.get_blob_data(file.object_id)
+        files = list(self._iterate_files_to_cache())
+        # The version in HEAD, which results are displayed from, not the
+        # working tree: uncommitted lines would point past its end
+        blobs = {}
+        for batch_start in range(0, len(files), BLOB_BATCH_SIZE):
+            batch = files[batch_start : batch_start + BLOB_BATCH_SIZE]
+            blobs.update(
+                self.repository.get_blobs_data([file.object_id for file in batch])
+            )
+
+        for file in files:
+            file_contents = blobs.get(file.object_id, "")
 
             if len(file_contents) > max_file_size_bytes:
                 logging.warning("Warning: file %s is too large to cache", file.path)
@@ -52,7 +62,8 @@ class RipGrepCache(str):
 
     def _generate_cache_lines(self):
         for file, line_number, line in self._iterate_lines_to_cache():
-            yield f"{file.path}:{line_number}:{line}\n"
+            # NUL separated: unlike ":", it cannot appear in a file path
+            yield f"{file.path}\0{line_number}\0{line}\n"
 
     def _build_cache_file(self):
         total_estimated_cache_size = 0
@@ -138,6 +149,11 @@ def initialize(repository: Repository):
             "--max-count",
             str(limit),
             "--ignore-case",
+            # The cache contains NUL separators, which would otherwise make rg
+            # treat it as a binary file
+            "--text",
+            # -e: a query starting with "-" is a pattern, not an option
+            "-e",
             query_text,
         ]
 
@@ -148,7 +164,7 @@ def initialize(repository: Repository):
         except subprocess.CalledProcessError as exception:
             rg_output = exception.output
         for line in rg_output.splitlines():
-            relative_path, raw_line_number, _ = line.split(":", 2)
+            relative_path, raw_line_number, _ = line.split("\0", 2)
             line_number = int(raw_line_number)
             gitfile = repository.get_file(relative_path)
 

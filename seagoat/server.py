@@ -31,6 +31,15 @@ class ExitCode:
     NOT_A_GIT_REPO = 5
 
 
+LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "::1"}
+
+
+def _host_without_port(host: str) -> str:
+    if host.startswith("["):
+        return host[1 : host.find("]")]
+    return host.rsplit(":", 1)[0]
+
+
 def get_fallback_value(dictionary, key, fallback_value):
     if key not in dictionary or dictionary[key] is None:
         return fallback_value
@@ -46,6 +55,17 @@ def create_app(repo_path):
 
     config = get_config_values(Path(repo_path))
     app.config["seagoat_config"] = config
+
+    if config["server"]["host"] in LOOPBACK_HOSTS:
+
+        @app.before_request
+        def reject_requests_for_other_hosts():
+            # Listening on a loopback address does not stop web pages from
+            # reaching the server through DNS rebinding, but their requests
+            # name the attacker's domain in the Host header
+            if _host_without_port(request.host) not in LOOPBACK_HOSTS:
+                return jsonify({"error": "Requests must be sent to localhost"}), 403
+            return None
 
     app.extensions["task_queue"] = TaskQueue(
         repo_path=repo_path, minimum_chunks_to_analyze=0

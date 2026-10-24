@@ -1,9 +1,13 @@
 import logging
 import threading
+import time
 from dataclasses import dataclass, field
 from queue import Empty, PriorityQueue
 from typing import Any, Dict, Tuple
 from uuid import uuid4
+
+# How long to wait before retrying maintenance after it failed
+MAINTENANCE_RETRY_DELAY_SECONDS = 10
 
 HIGH_PRIORITY = 0.0
 MEDIUM_PRIORITY = 0.5
@@ -19,11 +23,18 @@ class Task:
     task_id: str = field(default_factory=lambda: uuid4().hex, compare=True)
 
 
+class TaskFailed(Exception):
+    """A task raised an exception in the worker thread"""
+
+
 class BaseQueue:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self._task_queue = PriorityQueue()
-        self._worker_thread = threading.Thread(target=self._worker_function)
+        # A daemon thread does not keep the process alive on its own
+        self._worker_thread = threading.Thread(
+            target=self._worker_function, daemon=True
+        )
         self._worker_thread.start()
 
     def _get_context(self) -> Dict[str, Any]:
@@ -46,7 +57,10 @@ class BaseQueue:
         )
         self._task_queue.put(task)
         if wait_for_result:
-            return result_queue.get()
+            result = result_queue.get()
+            if isinstance(result, TaskFailed):
+                raise result
+            return result
         return None
 
     def handle_maintenance(self, context):
@@ -62,16 +76,25 @@ class BaseQueue:
         logging.info("Handling task: %s", task.name)
         handler_name = f"handle_{task.name}"
         handler = getattr(self, handler_name, None)
-        if handler:
-            kwargs = dict(task.kwargs or {})
-            result_queue = kwargs.pop("__result_queue", None)
-            result = handler(context, *task.args, **kwargs)
-            if result_queue is not None:
-                result_queue.put(result)
+        kwargs = dict(task.kwargs or {})
+        result_queue = kwargs.pop("__result_queue", None)
+        if handler is None:
+            result = TaskFailed(f"Unknown task: {task.name}")
+        else:
+            try:
+                result = handler(context, *task.args, **kwargs)
+            except Exception as exception:  # pylint: disable=broad-except
+                # There is only one worker thread: if a failing task ended it,
+                # every later task would wait for a result forever
+                logging.exception("Task %s failed", task.name)
+                result = TaskFailed(f"{task.name} failed: {exception}")
+        if result_queue is not None:
+            result_queue.put(result)
 
     def _worker_function(self):
         logging.info("Starting worker thread...")
         context = self._get_context()
+        next_maintenance = 0.0
 
         while True:
             try:
@@ -80,4 +103,12 @@ class BaseQueue:
                     break
                 self._handle_task(context, task)
             except Empty:
-                self.handle_maintenance(context)
+                if time.monotonic() < next_maintenance:
+                    continue
+                try:
+                    self.handle_maintenance(context)
+                except Exception:  # pylint: disable=broad-except
+                    logging.exception("Maintenance failed")
+                    next_maintenance = (
+                        time.monotonic() + MAINTENANCE_RETRY_DELAY_SECONDS
+                    )
