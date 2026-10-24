@@ -19,6 +19,8 @@ The following dependencies need to be installed:
 * [Git](https://git-scm.com/downloads)
 * [Python 3.11 or newer](https://www.python.org/downloads/)
 * [uv](https://docs.astral.sh/uv/getting-started/installation/)
+* [Rust](https://www.rust-lang.org/tools/install): part of SeaGOAT is
+written in Rust (`src/`), and `uv sync` compiles it
 
 ### Step 3: Clone the repository
 
@@ -40,6 +42,8 @@ and installing all dependencies is as easy as running:
 ```bash
 uv sync
 ```
+
+`uv sync` rebuilds the Rust extension whenever its sources change.
 
 ### Step 5: Run tests
 
