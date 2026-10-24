@@ -61,7 +61,7 @@ jobs:
                   uv run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
 
             - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               # Once is enough; and a Codecov outage must not fail the tests
               if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.13'
               continue-on-error: true
