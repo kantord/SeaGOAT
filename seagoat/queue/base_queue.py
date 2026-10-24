@@ -3,8 +3,10 @@ import threading
 import time
 from dataclasses import dataclass, field
 from queue import Empty, PriorityQueue
-from typing import Any, Dict, Tuple
+from typing import Any
 from uuid import uuid4
+
+logger = logging.getLogger(__name__)
 
 # How long to wait before retrying maintenance after it failed
 MAINTENANCE_RETRY_DELAY_SECONDS = 10
@@ -18,8 +20,8 @@ LOW_PRIORITY = 1.0
 class Task:
     priority: float
     name: str
-    args: Tuple[Any, ...] = field(default_factory=tuple, compare=False)
-    kwargs: Dict[str, Any] = field(default_factory=dict, compare=False)
+    args: tuple[Any, ...] = field(default_factory=tuple, compare=False)
+    kwargs: dict[str, Any] = field(default_factory=dict, compare=False)
     task_id: str = field(default_factory=lambda: uuid4().hex, compare=True)
 
 
@@ -37,7 +39,7 @@ class BaseQueue:
         )
         self._worker_thread.start()
 
-    def _get_context(self) -> Dict[str, Any]:
+    def _get_context(self) -> dict[str, Any]:
         return {}
 
     def enqueue(
@@ -73,7 +75,7 @@ class BaseQueue:
         self._worker_thread.join()
 
     def _handle_task(self, context, task: Task):
-        logging.info("Handling task: %s", task.name)
+        logger.info("Handling task: %s", task.name)
         handler_name = f"handle_{task.name}"
         handler = getattr(self, handler_name, None)
         kwargs = dict(task.kwargs or {})
@@ -86,13 +88,13 @@ class BaseQueue:
             except Exception as exception:  # pylint: disable=broad-except
                 # There is only one worker thread: if a failing task ended it,
                 # every later task would wait for a result forever
-                logging.exception("Task %s failed", task.name)
+                logger.exception("Task %s failed", task.name)
                 result = TaskFailed(f"{task.name} failed: {exception}")
         if result_queue is not None:
             result_queue.put(result)
 
     def _worker_function(self):
-        logging.info("Starting worker thread...")
+        logger.info("Starting worker thread...")
         context = self._get_context()
         next_maintenance = 0.0
 
@@ -108,7 +110,7 @@ class BaseQueue:
                 try:
                     self.handle_maintenance(context)
                 except Exception:  # pylint: disable=broad-except
-                    logging.exception("Maintenance failed")
+                    logger.exception("Maintenance failed")
                     next_maintenance = (
                         time.monotonic() + MAINTENANCE_RETRY_DELAY_SECONDS
                     )

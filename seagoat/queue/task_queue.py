@@ -7,6 +7,8 @@ import orjson
 from seagoat import __version__
 from seagoat.queue.base_queue import LOW_PRIORITY, MEDIUM_PRIORITY, BaseQueue
 
+logger = logging.getLogger(__name__)
+
 SECONDS_BETWEEN_MAINTENANCE = 10
 
 
@@ -64,14 +66,14 @@ class TaskQueue(BaseQueue):
         if self._task_queue.qsize() > 0:
             return
 
-        logging.info("Checking repository for new changes")
+        logger.info("Checking repository for new changes")
         remaining_chunks_to_analyze = context["seagoat_engine"].analyze_codebase(
             self.kwargs["minimum_chunks_to_analyze"]
         )
 
-        logging.info("Analyzed the minimum number of chunks needed to operate. ")
+        logger.info("Analyzed the minimum number of chunks needed to operate. ")
         if remaining_chunks_to_analyze:
-            logging.info(
+            logger.info(
                 "Note, %s chunks need to be analyzed for optimum performance.",
                 len(remaining_chunks_to_analyze),
             )
@@ -89,15 +91,15 @@ class TaskQueue(BaseQueue):
                     wait_for_result=False,
                 )
         else:
-            logging.info("Analyzed all chunks!")
+            logger.info("Analyzed all chunks!")
 
     def handle_analyze_chunk(self, context, chunk):
-        logging.info("Note, %s tasks left in the queue.", self._task_queue.qsize())
-        logging.info("Processing chunk %s...", chunk)
+        logger.info("Note, %s tasks left in the queue.", self._task_queue.qsize())
+        logger.info("Processing chunk %s...", chunk)
         context["seagoat_engine"].process_chunk(chunk)
 
         if self._task_queue.qsize() == 0:
-            logging.info("Analyzed all chunks!")
+            logger.info("Analyzed all chunks!")
 
     def handle_query(self, context, **kwargs):
         results = context["seagoat_engine"].query_sync(

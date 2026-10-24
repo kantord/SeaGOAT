@@ -2,7 +2,6 @@ import os
 import re
 import shutil
 import tempfile
-from typing import List
 
 import orjson
 import pytest
@@ -206,7 +205,7 @@ def lots_of_fake_results(mocker):
 
 @pytest.fixture(name="get_request_args_from_cli_call")
 def get_request_args_from_cli_call_(mock_server_factory, mocker, runner, repo):
-    def _run_cli(cli_args: List[str]):
+    def _run_cli(cli_args: list[str]):
         mock_server_factory(
             [
                 ["hello.txt", ["foo", "bar", "baz"]],

@@ -4,7 +4,7 @@ The Python chunking that seagoat/gitfile.py used before it moved to Rust
 """
 
 import hashlib
-from typing import Dict, List, Literal
+from typing import Literal
 
 
 def _line_has_relevant_data(line: str):
@@ -18,8 +18,8 @@ def _line_has_relevant_data(line: str):
 
 
 def _get_context_lines(
-    lines: Dict[int, str], line_number: int, direction: Literal[-1, 1]
-) -> List[str]:
+    lines: dict[int, str], line_number: int, direction: Literal[-1, 1]
+) -> list[str]:
     context_lines = []
     for i in range(1, 6):
         current_line_number = line_number + (direction * i)
@@ -49,7 +49,7 @@ def _get_id(path, object_id, codeline, chunk):
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-def get_chunks(path, object_id, line_list: List[str], metadata: str):
+def get_chunks(path, object_id, line_list: list[str], metadata: str):
     lines = {(i + 1): line for i, line in enumerate(line_list)}
     chunks = []
     for line_number, line in lines.items():

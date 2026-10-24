@@ -11,13 +11,13 @@ import subprocess
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
 from unittest.mock import MagicMock, patch
 
-import platformdirs
 import orjson
+import platformdirs
 import pytest
 import requests
 import yaml
@@ -52,7 +52,7 @@ def suppress_chromadb_logger():
 class MockRepo(Repo):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fake_commit_date = datetime.now(timezone.utc) - timedelta(days=400)
+        self.fake_commit_date = datetime.now(UTC) - timedelta(days=400)
         self.actors = {
             "John Doe": Actor("John Doe", "jdoe@example.com"),
             "Alice Smith": Actor("Alice Smith", "asmith@example.com"),
@@ -282,7 +282,7 @@ def _start_server():
                 get_server_info(repo_path)
                 return True
 
-            except Exception:
+            except Exception:  # noqa: BLE001 - any failure means "not ready yet"
                 return False
 
         wait_for(make_sure_server_is_running, timeout=3.0)
@@ -319,10 +319,9 @@ def _start_server():
             response.raise_for_status()
         except requests.HTTPError:
             # Make it easier to debug problems by printing error messages
-            if response is not None:
-                if response.status_code == 500:
-                    print("Server responded with a 500 error:")
-                    print(response.text)
+            if response is not None and response.status_code == 500:
+                print("Server responded with a 500 error:")
+                print(response.text)
             _stop()
             raise
         except:
@@ -540,9 +539,10 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
             commit_message=f"Add {file_path}",
         )
 
-    with patch.object(ripgrep, "initialize") as mock_ripgrep, patch.object(
-        chroma, "initialize"
-    ) as mock_chroma:
+    with (
+        patch.object(ripgrep, "initialize") as mock_ripgrep,
+        patch.object(chroma, "initialize") as mock_chroma,
+    ):
         mock_ripgrep.return_value = {
             "fetch": create_mock_query(repo, ripgrep_lines),
             "cache_chunk": noop,

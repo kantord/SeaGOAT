@@ -3,8 +3,8 @@ import logging
 import os
 from pathlib import Path
 
-import platformdirs
 import jsonschema
+import platformdirs
 import yaml
 from deepmerge import always_merger
 

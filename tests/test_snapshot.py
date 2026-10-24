@@ -1,4 +1,5 @@
 import pytest
+
 from seagoat.cli import display_results
 
 

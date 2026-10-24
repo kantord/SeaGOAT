@@ -9,7 +9,6 @@ Supports multiple LLM backends:
 
 import os
 
-
 PROVIDER_DEFAULTS = {
     "ollama": {
         "model": "deepseek-r1:8b",

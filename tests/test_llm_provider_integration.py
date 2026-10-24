@@ -4,8 +4,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import jsonschema
-from jsonschema.exceptions import ValidationError
 import pytest
+from jsonschema.exceptions import ValidationError
 
 from seagoat.utils.config import CONFIG_SCHEMA, get_config_values
 from seagoat.utils.generative import enhance_results

@@ -1,5 +1,4 @@
 import functools
-from typing import Dict
 
 from seagoat import _native
 
@@ -43,8 +42,10 @@ class GitFile:
 {commit_messages}"""
 
     @property
-    @functools.lru_cache(5000)
-    def lines(self) -> Dict[int, str]:
+    # Bounded on purpose: caching on the instance instead would keep the
+    # text of every file in memory for as long as the server runs
+    @functools.lru_cache(5000)  # noqa: B019
+    def lines(self) -> dict[int, str]:
         lines = {
             (i + 1): line
             for i, line in enumerate(

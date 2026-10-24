@@ -1,6 +1,6 @@
 from pathlib import Path
-from seagoat.repository import Repository
 
+from seagoat.repository import Repository
 from seagoat.result import Result
 from tests.conftest import pytest
 

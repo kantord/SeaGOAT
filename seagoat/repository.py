@@ -198,8 +198,7 @@ class Repository:
         self.frecency_scores = {}
         for file, commits in self.file_changes.items():
             score = sum(
-                1 / (math.log(days_passed + 2, 2))
-                for _, days_passed, __, ___ in commits
+                1 / (math.log2(days_passed + 2)) for _, days_passed, __, ___ in commits
             )
             self.frecency_scores[file] = score
 
