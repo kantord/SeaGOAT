@@ -1,6 +1,37 @@
 # CHANGELOG
 
 
+## [1.6.0](https://github.com/kantord/SeaGOAT/compare/v1.5.0...v1.6.0) - 2026-10-24
+
+### Added
+
+- support Python 3.14 ([#1048](https://github.com/kantord/SeaGOAT/pull/1048))
+
+### Fixed
+
+- *(deps)* update chardet to v7 and mcp to v2, keep stop-words 2018 ([#1074](https://github.com/kantord/SeaGOAT/pull/1074))
+- *(deps)* update dependency openai to v3 ([#1070](https://github.com/kantord/SeaGOAT/pull/1070))
+- *(deps)* update dependency deepmerge to v3 ([#1068](https://github.com/kantord/SeaGOAT/pull/1068))
+- *(deps)* update non-major dependencies ([#1053](https://github.com/kantord/SeaGOAT/pull/1053))
+
+### Other
+
+- *(deps)* update dependency syrupy to v6 ([#1065](https://github.com/kantord/SeaGOAT/pull/1065))
+- *(deps)* update dependency pytest-cov to v7 ([#1064](https://github.com/kantord/SeaGOAT/pull/1064))
+- *(deps)* update actions/setup-python action to v7 ([#1062](https://github.com/kantord/SeaGOAT/pull/1062))
+- *(deps)* update pre-commit hook pre-commit/pre-commit-hooks to v6 ([#1066](https://github.com/kantord/SeaGOAT/pull/1066))
+- *(deps)* update astral-sh/setup-uv action to v10.3.1 ([#1060](https://github.com/kantord/SeaGOAT/pull/1060))
+- *(deps)* update actions/checkout action to v7 ([#1061](https://github.com/kantord/SeaGOAT/pull/1061))
+- *(deps)* update codecov/codecov-action action to v7 ([#1063](https://github.com/kantord/SeaGOAT/pull/1063))
+- *(deps)* lock file maintenance ([#1072](https://github.com/kantord/SeaGOAT/pull/1072))
+- adopt ruff 0.17 and its default rules ([#1059](https://github.com/kantord/SeaGOAT/pull/1059))
+- *(deps)* update pre-commit hook robertcraigie/pyright-python to v1.1.414 ([#1058](https://github.com/kantord/SeaGOAT/pull/1058))
+- *(deps)* update dependency release-plz to v0.3.174 ([#1056](https://github.com/kantord/SeaGOAT/pull/1056))
+- pin a stable Codecov action and stop coverage uploads failing tests ([#1055](https://github.com/kantord/SeaGOAT/pull/1055))
+- drop unmaintained and unused dependencies ([#1054](https://github.com/kantord/SeaGOAT/pull/1054))
+- *(deps)* lock file maintenance ([#1051](https://github.com/kantord/SeaGOAT/pull/1051))
+- *(renovate)* fix maturin lookup and pyright grouping ([#1049](https://github.com/kantord/SeaGOAT/pull/1049))
+
 ## [1.5.0](https://github.com/kantord/SeaGOAT/compare/v0.54.17...v1.5.0) - 2026-10-24
 
 The first release published to PyPI since 0.54.17, and the first one made with
