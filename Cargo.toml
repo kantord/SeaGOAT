@@ -6,7 +6,7 @@
 # what makes Python-only changes count towards releases. CI checks it.
 [package]
 name = "seagoat-native"
-version = "1.5.0"
+version = "1.6.0"
 edition = "2024"
 description = "Native parts of SeaGOAT, a semantic code search engine"
 license = "MIT"
