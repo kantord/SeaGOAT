@@ -153,3 +153,20 @@ pre-commit run --all-files
 ```
 
 {!../CONTRIBUTING.md!}
+
+## Releasing
+
+Releases are automated with [release-plz](https://release-plz.dev/), see
+`release-plz.toml` and `.github/workflows/release.yml`:
+
+1. On every push to `main`, release-plz opens or updates a release PR that
+bumps the version and updates `CHANGELOG.md`, based on
+[conventional commits](https://www.conventionalcommits.org/).
+2. Merging the release PR creates the `vX.Y.Z` tag and GitHub release, then
+the same workflow builds the wheels and the sdist and publishes them to PyPI.
+
+The version lives in `Cargo.toml`: `pyproject.toml` declares it as dynamic and
+maturin reads it from there, so do not add a `version` to `pyproject.toml`.
+
+To build and publish an existing tag again, for example after a failed upload,
+run the release workflow manually from the Actions tab and enter the tag.

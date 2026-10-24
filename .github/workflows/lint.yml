@@ -47,3 +47,15 @@ jobs:
                   cargo fmt --check
                   cargo clippy --all-targets --locked -- -D warnings
                   cargo test --locked
+
+            - name: Check that Python files count towards releases
+              # release-plz only counts commits that touch files of the crate
+              # (see the comment in Cargo.toml)
+              run: |
+                  # Not piped into grep -q: under pipefail, grep exiting early
+                  # can make the pipeline fail with SIGPIPE
+                  cargo package --list --locked --allow-dirty > packaged-files.txt
+                  if ! grep -qx 'seagoat/cli.py' packaged-files.txt; then
+                      echo "::error::Python files are no longer part of the crate, so release-plz would ignore Python-only changes"
+                      exit 1
+                  fi

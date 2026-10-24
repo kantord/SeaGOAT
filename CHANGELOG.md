@@ -1,6 +1,54 @@
 # CHANGELOG
 
 
+## [1.5.0](https://github.com/kantord/SeaGOAT/compare/v0.54.17...v1.5.0) - 2026-10-24
+
+The first release published to PyPI since 0.54.17, and the first one made with
+release-plz.
+
+### Security
+
+- Repository `.seagoat.yml` files can no longer choose the embedding function
+  (`server.chroma.embeddingFunction`). A malicious repository could use it to
+  send any environment variable to a server of its choice when the repository
+  was indexed. It is now only read from the global configuration file.
+- The server now listens on `127.0.0.1` by default instead of all network
+  interfaces. To host it for other computers, set `server.host` in the global
+  configuration file.
+- Repository `.seagoat.yml` files can no longer set `client.host`, which
+  decides where the CLI sends queries. Set it in the global configuration file.
+- When listening on localhost, the server rejects requests for other host
+  names, so web pages cannot reach it through DNS rebinding.
+- Queries starting with `-` are searched for instead of being passed to
+  ripgrep as options.
+
+### Fixed
+
+- Searching no longer crashes the server when files have uncommitted changes
+  that make them longer than the committed version.
+- A failing request no longer stops the server from answering all later
+  requests.
+- Files whose names contain `:` or start with `-`, and files that are not
+  valid in their detected encoding, can be searched.
+- Text search builds its cache much faster.
+- The CLI only reports an available update when PyPI has a newer version.
+
+### Changed
+
+- Part of indexing is now written in Rust, so the package ships as
+  platform-specific wheels.
+- Text search results come from the committed version of files, like semantic
+  search results already did.
+- Python 3.10 is no longer supported.
+
+### Released in 1.0.0–1.4.1, which were tagged but never published to PyPI
+
+- An MCP server (`seagoat-mcp`) for using SeaGOAT from AI agents.
+- Configurable LLM providers for `--generative`.
+- More configuration options, and batched ingestion into ChromaDB.
+- Fixes for crashes on empty ripgrep caches and on files that are in the git
+  history but not in `HEAD`.
+
 ## v0.54.18 (2025-05-22)
 
 ### Bug Fixes
