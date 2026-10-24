@@ -3,10 +3,11 @@ This module allows you to use seagoat as a library
 """
 
 import asyncio
+from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Set, TypedDict
+from typing import TypedDict
 
 from tqdm import tqdm
 
@@ -19,13 +20,13 @@ from seagoat.utils.config import get_config_values
 
 
 class RepositoryData(TypedDict):
-    last_analyzed_version_of_branch: Dict[str, str]
-    required_commits: Set[str]
-    commits_already_analyzed: Set[str]
-    file_data: Dict[str, GitFile]
-    sorted_files: List[str]
-    chunks_already_analyzed: Set[str]
-    chunks_not_yet_analyzed: Set[str]
+    last_analyzed_version_of_branch: dict[str, str]
+    required_commits: set[str]
+    commits_already_analyzed: set[str]
+    file_data: dict[str, GitFile]
+    sorted_files: list[str]
+    chunks_already_analyzed: set[str]
+    chunks_not_yet_analyzed: set[str]
 
 
 class Engine:
@@ -208,12 +209,10 @@ class Engine:
 
             return top_files[normalized_path]
 
-        return list(
-            sorted(
-                results_to_sort,
-                key=lambda x: (
-                    0.7 * normalize_score(get_best_score(x))
-                    + 0.3 * normalize_file_position(get_file_position(x.gitfile.path))
-                ),
-            )
+        return sorted(
+            results_to_sort,
+            key=lambda x: (
+                0.7 * normalize_score(get_best_score(x))
+                + 0.3 * normalize_file_position(get_file_position(x.gitfile.path))
+            ),
         )[:hard_count_limit]

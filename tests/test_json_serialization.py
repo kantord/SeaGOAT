@@ -1,7 +1,7 @@
-from seagoat.repository import Repository
-
-from seagoat.result import Result, ResultLine, ResultLineType
 import pytest
+
+from seagoat.repository import Repository
+from seagoat.result import Result, ResultLine, ResultLineType
 
 
 @pytest.fixture

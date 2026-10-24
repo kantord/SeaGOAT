@@ -34,7 +34,7 @@ async def test_gets_data_using_vector_embeddings(repo, snapshot):
     assert results[0].gitfile.path == "file1.md"
 
     # Tests that results are grouped by file
-    assert len(set(result.gitfile.path for result in results)) == len(list(results))
+    assert len({result.gitfile.path for result in results}) == len(list(results))
 
     # Tests that file lines are included for each result
     assert [
@@ -289,7 +289,7 @@ async def test_respects_limit_in_chromadb(repo):
     results = await seagoat.query(my_query, limit_clue=5)
 
     expected_files = {"devices.txt", "devices2.txt"}
-    results_files = set(result.gitfile.path for result in results)
+    results_files = {result.gitfile.path for result in results}
 
     assert expected_files.issubset(results_files)
     result_for_devices_txt = next(
@@ -346,7 +346,7 @@ async def test_custom_ignore_patterns(repo, create_config_file):
     my_query = "apple"
     results = await seagoat.query(my_query, limit_clue=5)
 
-    results_files = set(result.gitfile.path for result in results)
+    results_files = {result.gitfile.path for result in results}
 
     assert "foo/devices2.txt" not in results_files
 

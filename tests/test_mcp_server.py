@@ -2,8 +2,8 @@
 Tests for the MCP server.
 """
 
+from typing import Any
 from unittest.mock import MagicMock
-from typing import Dict, Any
 
 import pytest
 from pytest_mock import MockerFixture
@@ -13,7 +13,7 @@ from seagoat.utils.server import ServerDoesNotExist
 
 
 @pytest.fixture
-def mock_mcp_deps(mocker: MockerFixture) -> Dict[str, Any]:
+def mock_mcp_deps(mocker: MockerFixture) -> dict[str, Any]:
     """Mock dependencies for MCP server tests."""
     return {
         "normalize": mocker.patch("seagoat.mcp_server.normalize_repo_path"),

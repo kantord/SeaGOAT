@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 
 IGNORED_BRANCHES = {"gh-pages"}
 
@@ -28,11 +27,11 @@ SUPPORTED_FILE_TYPES = TEXT_FILE_TYPES | {
 }
 
 
-def is_file_type_supported(path: Union[Path, str]):
+def is_file_type_supported(path: Path | str):
     return Path(path).suffix in SUPPORTED_FILE_TYPES
 
 
-def get_file_penalty_factor(path: Union[Path, str]) -> float:
+def get_file_penalty_factor(path: Path | str) -> float:
     # Text file lines are penalized compared to code file lines as they
     # generally have more meaningful words, but the user might be more likely
     # to be looking for code than text.

@@ -1,11 +1,12 @@
-import sys
 import json
 import logging
 import os
-from pathlib import Path
+import sys
 from collections import OrderedDict
+from pathlib import Path
 
 import click
+import orjson
 from flask import Flask, current_app, jsonify, request
 from waitress import serve
 
@@ -24,7 +25,8 @@ from seagoat.utils.server import (
     update_server_info,
 )
 from seagoat.utils.wait import wait_for
-import orjson
+
+logger = logging.getLogger(__name__)
 
 
 class ExitCode:
@@ -48,7 +50,7 @@ def get_fallback_value(dictionary, key, fallback_value):
 
 
 def create_app(repo_path):
-    logging.info("Creating server...")
+    logger.info("Creating server...")
     app = Flask(__name__)
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.debug = True
@@ -72,13 +74,6 @@ def create_app(repo_path):
     )
 
     def execute_query(limit_clue, **kwargs) -> bytes:
-        try:
-            limit_clue = limit_clue
-        except ValueError as exception:
-            raise RuntimeError(
-                "Invalid limitClue value. Must be an integer."
-            ) from exception
-
         return current_app.extensions["task_queue"].enqueue(
             "query",
             limit_clue=limit_clue,

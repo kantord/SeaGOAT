@@ -3,6 +3,7 @@ from typing import Any
 
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
+
 from seagoat.engine import Engine
 from seagoat.repository import Repository
 from tests.conftest import MockRepo
@@ -13,7 +14,7 @@ def test_returns_file_list_1(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -36,7 +37,7 @@ def test_returns_file_list_2(repo):
     )
     seagoat.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -131,7 +132,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
     seagoat2 = Engine(repo.working_dir)
     seagoat2.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat2.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat2.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -153,7 +154,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
     seagoat2 = Engine(repo.working_dir)
     seagoat2.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat2.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat2.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -172,7 +173,7 @@ def test_damaged_cache_doesnt_crash_app_2(repo):
     seagoat2 = Engine(repo.working_dir)
     seagoat2.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat2.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat2.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -192,7 +193,7 @@ def test_only_returns_supported_file_types(repo):
         )
     seagoat.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",
@@ -260,7 +261,7 @@ def test_does_not_crash_because_of_non_existent_files(repo):
     (Path(repo.working_dir) / "file1.md").unlink()
     seagoat.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat.repository.top_files()} == {
         "file2.py",
         "file3.py",
         "file4.js",
@@ -294,7 +295,7 @@ def test_ignored_files_is_really_ignored(repo: MockRepo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
 
-    top_files = set(file.path for file, _ in seagoat.repository.top_files())
+    top_files = {file.path for file, _ in seagoat.repository.top_files()}
 
     assert file_name not in top_files
 
@@ -322,7 +323,7 @@ def test_does_not_crash_because_of_untracked_files_that_used_to_be_tracked(
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
 
-    assert set(file.path for file, _ in seagoat.repository.top_files()) == {
+    assert {file.path for file, _ in seagoat.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",

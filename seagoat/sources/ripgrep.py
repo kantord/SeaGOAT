@@ -15,6 +15,8 @@ from seagoat.result import Result
 from seagoat.utils.config import get_config_values
 from seagoat.utils.file_types import is_file_type_supported
 
+logger = logging.getLogger(__name__)
+
 KILOBYTE = 1024
 # Files read per git process when building the cache
 BLOB_BATCH_SIZE = 500
@@ -54,7 +56,7 @@ class RipGrepCache(str):
             file_contents = blobs.get(file.object_id, "")
 
             if len(file_contents) > max_file_size_bytes:
-                logging.warning("Warning: file %s is too large to cache", file.path)
+                logger.warning("Warning: file %s is too large to cache", file.path)
                 continue
 
             for line_number, line in enumerate(file_contents.splitlines(), start=1):
@@ -78,14 +80,14 @@ class RipGrepCache(str):
                 line_count += 1
 
                 if total_estimated_cache_size > max_mmap_size_bytes:
-                    logging.warning(
+                    logger.warning(
                         "Warning: maximum estimated ripgrep cache size of %s megabytes exceeded",
                         max_mmap_size,
                     )
 
                     break
 
-        logging.info(
+        logger.info(
             "Estimated ripgrep cache size: %.2f megabytes (%s bytes). Line count %s",
             total_estimated_cache_size / MEGABYTE,
             int(total_estimated_cache_size),

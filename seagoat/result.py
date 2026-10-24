@@ -3,9 +3,8 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Set
-from seagoat.gitfile import GitFile
 
+from seagoat.gitfile import GitFile
 from seagoat.utils.file_types import get_file_penalty_factor
 
 SPLITTER_PATTERN = re.compile(r"\s+")
@@ -54,7 +53,7 @@ class ResultLine:
     line: int
     vector_distance: float
     line_text: str
-    types: Set[ResultLineType]
+    types: set[ResultLineType]
 
     def get_score(self) -> float:
         return self.vector_distance / (
@@ -69,15 +68,15 @@ class ResultLine:
             "score": round(self.get_score(), 4),
             "line": self.line,
             "lineText": self.line_text,
-            "resultTypes": list(sorted(set(str(t) for t in self.types))),
+            "resultTypes": sorted({str(t) for t in self.types}),
         }
 
 
 @dataclass(frozen=True)
 class ResultBlock:
-    lines: List[ResultLine]
+    lines: list[ResultLine]
 
-    def _get_line_count_per_type(self) -> Dict[str, int]:
+    def _get_line_count_per_type(self) -> dict[str, int]:
         counts = Counter()
 
         for line in self.lines:
@@ -105,7 +104,7 @@ class Result:
     def __init__(self, query_text: str, gitfile: GitFile) -> None:
         self.gitfile: GitFile = gitfile
         self.query_text: str = query_text
-        self.lines: Dict[int, ResultLine] = {}
+        self.lines: dict[int, ResultLine] = {}
 
     def __repr__(self) -> str:
         return f"Result(path={self.gitfile.path})"
@@ -134,15 +133,13 @@ class Result:
     def get_lines(self):
         best_score = get_best_score(self)
 
-        return list(
-            sorted(
-                set(
-                    result_line.line
-                    for result_line in self.lines.values()
-                    if (result_line.get_score() <= best_score * 10)
-                    or ResultLineType.CONTEXT in result_line.types
-                )
-            )
+        return sorted(
+            {
+                result_line.line
+                for result_line in self.lines.values()
+                if (result_line.get_score() <= best_score * 10)
+                or ResultLineType.CONTEXT in result_line.types
+            }
         )
 
     def _merge_almost_touching_blocks(self, blocks):

@@ -1,7 +1,8 @@
 import math
 import subprocess
+from collections.abc import Iterator
 from functools import cache
-from typing import Any, Dict, Iterator, Optional, Tuple
+from typing import Any
 
 import click
 
@@ -51,8 +52,8 @@ def print_result_line(result, block, line, color_enabled, vimgrep):
 
 
 def iterate_result_blocks(
-    results, max_results: Optional[int]
-) -> Iterator[Tuple[Dict[str, Any], Dict[str, Any]]]:
+    results, max_results: int | None
+) -> Iterator[tuple[dict[str, Any], dict[str, Any]]]:
     lines_left_to_print = max_results if max_results is not None else math.inf
     number_of_blocks_printed = 0
 
@@ -102,8 +103,7 @@ def is_bat_installed():
     try:
         result = subprocess.run(
             ["bat", "--version"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             check=True,
         )
         return result.returncode == 0

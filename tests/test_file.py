@@ -63,7 +63,7 @@ def __init__(self):
     my_file = my_repositoy.get_file("example.py")
 
     assert {item.codeline for item in my_file.get_chunks()} == {1, 5, 8, 9}
-    line5 = [item for item in my_file.get_chunks() if item.codeline == 5][0]
+    line5 = next(item for item in my_file.get_chunks() if item.codeline == 5)
     found_lines = line5.chunk.split("###")[0].splitlines()
     assert found_lines == [
         "#this is a Python file",
