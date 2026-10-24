@@ -154,6 +154,7 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             },
             ("server", "chroma", "embeddingFunction"),
         ),
+        ({"server": {"host": "0.0.0.0"}}, ("server", "host")),
     ],
 )
 def test_repo_config_cannot_set_global_only_keys(
@@ -202,3 +203,17 @@ def test_global_config_can_set_embedding_function(repo, create_config_file):
     config = get_config_values(Path(repo.working_dir))
 
     assert config["server"]["chroma"]["embeddingFunction"]["name"] == "Custom"
+
+
+def test_server_listens_on_localhost_by_default(repo):
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["host"] == "127.0.0.1"
+
+
+def test_global_config_can_set_server_host(repo, create_config_file):
+    create_config_file({"server": {"host": "0.0.0.0"}}, global_config=True)
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["host"] == "0.0.0.0"

@@ -12,6 +12,7 @@ from seagoat.utils.file_reader import read_file_with_correct_encoding
 
 DEFAULT_CONFIG = {
     "server": {
+        "host": "127.0.0.1",
         "port": None,
         "ignorePatterns": [],
         "readMaxCommits": 5_000,
@@ -63,6 +64,7 @@ CONFIG_SCHEMA = {
             "type": "object",
             "additionalProperties": False,
             "properties": {
+                "host": {"type": "string", "minLength": 1},
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
                 "readMaxCommits": {
                     "type": ["integer", "null"],
@@ -235,7 +237,7 @@ def get_config_values(repo_path: Path):
 
 
 # The repo file is untrusted: it comes with whatever repository is being
-# searched. These settings choose where code or credentials are sent,
+# searched. These settings choose where code or credentials are sent or exposed,
 # so only the global config file may set them.
 GLOBAL_ONLY_KEYS = [
     # LLM provider and endpoint: would receive API keys and code
@@ -244,6 +246,9 @@ GLOBAL_ONLY_KEYS = [
     # with an attacker's api_base and api_key_env_var naming any environment
     # variable, which is then sent as a bearer token
     ("server", "chroma", "embeddingFunction"),
+    # Network interface the server listens on: a repo must not be able to
+    # expose your code to the network
+    ("server", "host"),
 ]
 
 

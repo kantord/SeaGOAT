@@ -193,3 +193,24 @@ async def test_does_not_filter_stop_words_if_that_is_all_whats_in_the_query(repo
         result for result in results if result.gitfile.path == "events.txt"
     ][0]
     assert set(events_result.get_lines()) == {5}
+
+
+@pytest.mark.asyncio
+async def test_uses_committed_version_of_files_with_uncommitted_changes(repo):
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="1: Moon landing 1969\n",
+        author=repo.actors["John Doe"],
+        commit_message="Add historical events",
+    )
+    # Uncommitted lines after the end of the committed file: results are
+    # displayed from the committed version, which has no such lines
+    with open(f"{repo.working_dir}/events.txt", "a", encoding="utf-8") as file:
+        file.write("2: Nothing\n3: The fall of the Berlin Wall 1989\n")
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    results = await seagoat.query("19")
+
+    assert results[0].gitfile.path == "events.txt"
+    assert set(results[0].get_lines()) == {1}
