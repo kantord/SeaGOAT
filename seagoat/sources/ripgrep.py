@@ -13,7 +13,6 @@ from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.utils.config import get_config_values
-from seagoat.utils.file_reader import read_file_with_correct_encoding
 from seagoat.utils.file_types import is_file_type_supported
 
 KILOBYTE = 1024
@@ -40,7 +39,9 @@ class RipGrepCache(str):
         max_file_size_kb = self.config["server"]["ripgrep"]["maxFileSize"]
         max_file_size_bytes = max_file_size_kb * KILOBYTE
         for file in self._iterate_files_to_cache():
-            file_contents = read_file_with_correct_encoding(file.absolute_path)
+            # The version in HEAD, which results are displayed from, not the
+            # working tree: uncommitted lines would point past its end
+            file_contents = self.repository.get_blob_data(file.object_id)
 
             if len(file_contents) > max_file_size_bytes:
                 logging.warning("Warning: file %s is too large to cache", file.path)

@@ -1,9 +1,9 @@
 ---
 name: docs deployment to github pages
+# Temporarily manual-only: the docs version comes from semantic-release,
+# which was removed until the new release system is in place
 on:
-    push:
-        branches:
-            - main
+    workflow_dispatch:
 permissions:
     contents: write
 jobs:

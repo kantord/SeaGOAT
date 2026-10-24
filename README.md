@@ -275,6 +275,10 @@ computer or in the cloud, and
 the `seagoat`/`gt` command to connect to this remote server through the
 internet.
 
+By default the server only accepts connections from the same computer. To
+accept remote connections, set `host: 0.0.0.0` under `server` in the global
+configuration file of the computer running the server.
+
 Keep in mind that SeaGOAT itself does not enforce any security as it is
 primarily designed to run locally. If you have private code that you do not
 wish to leak, you will have to make sure that only trusted people have

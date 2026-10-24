@@ -19,10 +19,10 @@ configuration. Whenever both your local as well as global configuration
 files define a value, the local value takes precedence.
 
 Project configuration files come with the repository, so SeaGOAT does not
-trust them with settings that decide where your code or credentials are sent.
-`generative` and `server.chroma.embeddingFunction` are only read from the
-global configuration file; in a project configuration file they are ignored
-with a warning.
+trust them with settings that decide where your code or credentials are sent
+or who can reach them. `generative`, `server.host` and
+`server.chroma.embeddingFunction` are only read from the global configuration
+file; in a project configuration file they are ignored with a warning.
 
 This is an example of a configuration file:
 
@@ -82,6 +82,12 @@ config files.
 
 The following values can be configured:
 
+* `host` (global configuration file only): The network interface the server
+listens on. Defaults to `127.0.0.1`, so only your own computer can reach the
+server. Set it to `0.0.0.0` to accept connections from other computers, for
+example when [hosting the server remotely](index.md#can-i-host-seagoat-server-on-a-different-computer).
+SeaGOAT has no authentication, so anyone who can reach the server can read
+your indexed code.
 * `port`: The port number the server will run on
 * `ignorePatterns`: A list of glob patterns to ignore. Keep in mind that all
 files ignored by `.gitignore` are already ignored. You probably should not

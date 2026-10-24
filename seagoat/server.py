@@ -161,7 +161,8 @@ def start_server(repo_path: str, custom_port=None):
             "pid": os.getpid(),
         },
     )
-    serve(app, host="0.0.0.0", port=port, threads=1)
+    host = get_config_values(Path(repo_path))["server"]["host"]
+    serve(app, host=host, port=port, threads=1)
 
 
 def get_server(repo_path, custom_port=None):
