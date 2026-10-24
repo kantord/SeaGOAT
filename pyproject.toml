@@ -36,6 +36,7 @@ dependencies = [
     "openai>=1.0.0,<2",
     "halo>=0.0.31,<0.0.32",
     "mcp>=1.26.0,<2",
+    "packaging>=26.0,<27",
 ]
 
 [project.scripts]
