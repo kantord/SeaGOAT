@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 
-import appdirs
+import platformdirs
 import jsonschema
 import yaml
 from deepmerge import always_merger
@@ -194,7 +194,7 @@ CONFIG_SCHEMA = {
 logger = logging.getLogger(__name__)
 
 GLOBAL_CONFIG_DIR = Path(
-    appdirs.user_config_dir(
+    platformdirs.user_config_dir(
         "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
     )
 )

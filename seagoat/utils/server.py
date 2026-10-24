@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Dict, TypedDict, Union
 
-import appdirs
+import platformdirs
 import psutil
 
 from seagoat.utils.json_file import get_json_file_contents, write_to_json_file
@@ -22,7 +22,7 @@ class ServerDoesNotExist(Exception):
 
 
 def _get_server_data_file_path() -> Path:
-    user_cache_dir = Path(appdirs.user_cache_dir("seagoat-servers"))
+    user_cache_dir = Path(platformdirs.user_cache_dir("seagoat-servers"))
     user_cache_dir.mkdir(parents=True, exist_ok=True)
     return user_cache_dir / "serverData.json"
 

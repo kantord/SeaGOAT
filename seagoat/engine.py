@@ -4,14 +4,11 @@ This module allows you to use seagoat as a library
 
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from functools import partial
 from itertools import chain
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Set
+from typing import Callable, Dict, Iterable, List, Set, TypedDict
 
-import nest_asyncio
 from tqdm import tqdm
-from typing_extensions import TypedDict
 
 from seagoat.cache import Cache
 from seagoat.gitfile import GitFile
@@ -29,9 +26,6 @@ class RepositoryData(TypedDict):
     sorted_files: List[str]
     chunks_already_analyzed: Set[str]
     chunks_not_yet_analyzed: Set[str]
-
-
-nest_asyncio.apply()
 
 
 class Engine:
@@ -128,7 +122,7 @@ class Engine:
 
         return chunks_to_process
 
-    async def query(self, query: str, limit_clue=50, context_above=0, context_below=0):
+    def query_sync(self, query: str, limit_clue=50, context_above=0, context_below=0):
         """
         limit_clue: a clue regarding how many results will be processed in the end
 
@@ -139,37 +133,30 @@ class Engine:
 
         self._results = []
         max_workers = self.config["server"]["engine"]["maxWorkers"]
-        loop = asyncio.get_event_loop()
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            async_tasks = [
-                loop.run_in_executor(
-                    executor,
-                    partial(source["fetch"], query, limit_clue),
-                )
+            futures = [
+                executor.submit(source["fetch"], query, limit_clue)
                 for source in self._fetchers["async"]
             ]
 
             for source in self._fetchers["sync"]:
                 self._results.extend(source["fetch"](query, limit_clue))
 
-            results = await asyncio.gather(*async_tasks)
-
-        for result in results:
-            self._results.extend(result)
+            for future in futures:
+                self._results.extend(future.result())
 
         self._include_context_lines(context_above, context_below)
 
         return self._format_results(query, limit_clue)
 
+    async def query(self, *args, **kwargs):
+        return await asyncio.to_thread(self.query_sync, *args, **kwargs)
+
     def _include_context_lines(self, context_above: int, context_below: int):
         for result in self._results:
             result.add_context_lines(-context_above)
             result.add_context_lines(context_below)
-
-    def query_sync(self, *args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self.query(*args, **kwargs))
 
     def _get_normalization_function(
         self, values: Iterable[float], min_=None, max_=None

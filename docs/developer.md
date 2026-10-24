@@ -88,7 +88,7 @@ Automated testing is done using `pytest`. Here are some example use cases:
 Automatically runs tests for **all** files when you save your changes:
 
 ```bash
-uv run ptw
+uv run ptw .
 ```
 
 #### Test changed files
@@ -152,7 +152,7 @@ files, not just changed files* then you can run the following command:
 pre-commit run --all-files
 ```
 
-{!../CONTRIBUTING.md!}
+--8<-- "CONTRIBUTING.md"
 
 ## Releasing
 

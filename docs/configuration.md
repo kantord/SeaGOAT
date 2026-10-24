@@ -132,7 +132,8 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
   Has the following attributes:
   * `minChunksToAnalyze`:
     * `minValue`: Minimum number of chunks to analyze (default: 40, range: 1-1000)
-    * `percentage`: Percentage of total chunks to analyze (default: 0.2, range: 0.01-1.0)
+    * `percentage`: Percentage of total chunks to analyze
+      (default: 0.2, range: 0.01-1.0)
   * `maxWorkers`: Maximum worker threads for parallel processing
     (default: 1, range: 1-32)
 

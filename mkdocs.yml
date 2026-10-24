@@ -10,9 +10,10 @@ markdown_extensions:
     - pymdownx.details
     - pymdownx.superfences
     - pymdownx.inlinehilite
-    - pymdownx.snippets
-    - markdown_include.include:
-          base_path: docs
+    - pymdownx.snippets:
+          # Paths in --8<-- includes are relative to the repository root
+          base_path: [.]
+          check_paths: true
     - pymdownx.highlight:
           anchor_linenums: true
           line_spans: __span

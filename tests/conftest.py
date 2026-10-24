@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import cast
 from unittest.mock import MagicMock, patch
 
-import appdirs
+import platformdirs
 import orjson
 import pytest
 import requests
@@ -235,7 +235,7 @@ def repo(generate_repo):
 @pytest.fixture(autouse=True)
 def run_around_tests():
     yield
-    cache_root = Path(appdirs.user_cache_dir("seagoat-pytest"))
+    cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
     if "RUNNER_TEMP" in os.environ:
         cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
     shutil.rmtree(cache_root, ignore_errors=True)
@@ -445,19 +445,19 @@ class CustomCliRunner(CliRunner):
 
 
 @pytest.fixture
-def runner(mock_halo):
+def runner(mock_spinner):
     return CustomCliRunner()
 
 
 @pytest.fixture
-def mock_halo(mocker):
-    mocker.patch("seagoat.cli.Halo")
+def mock_spinner(mocker):
+    mocker.patch("seagoat.cli.yaspin")
 
     yield
 
 
 @pytest.fixture
-def runner_with_error(mocker, mock_halo):
+def runner_with_error(mocker, mock_spinner):
     # click >= 8.2 always keeps stdout and stderr separate
     return CliRunner()
 
