@@ -134,7 +134,7 @@ jobs:
                   persist-credentials: false
             - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
               with:
-                  maturin-version: v1.15.0
+                  maturin-version: 1.15.0
                   target: ${{ matrix.target }}
                   manylinux: ${{ matrix.manylinux || 'auto' }}
                   args: --release --locked --compatibility pypi --out dist
@@ -154,7 +154,7 @@ jobs:
                   persist-credentials: false
             - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
               with:
-                  maturin-version: v1.15.0
+                  maturin-version: 1.15.0
                   command: sdist
                   args: --out dist
             - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
