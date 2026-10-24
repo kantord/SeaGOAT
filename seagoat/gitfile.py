@@ -1,6 +1,7 @@
 import functools
-import hashlib
-from typing import Dict, List, Literal
+from typing import Dict
+
+from seagoat import _native
 
 
 class GitFile:
@@ -53,79 +54,26 @@ class GitFile:
 
         return lines
 
-    def _format_chunk_summary(self, relevant_lines: List[str]):
-        truncated_lines = [line[:100] for line in relevant_lines]
-        chunk = "\n".join(truncated_lines)
-        chunk = chunk + self.get_metadata()
-
-        return chunk
-
-    def _get_context_lines(
-        self,
-        lines: Dict[int, str],
-        line_number: int,
-        direction: Literal[-1, 1],
-    ) -> List[str]:
-        context_lines = []
-        for i in range(1, 6):
-            current_line_number = line_number + (direction * i)
-            current_line = lines.get(current_line_number)
-
-            if current_line is None:
-                break
-
-            if direction == -1:
-                context_lines = [current_line] + context_lines
-            else:
-                context_lines.append(current_line)
-
-            if self._line_has_relevant_data(current_line):
-                break
-
-        return context_lines
-
-    def _get_chunk_for_line(self, line_number: int, lines: Dict[int, str]):
-        relevant_lines = (
-            self._get_context_lines(lines, line_number, -1)
-            + [lines[line_number]]
-            + self._get_context_lines(lines, line_number, 1)
-        )
-        return FileChunk(self, line_number, self._format_chunk_summary(relevant_lines))
-
-    def _line_has_relevant_data(self, line: str):
-        alphanumeric_characters_count = 0
-        for character in line:
-            if character.isalnum():
-                alphanumeric_characters_count += 1
-            if alphanumeric_characters_count > 3:
-                return True
-        return False
-
     def get_chunks(self):
         # TODO: should be turned into a class method on FileChunk
         return [
-            self._get_chunk_for_line(line_number, self.lines)
-            for line_number in self.lines.keys()
-            if self._line_has_relevant_data(self.lines[line_number])
+            FileChunk(self, codeline, chunk, chunk_id)
+            for codeline, chunk, chunk_id in _native.get_chunks(
+                self.path,
+                self.object_id,
+                list(self.lines.values()),
+                self.get_metadata(),
+            )
         ]
 
 
 class FileChunk:
-    def __init__(self, parent: GitFile, codeline: int, chunk: str):
+    def __init__(self, parent: GitFile, codeline: int, chunk: str, chunk_id: str):
         self.path = parent.path
         self.object_id = parent.object_id
         self.codeline = codeline
         self.chunk = chunk
-        self.chunk_id = self._get_id()
-
-    def _get_id(self):
-        text = f"""
-        Path: {self.path}
-        Object ID: {self.object_id}
-        Code line: {self.codeline}
-        Chunk: {self.chunk}
-        """
-        return hashlib.sha256(text.encode()).hexdigest()
+        self.chunk_id = chunk_id
 
     def __repr__(self) -> str:
         return f"<FileChunk {self.path} {self.codeline}>"

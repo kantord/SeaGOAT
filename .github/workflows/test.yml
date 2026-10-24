@@ -38,6 +38,9 @@ jobs:
                     brew install ripgrep
                   fi
 
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
+
             - name: Install uv
               uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
@@ -45,13 +48,13 @@ jobs:
               if: runner.os == 'macOS'
               run: |
                   export HNSWLIB_NO_NATIVE=1
-                  arch -x86_64 uv sync --locked --no-install-project
+                  arch -x86_64 uv sync --locked
 
             - name: Install dependencies on other OS
               if: runner.os != 'macOS'
               run: |
                   export HNSWLIB_NO_NATIVE=1
-                  uv sync --locked --no-install-project
+                  uv sync --locked
 
             - name: Run pytest
               run: |

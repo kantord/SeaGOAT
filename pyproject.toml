@@ -81,13 +81,33 @@ ev = ["seaborn>=0.13.0,<0.14"]
 [tool.uv]
 default-groups = ["dev"]
 exclude-newer = "3 days"
+# Rebuild the native extension when its sources change
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "Cargo.toml" },
+    { file = "Cargo.lock" },
+    { file = "src/**/*.rs" },
+]
 
-[tool.uv.build-backend]
-module-root = ""
+[tool.maturin]
+module-name = "seagoat._native"
+# Keep the sdist to what building the package needs
+exclude = [
+    { path = "asciinema/**", format = "sdist" },
+    { path = "assets/**", format = "sdist" },
+    { path = "docs/**", format = "sdist" },
+    { path = "scripts/**", format = "sdist" },
+    { path = "tests/**", format = "sdist" },
+    { path = "typings/**", format = "sdist" },
+    { path = "*.yml", format = "sdist" },
+    { path = "*.json", format = "sdist" },
+    { path = "locustfile.py", format = "sdist" },
+    { path = "uv.lock", format = "sdist" },
+]
 
 [build-system]
-requires = ["uv_build>=0.12.13,<0.13.0"]
-build-backend = "uv_build"
+requires = ["maturin>=1.15.0,<2"]
+build-backend = "maturin"
 
 [tool.pyright]
 venvPath = "."

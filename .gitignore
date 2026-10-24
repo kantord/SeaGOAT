@@ -156,3 +156,6 @@ cython_debug/
 .testmondata*
 prof/
 benchmark/examples/*/results/
+
+# Rust build output
+target/

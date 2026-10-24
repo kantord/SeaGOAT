@@ -1,0 +1,6 @@
+UNICODE_VERSION: str
+
+def get_chunks(
+    path: str, object_id: str, lines: list[str], metadata: str
+) -> list[tuple[int, str, str]]: ...
+def is_alnum(character: str) -> bool: ...

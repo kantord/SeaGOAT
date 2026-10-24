@@ -30,9 +30,20 @@ jobs:
             - name: Install uv
               uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
+              with:
+                  components: rustfmt, clippy
+
             - name: Install dependencies
-              run: uv sync --locked --no-install-project
+              run: uv sync --locked
 
             - name: Run pre-commit
               run: |
                   uv run pre-commit run --all-files
+
+            - name: Check Rust code
+              run: |
+                  cargo fmt --check
+                  cargo clippy --all-targets --locked -- -D warnings
+                  cargo test --locked
