@@ -1,3 +1,6 @@
+import subprocess
+from pathlib import Path
+
 import pytest
 
 from seagoat.engine import Engine
@@ -214,3 +217,53 @@ async def test_uses_committed_version_of_files_with_uncommitted_changes(repo):
 
     assert results[0].gitfile.path == "events.txt"
     assert set(results[0].get_lines()) == {1}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("query", ["--version", "--files", "-e"])
+async def test_queries_that_look_like_options_are_patterns(repo, query):
+    repo.add_file_change_commit(
+        file_name="flags.txt",
+        contents=f"1: run with {query} to see it\n",
+        author=repo.actors["John Doe"],
+        commit_message="Add flags",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    results = await seagoat.query(query)
+
+    assert "flags.txt" in [result.gitfile.path for result in results]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("file_name", ["a:b.txt", "-dash.txt", "x:1:y.txt"])
+async def test_finds_files_with_unusual_names(repo, file_name):
+    # Committed with git itself: GitPython refuses paths containing ":"
+    Path(repo.working_dir, file_name).write_text("1: Moon landing 1969\n")
+    git = ["git", "-C", repo.working_dir, "-c", "user.name=t", "-c", "user.email=t@t"]
+    subprocess.run([*git, "add", "--", file_name], check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "Add file"], check=True)
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    results = await seagoat.query("1969")
+
+    assert file_name in [result.gitfile.path for result in results]
+
+
+@pytest.mark.asyncio
+async def test_searches_files_that_are_not_valid_utf8(repo):
+    repo.add_file_change_commit(
+        file_name="latin1.txt",
+        contents="1: Moon landing 1969, café\n",
+        author=repo.actors["John Doe"],
+        commit_message="Add Latin-1 file",
+        encoding="latin-1",
+    )
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase()
+
+    results = await seagoat.query("1969")
+
+    assert [result.gitfile.path for result in results] == ["latin1.txt"]

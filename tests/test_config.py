@@ -155,6 +155,7 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             ("server", "chroma", "embeddingFunction"),
         ),
         ({"server": {"host": "0.0.0.0"}}, ("server", "host")),
+        ({"client": {"host": "https://evil.example/"}}, ("client", "host")),
     ],
 )
 def test_repo_config_cannot_set_global_only_keys(

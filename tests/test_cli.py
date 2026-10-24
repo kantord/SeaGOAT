@@ -692,7 +692,7 @@ def test_integration_test_no_results(snapshot, repo, mocker, runner):
 def test_configure_remote_server_address(
     remote_host, get_request_args_from_cli_call, create_config_file
 ):
-    create_config_file({"client": {"host": remote_host}})
+    create_config_file({"client": {"host": remote_host}}, global_config=True)
     request_args = get_request_args_from_cli_call([])
     assert request_args["url"].startswith(remote_host)
 
@@ -719,7 +719,7 @@ def test_connecting_to_remote_server(
     This test also tests that results are correctly displayed with bat
     """
 
-    create_config_file({"client": {"host": server}})
+    create_config_file({"client": {"host": server}}, global_config=True)
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
 
@@ -812,3 +812,49 @@ def test_does_not_crash_with_slash_in_request(
         result = runner.invoke(seagoat, [query, ".", "--no-color"])
 
     assert result.exit_code == 0
+
+
+@pytest.mark.parametrize(
+    "response_text",
+    [
+        "<html>502 Bad Gateway</html>",
+        '{"message": "Not Found"}',
+        '{"info": {"version": "not a version"}}',
+        '{"info": null}',
+    ],
+)
+def test_unexpected_pypi_responses_raise_errors_the_cli_handles(mocker, response_text):
+    mocker.patch("requests.get", return_value=mocker.Mock(text=response_text))
+
+    with pytest.raises((ValueError, KeyError, TypeError)):
+        warn_if_update_available()
+
+
+@pytest.mark.usefixtures("mock_query_server")
+@pytest.mark.parametrize(
+    "error",
+    [
+        KeyError("info"),
+        ValueError("Invalid version: 'not a version'"),
+        requests.exceptions.HTTPError("502"),
+    ],
+)
+def test_unexpected_update_check_errors_do_not_fail_the_search(
+    runner_with_error, mocker, mock_response, repo, error
+):
+    mocked_response = {
+        "stats": {
+            "chunks": {"analyzed": 100, "unanalyzed": 0},
+            "queue": {"size": 0},
+            "accuracy": {"percentage": 100},
+        },
+        "version": __version__,
+    }
+
+    mocker.patch("requests.get", return_value=mock_response(mocked_response))
+    mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
+    mocker.patch("seagoat.cli.warn_if_update_available", side_effect=error)
+    result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
+
+    assert result.exit_code == 0
+    assert "Could not check for updates" in result.stderr

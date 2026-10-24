@@ -390,3 +390,31 @@ def test_max_count_is_added_for_read_max_commits_setting(
     repository.analyze_files()
 
     assert mock.spy_return == expected_extra_args
+
+
+def test_get_blobs_data_matches_get_blob_data(repo: MockRepo):
+    repo.add_file_change_commit(
+        file_name="a.py",
+        contents="first file\nwith two lines\n",
+        author=repo.actors["John Doe"],
+        commit_message="Add a.py",
+    )
+    repo.add_file_change_commit(
+        file_name="b.md",
+        contents="",
+        author=repo.actors["John Doe"],
+        commit_message="Add empty b.md",
+    )
+    repository = Repository(repo.working_dir)
+    object_ids = []
+    for path in ["a.py", "b.md", "file1.md"]:
+        object_id = repository.get_file_object_id(path)
+        assert object_id is not None
+        object_ids.append(object_id)
+    missing_object_id = "0" * 40
+
+    blobs = repository.get_blobs_data([*object_ids, missing_object_id])
+
+    assert blobs == {
+        object_id: repository.get_blob_data(object_id) for object_id in object_ids
+    }

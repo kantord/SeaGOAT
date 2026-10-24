@@ -20,7 +20,7 @@ files define a value, the local value takes precedence.
 
 Project configuration files come with the repository, so SeaGOAT does not
 trust them with settings that decide where your code or credentials are sent
-or who can reach them. `generative`, `server.host` and
+or who can reach them. `generative`, `server.host`, `client.host` and
 `server.chroma.embeddingFunction` are only read from the global configuration
 file; in a project configuration file they are ignored with a warning.
 
@@ -68,7 +68,7 @@ server:
     defaultContextBelow: 3  # Default context lines below results (0-50)
 
 client:
-  # Connect the CLI to a remote server
+  # Connect the CLI to a remote server (global configuration file only)
   host: https://example.com/seagoat-instance/
 
 ```
@@ -150,10 +150,9 @@ Configuration for the CLI (`gt` command) resides under the `client` attribute.
 
 The following values can be configured:
 
-* `host`: The URL of the SeaGOAT instance to connect to. This is only
-needed when you are hosting your SeaGOAT server on a remote computer. *It is
-recommended to set this value in your project configuration file, so that
-you are still able to use the local server for different projects.*
+* `host` (global configuration file only): The URL of the SeaGOAT instance to
+connect to. This is only needed when you are hosting your SeaGOAT server on a
+remote computer.
 
 ## Performance Tuning
 

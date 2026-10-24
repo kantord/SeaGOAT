@@ -3,6 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from seagoat.queue.base_queue import BaseQueue, TaskFailed
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.repository import Repository
 
@@ -70,3 +71,21 @@ def test_important_files_are_analyzed_first(create_task_queue, mocker, repo):
 
     # the exact order of files should also match the priority list
     assert [file.path for file, _ in repository.top_files()] == order_of_files_analyzed
+
+
+def test_worker_keeps_running_after_a_task_fails(repo):
+    class FlakyQueue(BaseQueue):
+        def handle_fail(self, _context):
+            raise ValueError("boom")
+
+        def handle_echo(self, _context, value):
+            return value
+
+    queue = FlakyQueue()
+    try:
+        with pytest.raises(TaskFailed, match="fail failed: boom"):
+            queue.enqueue("fail")
+
+        assert queue.enqueue("echo", "still alive") == "still alive"
+    finally:
+        queue.shutdown()
