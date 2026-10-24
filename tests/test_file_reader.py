@@ -2,12 +2,11 @@ import os
 import tempfile
 
 import pytest
-from chardet.universaldetector import UniversalDetector
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
 
 MISDETECTED_UTF8_EXAMPLES = [
-    # (sequence, detected_encoding),  # detection_confidence
+    # (sequence, encoding chardet 5 detected),  # its detection confidence
     (b"\xcc\x8fa\\>N7:A", "Windows-1252"),  # 0.73
     (b"\xdd\x81nl", "Windows-1254"),  # 0.7729647837244535
     (b"\xd8\x90Mas", "Windows-1254"),  # 0.6183718269795628
@@ -35,29 +34,17 @@ MISDETECTED_UTF8_EXAMPLES = [
 
 
 @pytest.mark.parametrize("sequence, detected_encoding", MISDETECTED_UTF8_EXAMPLES)
-def test_file_reader_does_not_crash_because_of_misdetected_utf8(
+def test_file_reader_reads_utf8_that_chardet_used_to_misdetect(
     sequence: bytes, detected_encoding: str
 ):
-    # the fallback encoding is utf8 as that is what most projects are expected to use
-
+    # chardet 5 detected these UTF-8 sequences as detected_encoding. Valid
+    # UTF-8 is now decoded as UTF-8 before encoding detection is consulted
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
         temp_file.write(sequence)
 
     try:
-        # Ensure chardet detects the expected encoding
-        # If it does not detect as that encoding, the test case might be useless
-        test_detector = UniversalDetector()
-        with open(temp_file.name, "rb") as file:
-            for line in file:
-                test_detector.feed(line)
-                if test_detector.done:
-                    break
-        test_detector.close()
-        detected = test_detector.result["encoding"]
-        assert detected == detected_encoding
-
-        # Now, proceed with the read_file_with_correct_encoding
         content = read_file_with_correct_encoding(temp_file.name)
-        assert content is not None
     finally:
         os.unlink(temp_file.name)
+
+    assert content == sequence.decode("utf-8"), detected_encoding
