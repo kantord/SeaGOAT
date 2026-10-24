@@ -1,6 +1,27 @@
 # CHANGELOG
 
 
+## [1.6.0](https://github.com/kantord/SeaGOAT/compare/v1.5.0...v1.6.0) - 2026-10-24
+
+### Added
+
+- support Python 3.14 ([#1048](https://github.com/kantord/SeaGOAT/pull/1048))
+
+### Fixed
+
+- *(deps)* update non-major dependencies ([#1053](https://github.com/kantord/SeaGOAT/pull/1053))
+
+### Other
+
+- *(deps)* lock file maintenance ([#1072](https://github.com/kantord/SeaGOAT/pull/1072))
+- adopt ruff 0.17 and its default rules ([#1059](https://github.com/kantord/SeaGOAT/pull/1059))
+- *(deps)* update pre-commit hook robertcraigie/pyright-python to v1.1.414 ([#1058](https://github.com/kantord/SeaGOAT/pull/1058))
+- *(deps)* update dependency release-plz to v0.3.174 ([#1056](https://github.com/kantord/SeaGOAT/pull/1056))
+- pin a stable Codecov action and stop coverage uploads failing tests ([#1055](https://github.com/kantord/SeaGOAT/pull/1055))
+- drop unmaintained and unused dependencies ([#1054](https://github.com/kantord/SeaGOAT/pull/1054))
+- *(deps)* lock file maintenance ([#1051](https://github.com/kantord/SeaGOAT/pull/1051))
+- *(renovate)* fix maturin lookup and pyright grouping ([#1049](https://github.com/kantord/SeaGOAT/pull/1049))
+
 ## [1.5.0](https://github.com/kantord/SeaGOAT/compare/v0.54.17...v1.5.0) - 2026-10-24
 
 The first release published to PyPI since 0.54.17, and the first one made with
