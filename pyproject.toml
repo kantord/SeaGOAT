@@ -24,7 +24,7 @@ dependencies = [
     "psutil>=7.0.0,<8",
     "orjson>=3.9.5,<4",
     "waitress>=3.0.0,<4",
-    "chardet>=5.2.0,<6",
+    "chardet>=7.7,<8",
     "pyyaml>=6.0.1,<7",
     "jsonschema>=4.19.1,<5",
     "deepmerge>=3.0.1,<4",
@@ -33,7 +33,7 @@ dependencies = [
     "ollama>=0.6.3,<0.7",
     "openai>=3.36,<4",
     "yaspin>=3.5.1,<4",
-    "mcp>=1.26.0,<2",
+    "mcp>=2.3,<3",
     "packaging>=26.0,<27",
 ]
 

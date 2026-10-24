@@ -36,6 +36,12 @@
       "groupName": "non-major dependencies"
     },
     {
+      "description": "stop-words 2025 grew the English list from 174 to 1333 words, including words that matter in code searches (use, zero, section, high, 10, ts, h). ripgrep removes stop words from queries, so it would make text search results worse. Keep the 2018 list.",
+      "matchPackageNames": ["stop-words"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
       "description": "Major updates can change behaviour that CI does not cover, so they wait for a human even when CI passes.",
       "matchUpdateTypes": ["major"],
       "automerge": false

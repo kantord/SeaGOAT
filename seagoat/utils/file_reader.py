@@ -1,4 +1,4 @@
-from chardet.universaldetector import UniversalDetector
+from chardet import UniversalDetector
 
 
 def read_file_as_binary(file_path: str):
