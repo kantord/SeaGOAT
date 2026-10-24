@@ -18,6 +18,12 @@ your project-wide configuration files are merged with the global
 configuration. Whenever both your local as well as global configuration
 files define a value, the local value takes precedence.
 
+Project configuration files come with the repository, so SeaGOAT does not
+trust them with settings that decide where your code or credentials are sent.
+`generative` and `server.chroma.embeddingFunction` are only read from the
+global configuration file; in a project configuration file they are ignored
+with a warning.
+
 This is an example of a configuration file:
 
 ```yaml
@@ -84,7 +90,7 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
 [Learn more about globs](https://en.wikipedia.org/wiki/Glob_(programming))
 * `chroma`: Configurations for the ChromaDB based features.
   Has the following attributes:
-  * `embeddingFunction`:
+  * `embeddingFunction` (global configuration file only):
     * `name`: Name of the embedding function to use.
     See [ChromaDB's docs for more](https://docs.trychroma.com/embeddings)
     * `arguments`: Arguments to pass to the embedding function.

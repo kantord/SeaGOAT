@@ -222,14 +222,36 @@ def get_config_values(repo_path: Path):
 
     if repo_config_file.exists():
         repo_config = validate_config_file(str(repo_config_file))
-        # The repo file is untrusted: it must not be able to choose the LLM
-        # provider or endpoint, since that would send API keys and code there.
-        if repo_config.pop("generative", None) is not None:
-            logger.warning(
-                "Ignoring 'generative' in %s: set it in the global config file "
-                "instead.",
-                repo_config_file,
-            )
+        for key_path in GLOBAL_ONLY_KEYS:
+            if _pop_key_path(repo_config, key_path) is not None:
+                logger.warning(
+                    "Ignoring '%s' in %s: set it in the global config file instead.",
+                    ".".join(key_path),
+                    repo_config_file,
+                )
         config = always_merger.merge(config, repo_config)
 
     return config
+
+
+# The repo file is untrusted: it comes with whatever repository is being
+# searched. These settings choose where code or credentials are sent,
+# so only the global config file may set them.
+GLOBAL_ONLY_KEYS = [
+    # LLM provider and endpoint: would receive API keys and code
+    ("generative",),
+    # Any chroma embedding function with any arguments, e.g. an OpenAI one
+    # with an attacker's api_base and api_key_env_var naming any environment
+    # variable, which is then sent as a bearer token
+    ("server", "chroma", "embeddingFunction"),
+]
+
+
+def _pop_key_path(config: dict, key_path: tuple):
+    *parents, key = key_path
+    section = config
+    for parent in parents:
+        section = section.get(parent)
+        if not isinstance(section, dict):
+            return None
+    return section.pop(key, None)

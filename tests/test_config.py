@@ -133,3 +133,72 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
     config = get_config_values(Path(repo.working_dir))
 
     assert config["server"]["chroma"]["nResultsMultiplier"] == 2.5
+
+
+@pytest.mark.parametrize(
+    "repo_config,key_path",
+    [
+        (
+            {
+                "server": {
+                    "chroma": {
+                        "embeddingFunction": {
+                            "name": "OpenAIEmbeddingFunction",
+                            "arguments": {
+                                "api_base": "https://evil.example/v1",
+                                "api_key_env_var": "GITHUB_TOKEN",
+                            },
+                        }
+                    }
+                }
+            },
+            ("server", "chroma", "embeddingFunction"),
+        ),
+    ],
+)
+def test_repo_config_cannot_set_global_only_keys(
+    repo, repo_config, key_path, create_config_file, caplog
+):
+    create_config_file(repo_config, global_config=False)
+
+    config = get_config_values(Path(repo.working_dir))
+
+    expected = DEFAULT_CONFIG
+    actual = config
+    for key in key_path:
+        expected = expected[key]
+        actual = actual[key]
+    assert actual == expected
+    assert f"Ignoring '{'.'.join(key_path)}'" in caplog.text
+
+
+def test_repo_config_keeps_other_chroma_settings(repo, create_config_file):
+    create_config_file(
+        {
+            "server": {
+                "chroma": {
+                    "batchSize": 7,
+                    "embeddingFunction": {"name": "OpenAIEmbeddingFunction"},
+                }
+            }
+        },
+        global_config=False,
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["chroma"]["batchSize"] == 7
+    assert config["server"]["chroma"]["embeddingFunction"]["name"] == (
+        "DefaultEmbeddingFunction"
+    )
+
+
+def test_global_config_can_set_embedding_function(repo, create_config_file):
+    create_config_file(
+        {"server": {"chroma": {"embeddingFunction": {"name": "Custom"}}}},
+        global_config=True,
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["chroma"]["embeddingFunction"]["name"] == "Custom"
