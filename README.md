@@ -148,7 +148,7 @@ uv sync
 #### Watch mode (recommended)
 
 ```bash
-uv run ptw
+uv run ptw .
 ```
 
 #### Test changed files

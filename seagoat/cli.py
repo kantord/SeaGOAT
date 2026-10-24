@@ -5,8 +5,9 @@ from pathlib import Path
 import click
 import orjson
 import requests
-from halo import Halo
 from packaging.version import Version
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 from seagoat import __version__
 from seagoat.utils.cli_display import display_results
@@ -170,7 +171,7 @@ def seagoat(
     that will analyze your codebase. Check seagoat-server --help for more details.
     """
     config = get_config_values(Path(repo_path))
-    spinner = Halo(text="Generating response...", spinner="dots", stream=sys.stderr)
+    spinner = yaspin(Spinners.dots, text="Generating response...", stream=sys.stderr)
     spinner.start()
 
     try:
@@ -203,7 +204,7 @@ def seagoat(
 
             results = enhance_results(query, results, spinner, config)
 
-        spinner.succeed()
+        spinner.ok("✔")
         color_enabled = os.isatty(0) and not no_color and not vimgrep
 
         display_results(results, max_results, color_enabled, vimgrep)
@@ -214,7 +215,7 @@ def seagoat(
         requests.exceptions.RequestException,
         ServerDoesNotExist,
     ):
-        spinner.fail()
+        spinner.fail("✖")
         click.echo(
             f"The SeaGOAT server is not running. "
             f"Please start the server using the following command: "

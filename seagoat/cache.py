@@ -4,7 +4,7 @@ import pickle
 from pathlib import Path
 from typing import Generic, TypeVar
 
-import appdirs
+import platformdirs
 
 T = TypeVar("T")
 
@@ -18,7 +18,7 @@ def get_cache_root():
         return Path(os.environ["RUNNER_TEMP"])
 
     return Path(
-        appdirs.user_cache_dir(
+        platformdirs.user_cache_dir(
             "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
         )
     )
