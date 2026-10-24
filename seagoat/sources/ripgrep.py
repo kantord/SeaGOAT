@@ -100,6 +100,11 @@ class RipGrepCache(str):
         return self._data
 
     def as_input(self):
+        # subprocess only closes stdin for falsy input, so an empty cache
+        # must be passed as "" instead of self, otherwise rg waits forever
+        if not self._data:
+            return ""
+
         if platform.system() == "Windows":
             return self.encode()
 

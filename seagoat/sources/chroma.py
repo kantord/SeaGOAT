@@ -70,7 +70,11 @@ def initialize(repository: Repository):
         **embedding_function_kwargs
     )
     chroma_collection = chroma_client.get_or_create_collection(
-        name="code_data", embedding_function=embedding_function
+        name="code_data",
+        embedding_function=embedding_function,
+        # A high ef_search makes the approximate HNSW search close to exact,
+        # so results do not depend on the order in which chunks were added
+        configuration={"hnsw": {"ef_search": 1000}},
     )
 
     batch_size = config["server"]["chroma"]["batchSize"]
