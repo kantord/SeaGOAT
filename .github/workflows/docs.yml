@@ -14,6 +14,9 @@ jobs:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
                   fetch-depth: 0 # fetch all history for all branches and tags
+                  # The token is only set up in the deploy step, so that the
+                  # steps before it (installing third-party packages) can't read it
+                  persist-credentials: false
             - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
               with:
                   python-version: 3.13
@@ -28,7 +31,11 @@ jobs:
             - name: Fetch all history for all branches and tags
               run: git fetch --all
             - name: Deploy docs with Mike
+              env:
+                  GITHUB_TOKEN: ${{ github.token }}
               run: |
+                  # mike pushes the built docs to the gh-pages branch
+                  git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
                   # The version of the last release: release PRs bump Cargo.toml
                   VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
                   # Remove patch version and replace it with 'x'
