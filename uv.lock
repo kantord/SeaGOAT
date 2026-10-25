@@ -3847,6 +3847,7 @@ wheels = [
 name = "seagoat"
 source = { editable = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "chardet" },
     { name = "chromadb" },
     { name = "click" },
@@ -3894,6 +3895,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2026.10.19" },
     { name = "chardet", specifier = ">=7.7,<8" },
     { name = "chromadb", specifier = ">=1.0.0,<2" },
     { name = "click", specifier = ">=8.2.0,<9" },
