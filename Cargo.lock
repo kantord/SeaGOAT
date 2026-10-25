@@ -162,7 +162,7 @@ dependencies = [
 
 [[package]]
 name = "seagoat-native"
-version = "1.6.0"
+version = "1.6.1"
 dependencies = [
  "pyo3",
  "sha2",
