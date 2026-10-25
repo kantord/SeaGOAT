@@ -1,6 +1,12 @@
 # CHANGELOG
 
 
+## [1.6.1](https://github.com/kantord/SeaGOAT/compare/v1.6.0...v1.6.1) - 2026-10-25
+
+### Fixed
+
+- require patched certifi and uv, and harden workflows ([#1075](https://github.com/kantord/SeaGOAT/pull/1075))
+
 ## [1.6.0](https://github.com/kantord/SeaGOAT/compare/v1.5.0...v1.6.0) - 2026-10-24
 
 ### Added
