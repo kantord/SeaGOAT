@@ -45,7 +45,7 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
             - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-            - uses: release-plz/action@8b5bf233ecb5779f63508db7cd050e948ee77cc2 # v0.5.144
+            - uses: release-plz/action@7ef5e4d4b0420630cfcaeb182c01e13651d4c577 # v0.5.145
               with:
                   command: release-pr
                   version: 0.3.174
@@ -69,7 +69,7 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
             - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-            - uses: release-plz/action@8b5bf233ecb5779f63508db7cd050e948ee77cc2 # v0.5.144
+            - uses: release-plz/action@7ef5e4d4b0420630cfcaeb182c01e13651d4c577 # v0.5.145
               id: release-plz
               with:
                   command: release
