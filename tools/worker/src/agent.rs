@@ -136,7 +136,11 @@ pub async fn run(g: &Guest, cfg: &Config, task: &str) -> Report {
     };
     let mut messages = vec![
         json!({"role": "system", "content": SYSTEM_PROMPT}),
-        json!({"role": "user", "content": format!("TASK:\n{task}\n\nVerify with: `{}`", cfg.verify_cmd)}),
+        // Naming the gate as a command to run made the model run it, and the harness then ran it
+        // again: 213 s of a 381 s run (2026-10-28).
+        json!({"role": "user", "content": format!(
+            "TASK:\n{task}\n\nWhen you stop, the harness runs `{}` itself. Do not run it yourself.",
+            cfg.verify_cmd)}),
     ];
     record(cfg, &messages);
     for attempt in 1..=cfg.retry_cap + 1 {
