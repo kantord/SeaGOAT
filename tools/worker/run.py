@@ -8,7 +8,8 @@ tools/worker against a copy of the repo at --base, and if the run is GREEN apply
 `.claude/worktrees/worker-<slug>` (branch `worker/<slug>`), unstaged, for the calling session
 to review and commit. Inside the sandbox the worker has already run tools/worker/verify.sh.
 Everything a run writes is under `target/agent-tmp/worker/<slug>-<time>/` (`run.log` is the
-live table: `tail -f` it).
+live table: `tail -f` it). `run/events.jsonl` times every step with the machine's load
+(tools/worker/timings.py summarizes it; run.py prints that at the end).
 
 The API URL, model and extra request fields come from ~/.config/seagoat-worker/config.toml,
 outside the repo, so which gateway and model are used is not part of it:
@@ -29,13 +30,17 @@ Standard library only.
 """
 
 import argparse
+import contextlib
 import datetime
 import json
 import os
 import subprocess
 import sys
+import time
 import tomllib
 from pathlib import Path
+
+import timings
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKER = ROOT / "tools/worker"
@@ -62,6 +67,45 @@ def image_loaded(image: str) -> bool:
         ).returncode
         == 0
     )
+
+
+def host_cpu() -> tuple[int, int] | None:
+    """(busy, total) clock ticks from /proc/stat, as events.rs reads them."""
+    try:
+        n = [int(v) for v in Path("/proc/stat").read_text().split("\n")[0].split()[1:9]]
+    except (OSError, ValueError):
+        return None
+    return sum(n) - n[3] - n[4], sum(n)
+
+
+@contextlib.contextmanager
+def step(events: Path, phase: str, name: str):
+    """One event in the run's events.jsonl, in events.rs's format; yields a dict for extra fields."""
+    fields: dict = {}
+    ts, t0, cpu0 = time.time(), time.monotonic(), host_cpu()
+    try:
+        yield fields
+    finally:
+        cpu1 = host_cpu()
+        busy = None
+        if cpu0 and cpu1 and cpu1[1] > cpu0[1]:
+            busy = round((cpu1[0] - cpu0[0]) / (cpu1[1] - cpu0[1]), 3)
+        event = {
+            "ts": round(ts, 3), "phase": phase, "name": name,
+            "duration_s": round(time.monotonic() - t0, 3),
+            "host_cpu_busy": busy, "host_load1": os.getloadavg()[0],
+            "host_cpus": os.cpu_count(), **fields,
+        }  # fmt: skip
+        events.parent.mkdir(parents=True, exist_ok=True)
+        with events.open("a") as f:
+            f.write(json.dumps(event) + "\n")
+
+
+def print_timings(out: Path):
+    try:
+        print(timings.show(timings.summary(timings.load(out))), flush=True)
+    except (OSError, ValueError) as e:
+        print(f"worker: no timings ({e})", flush=True)
 
 
 def build_worker() -> Path:
@@ -128,7 +172,9 @@ def main(argv) -> int:
     out.mkdir(parents=True)
     brief = out / "brief.md"
     brief.write_text(a.brief.read_text())
-    binary = build_worker()
+    events = out / "run/events.jsonl"
+    with step(events, "host", "build_worker"):
+        binary = build_worker()
     log = out / "run.log"
     print(
         f"worker: {a.slug} on {base[:8]}, image {IMAGE}; watch: tail -f {log}",
@@ -165,10 +211,17 @@ def main(argv) -> int:
         or patch.stat().st_size == 0
     ):
         print(f"worker: no green patch; see {out}", flush=True)
+        print_timings(out)
         return 1
-    tree = apply_in_worktree(a.slug, base, patch)
+    with step(events, "host", "apply"):
+        tree = apply_in_worktree(a.slug, base, patch)
     print(f"worker: changes uncommitted in {tree}", flush=True)
     print(git("status", "--short", cwd=tree), end="", flush=True)
+    print_timings(out)
+    print(
+        f"worker: every step is in {events}; tools/worker/timings.py {out} shows this again",
+        flush=True,
+    )
     return 0
 
 

@@ -14,6 +14,7 @@ use std::time::{Duration, Instant};
 use anyhow::{Result, anyhow};
 use serde_json::{Map, Value, json};
 
+use crate::events::{Cpu, Events};
 use crate::guest::Guest;
 
 const MAX_TOOL_OUTPUT: usize = 8000;
@@ -61,6 +62,7 @@ pub struct Config {
     pub start: Instant,
     pub deadline: Instant,
     pub transcript: PathBuf,
+    pub events: Events,
     pub mode: crate::out::Mode,
 }
 
@@ -162,14 +164,26 @@ pub async fn run(g: &Guest, cfg: &Config, task: &str) -> Report {
         }
         // An untouched tree passing verify says nothing about the task, so it counts RED
         // without a verify. Compared with the base, not HEAD: committed work is still work.
+        let span = cfg.events.begin("harness", "changed_since");
         let changed = g.changed_since(&cfg.base).await;
+        cfg.events
+            .end(span, json!({"changed": changed.as_ref().ok()}));
         let v = if let Ok(false) = changed {
             Ok(crate::guest::Output {
                 code: Some(1),
                 text: "(no changes, no verify run)".into(),
             })
         } else {
-            g.sh(&cfg.verify_cmd, remaining.min(VERIFY_TIMEOUT)).await
+            let guest0 = g.cpu().await;
+            let span = cfg.events.begin("verify", format!("attempt {attempt}"));
+            let v = g.sh(&cfg.verify_cmd, remaining.min(VERIFY_TIMEOUT)).await;
+            let guest_cpu_busy = Cpu::busy_between(guest0, g.cpu().await);
+            let exit = v.as_ref().ok().map(|o| o.code);
+            cfg.events.end(
+                span,
+                json!({"exit": exit, "guest_cpu_busy": guest_cpu_busy, "cmd": cfg.verify_cmd}),
+            );
+            v
         };
         let (ok, out) = match v {
             Ok(o) if o.code.is_none() => {
@@ -233,7 +247,7 @@ async fn turns(
         }
         cfg.mode.header();
         trim(messages);
-        let resp = match call(cfg, messages).await {
+        let resp = match call(cfg, messages, turn).await {
             Ok(v) => v,
             Err(Call::Fatal(e)) => return Err(Stop::Fatal(e)),
             Err(Call::Failed(e)) => return Ok(Ending::ApiError(e)),
@@ -286,9 +300,18 @@ async fn turns(
                 .deadline
                 .saturating_duration_since(Instant::now())
                 .min(COMMAND_TIMEOUT);
+            let guest0 = g.cpu().await;
+            let span = cfg.events.begin("tool", tool);
             let out = run_tool(g, name, &args, limit)
                 .await
                 .unwrap_or_else(|e| format!("tool error: {e:#}"));
+            let guest_cpu_busy = Cpu::busy_between(guest0, g.cpu().await);
+            cfg.events.end(
+                span,
+                json!({"turn": turn, "cmd": summary.chars().take(300).collect::<String>(),
+                       "exit": exit_of(&out), "output_bytes": out.len(),
+                       "guest_cpu_busy": guest_cpu_busy}),
+            );
             if let Some(e) = dead(g, &out).await {
                 return Err(Stop::GuestDead(e));
             }
@@ -313,6 +336,7 @@ async fn finish_turn(
     row.steps = steps;
     row.time_tools = turn_start.elapsed() - row.time_llm;
     row.time_total = cfg.start.elapsed();
+    let span = cfg.events.begin("harness", "diff_stat");
     if r.tree.is_empty() {
         r.tree = g.tree_of(&cfg.base).await.unwrap_or_default();
     }
@@ -320,6 +344,7 @@ async fn finish_turn(
     if let Ok((tree, diff, total)) = g.diff_stat(&r.tree, &cfg.base).await {
         (r.tree, row.diff, row.diff_total) = (tree, diff, total);
     }
+    cfg.events.end(span, json!({"turn": row.turn}));
     cfg.mode.turn(&row);
 }
 
@@ -350,7 +375,8 @@ enum Call {
 
 /// SPEC: 5xx, 408, 429, dropped connections and unparseable bodies are retried after 5 s and
 /// 20 s; any other 4xx ends the attempt; quota and auth failures end the run as FATAL.
-async fn call(cfg: &Config, messages: &[Value]) -> Result<Value, Call> {
+/// Every HTTP request is an event, and so is every wait before a retry.
+async fn call(cfg: &Config, messages: &[Value], turn: usize) -> Result<Value, Call> {
     let mut body = json!({
         "model": cfg.model, "messages": messages, "tools": tools(), "tool_choice": "auto",
         // Without it some gateways reserve the model's whole context window and refuse the call
@@ -363,9 +389,11 @@ async fn call(cfg: &Config, messages: &[Value]) -> Result<Value, Call> {
     let mut last = String::new();
     for wait in API_RETRY_WAITS.iter().map(Some).chain([None]) {
         let (url, key, body) = (cfg.api_url.clone(), cfg.key.clone(), body.clone());
+        let span = cfg.events.begin("llm", "request");
         let res = tokio::task::spawn_blocking(move || post(&url, &key, &body))
             .await
             .unwrap_or_else(|e| Err((true, e.to_string())));
+        cfg.events.end(span, request_fields(turn, &res));
         match res {
             Ok(v) => return Ok(v),
             Err((_, e)) if is_fatal(&e) => return Err(Call::Fatal(e)),
@@ -377,10 +405,39 @@ async fn call(cfg: &Config, messages: &[Value]) -> Result<Value, Call> {
                 "  transient API failure ({}), retrying in {w}s",
                 tail(&last, 200)
             );
+            let span = cfg.events.begin("llm", "retry_wait");
             tokio::time::sleep(Duration::from_secs(*w)).await;
+            cfg.events.end(span, json!({"turn": turn}));
         }
     }
     Err(Call::Failed(last))
+}
+
+/// What a request event records: the reply's size, tokens and cost, or the error.
+fn request_fields(turn: usize, res: &Result<Value, (bool, String)>) -> Value {
+    match res {
+        Ok(v) => {
+            let u = &v["usage"];
+            let msg = &v["choices"][0]["message"];
+            json!({"turn": turn, "ok": true,
+                   "prompt_tokens": u["prompt_tokens"], "completion_tokens": u["completion_tokens"],
+                   "cost_usd": u["cost"], "tool_calls": msg["tool_calls"].as_array().map(Vec::len),
+                   "finish_reason": v["choices"][0]["finish_reason"], "provider": v["provider"]})
+        }
+        Err((retryable, e)) => {
+            json!({"turn": turn, "ok": false, "retryable": retryable, "error": tail(e, 300)})
+        }
+    }
+}
+
+/// The exit code run_tool put on its output's second line, as the model saw it.
+fn exit_of(out: &str) -> Value {
+    out.lines()
+        .nth(1)
+        .and_then(|l| l.strip_prefix("(exit ")?.strip_suffix(')'))
+        .map_or(Value::Null, |c| {
+            c.parse::<i64>().map_or(c.into(), Value::from)
+        })
 }
 
 /// Err((retryable, message)).

@@ -133,6 +133,15 @@ impl Guest {
         }
     }
 
+    /// The guest's CPU counters, for an event's guest_cpu_busy; None if they cannot be read.
+    pub async fn cpu(&self) -> Option<crate::events::Cpu> {
+        let o = self
+            .sh("head -1 /proc/stat", Duration::from_secs(10))
+            .await
+            .ok()?;
+        crate::events::Cpu::parse(&o.text)
+    }
+
     pub async fn tree_of(&self, rev: &str) -> Result<String> {
         Ok(self
             .sh(

@@ -30,6 +30,7 @@
 //! A full run with the default gate is the last check, not the loop.
 
 mod agent;
+mod events;
 mod guest;
 mod out;
 
@@ -54,7 +55,7 @@ struct Args {
     /// OCI image the sandbox boots from, as `msb image ls` shows it (tools/worker/image/build.sh).
     #[arg(long, default_value = "seagoat-worker:latest")]
     image: String,
-    /// Receives patch, run.json and transcript.jsonl.
+    /// Receives patch, run.json, transcript.jsonl and events.jsonl.
     #[arg(long)]
     out: PathBuf,
     /// An OpenAI-style chat-completions endpoint (run.py reads it from its config file).
@@ -123,14 +124,24 @@ async fn run(args: Args) -> Result<u8> {
     let start = Instant::now();
     let deadline = start + Duration::from_secs(args.budget);
 
+    let ev = events::Events::new(args.out.join("events.jsonl"));
     let sigs = signals();
+    let span = ev.begin("setup", "clone");
     let (base, tarball) = repo_tarball(&args.repo, &args.base)?;
+    ev.end(span, serde_json::json!({"tarball_bytes": tarball.len()}));
+    let span = ev.begin("setup", "boot");
     let g = guest::Guest::boot(&args.image, args.cpus, args.memory_mib).await?;
+    ev.end(
+        span,
+        serde_json::json!({"cpus": args.cpus, "memory_mib": args.memory_mib}),
+    );
     // Whatever happens below, the sandbox goes away; a leaked VM is the expensive failure.
     // That includes Ctrl-C and SIGTERM (a caller may wrap runs in timeout(1)): the work
     // future is dropped at its next await and the guest is removed before exiting.
     let work = async {
+        let span = ev.begin("setup", "put_repo");
         g.put_repo(tarball).await?;
+        ev.end(span, serde_json::json!({}));
         let cfg = agent::Config {
             key,
             api_url: args.api_url.clone(),
@@ -144,11 +155,18 @@ async fn run(args: Args) -> Result<u8> {
             start,
             deadline,
             transcript: args.out.join("transcript.jsonl"),
+            events: ev.clone(),
             mode: args.json.clone().map_or(out::Mode::Table, out::Mode::Json),
         };
         let report = agent::run(&g, &cfg, &task).await;
         // A dead guest has no patch to give; the report still says why.
-        match g.patch(&base).await {
+        let span = ev.begin("finish", "patch");
+        let patch = g.patch(&base).await;
+        ev.end(
+            span,
+            serde_json::json!({"patch_bytes": patch.as_ref().ok().map(String::len)}),
+        );
+        match patch {
             Ok(p) => std::fs::write(args.out.join("patch"), p)?,
             Err(e) => eprintln!("no patch: {e:#}"),
         }
@@ -162,7 +180,9 @@ async fn run(args: Args) -> Result<u8> {
             return Ok(if sig == "SIGINT" { 130 } else { 143 });
         }
     };
+    let span = ev.begin("finish", "remove");
     g.remove().await;
+    ev.end(span, serde_json::json!({}));
     let report = result?;
     std::fs::write(
         args.out.join("run.json"),
