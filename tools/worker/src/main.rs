@@ -249,6 +249,15 @@ fn repo_tarball(repo: &Path, base: &str, tmp: &Path) -> Result<(String, Vec<u8>)
     // The clone's origin is the local checkout, so origin/main there is the checkout's main.
     git(&["-C", clone_s, "checkout", "--quiet", "--detach", base])?;
     let sha = git(&["-C", clone_s, "rev-parse", "HEAD"])?;
+    // DECISION: the guest gets the base commit and its history, nothing else. A clone carries
+    // every local branch, unpushed work included, and the guest can reach the internet.
+    git(&["-C", clone_s, "remote", "remove", "origin"])?;
+    let refs = git(&["-C", clone_s, "for-each-ref", "--format=%(refname)"])?;
+    for r in refs.lines() {
+        git(&["-C", clone_s, "update-ref", "-d", r])?;
+    }
+    git(&["-C", clone_s, "reflog", "expire", "--expire=now", "--all"])?;
+    git(&["-C", clone_s, "gc", "--quiet", "--prune=now"])?;
     let tar = Command::new("tar")
         .args(["-czf", "-", "-C", clone_s, "."])
         .output()?;
@@ -257,4 +266,65 @@ fn repo_tarball(repo: &Path, base: &str, tmp: &Path) -> Result<(String, Vec<u8>)
         bail!("tar: {}", String::from_utf8_lossy(&tar.stderr));
     }
     Ok((sha, tar.stdout))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_tarball_holds_the_base_and_its_history_only() {
+        let dir = std::env::temp_dir().join(format!("worker-tarball-test-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let repo = dir.join("repo");
+        std::fs::create_dir_all(&repo).unwrap();
+        let sh = |cmd: &str| {
+            let o = Command::new("sh")
+                .args(["-c", cmd])
+                .current_dir(&repo)
+                .output()
+                .unwrap();
+            assert!(
+                o.status.success(),
+                "{cmd}: {}",
+                String::from_utf8_lossy(&o.stderr)
+            );
+            String::from_utf8_lossy(&o.stdout).trim().to_string()
+        };
+        let c = "git -c user.name=t -c user.email=t@t commit -q --allow-empty -m";
+        sh(&format!("git init -q -b main && {c} one && {c} two"));
+        sh(&format!(
+            "git checkout -q -b private && {c} secret && git tag t1 && git checkout -q main"
+        ));
+        let base = sh("git rev-parse main");
+
+        let (sha, tarball) = repo_tarball(&repo, "main", &dir.join("tmp")).unwrap();
+        assert_eq!(sha, base);
+        let out = dir.join("out");
+        std::fs::create_dir_all(&out).unwrap();
+        std::fs::write(dir.join("t.tgz"), tarball).unwrap();
+        sh(&format!("tar -xzf {0}/t.tgz -C {0}/out", dir.display()));
+        let git = |cmd: &str| {
+            let o = Command::new("sh")
+                .args(["-c", cmd])
+                .current_dir(&out)
+                .output()
+                .unwrap();
+            String::from_utf8_lossy(&o.stdout).trim().to_string()
+        };
+        assert_eq!(git("git rev-parse HEAD"), base);
+        assert_eq!(git("git log --format=%s"), "two\none");
+        assert_eq!(git("git for-each-ref"), "");
+        assert_eq!(git("git remote"), "");
+        assert_eq!(
+            git("git log --all --reflog --format=%s | grep -c secret"),
+            "0"
+        );
+        // Two commits and the empty tree they share; the pruned branch's commit would be a fourth.
+        assert_eq!(
+            git("git count-objects -v | grep -E '^(count|in-pack):' | tr -d ' '"),
+            "count:0\nin-pack:3"
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 }

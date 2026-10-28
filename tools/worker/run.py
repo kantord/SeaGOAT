@@ -118,7 +118,48 @@ def build_worker() -> Path:
     return WORKER / "target/release/seagoat-worker"
 
 
+# DECISION: the patch is model output, and some files run without anyone running them. Paths
+# that a tool runs on opening the worktree (Claude Code's settings and hooks, direnv, editors) are
+# refused outright. Paths that run on a build, test or commit, or that make up the gate itself,
+# are applied but named, so they get read first. Nothing here makes the rest safe to run unread.
+RUN_ON_OPEN = (".claude/", ".mcp.json", ".envrc", ".vscode/", ".idea/")
+RUN_ON_USE = (
+    "conftest.py", "build.rs", "pyproject.toml", "Cargo.toml", "uv.lock", "Cargo.lock",
+    ".pre-commit-config.yaml", ".github/", "tools/worker/",
+)  # fmt: skip
+
+
+def patch_paths(patch: Path) -> list[str]:
+    out = git("apply", "--numstat", "-z", str(patch))
+    # Each entry is "added<TAB>deleted<TAB>path"; the guest makes the patch with --no-renames.
+    return [e.split("\t", 2)[2] for e in out.split("\0") if e]
+
+
+def risky(paths: list[str]) -> tuple[list[str], list[str]]:
+    """(refused, to read first): the paths that match RUN_ON_OPEN and RUN_ON_USE.
+
+    A pattern ending in / matches everything under that directory; any other matches a file of
+    that name anywhere, so a nested conftest.py counts too.
+    """
+
+    def matches(path: str, pattern: str) -> bool:
+        if pattern.endswith("/"):
+            return path.startswith(pattern)
+        return Path(path).name == pattern
+
+    def hits(patterns) -> list[str]:
+        return [p for p in paths if any(matches(p, x) for x in patterns)]
+
+    return hits(RUN_ON_OPEN), hits(RUN_ON_USE)
+
+
 def apply_in_worktree(slug: str, base: str, patch: Path) -> Path:
+    refused, read_first = risky(patch_paths(patch))
+    if refused:
+        sys.exit(
+            f"worker: the patch touches files that run when the worktree is opened: "
+            f"{', '.join(refused)}; not applied. Read {patch}"
+        )
     tree = ROOT / ".claude/worktrees" / f"worker-{slug}"
     git("worktree", "add", "-q", str(tree), "-b", f"worker/{slug}", base)
     done = subprocess.run(
@@ -135,6 +176,12 @@ def apply_in_worktree(slug: str, base: str, patch: Path) -> Path:
     git(
         "reset", "-q", cwd=tree
     )  # leave the change unstaged, as a person's edit would be
+    if read_first:
+        print(
+            f"worker: READ FIRST, these run on build, test or commit, or are the gate: "
+            f"{', '.join(read_first)}",
+            flush=True,
+        )
     return tree
 
 
@@ -221,7 +268,10 @@ def main(argv) -> int:
         return 1
     with step(events, "host", "apply"):
         tree = apply_in_worktree(a.slug, base, patch)
-    print(f"worker: changes uncommitted in {tree}", flush=True)
+    print(
+        f"worker: changes uncommitted in {tree}; read the diff before running anything there",
+        flush=True,
+    )
     print(git("status", "--short", cwd=tree), end="", flush=True)
     print_timings(out)
     print(

@@ -156,11 +156,12 @@ impl Guest {
     }
 
     /// Everything the run changed since `base`, committed or not, as one diff for `git apply`.
+    /// No renames, so every path the patch touches is named plainly (run.py checks them).
     /// stderr goes to /dev/null inside the command, so `sh`'s 2>&1 cannot mix it into the diff.
     pub async fn patch(&self, base: &str) -> Result<String> {
         let o = self
             .sh(
-                &format!("git add -A 2>/dev/null && git diff --cached --binary {base} 2>/dev/null"),
+                &format!("git add -A 2>/dev/null && git diff --cached --binary --no-renames {base} 2>/dev/null"),
                 Duration::from_secs(60),
             )
             .await?;
