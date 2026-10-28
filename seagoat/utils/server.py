@@ -22,7 +22,13 @@ class ServerDoesNotExist(Exception):
 
 
 def _get_server_data_file_path() -> Path:
-    user_cache_dir = Path(platformdirs.user_cache_dir("seagoat-servers"))
+    user_cache_dir = Path(
+        platformdirs.user_cache_dir(
+            "seagoat-servers-pytest"
+            if "PYTEST_CURRENT_TEST" in os.environ
+            else "seagoat-servers"
+        )
+    )
     user_cache_dir.mkdir(parents=True, exist_ok=True)
     return user_cache_dir / "serverData.json"
 

@@ -11,7 +11,6 @@ from click.testing import CliRunner
 from seagoat import __version__
 from seagoat.cli import query_server, seagoat, warn_if_update_available
 from seagoat.utils.cli_display import is_bat_installed
-from seagoat.utils.server import update_server_info
 from tests.conftest import MagicMock
 
 
@@ -399,9 +398,9 @@ def test_version_option(runner):
     ],
 )
 def test_server_is_not_running_error(mocker, repo_path, snapshot, mock_spinner):
-    update_server_info(
-        repo_path,
-        {
+    mocker.patch(
+        "seagoat.cli.get_server_info",
+        return_value={
             "host": "localhost",
             "port": 345435,
             "pid": 234234,

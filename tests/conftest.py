@@ -462,12 +462,6 @@ def runner_with_error(mocker, mock_spinner):
 
 
 @pytest.fixture
-def app(repo):
-    app = create_app(repo.working_dir)
-    yield app
-
-
-@pytest.fixture
 def client(repo):
     mock_queue = MagicMock()
 
