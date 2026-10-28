@@ -21,8 +21,13 @@
 //! worktree. Parallel runs are parallel invocations: each gets its own sandbox.
 //! The contract is the exit code plus the files `--out` gets.
 //!
-//! RISK: no run against a real model in this repo yet. Kill: a reply shape or a verify the
-//! guest cannot pass. Cost: small, one run with the key.
+//! DECISION (owner, 2026-10-28): test a change at the cheapest level that covers it, because a
+//! full run (model plus the whole gate) takes minutes, more on a busy machine:
+//!   harness code    `MSB_HOME=~/.cache/seagoat-worker/msb WORKER_TEST_IMAGE=seagoat-worker:latest
+//!                   cargo test -- --ignored`, a real guest and no model, about 3 s
+//!   prompt, config  run.py with a narrow `--verify-cmd`, e.g. one pytest file, a minute or two
+//!   image           `podman run -it localhost/seagoat-worker:latest bash`, then rebuild once
+//! A full run with the default gate is the last check, not the loop.
 
 mod agent;
 mod guest;

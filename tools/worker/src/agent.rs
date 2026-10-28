@@ -552,6 +552,39 @@ mod tests {
             staged.is_empty(),
             "diff_stat touched the real index: {staged}"
         );
+        // Committed work is still a change, the counts still see it, and the patch is one
+        // plain diff with nothing but git's stdout in it.
+        let commit = g.sh("git rev-parse HEAD", BASH_TIMEOUT).await?.text;
+        let commit = commit.trim();
+        ensure!(
+            g.changed_since(commit).await?,
+            "untracked file seen as unchanged"
+        );
+        bash("cd /repo && git add -A && git -c user.name=t -c user.email=t@t commit -qm work")
+            .await?;
+        ensure!(
+            g.changed_since(commit).await?,
+            "committed work seen as unchanged"
+        );
+        ensure!(
+            !g.changed_since("HEAD").await?,
+            "clean tree seen as changed"
+        );
+        let (_, _, total) = g.diff_stat(&base, commit).await?;
+        ensure!(
+            total.added == 2,
+            "committed lines not counted: {}",
+            total.added
+        );
+        bash("cd /repo && echo three >> a/b.txt && git -c user.name=t -c user.email=t@t commit -qam more")
+            .await?;
+        let patch = g.patch(commit).await?;
+        ensure!(
+            patch.starts_with("diff --git a/a/b.txt b/a/b.txt")
+                && patch.matches("diff --git").count() == 1
+                && patch.contains("+three"),
+            "{patch}"
+        );
         let out = run_tool(g, "replace", &json!({}), BASH_TIMEOUT).await?;
         ensure!(out.starts_with("unknown tool"), "{out}");
         // The case an earlier run_bash hung on: far more than a 64 KB pipe buffer.
