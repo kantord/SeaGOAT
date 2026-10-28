@@ -90,6 +90,7 @@ exclude = [
     { path = "assets/**", format = "sdist" },
     { path = "docs/**", format = "sdist" },
     { path = "scripts/**", format = "sdist" },
+    { path = "tools/**", format = "sdist" },
     { path = "tests/**", format = "sdist" },
     { path = "typings/**", format = "sdist" },
     { path = "*.yml", format = "sdist" },
@@ -134,5 +135,6 @@ extend-select = ["T20"]
 [tool.ruff.lint.per-file-ignores]
 "tests/conftest.py" = ["E402", "T201"]
 "seagoat/utils/debug.py" = ["T201"]
+"tools/worker/run.py" = ["T201"]
 # Blocking setup (writing files, running git) is fine in async tests
 "tests/**" = ["ASYNC"]

@@ -1,0 +1,23 @@
+[package]
+name = "seagoat-worker"
+version = "0.1.0"
+edition = "2024"
+# No license field: the crate is never published; THIRD_PARTY_LICENSES covers what the binary
+# embeds.
+publish = false
+
+# Its own workspace, not part of the seagoat-native package at the root: the microsandbox SDK is
+# ~400 crates and a 180 MB binary, and the root's cargo checks and wheel builds should not build
+# either. `cargo package` leaves this directory out because it has its own Cargo.toml.
+[workspace]
+
+[dependencies]
+anyhow = "1.0.104"
+clap = { version = "4", features = ["derive"] }
+# Pinned exactly: the SDK is beta, 0.6 -> 0.7 renamed CLI flags, and the
+# embedded runtime is whatever this version ships. See THIRD_PARTY_LICENSES.
+microsandbox = { version = "=0.7.8", default-features = false, features = ["local", "net", "embed-binaries", "download-binaries"] }
+serde_json = "1.0.151"
+terminal_size = "0.4"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "signal"] }
+ureq = { version = "3.4.2", features = ["json"] }

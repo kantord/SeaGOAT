@@ -159,3 +159,6 @@ benchmark/examples/*/results/
 
 # Rust build output
 target/
+
+# Worktrees made by Claude Code and by tools/worker/run.py
+/.claude/worktrees/
