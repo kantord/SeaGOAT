@@ -74,13 +74,16 @@ class BaseQueue:
         )
         self._worker_thread.join()
 
-    def _handle_task(self, context, task: Task):
+    def _handle_task(self, context, task: Task, context_error=None):
         logger.info("Handling task: %s", task.name)
         handler_name = f"handle_{task.name}"
         handler = getattr(self, handler_name, None)
         kwargs = dict(task.kwargs or {})
         result_queue = kwargs.pop("__result_queue", None)
-        if handler is None:
+        if context_error is not None:
+            # No context means no task can run, so each one fails instead of waiting
+            result = TaskFailed(f"Context failed to initialize: {context_error}")
+        elif handler is None:
             result = TaskFailed(f"Unknown task: {task.name}")
         else:
             try:
@@ -99,8 +102,6 @@ class BaseQueue:
             context = self._get_context()
             context_error = None
         except Exception as exception:  # pylint: disable=broad-except
-            # There is only one worker thread: if building the context ended it,
-            # every later task would wait for a result forever
             logger.exception("Failed to build context")
             context = None
             context_error = exception
@@ -111,16 +112,9 @@ class BaseQueue:
                 task = self._task_queue.get(timeout=0.1)
                 if task.name == "shutdown":
                     break
-                if context is None:
-                    result_queue = (task.kwargs or {}).get("__result_queue")
-                    if result_queue is not None:
-                        result_queue.put(
-                            TaskFailed(f"Context failed to initialize: {context_error}")
-                        )
-                    continue
-                self._handle_task(context, task)
+                self._handle_task(context, task, context_error=context_error)
             except Empty:
-                if context is None:
+                if context_error is not None:
                     continue
                 if time.monotonic() < next_maintenance:
                     continue
