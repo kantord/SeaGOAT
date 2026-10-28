@@ -34,6 +34,7 @@ import contextlib
 import datetime
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -110,7 +111,7 @@ def print_timings(out: Path):
 
 def build_worker() -> Path:
     subprocess.run(
-        ["nice", "-n", "19", "cargo", "build", "--release", "-q"],
+        ["nice", "-n", "19", "cargo", "build", "--release", "--locked", "-q"],
         cwd=WORKER,
         check=True,
     )
@@ -149,6 +150,11 @@ def main(argv) -> int:
         "--verify-cmd", help="default: the worker's, tools/worker/verify.sh"
     )
     a = ap.parse_args(argv)
+    # The slug becomes a path and a branch name.
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", a.slug):
+        sys.exit(
+            f"worker: slug {a.slug!r} must be lowercase letters, digits and dashes"
+        )
     base = git("rev-parse", a.base).strip()
     if git("branch", "--list", f"worker/{a.slug}").strip():
         sys.exit(

@@ -9,7 +9,8 @@ use microsandbox::{MicrosandboxError, Sandbox};
 
 pub const REPO: &str = "/repo";
 // Sparse on the host. The image's own layers are read-only; a run writes its build output here.
-const ROOT_DISK_MIB: u32 = 100 * 1024;
+// A model can fill it, and it lives on the host's disk, so it is sized to what a run needs.
+const ROOT_DISK_MIB: u32 = 30 * 1024;
 
 // rustup and uv live in ~/.cargo/bin. The cargo target and the virtualenv are outside /repo,
 // which every run replaces, so what the image built for them stays (tools/worker/image).

@@ -245,8 +245,13 @@ fn width() -> Option<usize> {
     terminal_size::terminal_size_of(std::io::stderr()).map(|(w, _)| w.0 as usize)
 }
 
+/// Also drops control characters: a command is model text, and an ESC or OSC sequence in it
+/// would reach the terminal of whoever follows the log.
 fn one_line(s: &str) -> String {
-    s.split_whitespace().collect::<Vec<_>>().join(" ")
+    s.split_whitespace()
+        .map(|w| w.chars().filter(|c| !c.is_control()).collect::<String>())
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 /// Cut to `width` characters, the last one an ellipsis, as the maintainer asked for.
@@ -314,5 +319,10 @@ mod tests {
             "not a terminal keeps it all"
         );
         assert_eq!(one_line("a\n  b\tc"), "a b c");
+        // An OSC 52 clipboard write and a cursor move, as a model could put in a command.
+        assert_eq!(
+            one_line("ls\x1b]52;c;ZXZpbA==\x07 \x1b[2Aok"),
+            "ls]52;c;ZXZpbA== [2Aok"
+        );
     }
 }

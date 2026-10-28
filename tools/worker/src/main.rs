@@ -103,9 +103,13 @@ fn main() -> ExitCode {
         // SAFETY: no other thread exists yet; the tokio runtime starts below.
         unsafe { std::env::set_var("MSB_HOME", home.join(".cache/seagoat-worker/msb")) };
     }
+    // The key leaves the environment before anything starts, so git and tar never inherit it.
+    let key = std::env::var("SEAGOAT_WORKER_API_KEY");
+    // SAFETY: as above, no other thread exists yet.
+    unsafe { std::env::remove_var("SEAGOAT_WORKER_API_KEY") };
     let args = Args::parse();
     let rt = tokio::runtime::Runtime::new().expect("tokio runtime");
-    match rt.block_on(run(args)) {
+    match rt.block_on(run(args, key)) {
         Ok(code) => ExitCode::from(code),
         Err(e) => {
             eprintln!("setup failed: {e:#}");
@@ -114,9 +118,8 @@ fn main() -> ExitCode {
     }
 }
 
-async fn run(args: Args) -> Result<u8> {
-    let key =
-        std::env::var("SEAGOAT_WORKER_API_KEY").context("SEAGOAT_WORKER_API_KEY is not set")?;
+async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> {
+    let key = key.context("SEAGOAT_WORKER_API_KEY is not set")?;
     let extra_body: serde_json::Map<String, serde_json::Value> =
         serde_json::from_str(&args.extra_body).context("--extra-body is not a JSON object")?;
     let task = std::fs::read_to_string(&args.task).context("reading --task")?;
@@ -127,7 +130,7 @@ async fn run(args: Args) -> Result<u8> {
     let ev = events::Events::new(args.out.join("events.jsonl"));
     let sigs = signals();
     let span = ev.begin("setup", "clone");
-    let (base, tarball) = repo_tarball(&args.repo, &args.base)?;
+    let (base, tarball) = repo_tarball(&args.repo, &args.base, &args.out.join("clone"))?;
     ev.end(span, serde_json::json!({"tarball_bytes": tarball.len()}));
     let span = ev.begin("setup", "boot");
     let g = guest::Guest::boot(&args.image, args.cpus, args.memory_mib).await?;
@@ -220,10 +223,10 @@ fn signals() -> impl Future<Output = &'static str> {
 /// A fresh clone at `base`, tarred with its .git so the guest can diff and commit.
 /// DECISION: copy in as one tarball through `fs().write`, because `Sandbox::restore` takes no
 /// bind mounts (RestoreBuilder clears them).
-fn repo_tarball(repo: &Path, base: &str) -> Result<(String, Vec<u8>)> {
-    let tmp = std::env::temp_dir().join(format!("seagoat-worker-{}", std::process::id()));
+/// `tmp` is under the run's own output folder, not a guessable name in a shared /tmp.
+fn repo_tarball(repo: &Path, base: &str, tmp: &Path) -> Result<(String, Vec<u8>)> {
     let clone = tmp.join("repo");
-    let _ = std::fs::remove_dir_all(&tmp);
+    let _ = std::fs::remove_dir_all(tmp);
     let git = |args: &[&str]| -> Result<String> {
         let o = Command::new("git").args(args).output()?;
         if !o.status.success() {
@@ -249,7 +252,7 @@ fn repo_tarball(repo: &Path, base: &str) -> Result<(String, Vec<u8>)> {
     let tar = Command::new("tar")
         .args(["-czf", "-", "-C", clone_s, "."])
         .output()?;
-    std::fs::remove_dir_all(&tmp)?;
+    std::fs::remove_dir_all(tmp)?;
     if !tar.status.success() {
         bail!("tar: {}", String::from_utf8_lossy(&tar.stderr));
     }

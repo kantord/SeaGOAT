@@ -73,6 +73,11 @@ def summary(events: list[dict]) -> dict:
     }
 
 
+def printable(s) -> str:
+    """One line without control characters: commands are model text and this goes to a terminal."""
+    return " ".join("".join(c for c in w if c.isprintable()) for w in str(s).split())
+
+
 def pct(x: float | None) -> str:
     return "-" if x is None else f"{x * 100:.0f}%"
 
@@ -107,7 +112,7 @@ def show(s: dict) -> str:
         what = e.get("cmd") or e.get("error") or ""
         lines.append(
             f"  {e['duration_s']:>7.1f}s  {e['phase']}/{e['name']:<14} host {pct(e.get('host_cpu_busy')):>4} "
-            f"guest {pct(e.get('guest_cpu_busy')):>4}  {' '.join(str(what).split())[:70]}"
+            f"guest {pct(e.get('guest_cpu_busy')):>4}  {printable(what)[:70]}"
         )
     return "\n".join(lines)
 
