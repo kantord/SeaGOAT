@@ -34,7 +34,9 @@ def _get_server_data_file_path() -> Path:
 
 
 def normalize_repo_path(repo_path: str | Path) -> str:
-    return str(os.path.normpath(Path(repo_path).expanduser().resolve()))
+    return str(
+        os.path.normcase(os.path.normpath(Path(repo_path).expanduser().resolve()))
+    )
 
 
 def get_servers_info() -> dict[str, ServerInfo]:
