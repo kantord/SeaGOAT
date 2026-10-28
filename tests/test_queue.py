@@ -73,6 +73,19 @@ def test_important_files_are_analyzed_first(create_task_queue, mocker, repo):
     assert [file.path for file, _ in repository.top_files()] == order_of_files_analyzed
 
 
+def test_worker_keeps_running_when_context_fails_to_build(repo):
+    class BrokenContextQueue(BaseQueue):
+        def _get_context(self):
+            raise RuntimeError("context init exploded")
+
+    queue = BrokenContextQueue()
+    try:
+        with pytest.raises(TaskFailed, match="context init exploded"):
+            queue.enqueue("any_task")
+    finally:
+        queue.shutdown()
+
+
 def test_worker_keeps_running_after_a_task_fails(repo):
     class FlakyQueue(BaseQueue):
         def handle_fail(self, _context):

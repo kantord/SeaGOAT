@@ -95,7 +95,15 @@ class BaseQueue:
 
     def _worker_function(self):
         logger.info("Starting worker thread...")
-        context = self._get_context()
+        try:
+            context = self._get_context()
+            context_error = None
+        except Exception as exception:  # pylint: disable=broad-except
+            # There is only one worker thread: if building the context ended it,
+            # every later task would wait for a result forever
+            logger.exception("Failed to build context")
+            context = None
+            context_error = exception
         next_maintenance = 0.0
 
         while True:
@@ -103,8 +111,17 @@ class BaseQueue:
                 task = self._task_queue.get(timeout=0.1)
                 if task.name == "shutdown":
                     break
+                if context is None:
+                    result_queue = (task.kwargs or {}).get("__result_queue")
+                    if result_queue is not None:
+                        result_queue.put(
+                            TaskFailed(f"Context failed to initialize: {context_error}")
+                        )
+                    continue
                 self._handle_task(context, task)
             except Empty:
+                if context is None:
+                    continue
                 if time.monotonic() < next_maintenance:
                     continue
                 try:
