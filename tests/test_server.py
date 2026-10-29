@@ -382,7 +382,8 @@ def test_start_server_on_custom_port_using_config_files(
             "server": {
                 "port": custom_port,
             }
-        }
+        },
+        global_config=True,
     )
     mocker.patch("seagoat.server.TaskQueue")
 

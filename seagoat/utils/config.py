@@ -249,6 +249,8 @@ GLOBAL_ONLY_KEYS = [
     # Network interface the server listens on: a repo must not be able to
     # expose your code to the network
     ("server", "host"),
+    # One instance listens on one port for every project
+    ("server", "port"),
     # Server the CLI sends queries to: it would receive every query, and
     # decide which file paths and text the CLI prints
     ("client", "host"),
