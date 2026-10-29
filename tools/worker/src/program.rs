@@ -16,10 +16,11 @@
 //!                                         again, up to `retries` more times. Succeeds when one
 //!                                         pass gets through every step.
 //!   once     {max_age_s?, steps}          runs its steps and saves the messages they added; a
-//!                                         later run with the same block and base commit replays
-//!                                         them instead, if the saved fragment is not older than
-//!                                         max_age_s. Its steps may only read: a once block that
-//!                                         leaves the tree changed fails. No once inside once.
+//!                                         later run with the same steps, model, conversation so
+//!                                         far and base commit replays them instead, if the saved
+//!                                         fragment is not older than max_age_s. Its steps may
+//!                                         only read: a once block that changes the tree fails.
+//!                                         No once inside once.
 //!
 //! The run is GREEN when every top-level step succeeds. Some failures end the run whatever is
 //! left to retry: a bad key or no credit (FATAL), a dead guest. A run ends by counts: at most

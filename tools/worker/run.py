@@ -108,6 +108,18 @@ def step(events: Path, phase: str, name: str):
             f.write(json.dumps(event) + "\n")
 
 
+# Fragments older than this are deleted before a run. A program's own max_age_s may be shorter;
+# this only stops the folder from growing forever.
+ONCE_KEEP_SECONDS = 7 * 24 * 3600
+
+
+def prune_once(once_dir: Path):
+    for fragment in once_dir.glob("*.json"):
+        with contextlib.suppress(OSError):
+            if time.time() - fragment.stat().st_mtime > ONCE_KEEP_SECONDS:
+                fragment.unlink()
+
+
 def print_timings(out: Path):
     try:
         print(timings.show(timings.summary(timings.load(out))), flush=True)
@@ -262,7 +274,9 @@ def main(argv) -> int:
     ]  # fmt: skip
     cmd += ["--api-url", config["api_url"], "--model", a.model or config["model"]]
     cmd += ["--extra-body", json.dumps(config.get("extra_body", {}))]
-    cmd += ["--once-dir", str(ROOT / "target/agent-tmp/once")]
+    once_dir = ROOT / "target/agent-tmp/once"
+    prune_once(once_dir)
+    cmd += ["--once-dir", str(once_dir)]
     with log.open("w") as f:
         code = subprocess.run(cmd, env=env, stderr=f, stdout=f, check=False).returncode
     run_json = out / "run/run.json"

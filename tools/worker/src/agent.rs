@@ -267,9 +267,10 @@ async fn command(
     Ok(ok)
 }
 
-/// DECISION (owner, 2026-10-29): a once block's fragment is keyed by the block's own text and the
-/// base commit, so it is only ever replayed onto the code it read; `max_age_s` additionally
-/// bounds how old a replayed fragment may be. Fragments are never updated, so a file's age is
+/// DECISION (owner, 2026-10-29): a once block's fragment is keyed by everything its result
+/// depends on: its steps (not its name or max_age_s), the model, the conversation before it and
+/// the base commit, so it is only ever replayed where it would come out the same; `max_age_s`
+/// additionally bounds how old a replayed fragment may be. Fragments are never updated, so a file's age is
 /// the fragment's age. Placed before the brief, a shared fragment also gives every run from the
 /// same base an identical prompt prefix, which the provider can serve from its cache.
 async fn once(
@@ -281,7 +282,7 @@ async fn once(
     max_age_s: Option<u64>,
     steps: &[Step],
 ) -> Result<bool, Stop> {
-    let key = once_key(steps, &cfg.base);
+    let key = once_key(steps, &cfg.model, &conv.messages, &cfg.base);
     let file = cfg.once_dir.as_ref().map(|d| d.join(format!("{key}.json")));
     if let Some((messages, age)) = file.as_deref().and_then(|f| read_fragment(f, max_age_s)) {
         let span = cfg.events.begin("once", name);
@@ -296,22 +297,22 @@ async fn once(
         return Ok(true);
     }
     let start = conv.messages.len();
+    let before = tree_state(g, name).await?;
     if !Box::pin(run_steps(g, cfg, steps, conv, r)).await? {
         outcome(cfg, r, name, false, json!({"key": key, "replayed": false}));
         return Ok(false);
     }
     // A replay restores messages, not files, so a fragment is only sound if its steps changed none.
-    let changed = g
-        .sh("git status --porcelain", BASH_TIMEOUT)
-        .await
-        .map(|o| o.text.trim().to_string())
-        .map_err(|e| Stop::GuestDead(format!("`{name}` could not check the tree: {e:#}")))?;
-    if !changed.is_empty() {
+    // Compared with the state before the block, so earlier steps' changes do not count.
+    let after = tree_state(g, name).await?;
+    if after != before {
         say(
             cfg,
             conv,
             "user",
-            format!("`{name}` is a once block and must only read, but it changed:\n{changed}"),
+            format!(
+                "`{name}` is a once block and must only read, but the tree changed while it ran."
+            ),
         );
         outcome(cfg, r, name, false, json!({"key": key, "replayed": false}));
         return Ok(false);
@@ -332,13 +333,33 @@ async fn once(
     Ok(true)
 }
 
-fn once_key(steps: &[Step], base: &str) -> String {
+fn once_key(steps: &[Step], model: &str, before: &[Value], base: &str) -> String {
     use sha2::{Digest, Sha256};
     let mut h = Sha256::new();
-    h.update(serde_json::to_vec(steps).unwrap_or_default());
-    h.update(b"\n");
-    h.update(base.as_bytes());
+    for part in [
+        serde_json::to_vec(steps).expect("program steps serialize"),
+        model.as_bytes().to_vec(),
+        serde_json::to_vec(before).expect("messages serialize"),
+        base.as_bytes().to_vec(),
+    ] {
+        // Length-prefixed, so no two different inputs hash the same bytes.
+        h.update((part.len() as u64).to_le_bytes());
+        h.update(part);
+    }
     h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// The working tree's content as a git tree hash (through a private index, so the model's own
+/// index is untouched) plus the ignored files' names: any write a once block makes changes it.
+async fn tree_state(g: &Guest, name: &str) -> Result<String, Stop> {
+    g.sh(
+        "export GIT_INDEX_FILE=/tmp/.once-index; cp .git/index $GIT_INDEX_FILE 2>/dev/null; \
+         git add -A >/dev/null 2>&1 && git write-tree && git status --porcelain --ignored | grep '^!!'",
+        BASH_TIMEOUT,
+    )
+    .await
+    .map(|o| o.text)
+    .map_err(|e| Stop::GuestDead(format!("`{name}` could not check the tree: {e:#}")))
 }
 
 /// The saved messages and their age in seconds, or None when missing, unreadable or too old.
@@ -843,12 +864,34 @@ mod tests {
             ok && runs == "1" && said == ["`look`:\n\nfound-it\n"],
             "replay: {ok} {runs} {said:?}"
         );
+        // max_age_s is not part of the key, and a fragment younger than a second is not older
+        // than 0 s: it still replays.
         let (ok, _, runs) = run(block(r#", "max_age_s": 0"#)).await?;
-        // Age is whole seconds, so wait until the fragment is at least one second old.
-        let _ = runs;
+        ensure!(ok && runs == "1", "a fresh fragment should replay: {runs}");
         tokio::time::sleep(Duration::from_millis(1100)).await;
-        let (ok2, _, runs) = run(block(r#", "max_age_s": 0"#)).await?;
-        ensure!(ok && ok2 && runs != "1", "too old should run again: {runs}");
+        let (ok, _, runs) = run(block(r#", "max_age_s": 0"#)).await?;
+        ensure!(
+            ok && runs == "2",
+            "a fragment older than max_age_s should run again: {runs}"
+        );
+
+        // A tree that earlier steps changed is fine, as long as the block changes nothing more.
+        bash_in(g, "echo before > /repo/dirty").await?;
+        let reader = r#"{"steps": [{"type": "once", "name": "reads", "steps": [
+            {"type": "command", "name": "cat", "run": "cat /repo/dirty"}]}]}"#;
+        let (ok, said, _) = run(reader.to_string()).await?;
+        ensure!(
+            ok,
+            "a read-only block on a dirty tree should pass: {said:?}"
+        );
+        // Editing a file that was already modified is a change too, unlike in plain git status.
+        let editor = r#"{"steps": [{"type": "once", "name": "edits", "steps": [
+            {"type": "command", "name": "append", "run": "echo more >> /repo/dirty"}]}]}"#;
+        let (ok, said, _) = run(editor.to_string()).await?;
+        ensure!(
+            !ok && said.iter().any(|m| m.contains("must only read")),
+            "editor: {ok} {said:?}"
+        );
 
         let writer = r#"{"steps": [{"type": "once", "name": "writes", "steps": [
             {"type": "command", "name": "touch", "run": "touch /repo/new-file"}]}]}"#;
