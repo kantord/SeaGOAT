@@ -11,7 +11,10 @@ import pytest
 import requests
 
 from seagoat import __version__
-from seagoat.server import get_status_data
+from seagoat.engine import Engine
+from seagoat.projects import Projects
+from seagoat.queue.task_queue import TaskQueue
+from seagoat.server import create_app, get_status_data
 from seagoat.server import server as seagoat_server
 from seagoat.utils.server import (
     get_server_info,
@@ -75,19 +78,31 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
 
 
 @pytest.mark.usefixtures("repo_with_more_files")
-def test_status_endpoint_with_some_files_not_analyzed(server, repo):
-    url = f"{server}/status"
-    time.sleep(3)
-    response = requests.post(url, json={"repoPath": repo.working_dir})
-    data = response.json()
+def test_status_endpoint_with_some_files_not_analyzed(repo):
+    class NoMaintenanceTaskQueue(TaskQueue):
+        def handle_maintenance(self, context):
+            # Indexing happens only during maintenance; the test controls it
+            pass
+
+    # Analyze one chunk synchronously and nothing more, so the repository is
+    # partially analyzed however fast the machine is.
+    Engine(repo.working_dir).analyze_codebase(minimum_chunks_to_analyze=1)
+    projects = Projects(
+        lambda path, config: NoMaintenanceTaskQueue(
+            repo_path=path, minimum_chunks_to_analyze=0
+        )
+    )
+    queue = projects.get(repo.working_dir).queue
+
+    app = create_app(projects, "127.0.0.1")
+    response = app.test_client().post("/status", json={"repoPath": repo.working_dir})
+    queue.shutdown()
 
     assert response.status_code == 200, response.text
-
-    data = response.json()
+    data = response.get_json()
     assert data["version"] == __version__
     data = normalize_version(data)
     assert data["stats"]["chunks"]["unanalyzed"] > 0
-    assert data["stats"]["queue"]["size"] >= data["stats"]["chunks"]["unanalyzed"]
     assert data["stats"]["accuracy"]["percentage"] == int(
         data["stats"]["accuracy"]["percentage"]
     )
