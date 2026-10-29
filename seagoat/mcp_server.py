@@ -58,6 +58,7 @@ def search_code(
                 "limitClue": str(limit),
                 "contextAbove": str(context_above),
                 "contextBelow": str(context_below),
+                "repoPath": repo,
             },
             timeout=10,
         )

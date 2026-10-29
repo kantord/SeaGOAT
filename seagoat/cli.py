@@ -36,9 +36,14 @@ def warn_if_update_available():
         )
 
 
-def display_accuracy_warning(server_address):
-    response = requests.get(
+def display_accuracy_warning(server_address, repo_path):
+    status_request_body = {}
+    if repo_path is not None:
+        status_request_body["repoPath"] = repo_path
+
+    response = requests.post(
         f"{server_address}/status",
+        json=status_request_body,
     )
     response_data = orjson.loads(response.text)
     accuracy = response_data["stats"]["accuracy"]["percentage"]
@@ -54,15 +59,21 @@ def display_accuracy_warning(server_address):
         )
 
 
-def query_server(query, server_address, max_results, context_above, context_below):
+def query_server(
+    query, server_address, max_results, context_above, context_below, repo_path
+):
+    query_request_body = {
+        "queryText": query,
+        "limitClue": max_results,
+        "contextAbove": context_above,
+        "contextBelow": context_below,
+    }
+    if repo_path is not None:
+        query_request_body["repoPath"] = repo_path
+
     response = requests.post(
         f"{server_address}/lines/query",
-        json={
-            "queryText": query,
-            "limitClue": max_results,
-            "contextAbove": context_above,
-            "contextBelow": context_below,
-        },
+        json=query_request_body,
         headers={"Content-Type": "application/json"},
     )
 
@@ -178,8 +189,11 @@ def seagoat(
         if config["client"]["host"] is None:
             server_info = get_server_info(repo_path)
             server_address = server_info["address"]
+            # Absolute: the server is another process, with its own working directory
+            repo_path_for_server = os.path.abspath(repo_path)
         else:
             server_address = config["client"]["host"]
+            repo_path_for_server = None
 
         if context is not None:
             context_above = context
@@ -191,6 +205,7 @@ def seagoat(
             max_results,
             context_above if context_above is not None else 3,
             context_below if context_below is not None else 3,
+            repo_path_for_server,
         )
 
         results = rewrite_full_paths_to_use_local_path(repo_path, results)
@@ -209,7 +224,7 @@ def seagoat(
 
         display_results(results, max_results, color_enabled, vimgrep)
 
-        display_accuracy_warning(server_address)
+        display_accuracy_warning(server_address, repo_path_for_server)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,

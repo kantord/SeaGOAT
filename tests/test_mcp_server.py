@@ -53,6 +53,10 @@ def test_search_code_success(mock_mcp_deps) -> None:
     assert "File: test_file.py" in result
     assert "def test_func():" in result
 
+    mock_mcp_deps["post"].assert_called_once()
+    request_body = mock_mcp_deps["post"].call_args.kwargs["json"]
+    assert request_body["repoPath"] == "/abs/path/to/repo"
+
 
 def test_search_code_server_not_running(mock_mcp_deps) -> None:
     """Test behavior when server is not running."""
@@ -82,6 +86,10 @@ def test_search_code_no_results(mock_mcp_deps) -> None:
     result = search_code("test query", repo_path=".")
 
     assert "No results found" in result
+
+    mock_mcp_deps["post"].assert_called_once()
+    request_body = mock_mcp_deps["post"].call_args.kwargs["json"]
+    assert request_body["repoPath"] == "/abs/path/to/repo"
 
 
 def test_search_code_missing_query() -> None:

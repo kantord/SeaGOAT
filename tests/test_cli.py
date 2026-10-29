@@ -289,11 +289,13 @@ def test_seagoat_warns_on_incomplete_accuracy(
         "version": __version__,
     }
 
-    mocker.patch("requests.get", return_value=mock_response(mock_status_response))
+    mocked_status_request = mocker.patch(
+        "requests.post", return_value=mock_response(mock_status_response)
+    )
     mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
 
     query = "some random query"
-    result = runner_with_error.invoke(seagoat, [query, "--no-color"])
+    result = runner_with_error.invoke(seagoat, [query, ".", "--no-color"])
 
     if accuracy_percentage < 100:
         assert (
@@ -303,6 +305,17 @@ def test_seagoat_warns_on_incomplete_accuracy(
         )
     else:
         assert "Warning" not in result.stderr
+
+    assert mocked_status_request.call_args.args[0] == "/status"
+    assert mocked_status_request.call_args.kwargs["json"] == {
+        "repoPath": os.path.abspath(".")
+    }
+
+
+@pytest.mark.usefixtures("mock_accuracy_warning")
+def test_forwards_repo_path_to_server(get_request_args_from_cli_call, repo):
+    request_args = get_request_args_from_cli_call([])
+    assert request_args["json"]["repoPath"] == os.path.abspath(repo.working_dir)
 
 
 @pytest.mark.usefixtures("mock_accuracy_warning")
@@ -693,6 +706,34 @@ def test_configure_remote_server_address(
     create_config_file({"client": {"host": remote_host}}, global_config=True)
     request_args = get_request_args_from_cli_call([])
     assert request_args["url"].startswith(remote_host)
+    assert "repoPath" not in request_args["json"]
+
+
+@pytest.mark.usefixtures("mock_query_server")
+def test_status_request_with_remote_server_sends_no_repo_path(
+    runner_with_error, mocker, mock_response, create_config_file
+):
+    create_config_file(
+        {"client": {"host": "http://example.com/nose"}}, global_config=True
+    )
+    mock_status_response = {
+        "stats": {
+            "chunks": {"analyzed": 100, "unanalyzed": 0},
+            "queue": {"size": 0},
+            "accuracy": {"percentage": 100},
+        },
+        "version": __version__,
+    }
+
+    mocked_status_request = mocker.patch(
+        "requests.post", return_value=mock_response(mock_status_response)
+    )
+
+    result = runner_with_error.invoke(seagoat, ["some random query", ".", "--no-color"])
+
+    assert result.exit_code == 0
+    assert mocked_status_request.call_args.args[0] == "http://example.com/nose/status"
+    assert "repoPath" not in mocked_status_request.call_args.kwargs["json"]
 
 
 @pytest.mark.usefixtures("mock_accuracy_warning", "bat_available")
@@ -787,7 +828,7 @@ def test_no_network_to_update(
         "version": __version__,
     }
 
-    mocker.patch("requests.get", return_value=mock_response(mocked_response))
+    mocker.patch("requests.post", return_value=mock_response(mocked_response))
     mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
     mocker.patch(
         "seagoat.cli.warn_if_update_available",
@@ -849,7 +890,7 @@ def test_unexpected_update_check_errors_do_not_fail_the_search(
         "version": __version__,
     }
 
-    mocker.patch("requests.get", return_value=mock_response(mocked_response))
+    mocker.patch("requests.post", return_value=mock_response(mocked_response))
     mocker.patch("seagoat.cli.get_server_info", return_value={"address": ""})
     mocker.patch("seagoat.cli.warn_if_update_available", side_effect=error)
     result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
