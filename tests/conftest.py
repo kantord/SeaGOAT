@@ -28,6 +28,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
 from seagoat.engine import Engine
+from seagoat.projects import Projects
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.server import create_app, start_server
@@ -465,15 +466,15 @@ def runner_with_error(mocker, mock_spinner):
 def client(repo):
     mock_queue = MagicMock()
 
-    with patch("seagoat.server.TaskQueue", mock_queue):
-        app = create_app(repo.working_dir)
-        app.config["TESTING"] = True
-        app.extensions["task_queue"] = mock_queue
-        client = app.test_client()
+    projects = Projects(lambda path, config: mock_queue)
+    projects.get(repo.working_dir)
+    app = create_app(projects, "127.0.0.1")
+    app.config["TESTING"] = True
+    client = app.test_client()
 
-        client._mock_queue = mock_queue  # type: ignore
+    client._mock_queue = mock_queue  # type: ignore
 
-        yield client
+    yield client
 
 
 @pytest.fixture

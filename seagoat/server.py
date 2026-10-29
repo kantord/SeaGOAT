@@ -1,3 +1,4 @@
+import ipaddress
 import json
 import logging
 import os
@@ -7,11 +8,12 @@ from pathlib import Path
 
 import click
 import orjson
-from flask import Flask, current_app, jsonify, request
+from flask import Flask, jsonify, request
 from waitress import serve
 
 from seagoat import __version__
 from seagoat.cache import Cache, get_cache_root
+from seagoat.projects import NotAGitRepo, Projects, UnknownProject
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.config import GLOBAL_CONFIG_FILE, get_config_values
 from seagoat.utils.server import (
@@ -33,6 +35,10 @@ class ExitCode:
     NOT_A_GIT_REPO = 5
 
 
+class RepoPathRequired(Exception):
+    pass
+
+
 LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
 
@@ -49,16 +55,15 @@ def get_fallback_value(dictionary, key, fallback_value):
     return dictionary[key]
 
 
-def create_app(repo_path):
+def create_app(projects, host):
     logger.info("Creating server...")
     app = Flask(__name__)
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.debug = True
 
-    config = get_config_values(Path(repo_path))
-    app.config["seagoat_config"] = config
+    app.extensions["projects"] = projects
 
-    if config["server"]["host"] in LOOPBACK_HOSTS:
+    if host in LOOPBACK_HOSTS:
 
         @app.before_request
         def reject_requests_for_other_hosts():
@@ -69,12 +74,31 @@ def create_app(repo_path):
                 return jsonify({"error": "Requests must be sent to localhost"}), 403
             return None
 
-    app.extensions["task_queue"] = TaskQueue(
-        repo_path=repo_path, minimum_chunks_to_analyze=0
-    )
+    def get_project_for_request():
+        data = request.get_json(silent=True) or {}
+        repo_path = data.get("repoPath")
+        if repo_path is not None:
+            # Only callers on this machine may create a project: creating one
+            # runs git in the named directory, whose .git/config can run
+            # commands.
+            remote_addr = request.remote_addr
+            if (
+                remote_addr is not None
+                and ipaddress.ip_address(remote_addr).is_loopback
+            ):
+                return projects.get(repo_path)
+            return projects.find(repo_path)
 
-    def execute_query(limit_clue, **kwargs) -> bytes:
-        return current_app.extensions["task_queue"].enqueue(
+        loaded_paths = projects.repo_paths()
+        if len(loaded_paths) == 1:
+            return projects.find(loaded_paths[0])
+
+        raise RepoPathRequired(
+            f"repoPath required ({len(loaded_paths)} projects loaded)"
+        )
+
+    def execute_query(project, limit_clue, **kwargs) -> bytes:
+        return project.queue.enqueue(
             "query",
             limit_clue=limit_clue,
             **kwargs,
@@ -82,8 +106,9 @@ def create_app(repo_path):
 
     @app.route("/lines/query", methods=["POST"])
     def query_lines():
-        data = request.json
-        defaults = current_app.config["seagoat_config"]["server"]["query"]
+        data = request.get_json(silent=True) or {}
+        project = get_project_for_request()
+        defaults = project.config["server"]["query"]
         query = get_fallback_value(data, "queryText", "")
         limit_clue = int(
             get_fallback_value(data, "limitClue", defaults["defaultLimitClue"])
@@ -96,6 +121,7 @@ def create_app(repo_path):
         )
 
         return execute_query(
+            project,
             query=query,
             context_above=context_above,
             context_below=context_below,
@@ -104,15 +130,20 @@ def create_app(repo_path):
 
     @app.route("/files/query", methods=["POST"])
     def query_files():
-        data = request.json
-        defaults = current_app.config["seagoat_config"]["server"]["query"]
+        data = request.get_json(silent=True) or {}
+        project = get_project_for_request()
+        defaults = project.config["server"]["query"]
         query = get_fallback_value(data, "queryText", "")
         limit_clue = int(
             get_fallback_value(data, "limitClue", defaults["defaultLimitClue"])
         )
 
         result = execute_query(
-            query=query, context_above=0, context_below=0, limit_clue=limit_clue
+            project,
+            query=query,
+            context_above=0,
+            context_below=0,
+            limit_clue=limit_clue,
         )
         parsed_results = orjson.loads(result)
         files_dict = OrderedDict()
@@ -125,15 +156,35 @@ def create_app(repo_path):
 
         return {**parsed_results, "results": list(files_dict.values())}
 
-    @app.route("/status")
+    @app.route("/status", methods=["GET", "POST"])
     def status_():
-        stats = current_app.extensions["task_queue"].enqueue(
+        project = get_project_for_request()
+        stats = project.queue.enqueue(
             "get_stats",
         )
         return {
             "stats": stats,
             "version": __version__,
         }
+
+    @app.errorhandler(NotAGitRepo)
+    @app.errorhandler(UnknownProject)
+    @app.errorhandler(RepoPathRequired)
+    def handle_project_errors(exception_to_handle):
+        if isinstance(exception_to_handle, UnknownProject):
+            code = 404
+        else:
+            code = 400
+
+        res = {
+            "code": code,
+            "error": {
+                "type": type(exception_to_handle).__name__,
+                "message": str(exception_to_handle),
+            },
+        }
+
+        return jsonify(res), code
 
     @app.errorhandler(Exception)
     def handle_exception(exception_to_handle):
@@ -161,7 +212,10 @@ def start_server(repo_path: str, custom_port=None):
         sys.exit(ExitCode.NOT_A_GIT_REPO)
 
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    app = create_app(repo_path)
+    projects = Projects(
+        lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
+    )
+    projects.get(repo_path)
     port = custom_port
 
     if port is None:
@@ -177,7 +231,8 @@ def start_server(repo_path: str, custom_port=None):
         },
     )
     host = get_config_values(Path(repo_path))["server"]["host"]
-    serve(app, host=host, port=port, threads=1)
+    app = create_app(projects, host)
+    serve(app, host=host, port=port, threads=4)
 
 
 def get_server(repo_path, custom_port=None):
