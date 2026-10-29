@@ -480,6 +480,9 @@ fn request_fields(turn: usize, res: &Result<Value, (bool, String)>) -> Value {
             let msg = &v["choices"][0]["message"];
             json!({"turn": turn, "ok": true,
                    "prompt_tokens": u["prompt_tokens"], "completion_tokens": u["completion_tokens"],
+                   // How much of the prompt the provider served from its cache.
+                   "cached_tokens": u["prompt_tokens_details"]["cached_tokens"],
+                   "usage": u,
                    "cost_usd": u["cost"], "tool_calls": msg["tool_calls"].as_array().map(Vec::len),
                    "finish_reason": v["choices"][0]["finish_reason"], "provider": v["provider"]})
         }

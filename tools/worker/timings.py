@@ -60,6 +60,7 @@ def summary(events: list[dict]) -> dict:
                 1 for e in phases.get("llm", []) if e.get("ok") is False
             ),
             "prompt_tokens": sum(e.get("prompt_tokens") or 0 for e in llm),
+            "cached_tokens": sum(e.get("cached_tokens") or 0 for e in llm),
             "completion_tokens": sum(e.get("completion_tokens") or 0 for e in llm),
             "cost_usd": round(sum(e.get("cost_usd") or 0 for e in llm), 4),
             "s_per_request": round(sum(e["duration_s"] for e in llm) / len(llm), 1)
@@ -102,7 +103,8 @@ def show(s: dict) -> str:
         "",
         (
             f"model: {m['requests']} requests ({m['failed_requests']} failed), "
-            f"{m['s_per_request']}s each, {m['prompt_tokens']} prompt + "
+            f"{m['s_per_request']}s each, {m['prompt_tokens']} prompt "
+            f"({pct(m['cached_tokens'] / m['prompt_tokens'] if m['prompt_tokens'] else None)} cached) + "
             f"{m['completion_tokens']} reply tokens, ${m['cost_usd']}"
         ),
         "",
