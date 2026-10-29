@@ -1,7 +1,9 @@
+import os
 from unittest.mock import ANY, MagicMock
 
 import pytest
 
+from seagoat import __version__
 from seagoat.projects import Projects, git_root
 from seagoat.server import create_app
 from seagoat.utils.server import normalize_repo_path
@@ -189,3 +191,26 @@ def test_status_returns_loaded_projects_stats(create_client, generate_repo):
     queue.enqueue.assert_called_once_with("get_stats")
     data = response.get_json()
     assert data["stats"] == {"status": "ok"}
+
+
+def test_status_describes_instance_without_touching_project_queues(
+    create_client, generate_repo
+):
+    repo1 = generate_repo()
+    repo2 = generate_repo()
+    client = create_client()
+    client._projects.get(repo1.working_dir)
+    client._projects.get(repo2.working_dir)
+
+    response = client.get("/status")
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["version"] == __version__
+    assert data["pid"] == os.getpid()
+    assert data["projects"] == [
+        normalize_repo_path(repo1.working_dir),
+        normalize_repo_path(repo2.working_dir),
+    ]
+    for queue in client._queues.values():
+        queue.enqueue.assert_not_called()

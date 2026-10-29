@@ -57,10 +57,10 @@ def test_query_codebase(server, snapshot, repo):
     assert data["version"] == __version__
 
 
-def test_status_endpoint_with_all_files_analyzed(server, snapshot):
+def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
     url = f"{server}/status"
     time.sleep(3)
-    response = requests.get(url)
+    response = requests.post(url, json={"repoPath": repo.working_dir})
 
     assert response.status_code == 200, response.text
 
@@ -75,10 +75,10 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot):
 
 
 @pytest.mark.usefixtures("repo_with_more_files")
-def test_status_endpoint_with_some_files_not_analyzed(server):
+def test_status_endpoint_with_some_files_not_analyzed(server, repo):
     url = f"{server}/status"
     time.sleep(3)
-    response = requests.get(url)
+    response = requests.post(url, json={"repoPath": repo.working_dir})
     data = response.json()
 
     assert response.status_code == 200, response.text

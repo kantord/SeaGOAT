@@ -149,8 +149,16 @@ def create_app(projects, host):
 
         return {**parsed_results, "results": list(files_dict.values())}
 
-    @app.route("/status", methods=["GET", "POST"])
+    @app.route("/status", methods=["GET"])
     def status_():
+        return {
+            "version": __version__,
+            "pid": os.getpid(),
+            "projects": projects.repo_paths(),
+        }
+
+    @app.route("/status", methods=["POST"])
+    def project_status():
         project = get_project_for_request()
         stats = project.queue.enqueue(
             "get_stats",
