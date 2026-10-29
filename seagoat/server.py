@@ -1,4 +1,3 @@
-import ipaddress
 import json
 import logging
 import os
@@ -78,15 +77,9 @@ def create_app(projects, host):
         data = request.get_json(silent=True) or {}
         repo_path = data.get("repoPath")
         if repo_path is not None:
-            # Only callers on this machine may create a project: creating one
-            # runs git in the named directory, whose .git/config can run
-            # commands.
-            remote_addr = request.remote_addr
-            if (
-                remote_addr is not None
-                and ipaddress.ip_address(remote_addr).is_loopback
-            ):
-                return projects.get(repo_path)
+            # Requests only use projects the instance was configured with:
+            # creating one runs git in the named directory, whose .git/config
+            # can run commands.
             return projects.find(repo_path)
 
         loaded_paths = projects.repo_paths()
@@ -215,6 +208,13 @@ def start_server(repo_path: str, custom_port=None):
     projects = Projects(
         lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
     )
+    for configured_path in get_config_values(Path(repo_path))["server"]["repositories"]:
+        try:
+            projects.get(configured_path)
+        except NotAGitRepo as error:
+            logger.warning(
+                "Skipping configured repository %s: %r", configured_path, error
+            )
     projects.get(repo_path)
     port = custom_port
 

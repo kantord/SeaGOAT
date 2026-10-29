@@ -14,6 +14,7 @@ DEFAULT_CONFIG = {
     "server": {
         "host": "127.0.0.1",
         "port": None,
+        "repositories": [],
         "ignorePatterns": [],
         "readMaxCommits": 5_000,
         "chroma": {
@@ -66,6 +67,10 @@ CONFIG_SCHEMA = {
             "properties": {
                 "host": {"type": "string", "minLength": 1},
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+                "repositories": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                },
                 "readMaxCommits": {
                     "type": ["integer", "null"],
                     "minimum": 1,
@@ -251,6 +256,8 @@ GLOBAL_ONLY_KEYS = [
     ("server", "host"),
     # One instance listens on one port for every project
     ("server", "port"),
+    # Which repositories an instance serves is the instance owner's choice, never a repository's
+    ("server", "repositories"),
     # Server the CLI sends queries to: it would receive every query, and
     # decide which file paths and text the CLI prints
     ("client", "host"),

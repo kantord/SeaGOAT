@@ -35,6 +35,8 @@ def test_two_projects_route_to_their_own_queues(create_client, generate_repo):
     repo1 = generate_repo()
     repo2 = generate_repo()
     client = create_client()
+    client._projects.get(repo1.working_dir)
+    client._projects.get(repo2.working_dir)
 
     response1 = client.post(
         "/lines/query",
@@ -58,9 +60,15 @@ def test_two_projects_route_to_their_own_queues(create_client, generate_repo):
     )
 
 
-def test_loopback_caller_creates_unknown_project(create_client, generate_repo):
+def test_loopback_caller_gets_404_for_unknown_project(create_client, generate_repo):
     repo = generate_repo()
-    client = create_client()
+    resolve_calls = []
+
+    def recording_resolve(path):
+        resolve_calls.append(path)
+        return git_root(path)
+
+    client = create_client(resolve=recording_resolve)
     assert client._projects.repo_paths() == []
 
     response = client.post(
@@ -68,8 +76,12 @@ def test_loopback_caller_creates_unknown_project(create_client, generate_repo):
         json={"repoPath": repo.working_dir, "queryText": "hello"},
     )
 
-    assert response.status_code == 200
-    assert normalize_repo_path(repo.working_dir) in client._projects.repo_paths()
+    data = response.get_json()
+    assert response.status_code == 404
+    assert data["code"] == 404
+    assert data["error"]["type"] == "UnknownProject"
+    assert client._projects.repo_paths() == []
+    assert resolve_calls == []
 
 
 def test_remote_caller_gets_answer_from_loaded_project(create_client, generate_repo):
@@ -153,15 +165,15 @@ def test_no_repo_path_with_no_projects(create_client):
     assert data["error"]["message"] == "repoPath required (0 projects loaded)"
 
 
-def test_loopback_non_git_repo_path_is_rejected(create_client, tmp_path):
+def test_loopback_non_git_repo_path_gets_404(create_client, tmp_path):
     client = create_client()
 
     response = client.post("/lines/query", json={"repoPath": str(tmp_path)})
 
     data = response.get_json()
-    assert response.status_code == 400
-    assert data["code"] == 400
-    assert data["error"]["type"] == "NotAGitRepo"
+    assert response.status_code == 404
+    assert data["code"] == 404
+    assert data["error"]["type"] == "UnknownProject"
 
 
 def test_status_returns_loaded_projects_stats(create_client, generate_repo):

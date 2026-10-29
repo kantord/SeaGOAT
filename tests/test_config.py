@@ -170,6 +170,7 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             ("server", "chroma", "embeddingFunction"),
         ),
         ({"server": {"host": "0.0.0.0"}}, ("server", "host")),
+        ({"server": {"repositories": ["/some/repo"]}}, ("server", "repositories")),
         ({"client": {"host": "https://evil.example/"}}, ("client", "host")),
     ],
 )
@@ -233,3 +234,36 @@ def test_global_config_can_set_server_host(repo, create_config_file):
     config = get_config_values(Path(repo.working_dir))
 
     assert config["server"]["host"] == "0.0.0.0"
+
+
+def test_repositories_defaults_to_empty(repo):
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["repositories"] == []
+
+
+def test_global_config_can_set_repositories(repo, create_config_file):
+    create_config_file(
+        {"server": {"repositories": ["/repo/one", "/repo/two"]}},
+        global_config=True,
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["repositories"] == ["/repo/one", "/repo/two"]
+
+
+def test_repo_config_repositories_is_ignored_uses_global(
+    repo, create_config_file, caplog
+):
+    create_config_file(
+        {"server": {"repositories": ["/global/repo"]}}, global_config=True
+    )
+    create_config_file(
+        {"server": {"repositories": ["/local/repo"]}}, global_config=False
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["repositories"] == ["/global/repo"]
+    assert "Ignoring 'server.repositories'" in caplog.text
