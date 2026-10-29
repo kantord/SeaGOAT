@@ -1,0 +1,179 @@
+from unittest.mock import ANY, MagicMock
+
+import pytest
+
+from seagoat.projects import Projects, git_root
+from seagoat.server import create_app
+from seagoat.utils.server import normalize_repo_path
+
+REMOTE_ADDR = "192.0.2.7"
+
+
+@pytest.fixture(name="create_client")
+def _create_client():
+    def _create(resolve=None):
+        queues = {}
+
+        def queue_factory(path, config):
+            queue = MagicMock()
+            queue.enqueue.return_value = b'{"results": []}'
+            queues[path] = queue
+            return queue
+
+        projects = Projects(queue_factory, resolve=resolve or git_root)
+        app = create_app(projects, "127.0.0.1")
+        app.config["TESTING"] = True
+        client = app.test_client()
+        client._queues = queues  # type: ignore
+        client._projects = projects  # type: ignore
+        return client
+
+    return _create
+
+
+def test_two_projects_route_to_their_own_queues(create_client, generate_repo):
+    repo1 = generate_repo()
+    repo2 = generate_repo()
+    client = create_client()
+
+    response1 = client.post(
+        "/lines/query",
+        json={"repoPath": repo1.working_dir, "queryText": "one"},
+    )
+    response2 = client.post(
+        "/lines/query",
+        json={"repoPath": repo2.working_dir, "queryText": "two"},
+    )
+
+    queue1 = client._queues[normalize_repo_path(repo1.working_dir)]
+    queue2 = client._queues[normalize_repo_path(repo2.working_dir)]
+    assert response1.status_code == 200
+    assert response2.status_code == 200
+    assert queue1 is not queue2
+    queue1.enqueue.assert_called_once_with(
+        "query", query="one", limit_clue=ANY, context_above=ANY, context_below=ANY
+    )
+    queue2.enqueue.assert_called_once_with(
+        "query", query="two", limit_clue=ANY, context_above=ANY, context_below=ANY
+    )
+
+
+def test_loopback_caller_creates_unknown_project(create_client, generate_repo):
+    repo = generate_repo()
+    client = create_client()
+    assert client._projects.repo_paths() == []
+
+    response = client.post(
+        "/lines/query",
+        json={"repoPath": repo.working_dir, "queryText": "hello"},
+    )
+
+    assert response.status_code == 200
+    assert normalize_repo_path(repo.working_dir) in client._projects.repo_paths()
+
+
+def test_remote_caller_gets_answer_from_loaded_project(create_client, generate_repo):
+    repo = generate_repo()
+    client = create_client()
+    client._projects.get(repo.working_dir)
+    queue = client._queues[normalize_repo_path(repo.working_dir)]
+
+    response = client.post(
+        "/lines/query",
+        json={"repoPath": repo.working_dir, "queryText": "hello"},
+        environ_base={"REMOTE_ADDR": REMOTE_ADDR},
+    )
+
+    assert response.status_code == 200
+    assert response.data == b'{"results": []}'
+    queue.enqueue.assert_called_once()
+
+
+def test_remote_caller_cannot_create_project(create_client, generate_repo):
+    repo = generate_repo()
+    resolve_calls = []
+
+    def recording_resolve(path):
+        resolve_calls.append(path)
+        return git_root(path)
+
+    client = create_client(resolve=recording_resolve)
+
+    response = client.post(
+        "/lines/query",
+        json={"repoPath": repo.working_dir},
+        environ_base={"REMOTE_ADDR": REMOTE_ADDR},
+    )
+
+    data = response.get_json()
+    assert response.status_code == 404
+    assert data["code"] == 404
+    assert data["error"]["type"] == "UnknownProject"
+    assert client._projects.repo_paths() == []
+    assert resolve_calls == []
+
+
+def test_no_repo_path_with_one_loaded_project(create_client, generate_repo):
+    repo = generate_repo()
+    client = create_client()
+    client._projects.get(repo.working_dir)
+    queue = client._queues[normalize_repo_path(repo.working_dir)]
+
+    response = client.post("/lines/query", json={})
+
+    assert response.status_code == 200
+    queue.enqueue.assert_called_once()
+
+
+def test_no_repo_path_with_two_loaded_projects(create_client, generate_repo):
+    repo1 = generate_repo()
+    repo2 = generate_repo()
+    client = create_client()
+    client._projects.get(repo1.working_dir)
+    client._projects.get(repo2.working_dir)
+
+    response = client.post("/lines/query", json={})
+
+    data = response.get_json()
+    assert response.status_code == 400
+    assert data["code"] == 400
+    assert data["error"]["type"] == "RepoPathRequired"
+    assert data["error"]["message"] == "repoPath required (2 projects loaded)"
+
+
+def test_no_repo_path_with_no_projects(create_client):
+    client = create_client()
+
+    response = client.post("/lines/query", json={})
+
+    data = response.get_json()
+    assert response.status_code == 400
+    assert data["code"] == 400
+    assert data["error"]["type"] == "RepoPathRequired"
+    assert data["error"]["message"] == "repoPath required (0 projects loaded)"
+
+
+def test_loopback_non_git_repo_path_is_rejected(create_client, tmp_path):
+    client = create_client()
+
+    response = client.post("/lines/query", json={"repoPath": str(tmp_path)})
+
+    data = response.get_json()
+    assert response.status_code == 400
+    assert data["code"] == 400
+    assert data["error"]["type"] == "NotAGitRepo"
+
+
+def test_status_returns_loaded_projects_stats(create_client, generate_repo):
+    repo = generate_repo()
+    client = create_client()
+    client._projects.get(repo.working_dir)
+    queue = client._queues[normalize_repo_path(repo.working_dir)]
+    queue.enqueue.return_value = {"status": "ok"}
+
+    response = client.post("/status", json={"repoPath": repo.working_dir})
+
+    assert response.status_code == 200
+    queue.enqueue.assert_called_once_with("get_stats")
+    data = response.get_json()
+    assert data["stats"] == {"status": "ok"}
