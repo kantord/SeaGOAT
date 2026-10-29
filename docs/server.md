@@ -10,8 +10,9 @@ use it through HTTP to build your own SeaGOAT-based applications.
 
 ## Starting the server
 
-One SeaGOAT server process (an *instance*) serves every repository (a
-*project*) you add to it. To add a repository and start the instance, use:
+One SeaGOAT server process (an *instance*) serves the repositories listed in
+`server.repositories` in the global configuration file. To add a repository
+to that list and start the instance, use:
 
 ```bash
 seagoat-server start <repo_path> [--port=<custom_port>]
@@ -21,17 +22,20 @@ seagoat-server start <repo_path> [--port=<custom_port>]
 * `--port` - (Optional) Run the server on a specific port. It is used when
 the command starts the instance.
 
-The first `seagoat-server start` starts the instance; running it again for
-another repository adds that repository to the running instance, starts
-indexing it and returns at once.
+`seagoat-server start <repo_path>` adds `<repo_path>` to the
+`server.repositories` list, starts the instance if none is running, and
+otherwise tells the running instance to load the repository. Removing a
+repository from the list takes effect when the instance restarts. A
+repository's own `.seagoat.yml` cannot set which repositories an instance
+serves.
 
 If you don't specify a custom port, a random port will be assigned to your
 server. Don't worry, SeaGOAT will still be able to automatically find
 the server corresponding to a specific repository.
 
-Only programs on the same computer can add a repository to the instance. A
-server reached from another computer only answers for repositories that are
-already added.
+A query that names a repository the instance does not serve gets an HTTP 404
+error saying so; any program that can reach the server can query the
+repositories it serves.
 
 ## Stopping the server
 
@@ -139,8 +143,9 @@ curl -X POST 'http://localhost:34743/lines/query' \
 
 * `repoPath` - Path to the repository you want to search. The `seagoat`
 CLI and the MCP server send it with every query, so one instance can answer
-for many repositories. A server reached from another computer only answers
-for repositories that are already added on the computer running it.
+for many repositories. A query naming a repository the instance does not
+serve gets an HTTP 404 error saying so; any program that can reach the
+server can query the repositories it serves.
 * `queryText` - The actual text of your query.
 * `limitClue` - This number should indicate how many results you are
 planning to display. This is not a hard limit, you might receive
@@ -270,8 +275,9 @@ curl -X POST 'http://localhost:34743/files/query' \
 
 * `repoPath` - Path to the repository you want to search. The `seagoat`
 CLI and the MCP server send it with every query, so one instance can answer
-for many repositories. A server reached from another computer only answers
-for repositories that are already added on the computer running it.
+for many repositories. A query naming a repository the instance does not
+serve gets an HTTP 404 error saying so; any program that can reach the
+server can query the repositories it serves.
 * `queryText` - The actual text of your query.
 * `limitClue` - This number should indicate how many results you are
 planning to display. This is not a hard limit, you might receive

@@ -14,12 +14,15 @@ codebase utilizing SeaGOAT's semantic search engine.
 seagoat-server start /path/to/your/repository
 ```
 
-One SeaGOAT server process (an *instance*) serves every repository. If the
-instance is already running, starting it for another repository adds that
-repository to it, starts indexing it and returns at once. The `search_code`
-tool sends the repository path with every query, so one instance can answer
-for many repositories. A server reached from another computer must already
-have the repository added on the computer running it.
+One SeaGOAT server process (an *instance*) serves the repositories listed in
+`server.repositories` in the global configuration file. `seagoat-server
+start <repo>` adds `<repo>` to that list, starts the instance if none is
+running, and otherwise tells the running instance to load it. Removing a
+repository from the list takes effect when the instance restarts; a
+repository's own `.seagoat.yml` cannot set it. The `search_code` tool sends
+the repository path with every query, so any program that can reach the
+server can query the repositories it serves. A query naming a repository the
+instance does not serve gets an HTTP 404 error saying so.
 
 ## Configuration
 

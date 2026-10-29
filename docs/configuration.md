@@ -21,9 +21,9 @@ files define a value, the local value takes precedence.
 Project configuration files come with the repository, so SeaGOAT does not
 trust them with settings that decide where your code or credentials are sent
 or who can reach them. `generative`, `server.host`, `server.port`,
-`client.host` and `server.chroma.embeddingFunction` are only read from the
-global configuration file; in a project configuration file they are ignored
-with a warning.
+`server.repositories`, `client.host` and `server.chroma.embeddingFunction`
+are only read from the global configuration file; in a project configuration
+file they are ignored with a warning.
 
 This is an example of a configuration file:
 
@@ -32,6 +32,11 @@ This is an example of a configuration file:
 
 server:
   port: 31134  # A port number to run the server on
+  # Repositories this instance serves (global configuration file only)
+  repositories:
+    - /path/to/repository/one
+    - /path/to/repository/two
+
   # Increase number of commits used for computing frecency score
   # Default is `5000`, set to `null` to read all history
   readMaxCommits: 5000
@@ -93,6 +98,11 @@ your indexed code.
 instance will run on. The `--port` option of `seagoat-server start`
 overrides it when the command starts the instance. A repository's
 `.seagoat.yml` cannot change it; if it tries, SeaGOAT warns and ignores it.
+* `repositories` (global configuration file only): The list of repository
+paths the instance serves. `seagoat-server start <repo_path>` adds
+`<repo_path>` to this list. Removing a repository from the list takes effect
+when the instance restarts. A repository's `.seagoat.yml` cannot change it;
+if it tries, SeaGOAT warns and ignores it.
 * `ignorePatterns`: A list of glob patterns to ignore. Keep in mind that all
 files ignored by `.gitignore` are already ignored. You probably should not
 need to configure this value. It is only useful if there are some files that
@@ -157,8 +167,8 @@ The following values can be configured:
 
 * `host` (global configuration file only): The URL of the SeaGOAT instance to
 connect to. This is only needed when you are hosting your SeaGOAT server on a
-remote computer. A server reached from another computer serves exactly one
-repository, which must already be added on the computer running it.
+remote computer. With `client.host` set, the CLI sends no repository path, so
+that remote instance must serve exactly one repository.
 
 ## Performance Tuning
 

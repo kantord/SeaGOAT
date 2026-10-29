@@ -287,9 +287,10 @@ By default the server only accepts connections from the same computer. To
 accept remote connections, set `host: 0.0.0.0` under `server` in the global
 configuration file of the computer running the server.
 
-With `client.host` set, the CLI does not send the repository path, so the
-remote server must serve exactly one repository, added on the computer
-running it.
+The instance serves the repositories listed in `server.repositories` in the
+global configuration file of the computer running it. With `client.host`
+set, the CLI sends no repository path, so that remote instance must serve
+exactly one repository.
 
 Keep in mind that SeaGOAT itself does not enforce any security as it is
 primarily designed to run locally. If you have private code that you do not
