@@ -14,6 +14,13 @@ codebase utilizing SeaGOAT's semantic search engine.
 seagoat-server start /path/to/your/repository
 ```
 
+One SeaGOAT server process (an *instance*) serves every repository. If the
+instance is already running, starting it for another repository adds that
+repository to it, starts indexing it and returns at once. The `search_code`
+tool sends the repository path with every query, so one instance can answer
+for many repositories. A server reached from another computer must already
+have the repository added on the computer running it.
+
 ## Configuration
 
 To use SeaGOAT with Claude Desktop, add the following configuration to your
@@ -65,4 +72,6 @@ You can then ask Claude questions like:
 > "Find code related to data processing in `src/utils`"
 
 Claude will use the `search_code` tool to query your local SeaGOAT server and
-retrieve relevant code snippets to answer your question.
+retrieve relevant code snippets to answer your question. The tool's
+`repo_path` argument tells the instance which repository to search; the
+MCP server sends it with every query.

@@ -20,14 +20,15 @@ files define a value, the local value takes precedence.
 
 Project configuration files come with the repository, so SeaGOAT does not
 trust them with settings that decide where your code or credentials are sent
-or who can reach them. `generative`, `server.host`, `client.host` and
-`server.chroma.embeddingFunction` are only read from the global configuration
-file; in a project configuration file they are ignored with a warning.
+or who can reach them. `generative`, `server.host`, `server.port`,
+`client.host` and `server.chroma.embeddingFunction` are only read from the
+global configuration file; in a project configuration file they are ignored
+with a warning.
 
 This is an example of a configuration file:
 
 ```yaml
-# .seagoat.yml
+# global config file
 
 server:
   port: 31134  # A port number to run the server on
@@ -88,7 +89,10 @@ server. Set it to `0.0.0.0` to accept connections from other computers, for
 example when [hosting the server remotely](index.md#can-i-host-seagoat-server-on-a-different-computer).
 SeaGOAT has no authentication, so anyone who can reach the server can read
 your indexed code.
-* `port`: The port number the server will run on
+* `port` (global configuration file only): The port number the SeaGOAT
+instance will run on. The `--port` option of `seagoat-server start`
+overrides it when the command starts the instance. A repository's
+`.seagoat.yml` cannot change it; if it tries, SeaGOAT warns and ignores it.
 * `ignorePatterns`: A list of glob patterns to ignore. Keep in mind that all
 files ignored by `.gitignore` are already ignored. You probably should not
 need to configure this value. It is only useful if there are some files that
@@ -153,7 +157,8 @@ The following values can be configured:
 
 * `host` (global configuration file only): The URL of the SeaGOAT instance to
 connect to. This is only needed when you are hosting your SeaGOAT server on a
-remote computer.
+remote computer. A server reached from another computer serves exactly one
+repository, which must already be added on the computer running it.
 
 ## Performance Tuning
 

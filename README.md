@@ -61,6 +61,11 @@ using the following command:
 seagoat-server start /path/to/your/repo
 ```
 
+One SeaGOAT server process (an *instance*) serves every repository (a
+*project*). The first `seagoat-server start` launches the instance; running
+it again for another repository adds that repository to the running
+instance, starts indexing it and returns at once.
+
 ### Search your repository
 
 If you have the server running, you can simply use the
@@ -83,8 +88,11 @@ gt "function calc_.* that deals with taxes"
 You can stop the running server using the following command:
 
 ```bash
-seagoat-server stop /path/to/your/repo
+seagoat-server stop
 ```
+
+This stops the instance and, with it, every repository it serves. A path
+after `stop` is accepted and ignored.
 
 ### Configuring SeaGOAT
 
@@ -93,7 +101,7 @@ either globally or project-specifically with a `.seagoat.yml` file.
 For instance:
 
 ```yaml
-# .seagoat.yml
+# global config file
 
 server:
   port: 31134  # Specify server port
@@ -278,6 +286,10 @@ internet.
 By default the server only accepts connections from the same computer. To
 accept remote connections, set `host: 0.0.0.0` under `server` in the global
 configuration file of the computer running the server.
+
+With `client.host` set, the CLI does not send the repository path, so the
+remote server must serve exactly one repository, added on the computer
+running it.
 
 Keep in mind that SeaGOAT itself does not enforce any security as it is
 primarily designed to run locally. If you have private code that you do not
