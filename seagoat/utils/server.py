@@ -1,11 +1,14 @@
 import os
 import socket
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
-from typing import TypedDict
+from typing import NamedTuple, TypedDict
 
 import platformdirs
 import psutil
+import requests
+from filelock import FileLock
 
 from seagoat.utils.json_file import get_json_file_contents, write_to_json_file
 
@@ -120,3 +123,79 @@ def is_git_repo(path: str) -> bool:
         return output.strip().lower() == "true"
     except subprocess.CalledProcessError:
         return False
+
+
+class Instance(NamedTuple):
+    host: str  # the address clients use
+    port: int
+    pid: int
+
+
+def instance_file_path() -> Path:
+    user_cache_dir = Path(
+        platformdirs.user_cache_dir(
+            "seagoat-servers-pytest"
+            if "PYTEST_CURRENT_TEST" in os.environ
+            else "seagoat-servers"
+        )
+    )
+    user_cache_dir.mkdir(parents=True, exist_ok=True)
+    return user_cache_dir / "instance.json"
+
+
+def write_instance(instance: Instance) -> None:
+    host = {
+        "0.0.0.0": "127.0.0.1",
+        "::": "::1",
+    }.get(instance.host, instance.host)
+
+    write_to_json_file(
+        instance_file_path(),
+        {"host": host, "port": instance.port, "pid": instance.pid},
+    )
+
+
+def read_instance() -> Instance | None:
+    try:
+        contents = get_json_file_contents(instance_file_path())
+    except (OSError, ValueError):
+        return None
+
+    if not isinstance(contents, dict):
+        return None
+
+    host = contents.get("host")
+    port = contents.get("port")
+    pid = contents.get("pid")
+
+    if not (isinstance(host, str) and isinstance(port, int) and isinstance(pid, int)):
+        return None
+
+    return Instance(host=host, port=port, pid=pid)
+
+
+def instance_answers(instance: Instance) -> bool:
+    # An IPv6 address needs brackets in a URL
+    host = f"[{instance.host}]" if ":" in instance.host else instance.host
+    try:
+        response = requests.get(f"http://{host}:{instance.port}/status", timeout=2)
+    except (requests.RequestException, ValueError):
+        return False
+
+    return response.status_code == 200
+
+
+def claim_start(
+    bind: Callable[[], Instance],
+    answers: Callable[[Instance], bool] = instance_answers,
+) -> Instance | None:
+    # The lock covers checking and binding, so two starts at once make one
+    # instance, and it ends before serving starts.
+    with FileLock(f"{instance_file_path()}.lock"):
+        existing = read_instance()
+        if existing is not None and answers(existing):
+            return existing
+
+        instance = bind()
+        write_instance(instance)
+        return None
