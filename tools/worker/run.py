@@ -5,8 +5,9 @@
 
 The program says what the run does: messages to the model, the model's turns, and the checks
 the harness runs, as JSON steps (tools/worker/src/program.rs has the four kinds). The default,
-tools/worker/programs/default.json, has the model work, then checks that something changed and
-runs tools/worker/verify.sh, retrying twice. For a quicker run, copy it and change the checks.
+tools/worker/programs/default.json, has the model work, then checks that something changed,
+lints the changed files and runs tools/worker/verify.sh, retrying twice. For a quicker run,
+copy it and change the checks. A run ends by counts (turns, retries), not by a time budget.
 
 Steps: check that the image is loaded (tools/worker/image/build.sh builds and loads it), run
 tools/worker against a copy of the repo at --base, and if the run is GREEN apply its patch in
@@ -195,7 +196,6 @@ def main(argv) -> int:
     ap.add_argument("slug", help="short name: the branch is worker/<slug>")
     ap.add_argument("--brief", type=Path, required=True)
     ap.add_argument("--base", default="HEAD")
-    ap.add_argument("--budget", type=int, default=3600)
     ap.add_argument("--cpus", type=int, default=4)
     ap.add_argument("--model", help="overrides the config file's")
     ap.add_argument("--program", type=Path, default=WORKER / "programs/default.json")
@@ -248,7 +248,7 @@ def main(argv) -> int:
         "nice", "-n", "19", "ionice", "-c3", str(binary),
         "--repo", str(ROOT), "--base", base, "--task", str(brief), "--program", str(program),
         "--image", IMAGE,
-        "--out", str(out / "run"), "--budget", str(a.budget), "--cpus", str(a.cpus),
+        "--out", str(out / "run"), "--cpus", str(a.cpus),
     ]  # fmt: skip
     cmd += ["--api-url", config["api_url"], "--model", a.model or config["model"]]
     cmd += ["--extra-body", json.dumps(config.get("extra_body", {}))]

@@ -23,10 +23,17 @@ use crate::program::Step;
 const MAX_TOOL_OUTPUT: usize = 8000;
 const MAX_CONVERSATION_CHARS: usize = 200_000;
 const BASH_TIMEOUT: Duration = Duration::from_secs(300);
-/// A model's command blocks until it ends, up to this (and the run's deadline), so the model
-/// never polls a background job. *Because* a 5-minute cap made an earlier run spend six turns
-/// on `sleep N && tail log` around a cold verify (2026-10-22).
+/// Every command, the model's and the program's, blocks until it ends, up to this, so the
+/// model never polls a background job. *Because* a 5-minute cap made an earlier run spend six
+/// turns on `sleep N && tail log` around a cold verify (2026-10-22).
+/// DECISION (owner, 2026-10-29): this is the only time limit. A run ends by counts (an llm
+/// step's max_turns, a script's retries); this only stops a command that would never end, and
+/// a command that hits it fails like any other, so a script can retry it.
 const COMMAND_TIMEOUT: Duration = Duration::from_secs(1800);
+/// Tells the model why a reply did nothing, instead of taking it for "done".
+const CUT_OFF: &str = "Your last reply was cut off at the reply token limit, so nothing in it \
+     ran. Make smaller changes per command, e.g. edit a file in several steps instead of \
+     writing it whole.";
 // One HTTP 500 used to end a whole attempt (2026-10-19).
 const API_RETRY_WAITS: [u64; 2] = [5, 20];
 
@@ -42,7 +49,6 @@ pub struct Config {
     pub base: String,
     pub max_tokens: u32,
     pub start: Instant,
-    pub deadline: Instant,
     pub transcript: PathBuf,
     pub events: Events,
     pub mode: crate::out::Mode,
@@ -53,7 +59,6 @@ pub enum Status {
     Green,
     Red,
     Fatal,
-    Timeout,
     /// The guest broke under the model (2026-10-21: the host filled up, the guest's disk went
     /// read-only and the model spent its last ten turns diagnosing it). Not the model's fault,
     /// so it is reported like a failed boot.
@@ -78,7 +83,6 @@ impl Report {
             Status::Green => 0,
             Status::Red => crate::EXIT_RED,
             Status::Fatal => crate::EXIT_FATAL,
-            Status::Timeout => crate::EXIT_TIMEOUT,
             Status::SetupFailed => crate::EXIT_SETUP,
         }
     }
@@ -88,7 +92,6 @@ impl Report {
             Status::Green => "GREEN",
             Status::Red => "RED",
             Status::Fatal => "FATAL",
-            Status::Timeout => "TIMEOUT",
             Status::SetupFailed => "SETUP_FAILED",
         }
     }
@@ -134,7 +137,6 @@ pub async fn run(g: &Guest, cfg: &Config, program: &Program) -> Report {
             r.error = Some(e);
             Status::Fatal
         }
-        Err(Stop::OutOfTime) => Status::Timeout,
         Err(Stop::GuestDead(e)) => {
             r.error = Some(e);
             Status::SetupFailed
@@ -214,16 +216,12 @@ async fn command(
     run: &str,
     show_failure: bool,
 ) -> Result<bool, Stop> {
-    let remaining = cfg.deadline.saturating_duration_since(Instant::now());
-    if remaining.is_zero() {
-        return Err(Stop::OutOfTime);
-    }
     let guest0 = g.cpu().await;
     let span = cfg.events.begin("command", name);
     let o = g
         .sh(
             &format!("export WORKER_BASE={};\n{run}", cfg.base),
-            remaining.min(COMMAND_TIMEOUT),
+            COMMAND_TIMEOUT,
         )
         .await;
     let guest_cpu_busy = Cpu::busy_between(guest0, g.cpu().await);
@@ -234,9 +232,6 @@ async fn command(
     );
     // The exec itself failing means the guest is gone, not that the code is wrong.
     let o = o.map_err(|e| Stop::GuestDead(format!("`{name}` could not run: {e:#}")))?;
-    if o.code.is_none() && Instant::now() >= cfg.deadline {
-        return Err(Stop::OutOfTime);
-    }
     let ok = o.code == Some(0);
     if !ok && let Some(e) = dead(g, &o.text).await {
         return Err(Stop::GuestDead(e));
@@ -278,7 +273,6 @@ fn outcome(cfg: &Config, r: &mut Report, name: &str, ok: bool, detail: Value) {
 
 enum Stop {
     Fatal(String),
-    OutOfTime,
     GuestDead(String),
 }
 
@@ -293,9 +287,6 @@ async fn turns(
         // Numbered across the whole run, so events and the table never repeat a turn number.
         let turn = r.turns + 1;
         let turn_start = Instant::now();
-        if Instant::now() > cfg.deadline {
-            return Err(Stop::OutOfTime);
-        }
         cfg.mode.header();
         trim(conv);
         let resp = match call(cfg, &conv.messages, turn).await {
@@ -324,7 +315,7 @@ async fn turns(
             diff: Default::default(),
             diff_total: Default::default(),
         };
-        let msg = resp["choices"][0]["message"].clone();
+        let mut msg = resp["choices"][0]["message"].clone();
         if !msg.is_object() {
             return Ok(Ending::ApiError(format!(
                 "no message in reply: {}",
@@ -333,8 +324,21 @@ async fn turns(
         }
         let calls = msg["tool_calls"].as_array().cloned().unwrap_or_default();
         let n_steps = calls.len();
+        // A reply that hit max_tokens is cut off: its text is partial and a tool call in it
+        // would be too, so none of its calls run, and they are dropped from the conversation
+        // (a call without a reply would make the next request invalid).
+        // 2026-10-29: one ended a pass as "done" with nothing changed.
+        let cut_off = resp["choices"][0]["finish_reason"] == "length";
+        if cut_off && let Some(m) = msg.as_object_mut() {
+            m.remove("tool_calls");
+        }
         record(cfg, std::slice::from_ref(&msg));
         conv.messages.push(msg);
+        if cut_off {
+            say(cfg, conv, "user", CUT_OFF.into());
+            finish_turn(g, cfg, r, row, 0, turn_start).await;
+            continue;
+        }
         if calls.is_empty() {
             finish_turn(g, cfg, r, row, 0, turn_start).await;
             return Ok(Ending::ModelDone);
@@ -347,10 +351,7 @@ async fn turns(
                 .unwrap_or(json!({}));
             let (tool, summary) = step_summary(name, &args);
             cfg.mode.step(turn, tool, &summary);
-            let limit = cfg
-                .deadline
-                .saturating_duration_since(Instant::now())
-                .min(COMMAND_TIMEOUT);
+            let limit = COMMAND_TIMEOUT;
             let guest0 = g.cpu().await;
             let span = cfg.events.begin("tool", tool);
             let out = run_tool(g, name, &args, limit)
@@ -651,7 +652,6 @@ mod tests {
             base: "BASE".into(),
             max_tokens: 1,
             start: Instant::now(),
-            deadline: Instant::now() + Duration::from_secs(120),
             transcript: dir.join("transcript.jsonl"),
             events: Events::new(dir.join("events.jsonl")),
             mode: crate::out::Mode::Json(vec![]),

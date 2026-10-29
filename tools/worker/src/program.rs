@@ -15,7 +15,9 @@
 //!                                         pass gets through every step.
 //!
 //! The run is GREEN when every top-level step succeeds. Some failures end the run whatever is
-//! left to retry: a bad key or no credit (FATAL), the deadline (TIMEOUT), a dead guest.
+//! left to retry: a bad key or no credit (FATAL), a dead guest. A run ends by counts: at most
+//! each llm step's max_turns per pass, and each script's retries; a command that runs past its
+//! fixed timeout (30 minutes) fails like any other.
 //!
 //! DECISION (owner, 2026-10-29): a program is data, so which checks run, in what order and how
 //! often is chosen per run instead of being built into the loop. Four kinds and no more: no

@@ -37,7 +37,7 @@ mod program;
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use anyhow::{Context, Result, bail};
 use clap::Parser;
@@ -72,9 +72,6 @@ struct Args {
     program: PathBuf,
     #[arg(long, default_value_t = 8192)]
     max_tokens: u32,
-    /// Seconds for the whole run, every step included.
-    #[arg(long, default_value_t = 5400)]
-    budget: u64,
     #[arg(long, default_value_t = 4)]
     cpus: u8,
     #[arg(long, default_value_t = 8192)]
@@ -85,10 +82,10 @@ struct Args {
     json: Option<Vec<out::Field>>,
 }
 
-// Exit codes: 0 green, 1 red, 2 fatal (key, credit), 3 out of time, 4 sandbox or repo setup.
+// Exit codes: 0 green, 1 red, 2 fatal (key, credit), 4 sandbox or repo setup. 3 was "out of
+// time" before runs ended by counts; it stays unused so old logs keep their meaning.
 pub const EXIT_RED: u8 = 1;
 pub const EXIT_FATAL: u8 = 2;
-pub const EXIT_TIMEOUT: u8 = 3;
 pub const EXIT_SETUP: u8 = 4;
 
 fn main() -> ExitCode {
@@ -124,7 +121,6 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
     let program = program::load(&args.program, &task)?;
     std::fs::create_dir_all(&args.out)?;
     let start = Instant::now();
-    let deadline = start + Duration::from_secs(args.budget);
 
     let ev = events::Events::new(args.out.join("events.jsonl"));
     let sigs = signals();
@@ -152,7 +148,6 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
             base: base.clone(),
             max_tokens: args.max_tokens,
             start,
-            deadline,
             transcript: args.out.join("transcript.jsonl"),
             events: ev.clone(),
             mode: args.json.clone().map_or(out::Mode::Table, out::Mode::Json),
