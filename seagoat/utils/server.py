@@ -174,15 +174,41 @@ def read_instance() -> Instance | None:
     return Instance(host=host, port=port, pid=pid)
 
 
-def instance_answers(instance: Instance) -> bool:
+def fetch_status(instance: Instance) -> dict | None:
     # An IPv6 address needs brackets in a URL
     host = f"[{instance.host}]" if ":" in instance.host else instance.host
     try:
         response = requests.get(f"http://{host}:{instance.port}/status", timeout=2)
+        if response.status_code != 200:
+            return None
+        return response.json()
     except (requests.RequestException, ValueError):
+        return None
+
+
+def instance_answers(instance: Instance) -> bool:
+    return fetch_status(instance) is not None
+
+
+def stop_instance(status: Callable[[Instance], dict | None] = fetch_status) -> bool:
+    instance = read_instance()
+    if instance is None:
         return False
 
-    return response.status_code == 200
+    # Delete the file first, so a failed stop never leaves a file pointing
+    # at a dead or reused process
+    instance_file_path().unlink(missing_ok=True)
+
+    current_status = status(instance)
+    if current_status is None or current_status.get("pid") != instance.pid:
+        return True
+
+    try:
+        psutil.Process(instance.pid).terminate()
+    except psutil.NoSuchProcess:
+        pass
+
+    return True
 
 
 def claim_start(

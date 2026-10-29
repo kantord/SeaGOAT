@@ -14,7 +14,11 @@ from seagoat import __version__
 from seagoat.cache import Cache, get_cache_root
 from seagoat.projects import NotAGitRepo, Projects, UnknownProject
 from seagoat.queue.task_queue import TaskQueue
-from seagoat.utils.config import GLOBAL_CONFIG_FILE, get_config_values
+from seagoat.utils.config import (
+    GLOBAL_CONFIG_FILE,
+    get_config_values,
+    get_global_config_values,
+)
 from seagoat.utils.server import (
     ServerDoesNotExist,
     get_free_port,
@@ -157,6 +161,12 @@ def create_app(projects, host):
             "projects": projects.repo_paths(),
         }
 
+    @app.route("/reload", methods=["POST"])
+    def reload_():
+        # Any caller may trigger this: it only reads the instance owner's config
+        load_configured_projects(projects)
+        return {"projects": projects.repo_paths()}
+
     @app.route("/status", methods=["POST"])
     def project_status():
         project = get_project_for_request()
@@ -204,6 +214,16 @@ def create_app(projects, host):
     return app
 
 
+def load_configured_projects(projects) -> None:
+    for configured_path in get_global_config_values()["server"]["repositories"]:
+        try:
+            projects.get(configured_path)
+        except NotAGitRepo as error:
+            logger.warning(
+                "Skipping configured repository %s: %r", configured_path, error
+            )
+
+
 def start_server(repo_path: str, custom_port=None):
     if not is_git_repo(repo_path):
         click.echo(
@@ -216,13 +236,7 @@ def start_server(repo_path: str, custom_port=None):
     projects = Projects(
         lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
     )
-    for configured_path in get_config_values(Path(repo_path))["server"]["repositories"]:
-        try:
-            projects.get(configured_path)
-        except NotAGitRepo as error:
-            logger.warning(
-                "Skipping configured repository %s: %r", configured_path, error
-            )
+    load_configured_projects(projects)
     projects.get(repo_path)
     port = custom_port
 

@@ -9,6 +9,7 @@ import yaml
 from deepmerge import always_merger
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
+from seagoat.utils.server import normalize_repo_path
 
 DEFAULT_CONFIG = {
     "server": {
@@ -220,12 +221,18 @@ def extend_config_with_file(base_config, config_file):
     return always_merger.merge(base_config, new_config) if new_config else base_config
 
 
-def get_config_values(repo_path: Path):
+def get_global_config_values():
     config = copy.deepcopy(DEFAULT_CONFIG)
-    repo_config_file = repo_path / ".seagoat.yml"
 
     if GLOBAL_CONFIG_FILE.exists():
         config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
+
+    return config
+
+
+def get_config_values(repo_path: Path):
+    config = get_global_config_values()
+    repo_config_file = repo_path / ".seagoat.yml"
 
     if repo_config_file.exists():
         repo_config = validate_config_file(str(repo_config_file))
@@ -239,6 +246,24 @@ def get_config_values(repo_path: Path):
         config = always_merger.merge(config, repo_config)
 
     return config
+
+
+def add_repository(repo_path) -> bool:
+    config = {}
+    if GLOBAL_CONFIG_FILE.exists():
+        config = validate_config_file(str(GLOBAL_CONFIG_FILE)) or {}
+
+    repositories = config.setdefault("server", {}).setdefault("repositories", [])
+    normalized_path = normalize_repo_path(repo_path)
+
+    if any(normalize_repo_path(path) == normalized_path for path in repositories):
+        return False
+
+    repositories.append(normalized_path)
+    GLOBAL_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    with open(GLOBAL_CONFIG_FILE, "w", encoding="utf-8") as config_file:
+        yaml.safe_dump(config, config_file, sort_keys=False)
+    return True
 
 
 # The repo file is untrusted: it comes with whatever repository is being

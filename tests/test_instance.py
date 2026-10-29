@@ -2,6 +2,7 @@ import json
 import threading
 from pathlib import Path
 
+import psutil
 import pytest
 import requests
 
@@ -12,6 +13,7 @@ from seagoat.utils.server import (
     instance_answers,
     instance_file_path,
     read_instance,
+    stop_instance,
     write_instance,
 )
 
@@ -168,3 +170,63 @@ def test_instance_answers_asks_the_instance_status(mocker, host, url):
 
     assert instance_answers(Instance(host=host, port=5000, pid=1)) is True
     assert get.call_args.args[0] == url
+
+
+def test_stop_instance_with_no_file_returns_false():
+
+    instance_file_path().unlink(missing_ok=True)
+
+    assert stop_instance() is False
+
+
+def test_stop_instance_terminates_matching_pid_and_removes_file(mocker):
+
+    instance = Instance(host="127.0.0.1", port=40123, pid=1234)
+    write_instance(instance)
+    fake_status = mocker.Mock(return_value={"pid": 1234})
+    fake_process = mocker.Mock()
+    process_class = mocker.patch(
+        "seagoat.utils.server.psutil.Process", return_value=fake_process
+    )
+
+    result = stop_instance(status=fake_status)
+
+    assert result is True
+    fake_status.assert_called_once_with(instance)
+    process_class.assert_called_once_with(1234)
+    fake_process.terminate.assert_called_once()
+    assert read_instance() is None
+    assert not instance_file_path().exists()
+
+
+def test_stop_instance_with_unmatched_pid_removes_file_and_terminates_nothing(mocker):
+
+    instance = Instance(host="127.0.0.1", port=40123, pid=1234)
+    write_instance(instance)
+    fake_status = mocker.Mock(return_value={"pid": 9999})
+    process_class = mocker.patch("seagoat.utils.server.psutil.Process")
+
+    result = stop_instance(status=fake_status)
+
+    assert result is True
+    fake_status.assert_called_once_with(instance)
+    process_class.assert_not_called()
+    assert read_instance() is None
+    assert not instance_file_path().exists()
+
+
+def test_stop_instance_counts_already_gone_process_as_stopped(mocker):
+
+    instance = Instance(host="127.0.0.1", port=40123, pid=1234)
+    write_instance(instance)
+    fake_status = mocker.Mock(return_value={"pid": 1234})
+    fake_process = mocker.Mock()
+    fake_process.terminate.side_effect = psutil.NoSuchProcess(1234)
+    mocker.patch("seagoat.utils.server.psutil.Process", return_value=fake_process)
+
+    result = stop_instance(status=fake_status)
+
+    assert result is True
+    fake_process.terminate.assert_called_once()
+    assert read_instance() is None
+    assert not instance_file_path().exists()

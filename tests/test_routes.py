@@ -214,3 +214,52 @@ def test_status_describes_instance_without_touching_project_queues(
     ]
     for queue in client._queues.values():
         queue.enqueue.assert_not_called()
+
+
+def test_reload_loads_newly_listed_repository(
+    create_client, generate_repo, create_config_file
+):
+    repo1 = generate_repo()
+    repo2 = generate_repo()
+    create_config_file(
+        {"server": {"repositories": [repo1.working_dir]}},
+        global_config=True,
+    )
+    client = create_client()
+
+    response = client.post("/reload")
+
+    assert response.status_code == 200
+    assert response.get_json() == {"projects": [normalize_repo_path(repo1.working_dir)]}
+
+    create_config_file(
+        {"server": {"repositories": [repo1.working_dir, repo2.working_dir]}},
+        global_config=True,
+    )
+
+    response = client.post("/reload")
+
+    assert response.status_code == 200
+    assert response.get_json()["projects"] == [
+        normalize_repo_path(repo1.working_dir),
+        normalize_repo_path(repo2.working_dir),
+    ]
+
+
+def test_reload_skips_paths_that_are_not_repositories(
+    create_client, generate_repo, create_config_file, tmp_path, caplog
+):
+    repo = generate_repo()
+    not_a_repo = tmp_path / "not-a-repo"
+    not_a_repo.mkdir()
+    create_config_file(
+        {"server": {"repositories": [repo.working_dir, str(not_a_repo)]}},
+        global_config=True,
+    )
+    client = create_client()
+
+    response = client.post("/reload")
+
+    assert response.status_code == 200
+    assert response.get_json()["projects"] == [normalize_repo_path(repo.working_dir)]
+    assert "Skipping configured repository" in caplog.text
