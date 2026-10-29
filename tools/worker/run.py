@@ -262,6 +262,7 @@ def main(argv) -> int:
     ]  # fmt: skip
     cmd += ["--api-url", config["api_url"], "--model", a.model or config["model"]]
     cmd += ["--extra-body", json.dumps(config.get("extra_body", {}))]
+    cmd += ["--once-dir", str(ROOT / "target/agent-tmp/once")]
     with log.open("w") as f:
         code = subprocess.run(cmd, env=env, stderr=f, stdout=f, check=False).returncode
     run_json = out / "run/run.json"

@@ -56,6 +56,8 @@ pub struct Config {
     pub start: Instant,
     pub transcript: PathBuf,
     pub events: Events,
+    /// Where `once` fragments live; None means once blocks always run and save nothing.
+    pub once_dir: Option<PathBuf>,
     pub mode: crate::out::Mode,
 }
 
@@ -200,6 +202,11 @@ async fn run_steps(
                 }
                 ok
             }
+            Step::Once {
+                name,
+                max_age_s,
+                steps,
+            } => once(g, cfg, conv, r, name, *max_age_s, steps).await?,
         };
         if !ok {
             return Ok(false);
@@ -258,6 +265,107 @@ async fn command(
         json!({"exit": o.code, "tail": tail(&o.text, 600)}),
     );
     Ok(ok)
+}
+
+/// DECISION (owner, 2026-10-29): a once block's fragment is keyed by the block's own text and the
+/// base commit, so it is only ever replayed onto the code it read; `max_age_s` additionally
+/// bounds how old a replayed fragment may be. Fragments are never updated, so a file's age is
+/// the fragment's age. Placed before the brief, a shared fragment also gives every run from the
+/// same base an identical prompt prefix, which the provider can serve from its cache.
+async fn once(
+    g: &Guest,
+    cfg: &Config,
+    conv: &mut Conversation,
+    r: &mut Report,
+    name: &str,
+    max_age_s: Option<u64>,
+    steps: &[Step],
+) -> Result<bool, Stop> {
+    let key = once_key(steps, &cfg.base);
+    let file = cfg.once_dir.as_ref().map(|d| d.join(format!("{key}.json")));
+    if let Some((messages, age)) = file.as_deref().and_then(|f| read_fragment(f, max_age_s)) {
+        let span = cfg.events.begin("once", name);
+        let n = messages.len();
+        for m in messages {
+            record(cfg, std::slice::from_ref(&m));
+            conv.messages.push(m);
+        }
+        let detail = json!({"key": key, "replayed": true, "age_s": age, "messages": n});
+        cfg.events.end(span, detail.clone());
+        outcome(cfg, r, name, true, detail);
+        return Ok(true);
+    }
+    let start = conv.messages.len();
+    if !Box::pin(run_steps(g, cfg, steps, conv, r)).await? {
+        outcome(cfg, r, name, false, json!({"key": key, "replayed": false}));
+        return Ok(false);
+    }
+    // A replay restores messages, not files, so a fragment is only sound if its steps changed none.
+    let changed = g
+        .sh("git status --porcelain", BASH_TIMEOUT)
+        .await
+        .map(|o| o.text.trim().to_string())
+        .map_err(|e| Stop::GuestDead(format!("`{name}` could not check the tree: {e:#}")))?;
+    if !changed.is_empty() {
+        say(
+            cfg,
+            conv,
+            "user",
+            format!("`{name}` is a once block and must only read, but it changed:\n{changed}"),
+        );
+        outcome(cfg, r, name, false, json!({"key": key, "replayed": false}));
+        return Ok(false);
+    }
+    if let Some(f) = &file {
+        // Seeing a fragment again is an optimization; failing to save one must not fail the run.
+        if let Err(e) = write_fragment(f, &conv.messages[start..]) {
+            eprintln!("  could not save once fragment {}: {e:#}", f.display());
+        }
+    }
+    outcome(
+        cfg,
+        r,
+        name,
+        true,
+        json!({"key": key, "replayed": false, "saved": file.is_some()}),
+    );
+    Ok(true)
+}
+
+fn once_key(steps: &[Step], base: &str) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    h.update(serde_json::to_vec(steps).unwrap_or_default());
+    h.update(b"\n");
+    h.update(base.as_bytes());
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// The saved messages and their age in seconds, or None when missing, unreadable or too old.
+fn read_fragment(file: &std::path::Path, max_age_s: Option<u64>) -> Option<(Vec<Value>, u64)> {
+    let age = file
+        .metadata()
+        .ok()?
+        .modified()
+        .ok()?
+        .elapsed()
+        .ok()?
+        .as_secs();
+    if max_age_s.is_some_and(|max| age > max) {
+        return None;
+    }
+    let v: Value = serde_json::from_str(&std::fs::read_to_string(file).ok()?).ok()?;
+    Some((v["messages"].as_array()?.clone(), age))
+}
+
+/// Written under a temporary name and renamed, so a reader never sees half a fragment.
+fn write_fragment(file: &std::path::Path, messages: &[Value]) -> Result<()> {
+    let dir = file.parent().ok_or_else(|| anyhow!("no parent folder"))?;
+    std::fs::create_dir_all(dir)?;
+    let tmp = dir.join(format!(".{}.tmp", std::process::id()));
+    std::fs::write(&tmp, serde_json::to_vec(&json!({"messages": messages}))?)?;
+    std::fs::rename(&tmp, file)?;
+    Ok(())
 }
 
 fn say(cfg: &Config, conv: &mut Conversation, role: &str, text: String) {
@@ -650,6 +758,115 @@ mod tests {
     use super::*;
     use anyhow::ensure;
 
+    /// A once block runs and saves the first time, replays without running after, runs again
+    /// when its fragment is older than max_age_s, and fails when its steps change the tree.
+    #[tokio::test]
+    #[ignore]
+    async fn once_blocks_against_a_real_guest() {
+        let image = std::env::var("WORKER_TEST_IMAGE").expect("WORKER_TEST_IMAGE");
+        let g = Guest::boot(&image, 2, 2048).await.unwrap();
+        let res = check_once(&g).await;
+        g.remove().await;
+        res.unwrap();
+    }
+
+    async fn check_once(g: &Guest) -> Result<()> {
+        let dir = std::env::temp_dir().join(format!("worker-once-test-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir)?;
+        let cfg = Config {
+            key: String::new(),
+            api_url: String::new(),
+            model: String::new(),
+            extra_body: Map::new(),
+            base: "BASE".into(),
+            max_tokens: 1,
+            start: Instant::now(),
+            transcript: dir.join("transcript.jsonl"),
+            events: Events::new(dir.join("events.jsonl")),
+            once_dir: Some(dir.join("once")),
+            mode: crate::out::Mode::Json(vec![]),
+        };
+        let cfg = &cfg;
+        // Runs count themselves in /tmp, outside the repo, so the block still only reads the repo.
+        let block = |max_age: &str| {
+            format!(
+                r#"{{"steps": [{{"type": "once", "name": "explore"{max_age}, "steps": [
+                     {{"type": "command", "name": "look", "show": "always",
+                       "run": "echo ran >> /tmp/once-runs; echo found-it"}}]}}]}}"#
+            )
+        };
+        let run = |text: String| async move {
+            let program = crate::program::parse(&text, "")?;
+            let mut conv = Conversation {
+                messages: vec![],
+                pinned: None,
+            };
+            let mut r = Report {
+                status: Status::Red,
+                turns: 0,
+                cost_usd: 0.0,
+                reply_tokens: 0,
+                tree: String::new(),
+                steps: vec![],
+                error: None,
+            };
+            let ok = run_steps(g, cfg, &program.steps, &mut conv, &mut r)
+                .await
+                .map_err(|_| anyhow!("stopped"))?;
+            let said: Vec<String> = conv
+                .messages
+                .iter()
+                .filter_map(|m| m["content"].as_str().map(String::from))
+                .collect();
+            let runs = g
+                .sh("wc -l < /tmp/once-runs", BASH_TIMEOUT)
+                .await?
+                .text
+                .trim()
+                .to_string();
+            Ok::<_, anyhow::Error>((ok, said, runs))
+        };
+        bash_in(
+            g,
+            "rm -rf /repo && mkdir /repo && cd /repo && git init -q && rm -f /tmp/once-runs",
+        )
+        .await?;
+
+        let (ok, said, runs) = run(block("")).await?;
+        ensure!(
+            ok && runs == "1" && said == ["`look`:\n\nfound-it\n"],
+            "first: {ok} {runs} {said:?}"
+        );
+        let (ok, said, runs) = run(block("")).await?;
+        ensure!(
+            ok && runs == "1" && said == ["`look`:\n\nfound-it\n"],
+            "replay: {ok} {runs} {said:?}"
+        );
+        let (ok, _, runs) = run(block(r#", "max_age_s": 0"#)).await?;
+        // Age is whole seconds, so wait until the fragment is at least one second old.
+        let _ = runs;
+        tokio::time::sleep(Duration::from_millis(1100)).await;
+        let (ok2, _, runs) = run(block(r#", "max_age_s": 0"#)).await?;
+        ensure!(ok && ok2 && runs != "1", "too old should run again: {runs}");
+
+        let writer = r#"{"steps": [{"type": "once", "name": "writes", "steps": [
+            {"type": "command", "name": "touch", "run": "touch /repo/new-file"}]}]}"#;
+        let (ok, said, _) = run(writer.to_string()).await?;
+        ensure!(
+            !ok && said.iter().any(|m| m.contains("must only read")),
+            "writer: {ok} {said:?}"
+        );
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
+    async fn bash_in(g: &Guest, cmd: &str) -> Result<()> {
+        let o = g.sh(cmd, BASH_TIMEOUT).await?;
+        ensure!(o.code == Some(0), "{cmd}: {}", o.text);
+        Ok(())
+    }
+
     /// A program of commands only, so no model is called: a script retries until its steps
     /// all pass, stops each pass at the first failure, and tells the model what failed.
     #[tokio::test]
@@ -675,6 +892,7 @@ mod tests {
             start: Instant::now(),
             transcript: dir.join("transcript.jsonl"),
             events: Events::new(dir.join("events.jsonl")),
+            once_dir: None,
             mode: crate::out::Mode::Json(vec![]),
         };
         // `flaky` fails on its first two passes; `after` must never run on a failing pass.

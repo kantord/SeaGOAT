@@ -70,6 +70,9 @@ struct Args {
     /// What the run does: a JSON program of steps (src/program.rs), e.g. programs/default.json.
     #[arg(long)]
     program: PathBuf,
+    /// Where `once` blocks save and find their fragments; without it they always run.
+    #[arg(long)]
+    once_dir: Option<PathBuf>,
     #[arg(long, default_value_t = 8192)]
     max_tokens: u32,
     #[arg(long, default_value_t = 4)]
@@ -150,6 +153,7 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
             start,
             transcript: args.out.join("transcript.jsonl"),
             events: ev.clone(),
+            once_dir: args.once_dir.clone(),
             mode: args.json.clone().map_or(out::Mode::Table, out::Mode::Json),
         };
         let report = agent::run(&g, &cfg, &program).await;

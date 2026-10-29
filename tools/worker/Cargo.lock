@@ -3936,6 +3936,7 @@ dependencies = [
  "microsandbox",
  "serde",
  "serde_json",
+ "sha2 0.11.1",
  "terminal_size",
  "tokio",
  "ureq",

@@ -15,6 +15,11 @@
 //!   script   {retries, steps}             runs its steps until one fails; then runs all of them
 //!                                         again, up to `retries` more times. Succeeds when one
 //!                                         pass gets through every step.
+//!   once     {max_age_s?, steps}          runs its steps and saves the messages they added; a
+//!                                         later run with the same block and base commit replays
+//!                                         them instead, if the saved fragment is not older than
+//!                                         max_age_s. Its steps may only read: a once block that
+//!                                         leaves the tree changed fails. No once inside once.
 //!
 //! The run is GREEN when every top-level step succeeds. Some failures end the run whatever is
 //! left to retry: a bad key or no credit (FATAL), a dead guest. A run ends by counts: at most
@@ -30,7 +35,7 @@ use std::collections::HashSet;
 use std::path::Path;
 
 use anyhow::{Context, Result, bail, ensure};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -38,7 +43,7 @@ pub struct Program {
     pub steps: Vec<Step>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Step {
     Message {
@@ -61,10 +66,16 @@ pub enum Step {
         retries: usize,
         steps: Vec<Step>,
     },
+    Once {
+        name: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        max_age_s: Option<u64>,
+        steps: Vec<Step>,
+    },
 }
 
 /// Which of a command's output the model sees.
-#[derive(Debug, Deserialize, Clone, Copy, Default, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, Default, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Show {
     #[default]
@@ -73,7 +84,7 @@ pub enum Show {
     Always,
 }
 
-#[derive(Debug, Deserialize, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum Role {
     System,
@@ -95,7 +106,8 @@ impl Step {
             Step::Message { name, .. }
             | Step::Llm { name, .. }
             | Step::Command { name, .. }
-            | Step::Script { name, .. } => name,
+            | Step::Script { name, .. }
+            | Step::Once { name, .. } => name,
         }
     }
 }
@@ -115,6 +127,15 @@ pub fn parse(text: &str, brief: &str) -> Result<Program> {
 }
 
 fn check(steps: &mut [Step], brief: &str, names: &mut HashSet<String>) -> Result<()> {
+    check_in(steps, brief, names, false)
+}
+
+fn check_in(
+    steps: &mut [Step],
+    brief: &str,
+    names: &mut HashSet<String>,
+    in_once: bool,
+) -> Result<()> {
     for step in steps {
         let name = step.name().to_string();
         ensure!(!name.trim().is_empty(), "a step has an empty name");
@@ -128,7 +149,12 @@ fn check(steps: &mut [Step], brief: &str, names: &mut HashSet<String>) -> Result
             Step::Command { run, .. } => ensure!(!run.trim().is_empty(), "{name:?}: empty run"),
             Step::Script { steps, .. } => {
                 ensure!(!steps.is_empty(), "{name:?}: no steps");
-                check(steps, brief, names)?;
+                check_in(steps, brief, names, in_once)?;
+            }
+            Step::Once { steps, .. } => {
+                ensure!(!in_once, "{name:?}: a once block inside a once block");
+                ensure!(!steps.is_empty(), "{name:?}: no steps");
+                check_in(steps, brief, names, true)?;
             }
         }
     }
@@ -188,6 +214,15 @@ mod tests {
             (
                 r#"{"steps": [{"type": "command", "name": "c", "run": "true", "show": "sometimes"}]}"#,
                 "unknown variant",
+            ),
+            (
+                r#"{"steps": [{"type": "once", "name": "o", "steps": [
+                    {"type": "once", "name": "p", "steps": [{"type": "command", "name": "c", "run": "true"}]}]}]}"#,
+                "inside a once block",
+            ),
+            (
+                r#"{"steps": [{"type": "once", "name": "o", "max_age_s": -1, "steps": []}]}"#,
+                "invalid value",
             ),
         ];
         for (text, want) in bad {
