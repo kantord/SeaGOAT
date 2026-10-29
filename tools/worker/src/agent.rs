@@ -18,9 +18,11 @@ use serde_json::{Map, Value, json};
 use crate::events::{Cpu, Events};
 use crate::guest::Guest;
 pub use crate::program::Program;
-use crate::program::Step;
+use crate::program::{Show, Step};
 
 const MAX_TOOL_OUTPUT: usize = 8000;
+/// What a passing `show: always` command hands the model: room for the few files a part needs.
+const SHOWN_OUTPUT: usize = 40_000;
 const MAX_CONVERSATION_CHARS: usize = 200_000;
 const BASH_TIMEOUT: Duration = Duration::from_secs(300);
 /// A program's command blocks until it ends, up to this, so a cold full gate fits.
@@ -182,11 +184,7 @@ async fn run_steps(
                 outcome(cfg, r, name, ok, json!({"ending": detail}));
                 ok
             }
-            Step::Command {
-                name,
-                run,
-                show_failure,
-            } => command(g, cfg, conv, r, name, run, *show_failure).await?,
+            Step::Command { name, run, show } => command(g, cfg, conv, r, name, run, *show).await?,
             Step::Script {
                 name,
                 retries,
@@ -217,7 +215,7 @@ async fn command(
     r: &mut Report,
     name: &str,
     run: &str,
-    show_failure: bool,
+    show: Show,
 ) -> Result<bool, Stop> {
     let guest0 = g.cpu().await;
     let span = cfg.events.begin("command", name);
@@ -239,13 +237,17 @@ async fn command(
     if !ok && let Some(e) = dead(g, &o.text).await {
         return Err(Stop::GuestDead(e));
     }
-    if !ok {
-        let exit = o.code.map_or("timeout".into(), |c| c.to_string());
-        let text = if show_failure {
-            format!("`{name}` failed (exit {exit}):\n\n{}", tail(&o.text, 6000))
-        } else {
-            format!("`{name}` failed (exit {exit}).")
-        };
+    let exit = o.code.map_or("timeout".into(), |c| c.to_string());
+    let text = match (ok, show) {
+        (true, Show::Always) => Some(format!("`{name}`:\n\n{}", head(&o.text, SHOWN_OUTPUT))),
+        (true, _) => None,
+        (false, Show::Never) => Some(format!("`{name}` failed (exit {exit}).")),
+        (false, _) => Some(format!(
+            "`{name}` failed (exit {exit}):\n\n{}",
+            tail(&o.text, 6000)
+        )),
+    };
+    if let Some(text) = text {
         say(cfg, conv, "user", text);
     }
     outcome(
@@ -630,6 +632,15 @@ fn tail_cut(s: &str) -> String {
     )
 }
 
+/// The first `n` bytes, with a note saying how much was left out.
+fn head(s: &str, n: usize) -> String {
+    if s.len() <= n {
+        return s.to_string();
+    }
+    let cut = s.floor_char_boundary(n);
+    format!("{}\n... [cut, {} more chars]", &s[..cut], s.len() - cut)
+}
+
 fn tail(s: &str, n: usize) -> String {
     s[s.ceil_char_boundary(s.len().saturating_sub(n))..].to_string()
 }
@@ -670,9 +681,10 @@ mod tests {
         let program = crate::program::parse(
             r#"{"steps": [
               {"type": "message", "name": "rules", "role": "system", "text": "brief: {brief}"},
+              {"type": "command", "name": "context", "run": "echo hello-context", "show": "always"},
               {"type": "script", "name": "work", "retries": 2, "steps": [
                 {"type": "command", "name": "count", "run": "echo x >> /tmp/passes"},
-                {"type": "command", "name": "flaky", "show_failure": true,
+                {"type": "command", "name": "flaky", "show": "failure",
                  "run": "echo base=$WORKER_BASE; test $(wc -l < /tmp/passes) -ge 3"},
                 {"type": "command", "name": "after", "run": "echo y >> /tmp/after"}
               ]},
@@ -711,12 +723,14 @@ mod tests {
             .filter_map(|m| m["content"].as_str())
             .collect();
         ensure!(said[0] == "brief: B", "{said:?}");
+        // A passing command with `show: always` hands the model its output.
+        ensure!(said[1] == "`context`:\n\nhello-context\n", "{said:?}");
         ensure!(
-            said[1].starts_with("`flaky` failed (exit 1):") && said[1].contains("base=BASE"),
+            said[2].starts_with("`flaky` failed (exit 1):") && said[2].contains("base=BASE"),
             "{said:?}"
         );
         ensure!(
-            said.len() == 4 && said[3] == "`last` failed (exit 4).",
+            said.len() == 5 && said[4] == "`last` failed (exit 4).",
             "{said:?}"
         );
         let outcomes: Vec<(String, bool)> = r

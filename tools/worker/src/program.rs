@@ -6,10 +6,12 @@
 //!                                         replaced by the brief. Always succeeds.
 //!   llm      {max_turns}                  the model works with its tool until it stops calling
 //!                                         it (succeeds) or runs out of turns (fails).
-//!   command  {run, show_failure?}         a shell command in the guest's /repo, with
+//!   command  {run, show?}                 a shell command in the guest's /repo, with
 //!                                         $WORKER_BASE set to the base commit; exit 0 succeeds.
-//!                                         When it fails, the model is told its name, and with
-//!                                         show_failure also the output's tail.
+//!                                         When it fails, the model is told its name. `show`
+//!                                         adds its output: "failure" the tail of a failing one,
+//!                                         "always" also the start of a passing one, which is
+//!                                         how a program hands the model the files it needs.
 //!   script   {retries, steps}             runs its steps until one fails; then runs all of them
 //!                                         again, up to `retries` more times. Succeeds when one
 //!                                         pass gets through every step.
@@ -52,13 +54,23 @@ pub enum Step {
         name: String,
         run: String,
         #[serde(default)]
-        show_failure: bool,
+        show: Show,
     },
     Script {
         name: String,
         retries: usize,
         steps: Vec<Step>,
     },
+}
+
+/// Which of a command's output the model sees.
+#[derive(Debug, Deserialize, Clone, Copy, Default, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum Show {
+    #[default]
+    Never,
+    Failure,
+    Always,
 }
 
 #[derive(Debug, Deserialize, Clone, Copy)]
@@ -171,6 +183,10 @@ mod tests {
             ),
             (
                 r#"{"steps": [{"type": "message", "name": "m", "role": "tool", "text": "x"}]}"#,
+                "unknown variant",
+            ),
+            (
+                r#"{"steps": [{"type": "command", "name": "c", "run": "true", "show": "sometimes"}]}"#,
                 "unknown variant",
             ),
         ];

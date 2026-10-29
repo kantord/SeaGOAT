@@ -4,7 +4,7 @@
       "type": "command",
       "name": "gate",
       "run": "git add -A && bash tools/worker/verify.sh",
-      "show_failure": true
+      "show": "failure"
     }
   ]
 }

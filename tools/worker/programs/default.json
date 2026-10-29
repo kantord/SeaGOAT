@@ -19,8 +19,8 @@
       "steps": [
         {"type": "llm", "name": "model", "max_turns": 50},
         {"type": "command", "name": "changed", "run": "git add -A && ! git diff --cached --quiet \"$WORKER_BASE\""},
-        {"type": "command", "name": "lint", "run": "git add -A && uv run pre-commit run --files $(git diff --cached --name-only --diff-filter=d \"$WORKER_BASE\")", "show_failure": true},
-        {"type": "command", "name": "gate", "run": "git add -A && bash tools/worker/verify.sh", "show_failure": true}
+        {"type": "command", "name": "lint", "run": "git add -A && uv run pre-commit run --files $(git diff --cached --name-only --diff-filter=d \"$WORKER_BASE\")", "show": "failure"},
+        {"type": "command", "name": "gate", "run": "git add -A && bash tools/worker/verify.sh", "show": "failure"}
       ]
     }
   ]
