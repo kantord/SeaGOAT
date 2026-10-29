@@ -160,18 +160,14 @@ impl Mode {
         }
     }
 
-    /// After each verify pass.
-    pub fn attempt(&self, n: usize, ending: &str, green: bool) {
-        let verify = if green { "GREEN" } else { "RED" };
+    /// When a program step (other than a message) ends.
+    pub fn outcome(&self, name: &str, ok: bool) {
         match self {
             Mode::Table => {
-                let line = format!("== attempt {n}: {ending}, verify {verify} ==");
-                eprintln!("{}", paint(if green { GREEN } else { RED }, &line));
+                let line = format!("== {name}: {} ==", if ok { "ok" } else { "FAILED" });
+                eprintln!("{}", paint(if ok { GREEN } else { RED }, &line));
             }
-            Mode::Json(_) => println!(
-                "{}",
-                json!({"event": "attempt", "n": n, "ending": ending, "verify": verify})
-            ),
+            Mode::Json(_) => println!("{}", json!({"event": "outcome", "name": name, "ok": ok})),
         }
     }
 

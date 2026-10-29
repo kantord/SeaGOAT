@@ -50,7 +50,10 @@ impl Guest {
         )
         .await
         .context("installing the embedded msb runtime")?;
-        let name = format!("seagoat-worker-{}", std::process::id());
+        // Unique per boot, not only per process: tests boot several guests in one process.
+        static BOOTS: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+        let n = BOOTS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let name = format!("seagoat-worker-{}-{n}", std::process::id());
         let sb = Sandbox::builder(&name)
             .image_with(|i| i.oci(image).root_disk(ROOT_DISK_MIB))
             .cpus(cpus)
@@ -169,25 +172,6 @@ impl Guest {
             bail!("git diff exited {:?}", o.code);
         }
         Ok(o.text)
-    }
-
-    /// Whether the tree differs from `base`, in the working tree or in commits the model made.
-    /// A private index, as in diff_stat, keeps the model's own `git status` untouched.
-    pub async fn changed_since(&self, base: &str) -> Result<bool> {
-        let o = self
-            .sh(
-                &format!(
-                    "export GIT_INDEX_FILE=/tmp/.worker-index; cp .git/index $GIT_INDEX_FILE; \
-                     git add -A >/dev/null 2>&1 && git diff --cached --quiet {base}"
-                ),
-                Duration::from_secs(60),
-            )
-            .await?;
-        match o.code {
-            Some(0) => Ok(false),
-            Some(1) => Ok(true),
-            c => bail!("git diff --quiet exited {c:?}: {}", o.text),
-        }
     }
 
     pub async fn remove(self) {

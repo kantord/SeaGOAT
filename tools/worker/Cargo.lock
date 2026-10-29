@@ -3934,6 +3934,7 @@ dependencies = [
  "anyhow",
  "clap",
  "microsandbox",
+ "serde",
  "serde_json",
  "terminal_size",
  "tokio",

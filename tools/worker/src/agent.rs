@@ -1,4 +1,5 @@
-//! The model loop.
+//! Runs a program (program.rs): its messages, the model's turns with its one tool, and the
+//! harness's own commands.
 //!
 //! PROVISIONAL (owner, 2026-10-21: "first try how it does without replace"): bash is the only
 //! tool. An earlier version had five (ranged read_file, grep, exact-once replace, write_file,
@@ -16,6 +17,8 @@ use serde_json::{Map, Value, json};
 
 use crate::events::{Cpu, Events};
 use crate::guest::Guest;
+pub use crate::program::Program;
+use crate::program::Step;
 
 const MAX_TOOL_OUTPUT: usize = 8000;
 const MAX_CONVERSATION_CHARS: usize = 200_000;
@@ -24,26 +27,8 @@ const BASH_TIMEOUT: Duration = Duration::from_secs(300);
 /// never polls a background job. *Because* a 5-minute cap made an earlier run spend six turns
 /// on `sleep N && tail log` around a cold verify (2026-10-22).
 const COMMAND_TIMEOUT: Duration = Duration::from_secs(1800);
-const VERIFY_TIMEOUT: Duration = Duration::from_secs(1800);
 // One HTTP 500 used to end a whole attempt (2026-10-19).
 const API_RETRY_WAITS: [u64; 2] = [5, 20];
-
-const SYSTEM_PROMPT: &str = "You are an autonomous coding agent working in /repo (a git checkout).
-Your one tool is run_bash: a shell command in /repo, returning its exit code and
-output. Use it for reading, searching, editing, building, testing and git.
-Each command blocks until it finishes, up to 30 minutes (then it is killed and reported as
-exit timeout). Run long builds and tests in the foreground; never background a command to poll
-it with sleep. Never start a server or anything else that runs until it is stopped.
-Read large files in ranges, and edit only the lines you mean to change rather than rewriting
-a whole file.
-The harness runs the verification command itself when you stop, and gives you its output
-back if it fails. Do not run that whole gate yourself; run only the tests of what you changed:
-`uv run pytest tests/test_<name>.py -k <test>` for Python (`uv run` rebuilds the Rust extension
-in src/ when it changed), `cargo test <name>` for Rust.
-
-When the task is done and the tests of what you changed pass, reply with no tool calls and a
-message starting with \"DONE:\" that says what you changed and which tests you ran.
-";
 
 pub struct Config {
     pub key: String,
@@ -53,12 +38,9 @@ pub struct Config {
     /// Merged into every request body as-is: gateway-specific fields live in the caller's
     /// config, not here.
     pub extra_body: Map<String, Value>,
-    pub verify_cmd: String,
-    /// The commit the run started from: "changed" means differs from it.
+    /// The commit the run started from; command steps get it as $WORKER_BASE.
     pub base: String,
-    pub max_turns: usize,
     pub max_tokens: u32,
-    pub retry_cap: usize,
     pub start: Instant,
     pub deadline: Instant,
     pub transcript: PathBuf,
@@ -85,7 +67,8 @@ pub struct Report {
     pub reply_tokens: u64,
     /// The working tree as of the last reported turn, for the next turn's diff.
     tree: String,
-    pub attempts: Vec<Value>,
+    /// Every step that ran, in order, with whether it succeeded.
+    pub steps: Vec<Value>,
     pub error: Option<String>,
 }
 
@@ -112,124 +95,185 @@ impl Report {
 
     pub fn json(&self) -> Value {
         json!({"status": self.status(), "turns": self.turns, "cost_usd": self.cost_usd,
-               "reply_tokens": self.reply_tokens, "attempts": self.attempts, "error": self.error})
+               "reply_tokens": self.reply_tokens, "steps": self.steps, "error": self.error})
     }
 }
 
-/// Who ended an attempt. An attempt is up to max_turns model calls; the harness verifies after
-/// each one and feeds the failure tail into the next.
+/// How an llm step ended.
 enum Ending {
     ModelDone,
     MaxTurns,
     ApiError(String),
 }
 
-pub async fn run(g: &Guest, cfg: &Config, task: &str) -> Report {
+/// The conversation, and how many of its opening messages trimming must keep.
+struct Conversation {
+    messages: Vec<Value>,
+    /// Set when the first llm step starts: everything before it is the program's preamble.
+    pinned: Option<usize>,
+}
+
+pub async fn run(g: &Guest, cfg: &Config, program: &Program) -> Report {
     let mut r = Report {
         status: Status::Red,
         turns: 0,
         cost_usd: 0.0,
         reply_tokens: 0,
         tree: String::new(),
-        attempts: vec![],
+        steps: vec![],
         error: None,
     };
-    let mut messages = vec![
-        json!({"role": "system", "content": SYSTEM_PROMPT}),
-        // Naming the gate as a command to run made the model run it, and the harness then ran it
-        // again: 213 s of a 381 s run (2026-10-28).
-        json!({"role": "user", "content": format!(
-            "TASK:\n{task}\n\nWhen you stop, the harness runs `{}` itself. Do not run it yourself.",
-            cfg.verify_cmd)}),
-    ];
-    record(cfg, &messages);
-    for attempt in 1..=cfg.retry_cap + 1 {
-        let ending = match turns(g, cfg, &mut messages, &mut r).await {
-            Ok(e) => e,
-            Err(Stop::Fatal(e)) => {
-                r.status = Status::Fatal;
-                r.error = Some(e);
-                return r;
-            }
-            Err(Stop::OutOfTime) => {
-                r.status = Status::Timeout;
-                return r;
-            }
-            Err(Stop::GuestDead(e)) => {
-                r.status = Status::SetupFailed;
-                r.error = Some(e);
-                return r;
-            }
-        };
-        let remaining = cfg.deadline.saturating_duration_since(Instant::now());
-        if remaining < Duration::from_secs(60) {
-            r.status = Status::Timeout;
-            return r;
-        }
-        // An untouched tree passing verify says nothing about the task, so it counts RED
-        // without a verify. Compared with the base, not HEAD: committed work is still work.
-        let span = cfg.events.begin("harness", "changed_since");
-        let changed = g.changed_since(&cfg.base).await;
-        cfg.events
-            .end(span, json!({"changed": changed.as_ref().ok()}));
-        let v = if let Ok(false) = changed {
-            Ok(crate::guest::Output {
-                code: Some(1),
-                text: "(no changes, no verify run)".into(),
-            })
-        } else {
-            let guest0 = g.cpu().await;
-            let span = cfg.events.begin("verify", format!("attempt {attempt}"));
-            let v = g.sh(&cfg.verify_cmd, remaining.min(VERIFY_TIMEOUT)).await;
-            let guest_cpu_busy = Cpu::busy_between(guest0, g.cpu().await);
-            let exit = v.as_ref().ok().map(|o| o.code);
-            cfg.events.end(
-                span,
-                json!({"exit": exit, "guest_cpu_busy": guest_cpu_busy, "cmd": cfg.verify_cmd}),
-            );
-            v
-        };
-        let (ok, out) = match v {
-            Ok(o) if o.code.is_none() => {
-                r.status = Status::Timeout;
-                return r;
-            }
-            Ok(o) => (o.code == Some(0), tail(&o.text, 6000)),
-            // The exec itself failing means the guest is gone, not that the code is wrong.
-            Err(e) => {
-                r.status = Status::SetupFailed;
-                r.error = Some(format!("verify could not run: {e:#}"));
-                return r;
-            }
-        };
-        if !ok && let Some(e) = dead(g, &out).await {
-            r.status = Status::SetupFailed;
+    let mut conv = Conversation {
+        messages: vec![],
+        pinned: None,
+    };
+    r.status = match run_steps(g, cfg, &program.steps, &mut conv, &mut r).await {
+        Ok(true) => Status::Green,
+        Ok(false) => Status::Red,
+        Err(Stop::Fatal(e)) => {
             r.error = Some(e);
-            return r;
+            Status::Fatal
         }
-        let ending = match ending {
-            Ending::ModelDone => "model_done".to_string(),
-            Ending::MaxTurns => "max_turns".to_string(),
-            Ending::ApiError(e) => format!("api_error: {e}"),
-        };
-        cfg.mode.attempt(attempt, &ending, ok);
-        r.attempts.push(
-            json!({"n": attempt, "ending": ending, "verify": if ok { "GREEN" } else { "RED" },
-                                "verify_tail": tail(&out, 600)}),
-        );
-        if ok {
-            r.status = Status::Green;
-            return r;
+        Err(Stop::OutOfTime) => Status::Timeout,
+        Err(Stop::GuestDead(e)) => {
+            r.error = Some(e);
+            Status::SetupFailed
         }
-        let m = json!({"role": "user", "content": format!(
-            "The verification command `{}` failed. Fix the SPECIFIC failures below -- do not start \
-             over or redo work that already passed. Run the tests of what you fix, then stop; the \
-             harness runs the whole gate again.\n\n{out}",
-            cfg.verify_cmd)});
-        record(cfg, std::slice::from_ref(&m));
-        messages.push(m);
-    }
+    };
     r
+}
+
+/// Runs `steps` in order and stops at the first that fails: Ok(false). Err is a failure no
+/// retry can fix, and ends the whole run.
+async fn run_steps(
+    g: &Guest,
+    cfg: &Config,
+    steps: &[Step],
+    conv: &mut Conversation,
+    r: &mut Report,
+) -> Result<bool, Stop> {
+    for step in steps {
+        let ok = match step {
+            Step::Message { role, text, .. } => {
+                say(cfg, conv, role.as_str(), text.clone());
+                true
+            }
+            Step::Llm { name, max_turns } => {
+                conv.pinned.get_or_insert(conv.messages.len());
+                let ending = turns(g, cfg, conv, r, *max_turns).await?;
+                let (ok, detail) = match ending {
+                    Ending::ModelDone => (true, "model_done".to_string()),
+                    Ending::MaxTurns => (false, "max_turns".to_string()),
+                    Ending::ApiError(e) => (false, format!("api_error: {e}")),
+                };
+                if !ok {
+                    say(
+                        cfg,
+                        conv,
+                        "user",
+                        format!("`{name}` ended without finishing ({detail})."),
+                    );
+                }
+                outcome(cfg, r, name, ok, json!({"ending": detail}));
+                ok
+            }
+            Step::Command {
+                name,
+                run,
+                show_failure,
+            } => command(g, cfg, conv, r, name, run, *show_failure).await?,
+            Step::Script {
+                name,
+                retries,
+                steps,
+            } => {
+                let mut ok = false;
+                for pass in 1..=retries + 1 {
+                    ok = Box::pin(run_steps(g, cfg, steps, conv, r)).await?;
+                    outcome(cfg, r, name, ok, json!({"pass": pass}));
+                    if ok {
+                        break;
+                    }
+                }
+                ok
+            }
+        };
+        if !ok {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+async fn command(
+    g: &Guest,
+    cfg: &Config,
+    conv: &mut Conversation,
+    r: &mut Report,
+    name: &str,
+    run: &str,
+    show_failure: bool,
+) -> Result<bool, Stop> {
+    let remaining = cfg.deadline.saturating_duration_since(Instant::now());
+    if remaining.is_zero() {
+        return Err(Stop::OutOfTime);
+    }
+    let guest0 = g.cpu().await;
+    let span = cfg.events.begin("command", name);
+    let o = g
+        .sh(
+            &format!("export WORKER_BASE={};\n{run}", cfg.base),
+            remaining.min(COMMAND_TIMEOUT),
+        )
+        .await;
+    let guest_cpu_busy = Cpu::busy_between(guest0, g.cpu().await);
+    let exit = o.as_ref().ok().map(|o| o.code);
+    cfg.events.end(
+        span,
+        json!({"exit": exit, "guest_cpu_busy": guest_cpu_busy, "cmd": run}),
+    );
+    // The exec itself failing means the guest is gone, not that the code is wrong.
+    let o = o.map_err(|e| Stop::GuestDead(format!("`{name}` could not run: {e:#}")))?;
+    if o.code.is_none() && Instant::now() >= cfg.deadline {
+        return Err(Stop::OutOfTime);
+    }
+    let ok = o.code == Some(0);
+    if !ok && let Some(e) = dead(g, &o.text).await {
+        return Err(Stop::GuestDead(e));
+    }
+    if !ok {
+        let exit = o.code.map_or("timeout".into(), |c| c.to_string());
+        let text = if show_failure {
+            format!("`{name}` failed (exit {exit}):\n\n{}", tail(&o.text, 6000))
+        } else {
+            format!("`{name}` failed (exit {exit}).")
+        };
+        say(cfg, conv, "user", text);
+    }
+    outcome(
+        cfg,
+        r,
+        name,
+        ok,
+        json!({"exit": o.code, "tail": tail(&o.text, 600)}),
+    );
+    Ok(ok)
+}
+
+fn say(cfg: &Config, conv: &mut Conversation, role: &str, text: String) {
+    let m = json!({"role": role, "content": text});
+    record(cfg, std::slice::from_ref(&m));
+    conv.messages.push(m);
+}
+
+/// Records how a step ended, in run.json and on the progress output.
+fn outcome(cfg: &Config, r: &mut Report, name: &str, ok: bool, detail: Value) {
+    cfg.mode.outcome(name, ok);
+    let mut v = json!({"name": name, "ok": ok});
+    if let (Some(m), Value::Object(d)) = (v.as_object_mut(), detail) {
+        m.extend(d);
+    }
+    r.steps.push(v);
 }
 
 enum Stop {
@@ -241,17 +285,20 @@ enum Stop {
 async fn turns(
     g: &Guest,
     cfg: &Config,
-    messages: &mut Vec<Value>,
+    conv: &mut Conversation,
     r: &mut Report,
+    max_turns: usize,
 ) -> Result<Ending, Stop> {
-    for turn in 1..=cfg.max_turns {
+    for _ in 0..max_turns {
+        // Numbered across the whole run, so events and the table never repeat a turn number.
+        let turn = r.turns + 1;
         let turn_start = Instant::now();
         if Instant::now() > cfg.deadline {
             return Err(Stop::OutOfTime);
         }
         cfg.mode.header();
-        trim(messages);
-        let resp = match call(cfg, messages, turn).await {
+        trim(conv);
+        let resp = match call(cfg, &conv.messages, turn).await {
             Ok(v) => v,
             Err(Call::Fatal(e)) => return Err(Stop::Fatal(e)),
             Err(Call::Failed(e)) => return Ok(Ending::ApiError(e)),
@@ -287,7 +334,7 @@ async fn turns(
         let calls = msg["tool_calls"].as_array().cloned().unwrap_or_default();
         let n_steps = calls.len();
         record(cfg, std::slice::from_ref(&msg));
-        messages.push(msg);
+        conv.messages.push(msg);
         if calls.is_empty() {
             finish_turn(g, cfg, r, row, 0, turn_start).await;
             return Ok(Ending::ModelDone);
@@ -321,7 +368,7 @@ async fn turns(
             }
             let m = json!({"role": "tool", "tool_call_id": c["id"], "content": tail_cut(&out)});
             record(cfg, std::slice::from_ref(&m));
-            messages.push(m);
+            conv.messages.push(m);
         }
         finish_turn(g, cfg, r, row, n_steps, turn_start).await;
     }
@@ -531,15 +578,19 @@ fn tools() -> Value {
 }
 
 /// Drops the oldest whole turns (an assistant message with every tool reply answering it),
-/// never the system prompt or the task, so no tool reply is left without its call.
-fn trim(messages: &mut Vec<Value>) {
+/// never the program's preamble, so no tool reply is left without its call.
+fn trim(conv: &mut Conversation) {
+    let keep = conv.pinned.unwrap_or(0);
+    let m = &mut conv.messages;
     let size = |m: &[Value]| m.iter().map(|v| v.to_string().len()).sum::<usize>();
-    while size(messages) > MAX_CONVERSATION_CHARS && messages.len() > 3 {
-        let end = 3 + messages[3..]
-            .iter()
-            .take_while(|m| m["role"] == "tool")
-            .count();
-        messages.drain(2..end);
+    while size(m) > MAX_CONVERSATION_CHARS && m.len() > keep + 1 {
+        let end = keep
+            + 1
+            + m[keep + 1..]
+                .iter()
+                .take_while(|v| v["role"] == "tool")
+                .count();
+        m.drain(keep..end);
     }
 }
 
@@ -577,6 +628,109 @@ mod tests {
     use super::*;
     use anyhow::ensure;
 
+    /// A program of commands only, so no model is called: a script retries until its steps
+    /// all pass, stops each pass at the first failure, and tells the model what failed.
+    #[tokio::test]
+    #[ignore]
+    async fn program_steps_against_a_real_guest() {
+        let image = std::env::var("WORKER_TEST_IMAGE").expect("WORKER_TEST_IMAGE");
+        let g = Guest::boot(&image, 2, 2048).await.unwrap();
+        let res = check_program(&g).await;
+        g.remove().await;
+        res.unwrap();
+    }
+
+    async fn check_program(g: &Guest) -> Result<()> {
+        let dir = std::env::temp_dir().join(format!("worker-program-test-{}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        let cfg = Config {
+            key: String::new(),
+            api_url: String::new(),
+            model: String::new(),
+            extra_body: Map::new(),
+            base: "BASE".into(),
+            max_tokens: 1,
+            start: Instant::now(),
+            deadline: Instant::now() + Duration::from_secs(120),
+            transcript: dir.join("transcript.jsonl"),
+            events: Events::new(dir.join("events.jsonl")),
+            mode: crate::out::Mode::Json(vec![]),
+        };
+        // `flaky` fails on its first two passes; `after` must never run on a failing pass.
+        let program = crate::program::parse(
+            r#"{"steps": [
+              {"type": "message", "name": "rules", "role": "system", "text": "brief: {brief}"},
+              {"type": "script", "name": "work", "retries": 2, "steps": [
+                {"type": "command", "name": "count", "run": "echo x >> /tmp/passes"},
+                {"type": "command", "name": "flaky", "show_failure": true,
+                 "run": "echo base=$WORKER_BASE; test $(wc -l < /tmp/passes) -ge 3"},
+                {"type": "command", "name": "after", "run": "echo y >> /tmp/after"}
+              ]},
+              {"type": "command", "name": "last", "run": "exit 4"}
+            ]}"#,
+            "B",
+        )?;
+        let mut conv = Conversation {
+            messages: vec![],
+            pinned: None,
+        };
+        let mut r = Report {
+            status: Status::Red,
+            turns: 0,
+            cost_usd: 0.0,
+            reply_tokens: 0,
+            tree: String::new(),
+            steps: vec![],
+            error: None,
+        };
+        g.sh("rm -f /tmp/passes /tmp/after", BASH_TIMEOUT).await?;
+        let ok = run_steps(g, &cfg, &program.steps, &mut conv, &mut r).await;
+        let ok = ok.map_err(|_| anyhow!("stopped"))?;
+        ensure!(!ok, "a failing top-level `last` must fail the program");
+        let passes = g
+            .sh("wc -l < /tmp/passes; wc -l < /tmp/after", BASH_TIMEOUT)
+            .await?
+            .text;
+        ensure!(
+            passes.split_whitespace().eq(["3", "1"]),
+            "passes/after: {passes}"
+        );
+        let said: Vec<&str> = conv
+            .messages
+            .iter()
+            .filter_map(|m| m["content"].as_str())
+            .collect();
+        ensure!(said[0] == "brief: B", "{said:?}");
+        ensure!(
+            said[1].starts_with("`flaky` failed (exit 1):") && said[1].contains("base=BASE"),
+            "{said:?}"
+        );
+        ensure!(
+            said.len() == 4 && said[3] == "`last` failed (exit 4).",
+            "{said:?}"
+        );
+        let outcomes: Vec<(String, bool)> = r
+            .steps
+            .iter()
+            .map(|s| {
+                (
+                    s["name"].as_str().unwrap_or("").to_string(),
+                    s["ok"] == true,
+                )
+            })
+            .collect();
+        ensure!(
+            outcomes
+                .iter()
+                .filter(|(n, _)| n == "work")
+                .map(|(_, ok)| *ok)
+                .eq([false, false, true]),
+            "{outcomes:?}"
+        );
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
     /// Boots a real guest, so it is opt-in:
     /// WORKER_TEST_IMAGE=seagoat-worker:latest cargo test -- --ignored
     #[tokio::test]
@@ -588,6 +742,14 @@ mod tests {
         let res = check_tools(&g).await;
         g.remove().await;
         res.unwrap();
+    }
+
+    fn find_command(steps: &[Step], want: &str) -> Option<String> {
+        steps.iter().find_map(|s| match s {
+            Step::Command { name, run, .. } if name == want => Some(run.clone()),
+            Step::Script { steps, .. } => find_command(steps, want),
+            _ => None,
+        })
     }
 
     async fn check_tools(g: &Guest) -> Result<()> {
@@ -613,22 +775,29 @@ mod tests {
             staged.is_empty(),
             "diff_stat touched the real index: {staged}"
         );
-        // Committed work is still a change, the counts still see it, and the patch is one
-        // plain diff with nothing but git's stdout in it.
+        // The default program's `changed` step: an untracked file and committed work both count
+        // as changes; a tree equal to the base does not. The counts and the patch see committed
+        // work too, and the patch is one plain diff with nothing but git's stdout in it.
+        let program = crate::program::parse(include_str!("../programs/default.json"), "").unwrap();
+        let changed = find_command(&program.steps, "changed").expect("a `changed` step");
+        let changed_since = |rev: String| {
+            let cmd = format!("export WORKER_BASE={rev}; {changed}");
+            async move { Ok::<_, anyhow::Error>(g.sh(&cmd, BASH_TIMEOUT).await?.code == Some(0)) }
+        };
         let commit = g.sh("git rev-parse HEAD", BASH_TIMEOUT).await?.text;
         let commit = commit.trim();
         ensure!(
-            g.changed_since(commit).await?,
+            changed_since(commit.into()).await?,
             "untracked file seen as unchanged"
         );
         bash("cd /repo && git add -A && git -c user.name=t -c user.email=t@t commit -qm work")
             .await?;
         ensure!(
-            g.changed_since(commit).await?,
+            changed_since(commit.into()).await?,
             "committed work seen as unchanged"
         );
         ensure!(
-            !g.changed_since("HEAD").await?,
+            !changed_since("HEAD".into()).await?,
             "clean tree seen as changed"
         );
         let (_, _, total) = g.diff_stat(&base, commit).await?;

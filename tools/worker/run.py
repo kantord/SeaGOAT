@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Run one task through the sandboxed worker and, if it comes back green, leave its patch in a worktree.
 
-    python3 tools/worker/run.py <slug> --brief path/to/brief.md [--base HEAD] [--budget s]
+    python3 tools/worker/run.py <slug> --brief path/to/brief.md [--program p.json] [--base HEAD]
+
+The program says what the run does: messages to the model, the model's turns, and the checks
+the harness runs, as JSON steps (tools/worker/src/program.rs has the four kinds). The default,
+tools/worker/programs/default.json, has the model work, then checks that something changed and
+runs tools/worker/verify.sh, retrying twice. For a quicker run, copy it and change the checks.
 
 Steps: check that the image is loaded (tools/worker/image/build.sh builds and loads it), run
 tools/worker against a copy of the repo at --base, and if the run is GREEN apply its patch in
 `.claude/worktrees/worker-<slug>` (branch `worker/<slug>`), unstaged, for the calling session
-to review and commit. Inside the sandbox the worker has already run tools/worker/verify.sh.
+to review and commit. Inside the sandbox the worker has already run the program's checks.
 Everything a run writes is under `target/agent-tmp/worker/<slug>-<time>/` (`run.log` is the
 live table: `tail -f` it). `run/events.jsonl` times every step with the machine's load
 (tools/worker/timings.py summarizes it; run.py prints that at the end).
@@ -193,9 +198,7 @@ def main(argv) -> int:
     ap.add_argument("--budget", type=int, default=3600)
     ap.add_argument("--cpus", type=int, default=4)
     ap.add_argument("--model", help="overrides the config file's")
-    ap.add_argument(
-        "--verify-cmd", help="default: the worker's, tools/worker/verify.sh"
-    )
+    ap.add_argument("--program", type=Path, default=WORKER / "programs/default.json")
     a = ap.parse_args(argv)
     # The slug becomes a path and a branch name.
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", a.slug):
@@ -225,6 +228,8 @@ def main(argv) -> int:
     out.mkdir(parents=True)
     brief = out / "brief.md"
     brief.write_text(a.brief.read_text())
+    program = out / "program.json"
+    program.write_text(a.program.read_text())
     events = out / "run/events.jsonl"
     with step(events, "host", "build_worker"):
         binary = build_worker()
@@ -241,13 +246,12 @@ def main(argv) -> int:
     }
     cmd = [
         "nice", "-n", "19", "ionice", "-c3", str(binary),
-        "--repo", str(ROOT), "--base", base, "--task", str(brief), "--image", IMAGE,
+        "--repo", str(ROOT), "--base", base, "--task", str(brief), "--program", str(program),
+        "--image", IMAGE,
         "--out", str(out / "run"), "--budget", str(a.budget), "--cpus", str(a.cpus),
     ]  # fmt: skip
     cmd += ["--api-url", config["api_url"], "--model", a.model or config["model"]]
     cmd += ["--extra-body", json.dumps(config.get("extra_body", {}))]
-    if a.verify_cmd:
-        cmd += ["--verify-cmd", a.verify_cmd]
     with log.open("w") as f:
         code = subprocess.run(cmd, env=env, stderr=f, stdout=f, check=False).returncode
     run_json = out / "run/run.json"

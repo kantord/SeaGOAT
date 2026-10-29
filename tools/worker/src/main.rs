@@ -25,7 +25,7 @@
 //! full run (model plus the whole gate) takes minutes, more on a busy machine:
 //!   harness code    `MSB_HOME=~/.cache/seagoat-worker/msb WORKER_TEST_IMAGE=seagoat-worker:latest
 //!                   cargo test -- --ignored`, a real guest and no model, about 3 s
-//!   prompt, config  run.py with a narrow `--verify-cmd`, e.g. one pytest file, a minute or two
+//!   prompt, config  run.py with a narrow `--program`, e.g. one pytest file as the check
 //!   image           `podman run -it localhost/seagoat-worker:latest bash`, then rebuild once
 //! A full run with the default gate is the last check, not the loop.
 
@@ -33,6 +33,7 @@ mod agent;
 mod events;
 mod guest;
 mod out;
+mod program;
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
@@ -66,16 +67,12 @@ struct Args {
     /// A JSON object merged into every request body, for gateway-specific fields.
     #[arg(long, default_value = "{}")]
     extra_body: String,
-    /// `git add -A` first: pre-commit only checks files git knows about.
-    #[arg(long, default_value = "git add -A && bash tools/worker/verify.sh")]
-    verify_cmd: String,
-    #[arg(long, default_value_t = 50)]
-    max_turns: usize,
+    /// What the run does: a JSON program of steps (src/program.rs), e.g. programs/default.json.
+    #[arg(long)]
+    program: PathBuf,
     #[arg(long, default_value_t = 8192)]
     max_tokens: u32,
-    #[arg(long, default_value_t = 2)]
-    retry_cap: usize,
-    /// Seconds for the whole run, verify passes included.
+    /// Seconds for the whole run, every step included.
     #[arg(long, default_value_t = 5400)]
     budget: u64,
     #[arg(long, default_value_t = 4)]
@@ -83,7 +80,7 @@ struct Args {
     #[arg(long, default_value_t = 8192)]
     memory_mib: u32,
     /// For orchestrating agents: JSON lines on stdout instead of the table, each turn carrying
-    /// only these fields (comma-separated), plus one line per attempt and a final `done`.
+    /// only these fields (comma-separated), plus one line per step outcome and a final `done`.
     #[arg(long, value_delimiter = ',', num_args = 1.., value_name = "FIELDS")]
     json: Option<Vec<out::Field>>,
 }
@@ -123,6 +120,8 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
     let extra_body: serde_json::Map<String, serde_json::Value> =
         serde_json::from_str(&args.extra_body).context("--extra-body is not a JSON object")?;
     let task = std::fs::read_to_string(&args.task).context("reading --task")?;
+    // Checked before anything boots: a typo in a program costs no sandbox.
+    let program = program::load(&args.program, &task)?;
     std::fs::create_dir_all(&args.out)?;
     let start = Instant::now();
     let deadline = start + Duration::from_secs(args.budget);
@@ -150,18 +149,15 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
             api_url: args.api_url.clone(),
             model: args.model.clone(),
             extra_body,
-            verify_cmd: args.verify_cmd.clone(),
             base: base.clone(),
-            max_turns: args.max_turns,
             max_tokens: args.max_tokens,
-            retry_cap: args.retry_cap,
             start,
             deadline,
             transcript: args.out.join("transcript.jsonl"),
             events: ev.clone(),
             mode: args.json.clone().map_or(out::Mode::Table, out::Mode::Json),
         };
-        let report = agent::run(&g, &cfg, &task).await;
+        let report = agent::run(&g, &cfg, &program).await;
         // A dead guest has no patch to give; the report still says why.
         let span = ev.begin("finish", "patch");
         let patch = g.patch(&base).await;
