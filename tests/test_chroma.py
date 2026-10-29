@@ -5,6 +5,9 @@ from unittest.mock import patch
 import pytest
 
 from seagoat.engine import Engine
+from seagoat.repository import Repository
+from seagoat.sources import chroma
+from seagoat.utils.config import DEFAULT_CONFIG
 
 
 def normalize_full_paths(data, repo):
@@ -430,3 +433,56 @@ async def test_supports_fractional_n_results_multiplier(repo, create_config_file
     results = await seagoat.query("apple", limit_clue=5)
 
     assert "fruit.txt" in {result.gitfile.path for result in results}
+
+
+def _initialize_and_get_embedding_function(repo, embedding_function=None):
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    if embedding_function is not None:
+        config["server"]["chroma"]["embeddingFunction"] = embedding_function
+
+    with (
+        patch.object(chroma, "get_config_values", return_value=config),
+        patch.object(chroma.chromadb, "PersistentClient") as mock_client_class,
+    ):
+        chroma.initialize(Repository(repo.working_dir))
+        return mock_client_class.return_value.get_or_create_collection.call_args.kwargs[
+            "embedding_function"
+        ]
+
+
+def test_projects_share_one_embedding_function(generate_repo):
+    repo1 = generate_repo()
+    repo2 = generate_repo()
+
+    embedding_function1 = _initialize_and_get_embedding_function(repo1)
+    embedding_function2 = _initialize_and_get_embedding_function(repo2)
+
+    assert embedding_function1 is embedding_function2
+
+
+def test_different_embedding_function_arguments_are_not_shared(generate_repo):
+    repo1 = generate_repo()
+    repo2 = generate_repo()
+
+    embedding_function1 = _initialize_and_get_embedding_function(
+        repo1,
+        embedding_function={
+            "name": "OllamaEmbeddingFunction",
+            "arguments": {
+                "url": "http://localhost:11434",
+                "model_name": "all-minilm-l6-v2",
+            },
+        },
+    )
+    embedding_function2 = _initialize_and_get_embedding_function(
+        repo2,
+        embedding_function={
+            "name": "OllamaEmbeddingFunction",
+            "arguments": {
+                "url": "http://localhost:11434",
+                "model_name": "another-model",
+            },
+        },
+    )
+
+    assert embedding_function1 is not embedding_function2
