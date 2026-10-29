@@ -233,13 +233,35 @@ def repo(generate_repo):
     yield repo
 
 
+_kept_cache_folders: set[Path] = set()
+
+
+def keep_cache_folder(path: Path) -> None:
+    """Register a cache folder so per-test cleanup keeps it (session fixtures)."""
+    _kept_cache_folders.add(Path(path).resolve())
+
+
+def _delete_unkept_cache_entries(cache_root: Path) -> None:
+    """Delete every entry in the cache folder except registered kept folders."""
+    if not cache_root.is_dir():
+        return
+
+    for entry in cache_root.iterdir():
+        if entry.resolve() in _kept_cache_folders:
+            continue
+        if entry.is_dir():
+            shutil.rmtree(entry, ignore_errors=True)
+        else:
+            entry.unlink(missing_ok=True)
+
+
 @pytest.fixture(autouse=True)
 def run_around_tests():
     yield
     cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
     if "RUNNER_TEMP" in os.environ:
         cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
-    shutil.rmtree(cache_root, ignore_errors=True)
+    _delete_unkept_cache_entries(cache_root)
 
 
 chromadb_patcher = patch("chromadb.Client")
@@ -721,6 +743,7 @@ def realistic_server(start_server):
         text=True,
     )
     my_engine = Engine(realrepo)
+    keep_cache_folder(my_engine.cache.get_cache_folder())
     my_engine.analyze_codebase(minimum_chunks_to_analyze=339)
     assert my_engine.cache.data["chunks_not_yet_analyzed"] == set()
 
