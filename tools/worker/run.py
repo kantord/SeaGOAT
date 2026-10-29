@@ -128,9 +128,19 @@ def build_worker() -> Path:
 # that a tool runs on opening the worktree (Claude Code's settings and hooks, direnv, editors) are
 # refused outright. Paths that run on a build, test or commit, or that make up the gate itself,
 # are applied but named, so they get read first. Nothing here makes the rest safe to run unread.
-RUN_ON_OPEN = (".claude/", ".mcp.json", ".envrc", ".vscode/", ".idea/")
+# CLAUDE.md and AGENTS.md load into the session that reviews the worktree: prompt injection on open.
+RUN_ON_OPEN = (
+    ".claude/",
+    ".mcp.json",
+    ".envrc",
+    ".vscode/",
+    ".idea/",
+    "CLAUDE.md",
+    "AGENTS.md",
+)
 RUN_ON_USE = (
     "conftest.py", "build.rs", "pyproject.toml", "Cargo.toml", "uv.lock", "Cargo.lock",
+    ".cargo/", "pytest.ini", "tox.ini", "setup.cfg",
     ".pre-commit-config.yaml", ".github/", "tools/worker/",
 )  # fmt: skip
 
@@ -144,13 +154,13 @@ def patch_paths(patch: Path) -> list[str]:
 def risky(paths: list[str]) -> tuple[list[str], list[str]]:
     """(refused, to read first): the paths that match RUN_ON_OPEN and RUN_ON_USE.
 
-    A pattern ending in / matches everything under that directory; any other matches a file of
-    that name anywhere, so a nested conftest.py counts too.
+    A pattern ending in / matches everything under a directory of that name anywhere (a nested
+    .cargo/config.toml counts); any other matches a file of that name anywhere.
     """
 
     def matches(path: str, pattern: str) -> bool:
         if pattern.endswith("/"):
-            return path.startswith(pattern)
+            return f"/{path}".find(f"/{pattern}") >= 0
         return Path(path).name == pattern
 
     def hits(patterns) -> list[str]:
@@ -262,6 +272,15 @@ def main(argv) -> int:
         flush=True,
     )
     patch = out / "run/patch"
+    if (
+        report.get("status") == "GREEN"
+        and patch.is_file()
+        and patch.stat().st_size == 0
+    ):
+        # A program with checks only (programs/gate.json) changes nothing by design.
+        print("worker: GREEN, nothing to apply", flush=True)
+        print_timings(out)
+        return 0
     if (
         report.get("status") != "GREEN"
         or not patch.is_file()

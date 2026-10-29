@@ -23,13 +23,16 @@ use crate::program::Step;
 const MAX_TOOL_OUTPUT: usize = 8000;
 const MAX_CONVERSATION_CHARS: usize = 200_000;
 const BASH_TIMEOUT: Duration = Duration::from_secs(300);
-/// Every command, the model's and the program's, blocks until it ends, up to this, so the
-/// model never polls a background job. *Because* a 5-minute cap made an earlier run spend six
-/// turns on `sleep N && tail log` around a cold verify (2026-10-22).
-/// DECISION (owner, 2026-10-29): this is the only time limit. A run ends by counts (an llm
-/// step's max_turns, a script's retries); this only stops a command that would never end, and
-/// a command that hits it fails like any other, so a script can retry it.
+/// A program's command blocks until it ends, up to this, so a cold full gate fits.
+/// DECISION (owner, 2026-10-29): time limits only stop commands that would never end. A run
+/// ends by counts (an llm step's max_turns, a script's retries), and a command that hits its
+/// limit fails like any other, so a script can retry it.
 const COMMAND_TIMEOUT: Duration = Duration::from_secs(1800);
+/// The model's own commands get less: it runs only focused tests (well under a minute) since the
+/// harness runs the gate. *Because* one hung experiment of its own held a run for 25 of its 30
+/// minutes (2026-10-29). An earlier 5-minute cap made the model poll a full gate it ran itself
+/// (2026-10-22); the rules now tell it not to run the gate.
+const MODEL_COMMAND_TIMEOUT: Duration = Duration::from_secs(300);
 /// Tells the model why a reply did nothing, instead of taking it for "done".
 const CUT_OFF: &str = "Your last reply was cut off at the reply token limit, so nothing in it \
      ran. Make smaller changes per command, e.g. edit a file in several steps instead of \
@@ -331,6 +334,10 @@ async fn turns(
         let cut_off = resp["choices"][0]["finish_reason"] == "length";
         if cut_off && let Some(m) = msg.as_object_mut() {
             m.remove("tool_calls");
+            // A message with neither calls nor text is invalid for some APIs.
+            if m.get("content").is_none_or(Value::is_null) {
+                m.insert("content".into(), "".into());
+            }
         }
         record(cfg, std::slice::from_ref(&msg));
         conv.messages.push(msg);
@@ -351,7 +358,7 @@ async fn turns(
                 .unwrap_or(json!({}));
             let (tool, summary) = step_summary(name, &args);
             cfg.mode.step(turn, tool, &summary);
-            let limit = COMMAND_TIMEOUT;
+            let limit = MODEL_COMMAND_TIMEOUT;
             let guest0 = g.cpu().await;
             let span = cfg.events.begin("tool", tool);
             let out = run_tool(g, name, &args, limit)
