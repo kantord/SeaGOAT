@@ -13,7 +13,13 @@ from waitress.server import create_server
 
 from seagoat import __version__
 from seagoat.cache import Cache, get_cache_root
-from seagoat.projects import NotAGitRepo, Projects, UnknownProject
+from seagoat.projects import (
+    NotAGitRepo,
+    Projects,
+    UnknownProject,
+    git_root,
+    resolve_repo_path,
+)
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.config import (
     GLOBAL_CONFIG_FILE,
@@ -25,7 +31,6 @@ from seagoat.utils.server import (
     claim_start,
     fetch_status,
     instance_url,
-    is_git_repo,
     normalize_repo_path,
     read_instance,
     stop_instance,
@@ -37,6 +42,7 @@ logger = logging.getLogger(__name__)
 class ExitCode:
     NOT_A_GIT_REPO = 5
     BIND_FAILED = 6
+    SERVER_ERROR = 4
 
 
 class RepoPathRequired(Exception):
@@ -185,14 +191,20 @@ def create_app(projects, host):
     def handle_project_errors(exception_to_handle):
         if isinstance(exception_to_handle, UnknownProject):
             code = 404
+            repo_path = str(exception_to_handle)
+            message = (
+                f"The SeaGOAT server does not serve the repository at {repo_path!r}. "
+                f"Run `seagoat-server start {repo_path}` to add it to the server."
+            )
         else:
             code = 400
+            message = str(exception_to_handle)
 
         res = {
             "code": code,
             "error": {
                 "type": type(exception_to_handle).__name__,
-                "message": str(exception_to_handle),
+                "message": message,
             },
         }
 
@@ -219,14 +231,18 @@ def load_configured_projects(projects) -> None:
     for configured_path in get_global_config_values()["server"]["repositories"]:
         try:
             projects.get(configured_path)
-        except NotAGitRepo as error:
+        except Exception as error:  # noqa: BLE001 - deliberately skip any bad repository
+            # One bad repository must not take the whole instance down: log
+            # which path failed and why, and keep loading the rest.
             logger.warning(
                 "Skipping configured repository %s: %r", configured_path, error
             )
 
 
 def start_server(repo_path: str, custom_port=None):
-    if not is_git_repo(repo_path):
+    try:
+        git_root(repo_path)
+    except NotAGitRepo:
         click.echo(
             f"SeaGOAT can only operate in Git repositories. No Git repository found at path '{repo_path}'.",
             err=True,
@@ -267,7 +283,15 @@ def start_server(repo_path: str, custom_port=None):
 
     if existing is not None:
         address = instance_url(existing)
-        requests.post(f"{address}/reload", timeout=5)
+        try:
+            response = requests.post(f"{address}/reload", timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as error:
+            click.echo(
+                f"Error: could not reload the running instance at {address} - {error}",
+                err=True,
+            )
+            sys.exit(ExitCode.SERVER_ERROR)
         click.echo(f"Repository added to the running instance at {address}")
         return
 
@@ -309,7 +333,10 @@ def get_status_data(repo_path=None):
         return status_info
 
     projects = status.get("projects") or []
-    if repo_path is not None and normalize_repo_path(repo_path) not in projects:
+    if (
+        repo_path is not None
+        and normalize_repo_path(resolve_repo_path(repo_path)) not in projects
+    ):
         return status_info
 
     return {
@@ -337,8 +364,9 @@ def status(repo_path, use_json_format):
 
 
 @server.command()
-def stop():
-    """Stops the instance."""
+@click.argument("repo_path", required=False)
+def stop(repo_path):
+    """Stops the instance. A REPO_PATH argument is accepted and ignored."""
     if stop_instance():
         click.echo("Instance stopped.")
     else:
@@ -347,7 +375,7 @@ def stop():
 
 @server.command(name="server-info")
 def _server_info():
-    """Returns information about all SeaGOAT servers in JSON format."""
+    """Returns information about the repositories served by the SeaGOAT instance in JSON format."""
     formatted_servers_info = {}
 
     instance = read_instance()

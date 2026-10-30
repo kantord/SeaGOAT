@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -11,11 +10,12 @@ from yaspin import yaspin
 from yaspin.spinners import Spinners
 
 from seagoat import __version__
+from seagoat.projects import NotAGitRepo, git_root
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.config import get_config_values
 from seagoat.utils.generative import enhance_results
 from seagoat.utils.server import (
-    ServerDoesNotExist,
+    NoInstanceRunning,
     instance_answers,
     instance_url,
     read_instance,
@@ -33,15 +33,8 @@ UPDATE_CHECK_TIMEOUT_SECONDS = 3
 def get_repository_root(repo_path):
     """Resolve the git repository root for repo_path, or None if not in one."""
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            cwd=repo_path,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        return result.stdout.strip() or None
-    except (OSError, subprocess.CalledProcessError):
+        return git_root(repo_path)
+    except (NotAGitRepo, OSError):
         return None
 
 
@@ -217,7 +210,7 @@ def seagoat(
             )
             instance = read_instance()
             if instance is None or not instance_answers(instance):
-                raise ServerDoesNotExist
+                raise NoInstanceRunning
             server_address = instance_url(instance)
             repo_path_for_server = local_repo_path
         else:
@@ -265,7 +258,7 @@ def seagoat(
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,
-        ServerDoesNotExist,
+        NoInstanceRunning,
     ):
         spinner.fail("✖")
         click.echo(

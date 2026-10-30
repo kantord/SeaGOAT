@@ -250,12 +250,15 @@ def get_config_values(repo_path: Path):
 
 
 def add_repository(repo_path) -> bool:
+    # Imported here because seagoat.projects imports seagoat.utils.config
+    from seagoat.projects import resolve_repo_path
+
     config = {}
     if GLOBAL_CONFIG_FILE.exists():
         config = validate_config_file(str(GLOBAL_CONFIG_FILE)) or {}
 
     repositories = config.setdefault("server", {}).setdefault("repositories", [])
-    normalized_path = normalize_repo_path(repo_path)
+    normalized_path = normalize_repo_path(resolve_repo_path(repo_path))
 
     if any(normalize_repo_path(path) == normalized_path for path in repositories):
         return False

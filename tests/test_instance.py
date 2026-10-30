@@ -9,7 +9,6 @@ import requests
 from seagoat.utils.server import (
     Instance,
     claim_start,
-    get_free_port,
     instance_answers,
     instance_file_path,
     read_instance,
@@ -150,10 +149,11 @@ def test_claim_start_concurrent_threads_call_bind_exactly_once():
     assert read_instance() == bound
 
 
-def test_instance_answers_is_false_for_port_nothing_listens_on():
-    port = get_free_port()
-
-    assert instance_answers(Instance(host="127.0.0.1", port=port, pid=1234)) is False
+def test_instance_answers_is_false_for_port_nothing_listens_on(unused_tcp_port):
+    assert (
+        instance_answers(Instance(host="127.0.0.1", port=unused_tcp_port, pid=1234))
+        is False
+    )
 
 
 @pytest.mark.parametrize(

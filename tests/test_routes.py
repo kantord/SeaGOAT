@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from unittest.mock import ANY, MagicMock
 
 import pytest
@@ -82,6 +83,8 @@ def test_loopback_caller_gets_404_for_unknown_project(create_client, generate_re
     assert response.status_code == 404
     assert data["code"] == 404
     assert data["error"]["type"] == "UnknownProject"
+    assert repo.working_dir in data["error"]["message"]
+    assert f"seagoat-server start {repo.working_dir}" in data["error"]["message"]
     assert client._projects.repo_paths() == []
     assert resolve_calls == []
 
@@ -123,6 +126,8 @@ def test_remote_caller_cannot_create_project(create_client, generate_repo):
     assert response.status_code == 404
     assert data["code"] == 404
     assert data["error"]["type"] == "UnknownProject"
+    assert repo.working_dir in data["error"]["message"]
+    assert f"seagoat-server start {repo.working_dir}" in data["error"]["message"]
     assert client._projects.repo_paths() == []
     assert resolve_calls == []
 
@@ -176,6 +181,8 @@ def test_loopback_non_git_repo_path_gets_404(create_client, tmp_path):
     assert response.status_code == 404
     assert data["code"] == 404
     assert data["error"]["type"] == "UnknownProject"
+    assert str(tmp_path) in data["error"]["message"]
+    assert f"seagoat-server start {tmp_path}" in data["error"]["message"]
 
 
 def test_status_returns_loaded_projects_stats(create_client, generate_repo):
@@ -244,6 +251,29 @@ def test_reload_loads_newly_listed_repository(
         normalize_repo_path(repo1.working_dir),
         normalize_repo_path(repo2.working_dir),
     ]
+
+
+def test_reload_skips_configured_repository_with_invalid_config(
+    create_client, generate_repo, create_config_file, caplog
+):
+    repo = generate_repo()
+    bad_repo = generate_repo()
+    (Path(bad_repo.working_dir) / ".seagoat.yml").write_text(
+        "server:\n  repositories: this-is-not-a-list\n",
+        encoding="utf-8",
+    )
+    create_config_file(
+        {"server": {"repositories": [repo.working_dir, bad_repo.working_dir]}},
+        global_config=True,
+    )
+    client = create_client()
+
+    response = client.post("/reload")
+
+    assert response.status_code == 200
+    assert response.get_json()["projects"] == [normalize_repo_path(repo.working_dir)]
+    assert "Skipping configured repository" in caplog.text
+    assert bad_repo.working_dir in caplog.text
 
 
 def test_reload_skips_paths_that_are_not_repositories(

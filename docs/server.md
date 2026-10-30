@@ -30,9 +30,9 @@ are not kept. Removing a repository from the list takes effect when the
 instance restarts. A repository's own `.seagoat.yml` cannot set which
 repositories an instance serves.
 
-If you don't specify a custom port, a random port will be assigned to your
-server. Don't worry, SeaGOAT will still be able to automatically find
-the server corresponding to a specific repository.
+If you don't specify a custom port, a random port is assigned to the
+instance. Don't worry: the `seagoat` CLI and the MCP server can still find
+the running instance automatically.
 
 A query that names a repository the instance does not serve gets an HTTP 404
 error saying so; any program that can reach the server can query the
@@ -87,7 +87,7 @@ You will receive a response similar to this:
             },
             "isRunning": true,
             "host": "127.0.0.1",
-            "port": "8080",
+            "port": 8080,
             "address": "http://127.0.0.1:8080"
         },
         "/path/to/repository/2": {
@@ -96,7 +96,7 @@ You will receive a response similar to this:
             },
             "isRunning": true,
             "host": "127.0.0.1",
-            "port": "8080",
+            "port": 8080,
             "address": "http://127.0.0.1:8080"
         }
     }
@@ -113,6 +113,23 @@ If you want to create a configuration file, you can see the path for it
 in the `globalConfigFile` attribute. This depends on your operating system.
 You can also create a configuration file for your project. See
 [the configuration documentation](configuration.md) for more information.
+
+### The instance HTTP API
+
+The running instance also exposes a small HTTP API on its address:
+
+* `GET /status` - Returns JSON with the SeaGOAT `version`, the instance's
+`pid`, and the `projects` it serves (the repository paths from
+`server.repositories`).
+* `POST /status` - With a `repoPath` in the JSON payload, returns the
+`version` and the `stats` of that project (and an HTTP 404 if the instance
+does not serve that repository).
+* `POST /reload` - Reloads the `server.repositories` list from the global
+configuration file, loading any newly configured repositories.
+* Query routes such as `POST /lines/query` and `POST /files/query` take a
+`repoPath` in the JSON payload, so one instance can answer for every
+repository it serves. A query naming a repository the instance does not
+serve gets an HTTP 404 error saying so.
 
 ### Querying code lines using the API
 

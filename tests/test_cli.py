@@ -20,6 +20,22 @@ def real_bat():
     return
 
 
+def test_get_repository_root_returns_none_for_non_git_path(tmp_path):
+    from seagoat.cli import get_repository_root
+
+    assert get_repository_root(str(tmp_path)) is None
+
+
+def test_get_repository_root_returns_repository_root_for_subdirectory(repo):
+    from seagoat.cli import get_repository_root
+    from seagoat.utils.server import normalize_repo_path
+
+    subdirectory = os.path.join(repo.working_dir, "subdirectory")
+    os.makedirs(subdirectory, exist_ok=True)
+
+    assert get_repository_root(subdirectory) == normalize_repo_path(repo.working_dir)
+
+
 @pytest.fixture
 def lots_of_fake_results(mocker):
     mock_results = {
@@ -906,3 +922,21 @@ def test_unexpected_update_check_errors_do_not_fail_the_search(
 
     assert result.exit_code == 0
     assert "Could not check for updates" in result.stderr
+
+
+def test_server_error_message_advises_starting_the_repository(
+    repo, mock_server_error_factory, runner_with_error
+):
+    repo_path = repo.working_dir
+    error_message = (
+        f"The SeaGOAT server does not serve the repository at {repo_path!r}. "
+        f"Run `seagoat-server start {repo_path}` to add it to the server."
+    )
+    mock_server_error_factory(error_message, 404)
+
+    result = runner_with_error.invoke(
+        seagoat, [repo_path, "--no-color", "-l2", "--context=3"]
+    )
+
+    assert result.exit_code == 4
+    assert error_message in result.stderr

@@ -1,6 +1,4 @@
 import os
-import socket
-import subprocess
 from collections.abc import Callable
 from pathlib import Path
 from typing import NamedTuple
@@ -13,7 +11,7 @@ from filelock import FileLock
 from seagoat.utils.json_file import get_json_file_contents, write_to_json_file
 
 
-class ServerDoesNotExist(Exception):
+class NoInstanceRunning(Exception):
     pass
 
 
@@ -21,27 +19,6 @@ def normalize_repo_path(repo_path: str | Path) -> str:
     return str(
         os.path.normcase(os.path.normpath(Path(repo_path).expanduser().resolve()))
     )
-
-
-def get_free_port() -> int:
-    socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket_obj.bind(("", 0))
-    _, port = socket_obj.getsockname()
-    socket_obj.close()
-
-    return port
-
-
-def is_git_repo(path: str) -> bool:
-    try:
-        output = subprocess.check_output(
-            ["git", "-C", path, "rev-parse", "--is-inside-work-tree"],
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        return output.strip().lower() == "true"
-    except subprocess.CalledProcessError:
-        return False
 
 
 class Instance(NamedTuple):

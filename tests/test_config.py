@@ -305,6 +305,21 @@ def test_add_repository_adds_normalized_path(tmp_path, create_config_file):
     assert config["server"]["repositories"] == [normalize_repo_path(repo_path)]
 
 
+def test_add_repository_stores_repository_root_for_subdirectory(
+    repo, create_config_file
+):
+
+    create_config_file({"server": {"repositories": []}}, global_config=True)
+    subdirectory = str(Path(repo.working_dir) / "subdirectory")
+    Path(subdirectory).mkdir(exist_ok=True)
+
+    result = add_repository(subdirectory)
+
+    assert result is True
+    config = yaml.safe_load(GLOBAL_CONFIG_FILE.read_text())
+    assert config["server"]["repositories"] == [normalize_repo_path(repo.working_dir)]
+
+
 def test_add_repository_does_not_add_twice(tmp_path, create_config_file):
 
     create_config_file({"server": {"repositories": []}}, global_config=True)

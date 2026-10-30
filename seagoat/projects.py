@@ -33,6 +33,15 @@ def git_root(path: str) -> str:
     return output.strip()
 
 
+def resolve_repo_path(path: str) -> str:
+    """Return the repository root containing path, or path itself when path
+    is not inside a git repository."""
+    try:
+        return git_root(path)
+    except NotAGitRepo:
+        return path
+
+
 class Projects:
     def __init__(self, queue_factory, resolve=git_root):
         self._queue_factory = queue_factory
