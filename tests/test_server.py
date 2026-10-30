@@ -17,9 +17,10 @@ from seagoat.queue.task_queue import TaskQueue
 from seagoat.server import create_app, get_status_data
 from seagoat.server import server as seagoat_server
 from seagoat.utils.server import (
-    get_server_info,
-    is_server_running,
+    instance_answers,
+    instance_url,
     normalize_repo_path,
+    read_instance,
 )
 from seagoat.utils.wait import wait_for
 from tests.conftest import GLOBAL_CONFIG_FILE, tempfile
@@ -111,56 +112,66 @@ def test_status_endpoint_with_some_files_not_analyzed(repo):
 
 def test_status_1(repo, runner):
     result = subprocess.run(
-        ["python", "-m", "seagoat.server", "status", repo.working_dir],
+        ["python", "-m", "seagoat.server", "status"],
         capture_output=True,
         text=True,
         check=False,
     )
     assert result.returncode == 0
-    assert "Server is not running" in result.stdout
+    assert "No SeaGOAT instance running" in result.stdout
 
     result = runner.invoke(seagoat_server, ["server-info"])
     servers_data = json.loads(result.output)
     current_repo = normalize_repo_path(repo.working_dir)
-    assert (
-        current_repo not in servers_data["servers"]
-        or servers_data["servers"][current_repo]["isRunning"]
-    )
+    assert current_repo not in servers_data["servers"]
 
 
 @pytest.mark.usefixtures("server")
 def test_status_2(repo):
     result = subprocess.run(
-        ["python", "-m", "seagoat.server", "status", repo.working_dir],
+        ["python", "-m", "seagoat.server", "status"],
         capture_output=True,
         text=True,
         check=False,
     )
     assert result.returncode == 0
-    assert "Server is running" in result.stdout
+    assert "Instance is running" in result.stdout
 
 
-@pytest.mark.usefixtures("server")
-def test_stop(repo):
-    server_info = get_server_info(repo.working_dir)
+def test_stop(repo, managed_process):
+    server_cmd = ["python", "-m", "seagoat.server", "start", repo.working_dir]
 
-    assert psutil.pid_exists(server_info["pid"])
+    with managed_process(
+        server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ) as server_process:
+        wait_for(
+            lambda: (
+                (instance := read_instance()) is not None and instance_answers(instance)
+            ),
+            8,
+        )
+        instance = read_instance()
+        assert instance is not None
+        assert psutil.pid_exists(instance.pid)
 
-    subprocess.run(
-        ["python", "-m", "seagoat.server", "stop", repo.working_dir],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    result = subprocess.run(
-        ["python", "-m", "seagoat.server", "status", repo.working_dir],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert not psutil.pid_exists(server_info["pid"])
-    assert result.returncode == 0
-    assert "Server is not running" in result.stdout
+        stop_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "stop"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert stop_result.returncode == 0, stop_result.stderr
+        # This test is the server's parent, so it reaps it
+        assert server_process.wait(timeout=1) is not None
+
+        status_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "status"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert status_result.returncode == 0
+        assert "No SeaGOAT instance running" in status_result.stdout
 
 
 def test_status_with_json_when_server_not_running(repo):
@@ -171,7 +182,6 @@ def test_status_with_json_when_server_not_running(repo):
             "seagoat.server",
             "status",
             "--json",
-            repo.working_dir,
         ],
         capture_output=True,
         text=True,
@@ -194,7 +204,6 @@ def test_status_with_json_when_server_running(repo):
             "seagoat.server",
             "status",
             "--json",
-            repo.working_dir,
         ],
         capture_output=True,
         text=True,
@@ -206,10 +215,25 @@ def test_status_with_json_when_server_running(repo):
 
     assert json_result.get("isRunning") is True
     url = json_result.get("url")
-    assert re.match(r"http://localhost:\d+", url) is not None
+    assert re.match(r"http://127\.0\.0\.1:\d+", url) is not None
 
 
-def assert_server_status(repo, running):
+@pytest.mark.usefixtures("server")
+def test_status_with_repo_path_tells_whether_the_instance_serves_it(repo, tmp_path):
+    def is_running(repo_path):
+        result = subprocess.run(
+            ["python", "-m", "seagoat.server", "status", repo_path, "--json"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return json.loads(result.stdout)["isRunning"]
+
+    assert is_running(repo.working_dir) is True
+    assert is_running(str(tmp_path)) is False
+
+
+def assert_server_status(running):
     result = subprocess.run(
         [
             "python",
@@ -217,7 +241,6 @@ def assert_server_status(repo, running):
             "seagoat.server",
             "status",
             "--json",
-            repo.working_dir,
         ],
         capture_output=True,
         text=True,
@@ -229,7 +252,7 @@ def assert_server_status(repo, running):
 
 def simulate_server_dying(repo):
     try:
-        pid = get_status_data(repo.working_dir)["pid"]
+        pid = get_status_data()["pid"]
 
         process = psutil.Process(pid)
         process.terminate()
@@ -242,7 +265,7 @@ def simulate_server_dying(repo):
 def test_server_status_not_running_if_process_does_not_exist(repo, runner):
     current_repo = normalize_repo_path(repo.working_dir)
 
-    assert_server_status(repo, running=True)
+    assert_server_status(running=True)
 
     result1 = runner.invoke(seagoat_server, ["server-info"])
     servers_data1 = json.loads(result1.output)
@@ -250,11 +273,11 @@ def test_server_status_not_running_if_process_does_not_exist(repo, runner):
 
     simulate_server_dying(repo)
 
-    assert_server_status(repo, running=False)
+    assert_server_status(running=False)
 
     result2 = runner.invoke(seagoat_server, ["server-info"])
     servers_data2 = json.loads(result2.output)
-    assert not servers_data2["servers"][current_repo]["isRunning"]
+    assert current_repo not in servers_data2["servers"]
 
 
 @pytest.mark.parametrize("limit_value", [1, 3, 7])
@@ -339,10 +362,16 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
     ]
 
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-        wait_for(lambda: is_server_running(repo.working_dir), 8)
+        wait_for(
+            lambda: (
+                (instance := read_instance()) is not None and instance_answers(instance)
+            ),
+            8,
+        )
 
-        server_info = get_server_info(repo.working_dir)
-        server_address = server_info["address"]
+        instance = read_instance()
+        assert instance is not None
+        server_address = instance_url(instance)
         assert str(custom_port) in server_address
 
 
@@ -411,10 +440,16 @@ def test_start_server_on_custom_port_using_config_files(
     ]
 
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-        wait_for(lambda: is_server_running(repo.working_dir), 8)
+        wait_for(
+            lambda: (
+                (instance := read_instance()) is not None and instance_answers(instance)
+            ),
+            8,
+        )
 
-        server_info = get_server_info(repo.working_dir)
-        server_address = server_info["address"]
+        instance = read_instance()
+        assert instance is not None
+        server_address = instance_url(instance)
         assert str(custom_port) in server_address
 
 

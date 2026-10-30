@@ -3,18 +3,26 @@ from unittest.mock import patch
 import pytest
 
 from seagoat.server import start_server
-from seagoat.utils.server import _get_server_data_file_path, normalize_repo_path
+from seagoat.utils.server import normalize_repo_path
+
+
+def _fake_claim_start(bind, **kwargs):
+    # Pretend we acquired the instance lock and bound successfully, without
+    # there being an already-running instance to return.
+    bind()
 
 
 @pytest.fixture(name="mock_serve")
 def _mock_serve():
     # create_app would start a worker thread that outlives the test repo
     with (
+        patch("seagoat.server.add_repository"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
         patch("seagoat.server.create_app"),
-        patch("seagoat.server.update_server_info"),
-        patch("seagoat.server.serve") as mock_serve,
+        patch("seagoat.server.create_server") as mock_create_server,
     ):
-        yield mock_serve
+        mock_create_server.return_value.effective_port = 40123
+        yield mock_create_server
 
 
 def test_start_server_listens_on_configured_host(repo, create_config_file, mock_serve):
@@ -33,8 +41,10 @@ def test_start_server_listens_on_localhost_by_default(repo, mock_serve):
     assert mock_serve.call_args.kwargs["host"] == "127.0.0.1"
 
 
-def test_under_pytest_registry_lives_in_pytest_directory():
-    assert _get_server_data_file_path().parent.name == "seagoat-servers-pytest"
+def test_under_pytest_instance_lives_in_pytest_directory():
+    from seagoat.utils.server import instance_file_path
+
+    assert instance_file_path().parent.name == "seagoat-servers-pytest"
 
 
 def test_start_server_creates_projects_for_configured_repositories(
@@ -49,10 +59,11 @@ def test_start_server_creates_projects_for_configured_repositories(
 
     with (
         patch("seagoat.server.TaskQueue"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
         patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.update_server_info"),
-        patch("seagoat.server.serve"),
+        patch("seagoat.server.create_server") as mock_create_server,
     ):
+        mock_create_server.return_value.effective_port = 40125
         start_server(repo.working_dir, custom_port=40125)
 
     projects = mock_create_app.call_args.args[0]
@@ -70,10 +81,11 @@ def test_start_server_skips_configured_non_git_path(repo, create_config_file, ca
 
     with (
         patch("seagoat.server.TaskQueue"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
         patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.update_server_info"),
-        patch("seagoat.server.serve"),
+        patch("seagoat.server.create_server") as mock_create_server,
     ):
+        mock_create_server.return_value.effective_port = 40126
         start_server(repo.working_dir, custom_port=40126)
 
     projects = mock_create_app.call_args.args[0]

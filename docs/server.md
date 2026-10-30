@@ -24,10 +24,11 @@ the command starts the instance.
 
 `seagoat-server start <repo_path>` adds `<repo_path>` to the
 `server.repositories` list, starts the instance if none is running, and
-otherwise tells the running instance to load the repository. Removing a
-repository from the list takes effect when the instance restarts. A
-repository's own `.seagoat.yml` cannot set which repositories an instance
-serves.
+otherwise tells the running instance to load the repository. Adding a
+repository rewrites the global configuration file, so comments in that file
+are not kept. Removing a repository from the list takes effect when the
+instance restarts. A repository's own `.seagoat.yml` cannot set which
+repositories an instance serves.
 
 If you don't specify a custom port, a random port will be assigned to your
 server. Don't worry, SeaGOAT will still be able to automatically find

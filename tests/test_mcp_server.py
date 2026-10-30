@@ -9,7 +9,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from seagoat.mcp_server import search_code
-from seagoat.utils.server import ServerDoesNotExist
+from seagoat.utils.server import Instance
 
 
 @pytest.fixture
@@ -17,7 +17,9 @@ def mock_mcp_deps(mocker: MockerFixture) -> dict[str, Any]:
     """Mock dependencies for MCP server tests."""
     return {
         "normalize": mocker.patch("seagoat.mcp_server.normalize_repo_path"),
-        "get_server_info": mocker.patch("seagoat.mcp_server.get_server_info"),
+        "read_instance": mocker.patch("seagoat.mcp_server.read_instance"),
+        "instance_answers": mocker.patch("seagoat.mcp_server.instance_answers"),
+        "instance_url": mocker.patch("seagoat.mcp_server.instance_url"),
         "post": mocker.patch("seagoat.mcp_server.requests.post"),
     }
 
@@ -25,10 +27,11 @@ def mock_mcp_deps(mocker: MockerFixture) -> dict[str, Any]:
 def test_search_code_success(mock_mcp_deps) -> None:
     """Test successful code search."""
     mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
-    mock_mcp_deps["get_server_info"].return_value = {
-        "address": "http://localhost:1234",
-        "port": 1234,
-    }
+    mock_mcp_deps["read_instance"].return_value = Instance(
+        host="localhost", port=1234, pid=1
+    )
+    mock_mcp_deps["instance_answers"].return_value = True
+    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
     mock_response.json.return_value = {
@@ -61,23 +64,24 @@ def test_search_code_success(mock_mcp_deps) -> None:
 def test_search_code_server_not_running(mock_mcp_deps) -> None:
     """Test behavior when server is not running."""
     mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
-    mock_mcp_deps["get_server_info"].side_effect = ServerDoesNotExist(
-        "Server not found"
-    )
+    mock_mcp_deps["read_instance"].return_value = None
+    mock_mcp_deps["instance_answers"].return_value = False
 
     result = search_code("test query", repo_path=".")
 
-    assert (
-        "No server info found" in result
-        or "Server not found" in result
-        or "Is the seagoat server running?" in result
-    )
+    assert "No server info found" in result
+    assert "Is the seagoat server running?" in result
+    mock_mcp_deps["post"].assert_not_called()
 
 
 def test_search_code_no_results(mock_mcp_deps) -> None:
     """Test when no results are found."""
     mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
-    mock_mcp_deps["get_server_info"].return_value = {"address": "http://localhost:1234"}
+    mock_mcp_deps["read_instance"].return_value = Instance(
+        host="localhost", port=1234, pid=1
+    )
+    mock_mcp_deps["instance_answers"].return_value = True
+    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
     mock_response.json.return_value = {"results": []}

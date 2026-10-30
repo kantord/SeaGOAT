@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -13,7 +14,12 @@ from seagoat import __version__
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.config import get_config_values
 from seagoat.utils.generative import enhance_results
-from seagoat.utils.server import ServerDoesNotExist, get_server_info
+from seagoat.utils.server import (
+    ServerDoesNotExist,
+    instance_answers,
+    instance_url,
+    read_instance,
+)
 
 
 class ExitCode:
@@ -22,6 +28,21 @@ class ExitCode:
 
 
 UPDATE_CHECK_TIMEOUT_SECONDS = 3
+
+
+def get_repository_root(repo_path):
+    """Resolve the git repository root for repo_path, or None if not in one."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=repo_path,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.strip() or None
+    except (OSError, subprocess.CalledProcessError):
+        return None
 
 
 def warn_if_update_available():
@@ -187,13 +208,24 @@ def seagoat(
 
     try:
         if config["client"]["host"] is None:
-            server_info = get_server_info(repo_path)
-            server_address = server_info["address"]
-            # Absolute: the server is another process, with its own working directory
-            repo_path_for_server = os.path.abspath(repo_path)
+            # Resolve the repository root on the client (in the user's own
+            # directory). The server only matches roots exactly, and local
+            # paths must be rebuilt against the root too when running from a
+            # subdirectory.
+            local_repo_path = get_repository_root(repo_path) or os.path.abspath(
+                repo_path
+            )
+            instance = read_instance()
+            if instance is None or not instance_answers(instance):
+                raise ServerDoesNotExist
+            server_address = instance_url(instance)
+            repo_path_for_server = local_repo_path
         else:
             server_address = config["client"]["host"]
             repo_path_for_server = None
+            # Display results relative to the directory the user ran the
+            # command from; the remote server's paths are not local.
+            local_repo_path = repo_path
 
         if context is not None:
             context_above = context
@@ -208,7 +240,7 @@ def seagoat(
             repo_path_for_server,
         )
 
-        results = rewrite_full_paths_to_use_local_path(repo_path, results)
+        results = rewrite_full_paths_to_use_local_path(local_repo_path, results)
         results = remove_results_from_unavailable_files(results)
         if reverse or generative:
             results = reversed(results)
@@ -225,6 +257,11 @@ def seagoat(
         display_results(results, max_results, color_enabled, vimgrep)
 
         display_accuracy_warning(server_address, repo_path_for_server)
+    except SystemExit:
+        # query_server exits directly on a server-side error; stop the spinner
+        # thread or the interpreter would wait for it forever on shutdown
+        spinner.stop()
+        raise
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,

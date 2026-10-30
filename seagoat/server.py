@@ -7,8 +7,9 @@ from pathlib import Path
 
 import click
 import orjson
+import requests
 from flask import Flask, jsonify, request
-from waitress import serve
+from waitress.server import create_server
 
 from seagoat import __version__
 from seagoat.cache import Cache, get_cache_root
@@ -16,26 +17,26 @@ from seagoat.projects import NotAGitRepo, Projects, UnknownProject
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.config import (
     GLOBAL_CONFIG_FILE,
-    get_config_values,
+    add_repository,
     get_global_config_values,
 )
 from seagoat.utils.server import (
-    ServerDoesNotExist,
-    get_free_port,
-    get_server_info,
-    get_servers_info,
+    Instance,
+    claim_start,
+    fetch_status,
+    instance_url,
     is_git_repo,
-    is_server_running,
-    stop_server,
-    update_server_info,
+    normalize_repo_path,
+    read_instance,
+    stop_instance,
 )
-from seagoat.utils.wait import wait_for
 
 logger = logging.getLogger(__name__)
 
 
 class ExitCode:
     NOT_A_GIT_REPO = 5
+    BIND_FAILED = 6
 
 
 class RepoPathRequired(Exception):
@@ -233,54 +234,47 @@ def start_server(repo_path: str, custom_port=None):
         sys.exit(ExitCode.NOT_A_GIT_REPO)
 
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    projects = Projects(
-        lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
-    )
-    load_configured_projects(projects)
-    projects.get(repo_path)
-    port = custom_port
-
+    config = get_global_config_values()
+    host = config["server"]["host"]
+    port = custom_port if custom_port is not None else config["server"]["port"]
     if port is None:
-        port = get_free_port()
+        port = 0
 
-    update_server_info(
-        repo_path,
-        {
-            "host": "localhost",
-            "port": port,
-            "address": f"http://localhost:{port}",
-            "pid": os.getpid(),
-        },
-    )
-    host = get_config_values(Path(repo_path))["server"]["host"]
-    app = create_app(projects, host)
-    serve(app, host=host, port=port, threads=4)
+    server = None
 
+    def bind() -> Instance:
+        nonlocal server
+        projects = Projects(
+            lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
+        )
+        load_configured_projects(projects)
+        projects.get(repo_path)
+        app = create_app(projects, host)
+        server = create_server(app, host=host, port=port, threads=4)
+        return Instance(host, int(server.effective_port), os.getpid())  # type: ignore  # set in waitress at runtime
 
-def get_server(repo_path, custom_port=None):
-    port = None
+    def prepare() -> None:
+        add_repository(repo_path)
+
     try:
-        server_info = get_server_info(repo_path)
-        server_address = server_info["address"]
+        existing = claim_start(bind, prepare=prepare)
+    except OSError as error:
+        click.echo(
+            f"Error: could not bind to {host}:{port} - {error.strerror or error}",
+            err=True,
+        )
+        sys.exit(ExitCode.BIND_FAILED)
 
-        if is_server_running(repo_path):
-            click.echo(f"Server is already running at {server_address}")
-            return server_address
-    except ServerDoesNotExist:
-        pass
+    if existing is not None:
+        address = instance_url(existing)
+        requests.post(f"{address}/reload", timeout=5)
+        click.echo(f"Repository added to the running instance at {address}")
+        return
 
-    if custom_port is not None:
-        port = custom_port
-
-    os.environ["TOKENIZERS_PARALLELISM"] = "true"
-
-    start_server(str(repo_path), custom_port=port)
-
-    wait_for(lambda: get_server_info(repo_path), timeout=60)
-
-    server_info = get_server_info(repo_path)
-    click.echo(f"Server started at {server_info['address']}")
-    return server_info["address"]
+    assert server is not None  # claim_start returned None, so bind() ran
+    listen_host = {"0.0.0.0": "127.0.0.1", "::": "::1"}.get(host, host)
+    click.echo(f"Instance listening at http://{listen_host}:{server.effective_port}")
+    server.run()
 
 
 @click.group()
@@ -299,90 +293,83 @@ def server():
 @click.option("--port", type=int, help="The port to start the server on", default=None)
 def start(repo_path, port):
     """Starts the server."""
-    config = get_config_values(Path(repo_path))
-    port = port if port is not None else config["server"]["port"]
-
-    get_server(repo_path, custom_port=port)
-    click.echo("Server running.")
+    start_server(repo_path, custom_port=port)
 
 
-def get_status_data(repo_path):
-    """Return the status data of the server."""
-    status_info = {"isRunning": False, "url": None, "pid": None}
+def get_status_data(repo_path=None):
+    """Return the status data of the instance; with repo_path, whether it serves that repo."""
+    status_info = {"isRunning": False, "url": None, "pid": None, "projects": []}
 
-    try:
-        server_info = get_server_info(repo_path)
-        server_address = server_info["address"]
-        pid = server_info.get("pid", None)
+    instance = read_instance()
+    if instance is None:
+        return status_info
 
-        if is_server_running(repo_path):
-            status_info = {
-                "isRunning": True,
-                "url": server_address,
-                "pid": pid,
-            }
+    status = fetch_status(instance)
+    if status is None or status.get("pid") != instance.pid:
+        return status_info
 
-    except ServerDoesNotExist:
-        pass
+    projects = status.get("projects") or []
+    if repo_path is not None and normalize_repo_path(repo_path) not in projects:
+        return status_info
 
-    return status_info
+    return {
+        "isRunning": True,
+        "url": instance_url(instance),
+        "pid": status.get("pid"),
+        "projects": projects,
+    }
 
 
 @server.command()
-@click.argument("repo_path")
+@click.argument("repo_path", required=False)
 @click.option("--json", "use_json_format", is_flag=True, help="Output status as JSON.")
 def status(repo_path, use_json_format):
-    """Checks the status of the server."""
+    """Describes the SeaGOAT instance; with REPO_PATH, whether it serves that repo."""
     status_info = get_status_data(repo_path)
 
     if use_json_format:
         click.echo(json.dumps(status_info))
     else:
         if status_info["isRunning"]:
-            click.echo(f"Server is running at {status_info['url']}")
+            click.echo(f"Instance is running at {status_info['url']}")
         else:
-            click.echo("Server is not running.")
+            click.echo("No SeaGOAT instance running.")
 
 
 @server.command()
-@click.argument("repo_path")
-def stop(repo_path):
-    """Stops the server."""
-    try:
-        stop_server(repo_path)
-    except ServerDoesNotExist:
-        click.echo(
-            f"No server information found for {repo_path}. It might not be running or was never started."
-        )
-        return
-
-    click.echo(
-        "Server stopped. If it was running, it will stop after finishing current tasks."
-    )
+def stop():
+    """Stops the instance."""
+    if stop_instance():
+        click.echo("Instance stopped.")
+    else:
+        click.echo("No SeaGOAT instance running")
 
 
 @server.command(name="server-info")
 def _server_info():
     """Returns information about all SeaGOAT servers in JSON format."""
-    servers_info = get_servers_info()
     formatted_servers_info = {}
 
-    for normalized_repo_path, info in servers_info.items():
-        formatted_servers_info[normalized_repo_path] = {
-            "repoPath": normalized_repo_path,
-            "cacheLocation": {
-                "chroma": str(
-                    Cache("chroma", Path(normalized_repo_path), {}).get_cache_folder(),
-                ),
-                "ripgrep": str(
-                    Cache("ripgrep", Path(normalized_repo_path), {}).get_cache_folder(),
-                ),
-            },
-            "isRunning": is_server_running(normalized_repo_path),
-            "host": info["host"],
-            "port": info["port"],
-            "address": f"http://{info['host']}:{info['port']}",
-        }
+    instance = read_instance()
+    if instance is not None:
+        status = fetch_status(instance)
+        if status is not None and status.get("pid") == instance.pid:
+            for repo_path in status.get("projects") or []:
+                formatted_servers_info[repo_path] = {
+                    "repoPath": repo_path,
+                    "cacheLocation": {
+                        "chroma": str(
+                            Cache("chroma", Path(repo_path), {}).get_cache_folder(),
+                        ),
+                        "ripgrep": str(
+                            Cache("ripgrep", Path(repo_path), {}).get_cache_folder(),
+                        ),
+                    },
+                    "isRunning": True,
+                    "host": instance.host,
+                    "port": instance.port,
+                    "address": instance_url(instance),
+                }
 
     info = {
         "version": __version__,

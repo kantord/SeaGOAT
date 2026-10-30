@@ -1,6 +1,7 @@
 import copy
 import logging
 import os
+import tempfile
 from pathlib import Path
 
 import jsonschema
@@ -261,8 +262,17 @@ def add_repository(repo_path) -> bool:
 
     repositories.append(normalized_path)
     GLOBAL_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    with open(GLOBAL_CONFIG_FILE, "w", encoding="utf-8") as config_file:
-        yaml.safe_dump(config, config_file, sort_keys=False)
+    # Write through a temporary file and os.replace so a concurrent reader
+    # never sees a half-written config file.
+    fd, temp_path = tempfile.mkstemp(
+        dir=GLOBAL_CONFIG_DIR, prefix=".config-", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as config_file:
+            yaml.safe_dump(config, config_file, sort_keys=False)
+        os.replace(temp_path, GLOBAL_CONFIG_FILE)
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
     return True
 
 

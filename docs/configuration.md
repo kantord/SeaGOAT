@@ -100,9 +100,10 @@ overrides it when the command starts the instance. A repository's
 `.seagoat.yml` cannot change it; if it tries, SeaGOAT warns and ignores it.
 * `repositories` (global configuration file only): The list of repository
 paths the instance serves. `seagoat-server start <repo_path>` adds
-`<repo_path>` to this list. Removing a repository from the list takes effect
-when the instance restarts. A repository's `.seagoat.yml` cannot change it;
-if it tries, SeaGOAT warns and ignores it.
+`<repo_path>` to this list by rewriting the global configuration file, so
+comments in that file are not kept. Removing a repository from the list
+takes effect when the instance restarts. A repository's `.seagoat.yml`
+cannot change it; if it tries, SeaGOAT warns and ignores it.
 * `ignorePatterns`: A list of glob patterns to ignore. Keep in mind that all
 files ignored by `.gitignore` are already ignored. You probably should not
 need to configure this value. It is only useful if there are some files that

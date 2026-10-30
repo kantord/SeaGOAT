@@ -34,7 +34,12 @@ from seagoat.result import Result
 from seagoat.server import create_app, start_server
 from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
-from seagoat.utils.server import ServerDoesNotExist, get_server_info
+from seagoat.utils.server import (
+    Instance,
+    instance_answers,
+    instance_url,
+    read_instance,
+)
 from seagoat.utils.wait import wait_for
 
 try:
@@ -263,6 +268,15 @@ def run_around_tests():
         cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
     _delete_unkept_cache_entries(cache_root)
 
+    # Each test starts from a clean slate: no instance and no global config
+    # (start commands add repositories to it while tests run).
+    from seagoat.utils.server import instance_file_path
+
+    instance_path = instance_file_path()
+    for file_path in (instance_path, Path(f"{instance_path}.lock")):
+        file_path.unlink(missing_ok=True)
+    GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
+
 
 chromadb_patcher = patch("chromadb.Client")
 
@@ -301,24 +315,17 @@ def _start_server():
         server_process.start()
 
         def make_sure_server_is_running():
-            try:
-                get_server_info(repo_path)
-                return True
-
-            except Exception:  # noqa: BLE001 - any failure means "not ready yet"
-                return False
+            instance = read_instance()
+            return instance is not None and instance_answers(instance)
 
         wait_for(make_sure_server_is_running, timeout=3.0)
 
-        try:
-            server_info = get_server_info(repo_path)
-        except ServerDoesNotExist as error:
+        instance = read_instance()
+        if instance is None or not instance_answers(instance):
             server_process.kill()
-            raise ServerDoesNotExist(
-                f"Server info for {repo_path} not found."
-            ) from error
+            raise RuntimeError(f"Server for {repo_path} did not start.")
 
-        server_address = server_info["address"]
+        server_address = instance_url(instance)
 
         # type ignored because it is errounously marked as int, it is float
         # as per the official documentation
@@ -367,9 +374,10 @@ def _server(start_server, repo):
 def init_server_mock(mocker):
     def _init_server_mock():
         mocker.patch(
-            "seagoat.cli.get_server_info",
-            return_value={"address": ""},
+            "seagoat.cli.read_instance",
+            return_value=Instance(host="localhost", port=1234, pid=1),
         )
+        mocker.patch("seagoat.cli.instance_answers", return_value=True)
         mocker.patch("os.isatty", return_value=True)
 
     return _init_server_mock

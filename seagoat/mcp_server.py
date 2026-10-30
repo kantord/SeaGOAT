@@ -7,9 +7,10 @@ from mcp.server.mcpserver import MCPServer
 
 from seagoat import __version__
 from seagoat.utils.server import (
-    ServerDoesNotExist,
-    get_server_info,
+    instance_answers,
+    instance_url,
     normalize_repo_path,
+    read_instance,
 )
 
 mcp = MCPServer("seagoat", version=__version__)
@@ -43,12 +44,11 @@ def search_code(
     except (OSError, ValueError) as e:
         return f"Error normalizing repo path: {e!s}"
 
-    try:
-        server_info = get_server_info(repo)
-    except ServerDoesNotExist:
+    instance = read_instance()
+    if instance is None or not instance_answers(instance):
         return f"No server info found for repo: {repo}. Is the seagoat server running?"
 
-    address = server_info["address"]
+    address = instance_url(instance)
 
     try:
         result = requests.post(
