@@ -174,6 +174,68 @@ def test_stop(repo, managed_process):
         assert "No SeaGOAT instance running" in status_result.stdout
 
 
+@pytest.mark.timeout(120)
+def test_one_instance_serves_two_repositories(generate_repo, managed_process):
+    repo_a = generate_repo()
+    repo_b = generate_repo()
+
+    server_cmd = ["python", "-m", "seagoat.server", "start", repo_a.working_dir]
+
+    with managed_process(
+        server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ) as server_process:
+        wait_for(
+            lambda: (
+                (instance := read_instance()) is not None and instance_answers(instance)
+            ),
+            8,
+        )
+        instance = read_instance()
+        assert instance is not None
+        assert psutil.pid_exists(instance.pid)
+
+        add_repo_b_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "start", repo_b.working_dir],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+        assert add_repo_b_result.returncode == 0, add_repo_b_result.stderr
+
+        instance = read_instance()
+        assert instance is not None
+        # Still the same instance: the file records the same pid as before
+        assert instance.pid == server_process.pid
+
+        status_response = requests.get(f"{instance_url(instance)}/status")
+        assert status_response.status_code == 200
+        assert (
+            normalize_repo_path(repo_a.working_dir)
+            in status_response.json()["projects"]
+        )
+        assert (
+            normalize_repo_path(repo_b.working_dir)
+            in status_response.json()["projects"]
+        )
+
+        project_status_response = requests.post(
+            f"{instance_url(instance)}/status",
+            json={"repoPath": repo_b.working_dir},
+        )
+        assert project_status_response.status_code == 200
+
+        stop_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "stop"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert stop_result.returncode == 0, stop_result.stderr
+        # This test is the server's parent, so it reaps it
+        assert server_process.wait(timeout=10) is not None
+
+
 def test_status_with_json_when_server_not_running(repo):
     result = subprocess.run(
         [
