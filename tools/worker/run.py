@@ -22,6 +22,7 @@ outside the repo, so which gateway and model are used is not part of it:
 
     api_url = "https://example.com/v1/chat/completions"
     model = "some/model"
+    pin_provider = false   # optional; on by default: keep the first reply's provider
     [extra_body]   # optional, merged into every request body as-is
 
 The key is read from ~/.config/seagoat-worker/api-key and handed to the worker in its
@@ -274,6 +275,7 @@ def main(argv) -> int:
     ]  # fmt: skip
     cmd += ["--api-url", config["api_url"], "--model", a.model or config["model"]]
     cmd += ["--extra-body", json.dumps(config.get("extra_body", {}))]
+    cmd += ["--pin-provider", "true" if config.get("pin_provider", True) else "false"]
     once_dir = ROOT / "target/agent-tmp/once"
     prune_once(once_dir)
     cmd += ["--once-dir", str(once_dir)]

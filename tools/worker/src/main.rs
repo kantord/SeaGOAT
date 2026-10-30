@@ -67,6 +67,9 @@ struct Args {
     /// A JSON object merged into every request body, for gateway-specific fields.
     #[arg(long, default_value = "{}")]
     extra_body: String,
+    /// Keep routing to the provider that answered the first request, for its prompt cache.
+    #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+    pin_provider: bool,
     /// What the run does: a JSON program of steps (src/program.rs), e.g. programs/default.json.
     #[arg(long)]
     program: PathBuf,
@@ -148,6 +151,8 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
             api_url: args.api_url.clone(),
             model: args.model.clone(),
             extra_body,
+            pin_provider: args.pin_provider,
+            pinned: std::sync::OnceLock::new(),
             base: base.clone(),
             max_tokens: args.max_tokens,
             start,

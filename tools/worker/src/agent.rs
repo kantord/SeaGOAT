@@ -10,6 +10,7 @@
 
 use std::io::Write;
 use std::path::PathBuf;
+use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
 use anyhow::{Result, anyhow};
@@ -39,6 +40,12 @@ const MODEL_COMMAND_TIMEOUT: Duration = Duration::from_secs(300);
 const CUT_OFF: &str = "Your last reply was cut off at the reply token limit, so nothing in it \
      ran. Make smaller changes per command, e.g. edit a file in several steps instead of \
      writing it whole.";
+/// A reply with neither text nor a tool call is not "done" either: 2026-10-30, three replies that
+/// spent exactly 4096 reasoning tokens came back empty with finish_reason "stop", and each one
+/// ended a pass with nothing written.
+const EMPTY: &str = "Your last reply was empty: no text and no command, so nothing ran. \
+     Continue the task with your next command, planning one small step at a time. If the task \
+     is done, reply with the DONE: message.";
 // One HTTP 500 used to end a whole attempt (2026-10-19).
 const API_RETRY_WAITS: [u64; 2] = [5, 20];
 
@@ -50,6 +57,12 @@ pub struct Config {
     /// Merged into every request body as-is: gateway-specific fields live in the caller's
     /// config, not here.
     pub extra_body: Map<String, Value>,
+    /// Ask the gateway to keep routing to the provider that answered the first request: a
+    /// provider's prompt cache only serves requests that reach it (2026-10-29: 75% of prompt
+    /// tokens cached with one provider, 56% in a run that switched provider 13 times).
+    pub pin_provider: bool,
+    /// The provider of the first reply that named one, when pin_provider is on.
+    pub pinned: OnceLock<String>,
     /// The commit the run started from; command steps get it as $WORKER_BASE.
     pub base: String,
     pub max_tokens: u32,
@@ -470,6 +483,7 @@ async fn turns(
                 m.insert("content".into(), "".into());
             }
         }
+        let empty = msg["content"].as_str().is_none_or(|t| t.trim().is_empty());
         record(cfg, std::slice::from_ref(&msg));
         conv.messages.push(msg);
         if cut_off {
@@ -478,6 +492,11 @@ async fn turns(
             continue;
         }
         if calls.is_empty() {
+            if empty {
+                say(cfg, conv, "user", EMPTY.into());
+                finish_turn(g, cfg, r, row, 0, turn_start).await;
+                continue;
+            }
             finish_turn(g, cfg, r, row, 0, turn_start).await;
             return Ok(Ending::ModelDone);
         }
@@ -576,6 +595,9 @@ async fn call(cfg: &Config, messages: &[Value], turn: usize) -> Result<Value, Ca
     if let Some(b) = body.as_object_mut() {
         b.extend(cfg.extra_body.clone());
     }
+    if let Some(p) = cfg.pinned.get() {
+        pin(&mut body, p);
+    }
     let mut last = String::new();
     for wait in API_RETRY_WAITS.iter().map(Some).chain([None]) {
         let (url, key, body) = (cfg.api_url.clone(), cfg.key.clone(), body.clone());
@@ -585,7 +607,14 @@ async fn call(cfg: &Config, messages: &[Value], turn: usize) -> Result<Value, Ca
             .unwrap_or_else(|e| Err((true, e.to_string())));
         cfg.events.end(span, request_fields(turn, &res));
         match res {
-            Ok(v) => return Ok(v),
+            Ok(v) => {
+                if cfg.pin_provider
+                    && let Some(p) = v["provider"].as_str()
+                {
+                    let _ = cfg.pinned.set(p.to_string());
+                }
+                return Ok(v);
+            }
             Err((_, e)) if is_fatal(&e) => return Err(Call::Fatal(e)),
             Err((false, e)) => return Err(Call::Failed(e)),
             Err((true, e)) => last = e,
@@ -601,6 +630,21 @@ async fn call(cfg: &Config, messages: &[Value], turn: usize) -> Result<Value, Ca
         }
     }
     Err(Call::Failed(last))
+}
+
+/// Puts `provider` first in the body's provider order, keeping any other provider settings
+/// from extra_body. Fallbacks stay allowed: a pinned provider that is down must not end the run.
+fn pin(body: &mut Value, provider: &str) {
+    let settings = &mut body["provider"];
+    if !settings.is_object() {
+        *settings = json!({});
+    }
+    if settings.get("order").is_none() {
+        settings["order"] = json!([provider]);
+    }
+    if settings.get("allow_fallbacks").is_none() {
+        settings["allow_fallbacks"] = json!(true);
+    }
 }
 
 /// What a request event records: the reply's size, tokens and cost, or the error.
@@ -779,6 +823,24 @@ mod tests {
     use super::*;
     use anyhow::ensure;
 
+    #[test]
+    fn pin_puts_the_provider_first_and_keeps_extra_body_settings() {
+        let mut body = json!({"model": "m"});
+        pin(&mut body, "a");
+        assert_eq!(
+            body["provider"],
+            json!({"order": ["a"], "allow_fallbacks": true})
+        );
+
+        // extra_body's own provider settings win
+        let mut body = json!({"provider": {"order": ["b"], "allow_fallbacks": false, "sort": "x"}});
+        pin(&mut body, "a");
+        assert_eq!(
+            body["provider"],
+            json!({"order": ["b"], "allow_fallbacks": false, "sort": "x"})
+        );
+    }
+
     /// A once block runs and saves the first time, replays without running after, runs again
     /// when its fragment is older than max_age_s, and fails when its steps change the tree.
     #[tokio::test]
@@ -800,6 +862,8 @@ mod tests {
             api_url: String::new(),
             model: String::new(),
             extra_body: Map::new(),
+            pin_provider: false,
+            pinned: OnceLock::new(),
             base: "BASE".into(),
             max_tokens: 1,
             start: Instant::now(),
@@ -930,6 +994,8 @@ mod tests {
             api_url: String::new(),
             model: String::new(),
             extra_body: Map::new(),
+            pin_provider: false,
+            pinned: OnceLock::new(),
             base: "BASE".into(),
             max_tokens: 1,
             start: Instant::now(),
