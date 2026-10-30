@@ -41,6 +41,7 @@ from seagoat.utils.server import (
     read_instance,
 )
 from seagoat.utils.wait import wait_for
+from tests.fixtures.realistic_repo import build
 
 try:
     from pytest_cov.embed import cleanup_on_sigterm
@@ -704,55 +705,13 @@ def temporary_cd():
 
 @pytest.fixture(scope="session")
 def realistic_server(start_server):
+    # A made-up repository the suite builds itself, so no test needs the network
     realrepo = tempfile.mkdtemp()
-    subprocess.check_output(
-        [
-            "git",
-            "clone",
-            "https://github.com/kantord/i3-gnome-pomodoro.git",
-            realrepo,
-        ],
-        text=True,
-    )
+    build(realrepo)
 
-    ## Checkout a specific commit to make sure the results are deterministic
-    subprocess.check_output(
-        [
-            "git",
-            "-C",
-            realrepo,
-            "checkout",
-            "8bdea398906e7a706a28254cfd19b83dca136324",
-        ],
-        text=True,
-    )
-
-    subprocess.check_output(
-        [
-            "git",
-            "-C",
-            realrepo,
-            "branch",
-            "-D",
-            "master",
-        ],
-        text=True,
-    )
-
-    subprocess.check_output(
-        [
-            "git",
-            "-C",
-            realrepo,
-            "switch",
-            "-c",
-            "master",
-        ],
-        text=True,
-    )
     my_engine = Engine(realrepo)
     keep_cache_folder(my_engine.cache.get_cache_folder())
-    my_engine.analyze_codebase(minimum_chunks_to_analyze=339)
+    my_engine.analyze_codebase(minimum_chunks_to_analyze=351)
     assert my_engine.cache.data["chunks_not_yet_analyzed"] == set()
 
     yield my_engine
