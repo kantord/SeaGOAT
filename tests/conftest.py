@@ -5,6 +5,7 @@ import shutil
 import signal
 import subprocess
 import tempfile
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Must be set before seagoat imports - config.py reads this at module load time
@@ -18,16 +19,29 @@ os.environ["PYTEST_CURRENT_TEST"] = "true"
 SESSION_TEMP_DIR = Path(tempfile.mkdtemp(prefix="seagoat-pytest-"))
 os.environ["XDG_CACHE_HOME"] = str(SESSION_TEMP_DIR / "cache")
 os.environ["XDG_CONFIG_HOME"] = str(SESSION_TEMP_DIR / "config")
+
+# Server subprocesses started by tests log embedding-cache misses here; the
+# option --update-embedding-cache turns them into the committed cache file.
+# Must be set before seagoat is imported (the fixture reads it at call time,
+# but keep it next to the other per-session paths).
+EMBEDDING_MISSES_LOG_DIR = SESSION_TEMP_DIR / "embedding-misses"
+os.environ["SEAGOAT_EMBEDDING_CACHE_LOG"] = str(EMBEDDING_MISSES_LOG_DIR)
+EMBEDDING_MISSES_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+import copy
+import json
 from collections import defaultdict
 from contextlib import contextmanager
 from typing import cast
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 import orjson
 import pytest
 import requests
 import yaml
 from click.testing import CliRunner
+from deepmerge import always_merger
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
@@ -61,16 +75,48 @@ def suppress_chromadb_logger():
     logging.getLogger("chromadb").setLevel(logging.WARNING)
 
 
+@pytest.fixture(scope="session")
+def repo_template():
+    # Build the fake repo once per session, then copy it for every test that
+    # needs a repo. This avoids paying the cost of 12 GitPython commits ~270
+    # times. The template's fake_commit_date is remembered AFTER add_fake_data
+    # because it was ticked forward per commit; every copy must keep producing
+    # commits after the template's commits, exactly as before.
+    #
+    # The template's commit dates are anchored to a fixed date in the past
+    # (rather than "now - 400 days") so the repos also work for tests that
+    # fake the clock with freezegun, e.g.
+    # test_repository.py::test_file_score_is_recalculated_when_needed which
+    # freezes "today" to 2012-01-14/2018-01-15. With dates anchored to 2025
+    # those tests would see negative days_passed and crash in _compute_frecency.
+    # All copies share the same anchored dates, so every frecency-based ranking
+    # inside a test is exactly the same as with per-test repos.
+    template_dir = tempfile.mkdtemp()
+    template_repo = cast(MockRepo, MockRepo.init(template_dir))
+    template_repo.fake_commit_date = datetime(2011, 1, 1, tzinfo=UTC)
+    template_repo.add_fake_data()
+    fake_commit_date = template_repo.fake_commit_date
+    template_repo.close()
+
+    yield template_dir, fake_commit_date
+
+    shutil.rmtree(template_dir, ignore_errors=True)
+
+
 @pytest.fixture
-def generate_repo():
+def generate_repo(repo_template):
+    template_dir, fake_commit_date = repo_template
     directories_to_delete = []
     repos_to_delete = []
 
     def repo_generator():
         new_directory = tempfile.mkdtemp()
         directories_to_delete.append(new_directory)
-        repo = cast(MockRepo, MockRepo.init(new_directory))
-        repo.add_fake_data()
+        shutil.copytree(template_dir, new_directory, symlinks=True, dirs_exist_ok=True)
+        repo = cast(MockRepo, MockRepo(new_directory))
+        # MockRepo.__init__ resets fake_commit_date to now-400 days; restore the
+        # template's final date so later test commits come after the template's.
+        repo.fake_commit_date = fake_commit_date
         repos_to_delete.append(repo)
 
         return repo
@@ -114,9 +160,46 @@ def _delete_unkept_cache_entries(cache_root: Path) -> None:
             entry.unlink(missing_ok=True)
 
 
+# Every test session uses the cached embedding function unless a test opts
+# out with the `real_embeddings` marker. Test-specific global configs written
+# with create_config_file(global_config=True) are deep-merged over this.
+BASELINE_GLOBAL_CONFIG = {
+    "server": {
+        "chroma": {
+            "embeddingFunction": {
+                "name": "tests.fixtures.embedding_cache:CachedEmbeddingFunction",
+                "arguments": {},
+            }
+        }
+    }
+}
+
+
+def _write_global_config(content: dict) -> None:
+    GLOBAL_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(GLOBAL_CONFIG_FILE, "w", encoding="utf-8") as file:
+        yaml.dump(content, file)
+
+
+# The global config every test starts from: BASELINE_GLOBAL_CONFIG, or none
+# at all (seagoat's defaults) for tests marked real_embeddings.
+# create_config_file(global_config=True) merges a test's content over it.
+_active_global_config_baseline: dict = BASELINE_GLOBAL_CONFIG
+
+
+def _use_global_config_baseline(baseline: dict) -> None:
+    global _active_global_config_baseline
+    _active_global_config_baseline = baseline
+    if baseline:
+        _write_global_config(copy.deepcopy(baseline))
+    else:
+        GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
+
+
 def _clean_instance_state() -> None:
     # Each test starts from a clean slate: no instance, no repositories file
-    # and no global config (start commands add repositories while tests run).
+    # and only the baseline global config (start commands add repositories
+    # while tests run).
     from seagoat.utils.server import instance_file_path, repositories_file_path
 
     instance_path = instance_file_path()
@@ -126,7 +209,7 @@ def _clean_instance_state() -> None:
         Path(f"{instance_path}.lock"),
     ):
         file_path.unlink(missing_ok=True)
-    GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
+    _use_global_config_baseline(BASELINE_GLOBAL_CONFIG)
 
 
 @pytest.fixture(autouse=True)
@@ -135,13 +218,6 @@ def run_around_tests():
     yield
     _delete_unkept_cache_entries(get_cache_root())
     _clean_instance_state()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def _cleanup_session_temp_dir():
-    # Remove the per-session cache/config directory once all tests are done.
-    yield
-    shutil.rmtree(SESSION_TEMP_DIR, ignore_errors=True)
 
 
 def _get_multiprocessing_context():
@@ -493,6 +569,11 @@ def create_config_file(repo):
     def write_config(content, global_config=False):
         if global_config:
             config_file_path = GLOBAL_CONFIG_FILE
+            # Keep the cached embedding function from the baseline unless the
+            # test explicitly overrides it.
+            merged = copy.deepcopy(_active_global_config_baseline)
+            always_merger.merge(merged, content)
+            content = merged
         else:
             config_file_path = Path(repo.working_dir) / ".seagoat.yml"
 
@@ -558,3 +639,83 @@ def realistic_engine():
     del my_engine
 
     shutil.rmtree(realrepo, ignore_errors=True)
+
+
+@pytest.fixture(autouse=True)
+def real_embeddings(request, run_around_tests):
+    """Tests marked real_embeddings run with seagoat's default global config.
+
+    That means the real ONNX model instead of the cached embeddings: use it
+    for the real-model smoke test, and for tests that compare against
+    seagoat's default configuration.
+
+    Depends on run_around_tests so it runs after that fixture writes the
+    cached-embeddings baseline, not before (autouse fixtures otherwise run
+    in alphabetical order).
+    """
+    if request.node.get_closest_marker("real_embeddings") is not None:
+        _use_global_config_baseline({})
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--update-embedding-cache",
+        action="store_true",
+        default=False,
+        help="Add embeddings missed during the run to tests/fixtures/embedding_cache.npz",
+    )
+
+
+def _collect_embedding_misses() -> dict:
+    misses = {}
+    if not EMBEDDING_MISSES_LOG_DIR.is_dir():
+        return misses
+    for log_file in EMBEDDING_MISSES_LOG_DIR.glob("*.jsonl"):
+        with open(log_file, encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                key, vector = json.loads(line)
+                misses[key] = vector
+    return misses
+
+
+def _update_embedding_cache_file(misses: dict) -> None:
+    from tests.fixtures.embedding_cache import _CACHE_FILE
+
+    if not misses:
+        return
+    existing = {}
+    if _CACHE_FILE.exists():
+        data = np.load(_CACHE_FILE)
+        for key, vector in zip(data["keys"], data["vectors"]):
+            existing[str(key)] = np.asarray(vector, dtype=np.float32)
+    for key, vector in misses.items():
+        existing[key] = np.asarray(vector, dtype=np.float32)
+    all_keys = sorted(existing.keys())
+    all_vectors = np.stack([existing[key] for key in all_keys])
+    np.savez(_CACHE_FILE, keys=np.array(all_keys), vectors=all_vectors)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    misses = _collect_embedding_misses()
+    if session.config.getoption("--update-embedding-cache"):
+        _update_embedding_cache_file(misses)
+    else:
+        session.config._embedding_miss_count = len(misses)
+    # Remove the per-session cache/config directory here rather than in a
+    # session-scoped fixture: pytest tears session fixtures down during the
+    # last test, i.e. before pytest_sessionfinish runs, and the embedding
+    # misses log (SESSION_TEMP_DIR/embedding-misses) must survive until then.
+    shutil.rmtree(SESSION_TEMP_DIR, ignore_errors=True)
+
+
+def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    miss_count = getattr(config, "_embedding_miss_count", 0)
+    if miss_count:
+        terminalreporter.write_sep(
+            "-",
+            f"{miss_count} embeddings missing from tests/fixtures/embedding_cache.npz; "
+            "rerun with --update-embedding-cache",
+        )

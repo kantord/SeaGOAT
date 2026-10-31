@@ -1,10 +1,24 @@
+import yaml
+
 from tests.conftest import (
+    BASELINE_GLOBAL_CONFIG,
     SESSION_TEMP_DIR,
     _clean_instance_state,
     _delete_unkept_cache_entries,
     _kept_cache_folders,
     keep_cache_folder,
 )
+
+
+def _read_global_config():
+    from seagoat.utils.config import GLOBAL_CONFIG_FILE
+
+    with open(GLOBAL_CONFIG_FILE, encoding="utf-8") as file:
+        return yaml.safe_load(file)
+
+
+def _assert_baseline_global_config():
+    assert _read_global_config() == BASELINE_GLOBAL_CONFIG
 
 
 def test_cleanup_keeps_registered_folders_and_removes_the_rest(tmp_path):
@@ -38,7 +52,7 @@ def test_session_uses_its_own_cache_and_config_directories():
     assert GLOBAL_CONFIG_FILE.is_relative_to(SESSION_TEMP_DIR)
 
 
-def test_clean_instance_state_removes_instance_repositories_and_config():
+def test_clean_instance_state_removes_instance_and_repositories_and_writes_baseline_config():
     from seagoat.utils.config import GLOBAL_CONFIG_FILE
     from seagoat.utils.server import (
         instance_file_path,
@@ -57,7 +71,8 @@ def test_clean_instance_state_removes_instance_repositories_and_config():
 
     assert not instance_path.exists()
     assert not repositories_path.exists()
-    assert not GLOBAL_CONFIG_FILE.exists()
+    assert GLOBAL_CONFIG_FILE.exists()
+    _assert_baseline_global_config()
 
 
 def test_state_is_cleaned_after_each_test_plant_files():
@@ -87,4 +102,5 @@ def test_state_is_cleaned_before_each_test_no_leftovers():
 
     assert not instance_file_path().exists()
     assert not repositories_file_path().exists()
-    assert not GLOBAL_CONFIG_FILE.exists()
+    assert GLOBAL_CONFIG_FILE.exists()
+    _assert_baseline_global_config()

@@ -24,6 +24,7 @@ def normalize_full_paths(data, repo):
 
 
 @pytest.mark.asyncio
+@pytest.mark.real_embeddings
 async def test_gets_data_using_vector_embeddings(repo, snapshot):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
@@ -329,6 +330,20 @@ async def test_custom_ignore_patterns(repo, create_config_file):
     assert "foo/devices2.txt" not in results_files
 
 
+def test_imports_embedding_function_from_module_and_class(generate_repo):
+    repo = generate_repo()
+    embedding_function = _initialize_and_get_embedding_function(
+        repo,
+        embedding_function={
+            "name": f"{__name__}:_DummyEmbeddingFunction",
+            "arguments": {"greeting": "hi"},
+        },
+    )
+
+    assert isinstance(embedding_function, _DummyEmbeddingFunction)
+    assert embedding_function.greeting == "hi"
+
+
 def test_user_defined_execution_provider(generate_repo):
     repo = generate_repo()
     embedding_function = _initialize_and_get_embedding_function(
@@ -398,6 +413,16 @@ async def test_supports_fractional_n_results_multiplier(repo, create_config_file
     results = await seagoat.query("apple", limit_clue=5)
 
     assert "fruit.txt" in {result.gitfile.path for result in results}
+
+
+class _DummyEmbeddingFunction:
+    """A tiny embedding function used to test the 'module.path:ClassName' form."""
+
+    def __init__(self, greeting="hello"):
+        self.greeting = greeting
+
+    def __call__(self, input):
+        return [[0.0] * 384 for _ in input]
 
 
 def _initialize_and_get_embedding_function(repo, embedding_function=None):

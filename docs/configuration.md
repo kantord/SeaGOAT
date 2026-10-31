@@ -110,6 +110,9 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
   * `embeddingFunction` (global configuration file only):
     * `name`: Name of the embedding function to use.
     See [ChromaDB's docs for more](https://docs.trychroma.com/embeddings)
+    If the name contains a `:`, it is treated as
+    `module.path:ClassName` and imported with Python's `importlib`, so any
+    installed embedding function class can be used.
     * `arguments`: Arguments to pass to the embedding function.
   * `maxVectorDistance`: Maximum vector distance for results
     (default: 1.5, range: 0.1-10.0)
