@@ -10,10 +10,9 @@ from mcp.server.mcpserver import MCPServer
 from seagoat import __version__
 from seagoat.projects import resolve_repo_path
 from seagoat.utils.server import (
-    instance_answers,
     instance_url,
     normalize_repo_path,
-    read_instance,
+    running_instance,
 )
 
 mcp = MCPServer("seagoat", version=__version__)
@@ -47,13 +46,13 @@ def search_code(
     except (OSError, ValueError) as e:
         return f"Error normalizing repo path: {e!s}"
 
-    instance = read_instance()
-    if instance is None or not instance_answers(instance):
+    running = running_instance()
+    if running is None:
         return (
             f"No instance info found for repo: {repo}. Is the SeaGOAT server running?"
         )
 
-    address = instance_url(instance)
+    address = instance_url(running[0])
 
     try:
         result = requests.post(

@@ -11,8 +11,9 @@ use it through HTTP to build your own SeaGOAT-based applications.
 ## Starting the server
 
 One SeaGOAT server process (an *instance*) serves the repositories listed in
-`server.repositories` in the global configuration file. To add a repository
-to that list and start the instance, use:
+the `repositories.json` file next to the instance file in SeaGOAT's cache
+directory (for example `~/.cache/seagoat-servers/repositories.json` on
+Linux). To add a repository to that list and start the instance, use:
 
 ```bash
 seagoat-server start <repo_path> [--port=<custom_port>]
@@ -22,13 +23,18 @@ seagoat-server start <repo_path> [--port=<custom_port>]
 * `--port` - (Optional) Run the server on a specific port. It is used when
 the command starts the instance.
 
-`seagoat-server start <repo_path>` adds `<repo_path>` to the
-`server.repositories` list, starts the instance if none is running, and
-otherwise tells the running instance to load the repository. Adding a
-repository rewrites the global configuration file, so comments in that file
-are not kept. Removing a repository from the list takes effect when the
-instance restarts. A repository's own `.seagoat.yml` cannot set which
-repositories an instance serves.
+`seagoat-server start <repo_path>` writes `<repo_path>` into the
+`repositories.json` file, starts the instance if none is running, and
+otherwise tells the running instance to load the repository. Removing a
+repository from the list takes effect when the instance restarts. A
+repository's own `.seagoat.yml` cannot set which repositories an instance
+serves.
+
+If `<repo_path>` is not itself a Git repository but a folder containing
+repositories, `seagoat-server start` serves each direct subdirectory that is
+a Git repository root; it does not search deeper than direct subdirectories.
+Run `seagoat-server start <dir>` again later to pick up new repositories
+created inside the folder.
 
 If you don't specify a custom port, a random port is assigned to the
 instance. Don't worry: the `seagoat` CLI and the MCP server can still find
@@ -51,8 +57,17 @@ after `stop` is accepted and ignored.
 
 ## Upgrading SeaGOAT
 
-Stop every running single-repository server before upgrading. Old and new
-servers share the same cache folders.
+Before upgrading, stop every old single-repository server with the old
+version, one at a time:
+
+```bash
+seagoat-server stop <repo>
+```
+
+After upgrading, run `seagoat-server start <repo>` again for each
+repository. Old and new servers share the same cache folders. Note that a
+`server.port` in a repository's `.seagoat.yml` is now ignored with a
+warning, because the port is global-only.
 
 ## Developing with SeaGOAT-server
 
@@ -114,22 +129,80 @@ in the `globalConfigFile` attribute. This depends on your operating system.
 You can also create a configuration file for your project. See
 [the configuration documentation](configuration.md) for more information.
 
+### Checking whether the instance is running
+
+To check whether a SeaGOAT instance is running, use:
+
+```bash
+seagoat-server status            # human-readable
+seagoat-server status --json     # machine-readable
+```
+
+With `--json` you get the instance's address, its process id, and every
+repository it serves:
+
+```json
+{
+    "isRunning": true,
+    "url": "http://127.0.0.1:33831",
+    "pid": 15231,
+    "projects": [
+        "/path/to/repository/1",
+        "/path/to/repository/2"
+    ]
+}
+```
+
+* `isRunning` - Whether a SeaGOAT instance is running.
+* `url` - The address of the instance (or `null` when none is running).
+* `pid` - The process id of the instance (or `null`).
+* `projects` - The repository paths the instance serves; an empty list when
+no instance is running.
+
+Pass a repository path to ask whether the running instance serves it:
+
+```bash
+seagoat-server status /path/to/repository --json
+```
+
+The answer then has `"isRunning": true` only when the instance is running
+and serves that repository. Without `--json`, the output is human-readable:
+it says either where the instance is running or that the instance does not
+serve the given repository.
+
 ### The instance HTTP API
 
 The running instance also exposes a small HTTP API on its address:
 
 * `GET /status` - Returns JSON with the SeaGOAT `version`, the instance's
-`pid`, and the `projects` it serves (the repository paths from
-`server.repositories`).
+`pid`, and the `projects` it serves, the repository paths listed in
+`repositories.json`. A listed repository that fails to load is skipped with
+a warning in the instance's log and is missing from `projects`.
 * `POST /status` - With a `repoPath` in the JSON payload, returns the
 `version` and the `stats` of that project (and an HTTP 404 if the instance
 does not serve that repository).
-* `POST /reload` - Reloads the `server.repositories` list from the global
-configuration file, loading any newly configured repositories.
+* `POST /reload` - Reloads the `repositories.json` file, loading any newly
+configured repositories. The answer lists the repositories it serves under
+`projects` and, under `failed`, every listed repository that could not be
+loaded (path to error message), for example:
+
+  ```json
+  {
+      "projects": ["/path/to/repository/1"],
+      "failed": {
+          "/path/to/broken/repository": "not a git repository"
+      }
+  }
+  ```
+
 * Query routes such as `POST /lines/query` and `POST /files/query` take a
 `repoPath` in the JSON payload, so one instance can answer for every
-repository it serves. A query naming a repository the instance does not
-serve gets an HTTP 404 error saying so.
+repository it serves. The `repoPath` may be left out only when the instance
+serves exactly one repository; otherwise the answer is HTTP 400. A query
+naming a repository the instance does not serve gets an HTTP 404 error
+saying so. A request for a project whose worker is busy, for example during
+the first analysis of a big repository, answers HTTP 503 with the message
+`<repo> is busy (indexing); try again shortly`.
 
 ### Querying code lines using the API
 
@@ -161,9 +234,11 @@ curl -X POST 'http://localhost:34743/lines/query' \
 
 * `repoPath` - Path to the repository you want to search. The `seagoat`
 CLI and the MCP server send it with every query, so one instance can answer
-for many repositories. A query naming a repository the instance does not
-serve gets an HTTP 404 error saying so; any program that can reach the
-server can query the repositories it serves.
+for many repositories. The `repoPath` may be left out only when the instance
+serves exactly one repository; otherwise the answer is HTTP 400. A query
+naming a repository the instance does not serve gets an HTTP 404 error
+saying so; any program that can reach the server can query the repositories
+it serves.
 * `queryText` - The actual text of your query.
 * `limitClue` - This number should indicate how many results you are
 planning to display. This is not a hard limit, you might receive
@@ -293,9 +368,11 @@ curl -X POST 'http://localhost:34743/files/query' \
 
 * `repoPath` - Path to the repository you want to search. The `seagoat`
 CLI and the MCP server send it with every query, so one instance can answer
-for many repositories. A query naming a repository the instance does not
-serve gets an HTTP 404 error saying so; any program that can reach the
-server can query the repositories it serves.
+for many repositories. The `repoPath` may be left out only when the instance
+serves exactly one repository; otherwise the answer is HTTP 400. A query
+naming a repository the instance does not serve gets an HTTP 404 error
+saying so; any program that can reach the server can query the repositories
+it serves.
 * `queryText` - The actual text of your query.
 * `limitClue` - This number should indicate how many results you are
 planning to display. This is not a hard limit, you might receive

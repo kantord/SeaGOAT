@@ -70,11 +70,16 @@ def read_repositories() -> list[str]:
     return [path for path in repositories if isinstance(path, str)]
 
 
+def client_host(host: str) -> str:
+    """The address a client on this machine uses for an instance bound to host.
+
+    This never binds: it maps a wildcard bind address to its loopback address.
+    """
+    return {"0.0.0.0": "127.0.0.1", "::": "::1"}.get(host, host)  # nosec B104
+
+
 def write_instance(instance: Instance) -> None:
-    host = {
-        "0.0.0.0": "127.0.0.1",
-        "::": "::1",
-    }.get(instance.host, instance.host)
+    host = client_host(instance.host)
 
     write_to_json_file(
         instance_file_path(),
@@ -117,36 +122,65 @@ def fetch_status(instance: Instance) -> dict | None:
         return None
 
 
-def instance_answers(instance: Instance) -> bool:
-    return fetch_status(instance) is not None
-
-
-def stop_instance() -> bool:
+def running_instance() -> tuple[Instance, dict] | None:
+    """The instance from the instance file with its /status answer, but only
+    when that answer comes from the very pid the file names."""
     instance = read_instance()
     if instance is None:
-        return False
+        return None
 
-    # Delete the file first, so a failed stop never leaves a file pointing
-    # at a dead or reused process
-    instance_file_path().unlink(missing_ok=True)
+    status = fetch_status(instance)
+    if status is None or status.get("pid") != instance.pid:
+        return None
+
+    return instance, status
+
+
+def stop_instance() -> tuple[str, int | None]:
+    """
+    Stop the instance named by the instance file, if any.
+
+    Returns an outcome and, for a failed verification, the pid from the file:
+
+        ("stopped", None)     - the process was verified as SeaGOAT and
+                                terminated;
+        ("not_running", None) - there is no instance file, or the process it
+                                names is gone or is not SeaGOAT (the stale
+                                file is removed);
+        ("failed", pid)       - the process could not be inspected
+                                (AccessDenied); the instance file is kept so
+                                the caller can report the pid and not claim
+                                success.
+    """
+    instance = read_instance()
+    if instance is None:
+        return "not_running", None
 
     # Terminate the pid only if that process exists and its command line runs
     # seagoat-server, so a reused pid of an unrelated process is never killed.
     try:
         process = psutil.Process(instance.pid)
         if not process.is_running():
-            return True
+            instance_file_path().unlink(missing_ok=True)
+            return "not_running", None
         cmdline = " ".join(process.cmdline())
-        if "seagoat-server" not in cmdline and "seagoat.server" not in cmdline:
-            return True
-    except (psutil.NoSuchProcess, psutil.AccessDenied):
-        return True
+    except psutil.NoSuchProcess:
+        instance_file_path().unlink(missing_ok=True)
+        return "not_running", None
+    except psutil.AccessDenied:
+        return "failed", instance.pid
+
+    if "seagoat-server" not in cmdline and "seagoat.server" not in cmdline:
+        # The pid was reused by an unrelated process: the instance is gone
+        instance_file_path().unlink(missing_ok=True)
+        return "not_running", None
 
     process.terminate()
     if not _exited(process, timeout=5):
         process.kill()
         _exited(process, timeout=5)
-    return True
+    instance_file_path().unlink(missing_ok=True)
+    return "stopped", None
 
 
 def _exited(process: psutil.Process, timeout: float) -> bool:
@@ -164,7 +198,6 @@ def _exited(process: psutil.Process, timeout: float) -> bool:
 
 def claim_start(
     bind: Callable[[], Instance],
-    answers: Callable[[Instance], bool] = instance_answers,
     prepare: Callable[[], None] | None = None,
 ) -> Instance | None:
     # The lock covers preparing, checking and binding, so two starts at once
@@ -173,9 +206,9 @@ def claim_start(
         if prepare is not None:
             prepare()
 
-        existing = read_instance()
-        if existing is not None and answers(existing):
-            return existing
+        running = running_instance()
+        if running is not None:
+            return running[0]
 
         instance = bind()
         write_instance(instance)

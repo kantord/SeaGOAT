@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 # How long to wait before retrying maintenance after it failed
 MAINTENANCE_RETRY_DELAY_SECONDS = 10
 
+# How long a caller waits for a task result before giving up
+TASK_TIMEOUT_SECONDS = 120
+
 HIGH_PRIORITY = 0.0
 MEDIUM_PRIORITY = 0.5
 LOW_PRIORITY = 1.0
@@ -27,6 +30,10 @@ class Task:
 
 class TaskFailed(Exception):
     """A task raised an exception in the worker thread"""
+
+
+class TaskTimedOut(Exception):
+    """A task did not produce a result within the time limit"""
 
 
 class BaseQueue:
@@ -59,7 +66,16 @@ class BaseQueue:
         )
         self._task_queue.put(task)
         if wait_for_result:
-            result = result_queue.get()
+            try:
+                result = result_queue.get(timeout=TASK_TIMEOUT_SECONDS)
+            except Empty:
+                # The worker may still finish the task later, but each call
+                # owns a private result queue, so a late result is dropped
+                # and can never be delivered to a later caller.
+                raise TaskTimedOut(
+                    f"Task '{task_name}' did not finish in time "
+                    f"({TASK_TIMEOUT_SECONDS} seconds)"
+                ) from None
             if isinstance(result, TaskFailed):
                 raise result
             return result

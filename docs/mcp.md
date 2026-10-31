@@ -15,14 +15,15 @@ seagoat-server start /path/to/your/repository
 ```
 
 One SeaGOAT server process (an *instance*) serves the repositories listed in
-`server.repositories` in the global configuration file. `seagoat-server
-start <repo>` adds `<repo>` to that list, starts the instance if none is
-running, and otherwise tells the running instance to load it. Removing a
-repository from the list takes effect when the instance restarts; a
-repository's own `.seagoat.yml` cannot set it. The `search_code` tool sends
-the repository path with every query, so any program that can reach the
-server can query the repositories it serves. A query naming a repository the
-instance does not serve gets an HTTP 404 error saying so.
+the `repositories.json` file next to the instance file in SeaGOAT's cache
+directory (for example `~/.cache/seagoat-servers/repositories.json` on
+Linux). `seagoat-server start <repo>` writes `<repo>` into that file, starts
+the instance if none is running, and otherwise tells the running instance to
+load it. Removing a repository from the list takes effect when the instance
+restarts; a repository's own `.seagoat.yml` cannot set it. The `search_code`
+tool sends the repository path with every query, so any program that can
+reach the server can query the repositories it serves. A query naming a
+repository the instance does not serve gets an HTTP 404 error saying so.
 
 ## Configuration
 

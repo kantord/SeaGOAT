@@ -1,3 +1,4 @@
+import os
 import subprocess
 import threading
 from pathlib import Path
@@ -19,6 +20,31 @@ class Project(NamedTuple):
     repo_path: str  # normalized repository root
     config: dict  # read once, when the project is created
     queue: Any  # whatever queue_factory returned
+
+
+def find_repositories_in_directory(path: str) -> list[str]:
+    """Return the git repository roots among the direct subdirectories of path.
+
+    Only direct children are considered (no deeper search): a subdirectory is
+    included exactly when it is itself a repository root.
+    """
+    try:
+        children = [
+            entry.path
+            for entry in os.scandir(path)
+            if entry.is_dir(follow_symlinks=False)
+        ]
+    except OSError:
+        return []
+    repositories = []
+    for child in children:
+        try:
+            root = git_root(child)
+        except NotAGitRepo:
+            continue
+        if normalize_repo_path(root) == normalize_repo_path(child):
+            repositories.append(root)
+    return sorted(repositories, key=normalize_repo_path)
 
 
 def git_root(path: str) -> str:

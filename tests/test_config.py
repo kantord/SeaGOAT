@@ -170,7 +170,7 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             },
             ("server", "chroma", "embeddingFunction"),
         ),
-        ({"server": {"host": "0.0.0.0"}}, ("server", "host")),
+        ({"server": {"host": "0.0.0.0"}}, ("server", "host")),  # nosec B104 - config only
         ({"client": {"host": "https://evil.example/"}}, ("client", "host")),
     ],
 )
@@ -229,11 +229,11 @@ def test_server_listens_on_localhost_by_default(repo):
 
 
 def test_global_config_can_set_server_host(repo, create_config_file):
-    create_config_file({"server": {"host": "0.0.0.0"}}, global_config=True)
+    create_config_file({"server": {"host": "0.0.0.0"}}, global_config=True)  # nosec B104
 
     config = get_config_values(Path(repo.working_dir))
 
-    assert config["server"]["host"] == "0.0.0.0"
+    assert config["server"]["host"] == "0.0.0.0"  # nosec B104 - config only
 
 
 def test_config_defaults_have_no_repositories(repo):

@@ -343,6 +343,7 @@ syn v2.0.119	MIT OR Apache-2.0
 syn v3.0.9	MIT OR Apache-2.0
 tar v0.4.46	MIT OR Apache-2.0
 tempfile v3.27.0	MIT OR Apache-2.0
+terminal_size v0.4.4	MIT OR Apache-2.0
 thiserror-impl v2.0.21	MIT OR Apache-2.0
 thiserror v2.0.21	MIT OR Apache-2.0
 thread_local v1.1.10	MIT OR Apache-2.0

@@ -9,7 +9,7 @@ import requests
 from click.testing import CliRunner
 
 from seagoat import __version__
-from seagoat.cli import query_server, seagoat, warn_if_update_available
+from seagoat.cli import ExitCode, query_server, seagoat, warn_if_update_available
 from seagoat.utils.cli_display import is_bat_installed
 from seagoat.utils.server import Instance
 from tests.conftest import MagicMock
@@ -20,20 +20,44 @@ def real_bat():
     return
 
 
-def test_get_repository_root_returns_none_for_non_git_path(tmp_path):
-    from seagoat.cli import get_repository_root
+def test_non_git_path_fails_early_with_git_repository_error(
+    tmp_path, runner_with_error
+):
+    non_git_dir = tmp_path / "plain"
+    non_git_dir.mkdir()
 
-    assert get_repository_root(str(tmp_path)) is None
+    result = runner_with_error.invoke(
+        seagoat, ["some query", str(non_git_dir), "--no-color"]
+    )
+
+    assert result.exit_code == ExitCode.NOT_A_GIT_REPO
+    assert (
+        f"{non_git_dir} is not inside a Git repository" in result.output + result.stderr
+    )
+    assert "seagoat-server start" not in result.output + result.stderr
 
 
-def test_get_repository_root_returns_repository_root_for_subdirectory(repo):
-    from seagoat.cli import get_repository_root
-    from seagoat.utils.server import normalize_repo_path
+@pytest.mark.usefixtures("mock_accuracy_warning")
+def test_forwards_repository_root_when_run_from_subdirectory(
+    mock_server_factory, mocker, runner, repo
+):
+    mock_server_factory([], manually_mock_request=True)
+    request_args = {}
 
+    def fake_requests(*args, **kwargs):
+        mock_response = mocker.Mock()
+        mock_response.text = '{"results": []}'
+        request_args["json"] = kwargs.get("json", {})
+        return mock_response
+
+    mocker.patch("seagoat.cli.requests.post", side_effect=fake_requests)
     subdirectory = os.path.join(repo.working_dir, "subdirectory")
     os.makedirs(subdirectory, exist_ok=True)
 
-    assert get_repository_root(subdirectory) == normalize_repo_path(repo.working_dir)
+    result = runner.invoke(seagoat, ["JavaScript", subdirectory, "--no-color"])
+
+    assert result.exit_code == 0
+    assert request_args["json"]["repoPath"] == os.path.abspath(repo.working_dir)
 
 
 @pytest.fixture
@@ -310,10 +334,9 @@ def test_seagoat_warns_on_incomplete_accuracy(
         "requests.post", return_value=mock_response(mock_status_response)
     )
     mocker.patch(
-        "seagoat.cli.read_instance",
-        return_value=Instance(host="localhost", port=1234, pid=1),
+        "seagoat.cli.running_instance",
+        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
     )
-    mocker.patch("seagoat.cli.instance_answers", return_value=True)
 
     query = "some random query"
     result = runner_with_error.invoke(seagoat, [query, ".", "--no-color"])
@@ -424,27 +447,20 @@ def test_version_option(runner):
     assert result.output.strip() == f"seagoat, version {__version__}"
 
 
-@pytest.mark.parametrize(
-    "repo_path",
-    [
-        ("/path/to/repo1"),
-        ("/another/path/to/repo2"),
-    ],
-)
-def test_server_is_not_running_error(mocker, repo_path, snapshot, mock_spinner):
+def test_server_is_not_running_error(mocker, repo, snapshot, mock_spinner):
     mocker.patch(
-        "seagoat.cli.read_instance",
-        return_value=Instance(host="127.0.0.1", port=1, pid=234234),
+        "seagoat.cli.running_instance",
+        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
     )
-    mocker.patch("seagoat.cli.instance_answers", return_value=True)
     runner = CliRunner()
 
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
-    result = runner.invoke(seagoat, [query, repo_path])
+    result = runner.invoke(seagoat, [query, repo.working_dir])
 
     assert result.exit_code == 3
-    assert str(result.output) == snapshot
+    assert "The SeaGOAT server is not running." in result.output
+    assert f"seagoat-server start {repo.working_dir}" in result.output
 
 
 def test_documentation_present(runner):
@@ -847,10 +863,9 @@ def test_no_network_to_update(
 
     mocker.patch("requests.post", return_value=mock_response(mocked_response))
     mocker.patch(
-        "seagoat.cli.read_instance",
-        return_value=Instance(host="localhost", port=1234, pid=1),
+        "seagoat.cli.running_instance",
+        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
     )
-    mocker.patch("seagoat.cli.instance_answers", return_value=True)
     mocker.patch(
         "seagoat.cli.warn_if_update_available",
         side_effect=network_error,
@@ -913,10 +928,9 @@ def test_unexpected_update_check_errors_do_not_fail_the_search(
 
     mocker.patch("requests.post", return_value=mock_response(mocked_response))
     mocker.patch(
-        "seagoat.cli.read_instance",
-        return_value=Instance(host="localhost", port=1234, pid=1),
+        "seagoat.cli.running_instance",
+        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
     )
-    mocker.patch("seagoat.cli.instance_answers", return_value=True)
     mocker.patch("seagoat.cli.warn_if_update_available", side_effect=error)
     result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
 

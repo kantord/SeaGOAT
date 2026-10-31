@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from seagoat.queue.base_queue import BaseQueue, TaskFailed
+from seagoat.queue.base_queue import BaseQueue, TaskFailed, TaskTimedOut
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.repository import Repository
 
@@ -100,5 +100,43 @@ def test_worker_keeps_running_after_a_task_fails(repo):
             queue.enqueue("fail")
 
         assert queue.enqueue("echo", "still alive") == "still alive"
+    finally:
+        queue.shutdown()
+
+
+def test_enqueue_raises_task_timed_out_when_handler_blocks(mocker):
+    class BusyQueue(BaseQueue):
+        def handle_block(self, _context):
+            sleep(2.0)
+            return "late result"
+
+    queue = BusyQueue()
+    try:
+        mocker.patch("seagoat.queue.base_queue.TASK_TIMEOUT_SECONDS", 0.1)
+        with pytest.raises(TaskTimedOut):
+            queue.enqueue("block")
+    finally:
+        queue.shutdown()
+
+
+def test_late_result_from_timed_out_task_is_dropped(mocker):
+    class BusyQueue(BaseQueue):
+        def handle_block(self, _context):
+            sleep(2.0)
+            return "late result"
+
+        def handle_echo(self, _context, value):
+            return value
+
+    queue = BusyQueue()
+    try:
+        mocker.patch("seagoat.queue.base_queue.TASK_TIMEOUT_SECONDS", 0.1)
+        with pytest.raises(TaskTimedOut):
+            queue.enqueue("block")
+
+        # Let the blocked handler finish and drop its result, then make sure
+        # a later caller gets its own result, not the stale one.
+        sleep(2.2)
+        assert queue.enqueue("echo", "fresh result") == "fresh result"
     finally:
         queue.shutdown()

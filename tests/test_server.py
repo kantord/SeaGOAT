@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import re
+import socket
 import subprocess
 import time
 from pathlib import Path
@@ -18,13 +19,20 @@ from seagoat.queue.task_queue import TaskQueue
 from seagoat.server import create_app, get_status_data
 from seagoat.server import server as seagoat_server
 from seagoat.utils.server import (
-    instance_answers,
     instance_url,
     normalize_repo_path,
     read_instance,
+    read_repositories,
+    running_instance,
 )
 from seagoat.utils.wait import wait_for
 from tests.conftest import GLOBAL_CONFIG_FILE, tempfile
+
+
+def free_port() -> int:
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
 
 
 def normalize_full_paths(data, repo):
@@ -146,9 +154,7 @@ def test_stop(repo, managed_process):
         server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ) as server_process:
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
         instance = read_instance()
@@ -163,7 +169,7 @@ def test_stop(repo, managed_process):
         )
         assert stop_result.returncode == 0, stop_result.stderr
         # This test is the server's parent, so it reaps it
-        assert server_process.wait(timeout=1) is not None
+        server_process.wait(timeout=1)
 
         status_result = subprocess.run(
             ["python", "-m", "seagoat.server", "status"],
@@ -182,9 +188,7 @@ def test_stop_accepts_and_ignores_a_path(repo, managed_process):
         server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ) as server_process:
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
         instance = read_instance()
@@ -200,7 +204,7 @@ def test_stop_accepts_and_ignores_a_path(repo, managed_process):
         assert stop_result.returncode == 0, stop_result.stderr
         assert "Instance stopped." in stop_result.stdout
         # This test is the server's parent, so it reaps it
-        assert server_process.wait(timeout=1) is not None
+        server_process.wait(timeout=1)
 
         status_result = subprocess.run(
             ["python", "-m", "seagoat.server", "status"],
@@ -216,6 +220,12 @@ def test_stop_accepts_and_ignores_a_path(repo, managed_process):
 def test_one_instance_serves_two_repositories(generate_repo, managed_process):
     repo_a = generate_repo()
     repo_b = generate_repo()
+    repo_b.add_file_change_commit(
+        file_name="only_in_b.md",
+        contents="zanzibar_marker_only_in_repo_b\n",
+        author=repo_b.actors["John Doe"],
+        commit_message="add a file only repo B has",
+    )
 
     server_cmd = ["python", "-m", "seagoat.server", "start", repo_a.working_dir]
 
@@ -223,9 +233,7 @@ def test_one_instance_serves_two_repositories(generate_repo, managed_process):
         server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ) as server_process:
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
         instance = read_instance()
@@ -263,6 +271,21 @@ def test_one_instance_serves_two_repositories(generate_repo, managed_process):
         )
         assert project_status_response.status_code == 200
 
+        # Each query goes to the project its repoPath names
+        def query(repo):
+            response = requests.post(
+                f"{instance_url(instance)}/lines/query",
+                json={
+                    "queryText": "zanzibar_marker_only_in_repo_b",
+                    "repoPath": repo.working_dir,
+                },
+            )
+            assert response.status_code == 200, response.text
+            return [result["path"] for result in response.json()["results"]]
+
+        wait_for(lambda: "only_in_b.md" in query(repo_b), 30)
+        assert "only_in_b.md" not in query(repo_a)
+
         stop_result = subprocess.run(
             ["python", "-m", "seagoat.server", "stop"],
             capture_output=True,
@@ -271,7 +294,7 @@ def test_one_instance_serves_two_repositories(generate_repo, managed_process):
         )
         assert stop_result.returncode == 0, stop_result.stderr
         # This test is the server's parent, so it reaps it
-        assert server_process.wait(timeout=10) is not None
+        server_process.wait(timeout=10)
 
 
 @pytest.mark.timeout(120)
@@ -299,9 +322,7 @@ def test_bad_configured_repository_does_not_take_instance_down(
         server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ) as server_process:
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
         instance = read_instance()
@@ -331,7 +352,7 @@ def test_bad_configured_repository_does_not_take_instance_down(
         )
         assert stop_result.returncode == 0, stop_result.stderr
         # This test is the server's parent, so it reaps it
-        assert server_process.wait(timeout=10) is not None
+        server_process.wait(timeout=10)
 
 
 @pytest.mark.timeout(120)
@@ -359,9 +380,7 @@ def test_start_reports_error_when_running_instance_cannot_serve_requested_repo(
         server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ) as server_process:
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
         instance = read_instance()
@@ -397,7 +416,7 @@ def test_start_reports_error_when_running_instance_cannot_serve_requested_repo(
         )
         assert stop_result.returncode == 0, stop_result.stderr
         # This test is the server's parent, so it reaps it
-        assert server_process.wait(timeout=10) is not None
+        server_process.wait(timeout=10)
 
 
 def test_start_fails_loudly_when_requested_repo_cannot_load(generate_repo):
@@ -595,8 +614,8 @@ def test_version_option(runner):
     assert result.output.strip() == f"seagoat, version {__version__}"
 
 
-@pytest.mark.parametrize("custom_port", [7483, 9981])
-def test_start_server_on_specific_port(custom_port, repo, mocker, managed_process):
+def test_start_server_on_specific_port(repo, mocker, managed_process):
+    custom_port = free_port()
     mocker.patch("seagoat.server.TaskQueue")
 
     server_cmd = [
@@ -611,9 +630,7 @@ def test_start_server_on_specific_port(custom_port, repo, mocker, managed_proces
 
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
 
@@ -665,10 +682,10 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
     assert servers_data["servers"][current_repo]["isRunning"]
 
 
-@pytest.mark.parametrize("custom_port", [7483, 9981])
 def test_start_server_on_custom_port_using_config_files(
-    custom_port, repo, mocker, managed_process, create_config_file
+    repo, mocker, managed_process, create_config_file
 ):
+    custom_port = free_port()
     create_config_file(
         {
             "server": {
@@ -689,9 +706,7 @@ def test_start_server_on_custom_port_using_config_files(
 
     with managed_process(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
         wait_for(
-            lambda: (
-                (instance := read_instance()) is not None and instance_answers(instance)
-            ),
+            lambda: running_instance() is not None,
             8,
         )
 
@@ -721,3 +736,195 @@ def test_server_shows_error_when_folder_is_not_a_git_repo(runner_with_error):
         result = runner_with_error.invoke(seagoat_server, ["start", new_directory])
 
     assert result.exit_code == 5
+
+
+def _git_env(**extra: str) -> dict:
+    env = os.environ.copy()
+    # Ignore the developer's git configuration so no commit signing or other
+    # settings leak into the made-up repositories.
+    env.update(
+        {
+            "GIT_CONFIG_GLOBAL": "/dev/null",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            **extra,
+        }
+    )
+    return env
+
+
+def _run_git(path: Path, *args: str, env: dict | None = None) -> None:
+    subprocess.run(
+        ["git", "-C", str(path), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env if env is not None else _git_env(),
+    )
+
+
+def make_git_repo(path: Path) -> Path:
+    """Create a plain git repository at path, creating parents as needed."""
+    path.mkdir(parents=True, exist_ok=True)
+    _run_git(path, "init", "-b", "master")
+    (path / "README.md").write_text(f"hello from {path}\n", encoding="utf-8")
+    _run_git(path, "add", "README.md")
+    _run_git(
+        path,
+        "commit",
+        "-m",
+        "initial commit",
+        env=_git_env(
+            GIT_AUTHOR_NAME="Test Author",
+            GIT_AUTHOR_EMAIL="test@example.com",
+            GIT_COMMITTER_NAME="Test Author",
+            GIT_COMMITTER_EMAIL="test@example.com",
+        ),
+    )
+    return path
+
+
+@pytest.mark.timeout(120)
+def test_start_on_directory_serves_each_git_repository_inside_it(
+    tmp_path, managed_process
+):
+    parent = tmp_path / "projects"
+    repo_a = make_git_repo(parent / "a")
+    repo_b = make_git_repo(parent / "b")
+
+    with managed_process(
+        ["python", "-m", "seagoat.server", "start", str(parent)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ) as server_process:
+        wait_for(
+            lambda: running_instance() is not None,
+            8,
+        )
+        instance = read_instance()
+        assert instance is not None
+
+        status_response = requests.get(f"{instance_url(instance)}/status")
+        assert status_response.status_code == 200
+        projects = status_response.json()["projects"]
+        assert normalize_repo_path(str(repo_a)) in projects
+        assert normalize_repo_path(str(repo_b)) in projects
+
+        # Both repositories are also recorded in the repositories file
+        repositories = read_repositories()
+        assert normalize_repo_path(str(repo_a)) in repositories
+        assert normalize_repo_path(str(repo_b)) in repositories
+
+        # A repository created later is not picked up until start is rerun
+        repo_c = make_git_repo(parent / "c")
+        status_response = requests.get(f"{instance_url(instance)}/status")
+        assert status_response.status_code == 200
+        assert (
+            normalize_repo_path(str(repo_c)) not in status_response.json()["projects"]
+        )
+
+        # Running start again on the same directory serves the new repository
+        add_c_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "start", str(parent)],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+        assert add_c_result.returncode == 0, add_c_result.stderr
+        assert "Added repositories to the running instance" in add_c_result.stdout
+        assert normalize_repo_path(str(repo_c)) in add_c_result.stdout
+
+        status_response = requests.get(f"{instance_url(instance)}/status")
+        assert status_response.status_code == 200
+        assert normalize_repo_path(str(repo_c)) in status_response.json()["projects"]
+
+        stop_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "stop"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert stop_result.returncode == 0, stop_result.stderr
+        # The start output names every repository it added
+        stdout, _stderr = server_process.communicate()
+        stdout = stdout.decode()
+        assert normalize_repo_path(str(repo_a)) in stdout
+        assert normalize_repo_path(str(repo_b)) in stdout
+
+
+@pytest.mark.timeout(120)
+def test_start_on_directory_does_not_search_deeper_than_direct_children(
+    tmp_path, managed_process
+):
+    parent = tmp_path / "projects"
+    repo_direct = make_git_repo(parent / "direct")
+    deep_repo = make_git_repo(parent / "nested" / "deep")
+    (parent / "plain").mkdir()
+
+    with managed_process(
+        ["python", "-m", "seagoat.server", "start", str(parent)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ) as server_process:
+        wait_for(
+            lambda: running_instance() is not None,
+            8,
+        )
+        instance = read_instance()
+        assert instance is not None
+
+        status_response = requests.get(f"{instance_url(instance)}/status")
+        assert status_response.status_code == 200
+        projects = status_response.json()["projects"]
+        assert normalize_repo_path(str(repo_direct)) in projects
+        assert normalize_repo_path(str(deep_repo)) not in projects
+        assert normalize_repo_path(str(parent / "nested")) not in projects
+
+        repositories = read_repositories()
+        assert normalize_repo_path(str(repo_direct)) in repositories
+        assert normalize_repo_path(str(deep_repo)) not in repositories
+
+        stop_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "stop"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert stop_result.returncode == 0, stop_result.stderr
+        assert server_process.wait(timeout=10) is not None
+
+
+def test_start_on_directory_without_git_repositories_fails(tmp_path, runner_with_error):
+    parent = tmp_path / "projects"
+    parent.mkdir()
+    (parent / "plain").mkdir()
+
+    result = runner_with_error.invoke(seagoat_server, ["start", str(parent)])
+
+    assert result.exit_code == 5
+    combined = (result.stdout or "") + (result.stderr or "")
+    assert "SeaGOAT can only operate in Git repositories" in combined
+
+
+@pytest.mark.timeout(120)
+def test_start_on_directory_with_an_unloadable_repository_fails(
+    tmp_path, runner_with_error
+):
+    from seagoat.server import ExitCode
+
+    parent = tmp_path / "projects"
+    make_git_repo(parent / "good")
+    bad_repo = make_git_repo(parent / "bad")
+    (Path(str(bad_repo)) / ".seagoat.yml").write_text(
+        "server:\n  repositories: this-is-not-a-list\n",
+        encoding="utf-8",
+    )
+
+    result = runner_with_error.invoke(seagoat_server, ["start", str(parent)])
+
+    # Like starting a single unloadable repository, the whole start fails and
+    # no instance is started; the failing repository is named in the error.
+    assert result.exit_code == ExitCode.SERVER_ERROR
+    combined = (result.stdout or "") + (result.stderr or "")
+    assert f"Could not load {normalize_repo_path(str(bad_repo))}" in combined
+    assert read_instance() is None

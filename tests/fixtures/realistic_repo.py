@@ -12,29 +12,40 @@ AUTHOR_NAME = "Test Author"
 AUTHOR_EMAIL = "test@example.com"
 
 
+def _git_env(**extra: str) -> dict:
+    env = os.environ.copy()
+    # Ignore the developer's git configuration so no commit signing, hooks or
+    # other settings leak into the made-up commits and the repo stays
+    # reproducible (same commit IDs no matter who builds it).
+    env.update(
+        {
+            "GIT_CONFIG_GLOBAL": "/dev/null",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            **extra,
+        }
+    )
+    return env
+
+
 def _run_git(repo_path: str, *args: str, env: dict | None = None):
     subprocess.run(
         ["git", "-C", repo_path, *args],
         check=True,
         capture_output=True,
         text=True,
-        env=env,
+        env=env if env is not None else _git_env(),
     )
 
 
 def _commit_env(date: str) -> dict:
-    env = os.environ.copy()
-    env.update(
-        {
-            "GIT_AUTHOR_NAME": AUTHOR_NAME,
-            "GIT_AUTHOR_EMAIL": AUTHOR_EMAIL,
-            "GIT_AUTHOR_DATE": date,
-            "GIT_COMMITTER_NAME": AUTHOR_NAME,
-            "GIT_COMMITTER_EMAIL": AUTHOR_EMAIL,
-            "GIT_COMMITTER_DATE": date,
-        }
+    return _git_env(
+        GIT_AUTHOR_NAME=AUTHOR_NAME,
+        GIT_AUTHOR_EMAIL=AUTHOR_EMAIL,
+        GIT_AUTHOR_DATE=date,
+        GIT_COMMITTER_NAME=AUTHOR_NAME,
+        GIT_COMMITTER_EMAIL=AUTHOR_EMAIL,
+        GIT_COMMITTER_DATE=date,
     )
-    return env
 
 
 def build(repo_path: str) -> str:

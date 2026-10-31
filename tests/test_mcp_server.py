@@ -18,8 +18,8 @@ def mock_mcp_deps(mocker: MockerFixture) -> dict[str, Any]:
     """Mock dependencies for MCP server tests."""
     return {
         "normalize": mocker.patch("seagoat.mcp_server.normalize_repo_path"),
-        "read_instance": mocker.patch("seagoat.mcp_server.read_instance"),
-        "instance_answers": mocker.patch("seagoat.mcp_server.instance_answers"),
+        "read_instance": MagicMock(),  # only holds the Instance for running_instance
+        "running_instance": mocker.patch("seagoat.mcp_server.running_instance"),
         "instance_url": mocker.patch("seagoat.mcp_server.instance_url"),
         "post": mocker.patch("seagoat.mcp_server.requests.post"),
         "resolve": mocker.patch("seagoat.mcp_server.resolve_repo_path"),
@@ -33,7 +33,10 @@ def test_search_code_success(mock_mcp_deps) -> None:
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
-    mock_mcp_deps["instance_answers"].return_value = True
+    mock_mcp_deps["running_instance"].return_value = (
+        mock_mcp_deps["read_instance"].return_value,
+        {"pid": 1},
+    )
     mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
@@ -69,7 +72,7 @@ def test_search_code_server_not_running(mock_mcp_deps) -> None:
     mock_mcp_deps["resolve"].return_value = "."
     mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
     mock_mcp_deps["read_instance"].return_value = None
-    mock_mcp_deps["instance_answers"].return_value = False
+    mock_mcp_deps["running_instance"].return_value = None
 
     result = search_code("test query", repo_path=".")
 
@@ -85,7 +88,10 @@ def test_search_code_no_results(mock_mcp_deps) -> None:
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
-    mock_mcp_deps["instance_answers"].return_value = True
+    mock_mcp_deps["running_instance"].return_value = (
+        mock_mcp_deps["read_instance"].return_value,
+        {"pid": 1},
+    )
     mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
@@ -112,11 +118,11 @@ def test_search_code_sends_repository_root_for_subdirectory(repo, mocker) -> Non
     subdirectory = os.path.join(repo.working_dir, "subdirectory")
     os.makedirs(subdirectory, exist_ok=True)
 
+    instance = Instance(host="localhost", port=1234, pid=1)
     mocker.patch(
-        "seagoat.mcp_server.read_instance",
-        return_value=Instance(host="localhost", port=1234, pid=1),
+        "seagoat.mcp_server.running_instance",
+        return_value=(instance, {"pid": instance.pid}),
     )
-    mocker.patch("seagoat.mcp_server.instance_answers", return_value=True)
     mocker.patch(
         "seagoat.mcp_server.instance_url", return_value="http://localhost:1234"
     )
@@ -138,7 +144,10 @@ def test_search_code_reports_server_error_message_for_http_error(mock_mcp_deps) 
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
-    mock_mcp_deps["instance_answers"].return_value = True
+    mock_mcp_deps["running_instance"].return_value = (
+        mock_mcp_deps["read_instance"].return_value,
+        {"pid": 1},
+    )
     mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     server_error_message = (
@@ -169,7 +178,10 @@ def test_search_code_falls_back_to_status_when_error_body_has_no_message(
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
-    mock_mcp_deps["instance_answers"].return_value = True
+    mock_mcp_deps["running_instance"].return_value = (
+        mock_mcp_deps["read_instance"].return_value,
+        {"pid": 1},
+    )
     mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()

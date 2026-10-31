@@ -10,7 +10,8 @@
 
 use std::io::Write;
 use std::path::PathBuf;
-use std::sync::OnceLock;
+use std::sync::Mutex;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use anyhow::{Result, anyhow};
@@ -61,8 +62,10 @@ pub struct Config {
     /// provider's prompt cache only serves requests that reach it (2026-10-29: 75% of prompt
     /// tokens cached with one provider, 56% in a run that switched provider 13 times).
     pub pin_provider: bool,
-    /// The provider of the first reply that named one, when pin_provider is on.
-    pub pinned: OnceLock<String>,
+    /// The provider to keep routing to, when pin_provider is on: pinned from a reply that
+    /// named one and was usable (text or a tool call), and cleared after 3 empty replies in a
+    /// row, so a Mutex, not a OnceLock.
+    pub pinned: Mutex<Option<String>>,
     /// The commit the run started from; command steps get it as $WORKER_BASE.
     pub base: String,
     pub max_tokens: u32,
@@ -364,15 +367,26 @@ fn once_key(steps: &[Step], model: &str, before: &[Value], base: &str) -> String
 
 /// The working tree's content as a git tree hash (through a private index, so the model's own
 /// index is untouched) plus the ignored files' names: any write a once block makes changes it.
+/// A git failure (a non-zero exit, e.g. the guest's repo is broken) is not a tree: it returns
+/// a marker unique to this call, so `before != after` never passes when either read failed.
 async fn tree_state(g: &Guest, name: &str) -> Result<String, Stop> {
-    g.sh(
-        "export GIT_INDEX_FILE=/tmp/.once-index; cp .git/index $GIT_INDEX_FILE 2>/dev/null; \
-         git add -A >/dev/null 2>&1 && git write-tree && git status --porcelain --ignored | grep '^!!'",
-        BASH_TIMEOUT,
-    )
-    .await
-    .map(|o| o.text)
-    .map_err(|e| Stop::GuestDead(format!("`{name}` could not check the tree: {e:#}")))
+    let o = g
+        .sh(
+            "export GIT_INDEX_FILE=/tmp/.once-index; cp .git/index $GIT_INDEX_FILE 2>/dev/null; \
+             git add -A >/dev/null 2>&1 && git write-tree && \
+             { git status --porcelain --ignored | grep '^!!' || true; }",
+            BASH_TIMEOUT,
+        )
+        .await
+        .map_err(|e| Stop::GuestDead(format!("`{name}` could not check the tree: {e:#}")))?;
+    if o.code != Some(0) {
+        static UNKNOWN: AtomicU64 = AtomicU64::new(0);
+        return Ok(format!(
+            "unknown-tree-{}",
+            UNKNOWN.fetch_add(1, Ordering::Relaxed)
+        ));
+    }
+    Ok(o.text)
 }
 
 /// The saved messages and their age in seconds, or None when missing, unreadable or too old.
@@ -430,6 +444,9 @@ async fn turns(
     r: &mut Report,
     max_turns: usize,
 ) -> Result<Ending, Stop> {
+    // How many replies in a row had no text and no tool call; three of them clear the pinned
+    // provider: it keeps answering nothing, so routing to it is the problem, not the fallback.
+    let mut empty_in_a_row = 0usize;
     for _ in 0..max_turns {
         // Numbered across the whole run, so events and the table never repeat a turn number.
         let turn = r.turns + 1;
@@ -462,7 +479,7 @@ async fn turns(
             diff: Default::default(),
             diff_total: Default::default(),
         };
-        let mut msg = resp["choices"][0]["message"].clone();
+        let msg = resp["choices"][0]["message"].clone();
         if !msg.is_object() {
             return Ok(Ending::ApiError(format!(
                 "no message in reply: {}",
@@ -476,14 +493,22 @@ async fn turns(
         // (a call without a reply would make the next request invalid).
         // 2026-10-29: one ended a pass as "done" with nothing changed.
         let cut_off = resp["choices"][0]["finish_reason"] == "length";
-        if cut_off && let Some(m) = msg.as_object_mut() {
-            m.remove("tool_calls");
-            // A message with neither calls nor text is invalid for some APIs.
-            if m.get("content").is_none_or(Value::is_null) {
-                m.insert("content".into(), "".into());
-            }
-        }
         let empty = msg["content"].as_str().is_none_or(|t| t.trim().is_empty());
+        let has_calls = !calls.is_empty();
+        let msg = tidy_reply(msg, cut_off, empty, has_calls);
+        // Pin only from a reply the model actually made: one with text or a tool call. An
+        // empty or cut-off reply names the provider that produced nothing, and pinning it
+        // would only pin the failure.
+        if cfg.pin_provider
+            && may_pin(cut_off, empty, has_calls)
+            && let Some(p) = resp["provider"].as_str()
+        {
+            *cfg.pinned.lock().unwrap() = Some(p.to_string());
+        }
+        empty_in_a_row = empty_streak(empty, has_calls, empty_in_a_row);
+        if cfg.pin_provider && empty_in_a_row >= 3 {
+            *cfg.pinned.lock().unwrap() = None;
+        }
         record(cfg, std::slice::from_ref(&msg));
         conv.messages.push(msg);
         if cut_off {
@@ -595,7 +620,7 @@ async fn call(cfg: &Config, messages: &[Value], turn: usize) -> Result<Value, Ca
     if let Some(b) = body.as_object_mut() {
         b.extend(cfg.extra_body.clone());
     }
-    if let Some(p) = cfg.pinned.get() {
+    if let Some(p) = cfg.pinned.lock().unwrap().as_ref() {
         pin(&mut body, p);
     }
     let mut last = String::new();
@@ -607,14 +632,8 @@ async fn call(cfg: &Config, messages: &[Value], turn: usize) -> Result<Value, Ca
             .unwrap_or_else(|e| Err((true, e.to_string())));
         cfg.events.end(span, request_fields(turn, &res));
         match res {
-            Ok(v) => {
-                if cfg.pin_provider
-                    && let Some(p) = v["provider"].as_str()
-                {
-                    let _ = cfg.pinned.set(p.to_string());
-                }
-                return Ok(v);
-            }
+            // The provider is pinned in turns(), only from a usable reply; call() just uses it.
+            Ok(v) => return Ok(v),
             Err((_, e)) if is_fatal(&e) => return Err(Call::Fatal(e)),
             Err((false, e)) => return Err(Call::Failed(e)),
             Err((true, e)) => last = e,
@@ -793,15 +812,45 @@ fn record(cfg: &Config, msgs: &[Value]) {
     }
 }
 
+/// The last `MAX_TOOL_OUTPUT` bytes of a long output -- test failures are at the end -- with a
+/// short head for context and a note in between.
+/// Drops the tool_calls of a cut-off or empty reply and, when the content is null, sets it to
+/// "": a message with neither calls nor text is invalid for some APIs. A reply that only has
+/// tool calls (no text) is not empty, so its calls stay.
+fn tidy_reply(mut msg: Value, cut_off: bool, empty: bool, has_calls: bool) -> Value {
+    if let Some(m) = msg.as_object_mut()
+        && (cut_off || (empty && !has_calls))
+    {
+        m.remove("tool_calls");
+        if m.get("content").is_none_or(Value::is_null) {
+            m.insert("content".into(), "".into());
+        }
+    }
+    msg
+}
+
+/// Whether this reply may pin its provider: it must be usable (text or a tool call), so never
+/// an empty or cut-off one.
+fn may_pin(cut_off: bool, empty: bool, has_calls: bool) -> bool {
+    !cut_off && (!empty || has_calls)
+}
+
+/// The run of consecutive replies with no text and no tool call; any usable reply resets it.
+fn empty_streak(empty: bool, has_calls: bool, so_far: usize) -> usize {
+    if empty && !has_calls { so_far + 1 } else { 0 }
+}
+
 fn tail_cut(s: &str) -> String {
     if s.len() <= MAX_TOOL_OUTPUT {
         return s.to_string();
     }
-    let cut = s.floor_char_boundary(MAX_TOOL_OUTPUT);
+    // A little context for what the run was doing before the output grew out of hand.
+    const HEAD: usize = 200;
+    let head = &s[..s.floor_char_boundary(HEAD)];
+    let tail = &s[s.ceil_char_boundary(s.len() - (MAX_TOOL_OUTPUT - HEAD))..];
     format!(
-        "{}\n... [truncated, {} more chars]",
-        &s[..cut],
-        s.len() - cut
+        "{head}\n... [truncated, {} more chars]\n{tail}",
+        s.len() - head.len() - tail.len()
     )
 }
 
@@ -841,6 +890,79 @@ mod tests {
         );
     }
 
+    #[test]
+    fn may_pin_only_from_usable_replies() {
+        // text is usable
+        assert!(may_pin(false, false, false));
+        // tool calls are usable even with no text
+        assert!(may_pin(false, true, true));
+        // a cut-off reply is never a pin, not even when it carried calls
+        assert!(!may_pin(true, false, false));
+        assert!(!may_pin(true, true, true));
+        // an empty reply (no text, no calls) is not a pin
+        assert!(!may_pin(false, true, false));
+        assert!(!may_pin(true, true, false));
+    }
+
+    #[test]
+    fn empty_streak_counts_only_consecutive_empty_replies() {
+        assert_eq!(empty_streak(true, false, 0), 1);
+        assert_eq!(empty_streak(true, false, 2), 3);
+        // a reply with tool calls is not empty, even without text
+        assert_eq!(empty_streak(true, true, 2), 0);
+        // text resets the streak
+        assert_eq!(empty_streak(false, false, 2), 0);
+        assert_eq!(empty_streak(false, true, 2), 0);
+    }
+
+    #[test]
+    fn tidy_reply_drops_calls_from_cut_off_and_empty_replies() {
+        // cut off: partial text and a call that must never run or be left dangling
+        let msg = json!({"role": "assistant", "content": "partial", "tool_calls": [{"id": "1"}]});
+        let t = tidy_reply(msg, true, false, true);
+        assert!(t.get("tool_calls").is_none(), "{t}");
+        assert_eq!(t["content"], "partial");
+        // empty: no text and no call; null content becomes "" (invalid for some APIs)
+        let msg = json!({"role": "assistant", "content": null});
+        let t = tidy_reply(msg, false, true, false);
+        assert!(t.get("tool_calls").is_none(), "{t}");
+        assert_eq!(t["content"], "");
+        // a calls-only reply is not empty, so its calls stay
+        let msg = json!({"role": "assistant", "content": "\u{200b}", "tool_calls": [{"id": "1"}]});
+        let t = tidy_reply(msg, false, true, true);
+        assert_eq!(t["tool_calls"].as_array().unwrap().len(), 1, "{t}");
+        // a normal text reply passes through untouched
+        let msg = json!({"role": "assistant", "content": "  done  "});
+        assert_eq!(
+            tidy_reply(msg, false, false, false),
+            json!({"role": "assistant", "content": "  done  "})
+        );
+    }
+
+    #[test]
+    fn tail_cut_keeps_the_end_of_long_output() {
+        assert_eq!(tail_cut("hello"), "hello");
+        let long = "line of filler\n".repeat(20_000);
+        let with_failure = format!("{long}FAILED: the test that was failing");
+        let cut = tail_cut(&with_failure);
+        assert!(
+            cut.len() > MAX_TOOL_OUTPUT && cut.len() < with_failure.len(),
+            "{}",
+            cut.len()
+        );
+        // the failure at the very end survives, and a little head gives context
+        assert!(
+            cut.ends_with("FAILED: the test that was failing"),
+            "...{cut}"
+        );
+        assert!(cut.starts_with("line of filler\n"), "{cut}");
+        assert!(cut.contains("[truncated,"), "{cut}");
+        // multibyte text: the cut lands on a char boundary, never panics
+        let wide = format!("{}{}", "\u{e9}".repeat(20_000), "tail-\u{e9}");
+        let cut = tail_cut(&wide);
+        assert!(cut.ends_with("tail-\u{e9}"), "...{cut}");
+    }
+
     /// A once block runs and saves the first time, replays without running after, runs again
     /// when its fragment is older than max_age_s, and fails when its steps change the tree.
     #[tokio::test]
@@ -863,7 +985,7 @@ mod tests {
             model: String::new(),
             extra_body: Map::new(),
             pin_provider: false,
-            pinned: OnceLock::new(),
+            pinned: Mutex::new(None),
             base: "BASE".into(),
             max_tokens: 1,
             start: Instant::now(),
@@ -995,7 +1117,7 @@ mod tests {
             model: String::new(),
             extra_body: Map::new(),
             pin_provider: false,
-            pinned: OnceLock::new(),
+            pinned: Mutex::new(None),
             base: "BASE".into(),
             max_tokens: 1,
             start: Instant::now(),
@@ -1178,11 +1300,19 @@ mod tests {
             start.elapsed()
         );
         ensure!(
-            out.contains("(exit 3)") && out.ends_with("err\n"),
+            out.contains("(exit 3)")
+                && out.contains("err\n")
+                && out.contains("output cut")
+                && out.len() < 2_000_000,
             "{}",
-            tail(&out, 200)
+            tail(&out, 300)
         );
-        ensure!(out.len() > 2_000_000, "only {} bytes", out.len());
+        // The cap keeps the end of the output, so the failing command's stderr survives.
+        ensure!(
+            out.ends_with("[command output cut: only its last 1000000 bytes are shown]\n"),
+            "{}",
+            tail(&out, 300)
+        );
         // A healthy guest that merely prints the phrase is not dead; one that cannot write is.
         ensure!(
             dead(g, "grep hit: Input/output error").await.is_none(),

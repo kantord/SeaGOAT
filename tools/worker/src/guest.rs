@@ -18,6 +18,10 @@ const ROOT_DISK_MIB: u32 = 30 * 1024;
 const ENV: &str = "export PATH=/root/.cargo/bin:$PATH CARGO_TARGET_DIR=/cache/target \
     UV_PROJECT_ENVIRONMENT=/cache/venv;";
 
+/// A command's output capped in the guest (see sh): the SDK buffers stdout on the host, and
+/// a model command can spew far more than this. The tail survives, so test failures do too.
+const MAX_OUTPUT_BYTES: usize = 1_000_000;
+
 pub struct Guest {
     sb: Sandbox,
     name: String,
@@ -84,10 +88,24 @@ impl Guest {
     }
 
     /// stdout and stderr interleaved as the model would see them in a terminal.
-    /// Megabytes of output come back whole, unlike an earlier run_bash, which read its
-    /// pipe only after exit and hung on >64 KB; tools_against_a_real_guest holds this.
+    /// The output is capped in the guest at MAX_OUTPUT_BYTES because the SDK buffers it on
+    /// the host: a model command can spew megabytes (the earlier run_bash hung on >64 KB;
+    /// tools_against_a_real_guest holds this). The tail survives the cut -- test failures
+    /// are at the end -- and the text says when it cut, so the caller never mistakes a
+    /// 1 MB wall of output for the whole thing. The command's own exit code still comes
+    /// back: the script runs in a subshell whose status is read before the wrapper exits.
     pub async fn sh(&self, script: &str, timeout: Duration) -> Result<Output> {
-        let script = format!("{ENV} cd {REPO} 2>/dev/null; {{ {script}\n}} 2>&1");
+        let script = format!(
+            "{ENV} cd {REPO} 2>/dev/null; t=/tmp/sh.$$.out; \
+             if {{ : >\"$t\"; }} 2>/dev/null; then \
+               ( {script}\n) >\"$t\" 2>&1; rc=$?; \
+               if [ $(wc -c <\"$t\") -gt {MAX_OUTPUT_BYTES} ]; then \
+                 tail -c {MAX_OUTPUT_BYTES} \"$t\"; echo; \
+                 echo \"[command output cut: only its last {MAX_OUTPUT_BYTES} bytes are shown]\"; \
+               else cat \"$t\"; fi; rm -f \"$t\"; exit $rc; \
+             fi; \
+             ( {script}\n) 2>&1"
+        );
         match self.sb.shell_with(script, |e| e.timeout(timeout)).await {
             Ok(o) => Ok(Output {
                 code: Some(o.status().code),
@@ -146,16 +164,21 @@ impl Guest {
         crate::events::Cpu::parse(&o.text)
     }
 
+    /// The tree id of `rev`, or Err when git cannot resolve it: a failure is not a tree id,
+    /// and callers must not compare it as one.
     pub async fn tree_of(&self, rev: &str) -> Result<String> {
-        Ok(self
+        let o = self
             .sh(
                 &format!("git rev-parse {rev}^{{tree}}"),
                 Duration::from_secs(30),
             )
-            .await?
-            .text
-            .trim()
-            .to_string())
+            .await?;
+        let tree = o.text.trim().to_string();
+        if o.code == Some(0) && tree.len() == 40 {
+            Ok(tree)
+        } else {
+            bail!("tree_of {rev}: {}", o.text)
+        }
     }
 
     /// Everything the run changed since `base`, committed or not, as one diff for `git apply`.

@@ -1,18 +1,26 @@
-import os
-
-# Must be set before seagoat imports - config.py reads this at module load time
-os.environ["PYTEST_CURRENT_TEST"] = "true"
-
 import logging
 import multiprocessing
+import os
 import shutil
 import signal
 import subprocess
 import tempfile
+from pathlib import Path
+
+# Must be set before seagoat imports - config.py reads this at module load time
+os.environ["PYTEST_CURRENT_TEST"] = "true"
+
+# Give this pytest session its own cache and config directories, so two runs
+# (for example in two worktrees) never share the instance file,
+# repositories.json or the global config. Must be set before seagoat is
+# imported: seagoat.utils.config reads the config directory at module load
+# time and seagoat.utils.server reads the cache directory per request.
+SESSION_TEMP_DIR = Path(tempfile.mkdtemp(prefix="seagoat-pytest-"))
+os.environ["XDG_CACHE_HOME"] = str(SESSION_TEMP_DIR / "cache")
+os.environ["XDG_CONFIG_HOME"] = str(SESSION_TEMP_DIR / "config")
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import cast
 from unittest.mock import MagicMock, patch
 
@@ -36,9 +44,8 @@ from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import (
     Instance,
-    instance_answers,
     instance_url,
-    read_instance,
+    running_instance,
 )
 from seagoat.utils.wait import wait_for
 from tests.fixtures.realistic_repo import build
@@ -261,14 +268,7 @@ def _delete_unkept_cache_entries(cache_root: Path) -> None:
             entry.unlink(missing_ok=True)
 
 
-@pytest.fixture(autouse=True)
-def run_around_tests():
-    yield
-    cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
-    if "RUNNER_TEMP" in os.environ:
-        cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
-    _delete_unkept_cache_entries(cache_root)
-
+def _clean_instance_state() -> None:
     # Each test starts from a clean slate: no instance, no repositories file
     # and no global config (start commands add repositories while tests run).
     from seagoat.utils.server import instance_file_path, repositories_file_path
@@ -281,6 +281,24 @@ def run_around_tests():
     ):
         file_path.unlink(missing_ok=True)
     GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
+
+
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    _clean_instance_state()
+    yield
+    cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
+    if "RUNNER_TEMP" in os.environ:
+        cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
+    _delete_unkept_cache_entries(cache_root)
+    _clean_instance_state()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _cleanup_session_temp_dir():
+    # Remove the per-session cache/config directory once all tests are done.
+    yield
+    shutil.rmtree(SESSION_TEMP_DIR, ignore_errors=True)
 
 
 chromadb_patcher = patch("chromadb.Client")
@@ -320,17 +338,16 @@ def _start_server():
         server_process.start()
 
         def make_sure_server_is_running():
-            instance = read_instance()
-            return instance is not None and instance_answers(instance)
+            return running_instance() is not None
 
         wait_for(make_sure_server_is_running, timeout=3.0)
 
-        instance = read_instance()
-        if instance is None or not instance_answers(instance):
+        running = running_instance()
+        if running is None:
             server_process.kill()
             raise RuntimeError(f"Server for {repo_path} did not start.")
 
-        server_address = instance_url(instance)
+        server_address = instance_url(running[0])
 
         # type ignored because it is errounously marked as int, it is float
         # as per the official documentation
@@ -378,11 +395,11 @@ def _server(start_server, repo):
 @pytest.fixture
 def init_server_mock(mocker):
     def _init_server_mock():
+        instance = Instance(host="localhost", port=1234, pid=1)
         mocker.patch(
-            "seagoat.cli.read_instance",
-            return_value=Instance(host="localhost", port=1234, pid=1),
+            "seagoat.cli.running_instance",
+            return_value=(instance, {"pid": instance.pid, "projects": []}),
         )
-        mocker.patch("seagoat.cli.instance_answers", return_value=True)
         mocker.patch("os.isatty", return_value=True)
 
     return _init_server_mock

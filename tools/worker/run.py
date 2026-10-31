@@ -59,9 +59,28 @@ IMAGE = "seagoat-worker:latest"
 
 
 def git(*args, cwd=ROOT) -> str:
-    return subprocess.run(
-        ["git", *args], cwd=cwd, check=True, capture_output=True, text=True
-    ).stdout
+    done = subprocess.run(
+        ["git", *args], cwd=cwd, capture_output=True, text=True, check=False
+    )
+    if done.returncode != 0:
+        sys.exit(
+            f"worker: git {' '.join(args)} failed ({done.returncode}):\n"
+            f"{(done.stderr or done.stdout).strip()}"
+        )
+    return done.stdout
+
+
+def unique_dir(out_dir: Path, stem: str) -> Path:
+    """A fresh <stem> under out_dir, suffixed -2, -3, ... on same-second collisions."""
+    out = out_dir / stem
+    n = 2
+    while True:
+        try:
+            out.mkdir(parents=True)
+            return out
+        except FileExistsError:
+            out = out_dir / f"{stem}-{n}"
+            n += 1
 
 
 def image_loaded(image: str) -> bool:
@@ -220,7 +239,11 @@ def apply_in_worktree(slug: str, base: str, patch: Path) -> Path:
     )
     if done.returncode != 0:
         sys.exit(
-            f"worker: the patch did not apply cleanly; resolve in {tree}\n{done.stderr}"
+            f"worker: the patch did not apply cleanly; resolve it in {tree} "
+            f"(branch worker/{slug}), or drop the worktree with:\n"
+            f"    git worktree remove --force {tree}\n"
+            f"    git branch -D worker/{slug}\n"
+            f"{done.stderr}"
         )
     git(
         "reset", "-q", cwd=tree
@@ -248,10 +271,18 @@ def main(argv) -> int:
         sys.exit(
             f"worker: slug {a.slug!r} must be lowercase letters, digits and dashes"
         )
+    if not a.brief.is_file():
+        sys.exit(f"worker: no brief at {a.brief}")
     base = git("rev-parse", a.base).strip()
     if git("branch", "--list", f"worker/{a.slug}").strip():
         sys.exit(
             f"worker: branch worker/{a.slug} exists; pick another slug or delete it"
+        )
+    tree = ROOT / ".claude/worktrees" / f"worker-{a.slug}"
+    if tree.exists():
+        sys.exit(
+            f"worker: {tree} already exists; pick another slug or delete it "
+            f"(git worktree remove --force {tree}; git branch -D worker/{a.slug})"
         )
     if not image_loaded(IMAGE):
         sys.exit(
@@ -259,16 +290,21 @@ def main(argv) -> int:
         )
     if not KEY_FILE.is_file():
         sys.exit(f"worker: no API key at {KEY_FILE}")
+    key = KEY_FILE.read_text().strip()
+    if not key:
+        sys.exit(f"worker: the API key file {KEY_FILE} is empty")
     if not CONFIG_FILE.is_file():
         sys.exit(f"worker: no config at {CONFIG_FILE}; see this script's docstring")
-    with CONFIG_FILE.open("rb") as f:
-        config = tomllib.load(f)
+    try:
+        with CONFIG_FILE.open("rb") as f:
+            config = tomllib.load(f)
+    except tomllib.TOMLDecodeError as e:
+        sys.exit(f"worker: {CONFIG_FILE} is not valid TOML: {e}")
     missing = [k for k in ("api_url", "model") if k not in config]
     if missing:
         sys.exit(f"worker: {CONFIG_FILE} lacks {', '.join(missing)}")
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    out = ROOT / "target/agent-tmp/worker" / f"{a.slug}-{stamp}"
-    out.mkdir(parents=True)
+    out = unique_dir(ROOT / "target/agent-tmp/worker", f"{a.slug}-{stamp}")
     brief = out / "brief.md"
     brief.write_text(a.brief.read_text())
     program = out / "program.json"
@@ -284,7 +320,7 @@ def main(argv) -> int:
     env = {
         **os.environ,
         "MSB_HOME": str(MSB_HOME),
-        "SEAGOAT_WORKER_API_KEY": KEY_FILE.read_text().strip(),
+        "SEAGOAT_WORKER_API_KEY": key,
         "CLICOLOR_FORCE": "1",
     }
     cmd = [

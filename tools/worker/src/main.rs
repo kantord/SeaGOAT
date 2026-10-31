@@ -37,7 +37,7 @@ mod program;
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result, bail};
 use clap::Parser;
@@ -109,7 +109,12 @@ fn main() -> ExitCode {
     unsafe { std::env::remove_var("SEAGOAT_WORKER_API_KEY") };
     let args = Args::parse();
     let rt = tokio::runtime::Runtime::new().expect("tokio runtime");
-    match rt.block_on(run(args, key)) {
+    let code = rt.block_on(run(args, key));
+    // A run cut short by Ctrl-C/SIGTERM returns while a request it dropped may still be running
+    // in the background (the model call runs on a blocking thread); do not wait for it, or the
+    // caller's timeout(1) would have to kill us. Give the runtime a moment and then exit.
+    rt.shutdown_timeout(Duration::from_secs(5));
+    match code {
         Ok(code) => ExitCode::from(code),
         Err(e) => {
             eprintln!("setup failed: {e:#}");
@@ -152,7 +157,7 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
             model: args.model.clone(),
             extra_body,
             pin_provider: args.pin_provider,
-            pinned: std::sync::OnceLock::new(),
+            pinned: std::sync::Mutex::new(None),
             base: base.clone(),
             max_tokens: args.max_tokens,
             start,
@@ -179,7 +184,9 @@ async fn run(args: Args, key: Result<String, std::env::VarError>) -> Result<u8> 
         r = work => r,
         sig = sigs => {
             eprintln!("{sig}: removing the sandbox");
-            g.remove().await;
+            // Removal is a courtesy, not a reason to hang the caller's timeout(1): if the SDK
+            // does not answer within the timeout, exit anyway and let the host reap the guest.
+            tokio::time::timeout(Duration::from_secs(10), g.remove()).await.ok();
             return Ok(if sig == "SIGINT" { 130 } else { 143 });
         }
     };

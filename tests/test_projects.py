@@ -2,9 +2,27 @@ import threading
 from pathlib import Path
 
 import pytest
+from git.repo import Repo
+from git.util import Actor
 
-from seagoat.projects import NotAGitRepo, Projects, UnknownProject, git_root
+from seagoat.projects import (
+    NotAGitRepo,
+    Projects,
+    UnknownProject,
+    find_repositories_in_directory,
+    git_root,
+)
 from seagoat.utils.server import normalize_repo_path
+
+
+def init_git_repo(path: Path) -> Path:
+    path.mkdir(parents=True, exist_ok=True)
+    repo = Repo.init(str(path))
+    (path / "README.md").write_text("hello", encoding="utf-8")
+    repo.index.add(["README.md"])
+    actor = Actor("Test Author", "test@example.com")
+    repo.index.commit("initial commit", author=actor, committer=actor)
+    return path
 
 
 def test_get_on_root_and_subdirectory_return_same_project(repo):
@@ -106,3 +124,45 @@ def test_concurrent_get_creates_one_project(generate_repo):
     assert len(queue_factory_calls) == 1
     assert all(result is results[0] for result in results)
     assert projects.find(root) is results[0]
+
+
+def test_find_repositories_in_directory_returns_only_direct_repository_roots(
+    tmp_path,
+):
+    parent = tmp_path / "projects"
+    repo_a = init_git_repo(parent / "a")
+    repo_b = init_git_repo(parent / "b")
+
+    repositories = find_repositories_in_directory(str(parent))
+
+    assert repositories == sorted(
+        [normalize_repo_path(str(repo_a)), normalize_repo_path(str(repo_b))]
+    )
+
+
+def test_find_repositories_in_directory_skips_non_repos_and_deeper_repos(tmp_path):
+    parent = tmp_path / "projects"
+    repo_child = init_git_repo(parent / "repo-child")
+    # A deeper repository inside a plain subdirectory is not a direct child
+    deep_repo = init_git_repo(parent / "nested" / "deep")
+    parent.mkdir(exist_ok=True)
+    (parent / "plain").mkdir()
+
+    repositories = find_repositories_in_directory(str(parent))
+
+    assert repositories == [normalize_repo_path(str(repo_child))]
+    assert normalize_repo_path(str(deep_repo)) not in repositories
+    assert normalize_repo_path(str(parent / "nested")) not in repositories
+
+
+def test_find_repositories_in_directory_returns_empty_without_repositories(tmp_path):
+    parent = tmp_path / "projects"
+    parent.mkdir()
+    (parent / "plain").mkdir()
+    (parent / "file.txt").write_text("hello", encoding="utf-8")
+
+    assert find_repositories_in_directory(str(parent)) == []
+
+
+def test_find_repositories_in_directory_returns_empty_for_missing_directory(tmp_path):
+    assert find_repositories_in_directory(str(tmp_path / "does-not-exist")) == []

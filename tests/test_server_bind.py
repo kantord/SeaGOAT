@@ -117,14 +117,64 @@ def test_start_server_fails_loudly_when_requested_repo_cannot_load(
         patch("seagoat.server.add_repository"),
         patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
         patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.create_server"),
+        patch("seagoat.server.create_server") as mock_create_server,
         pytest.raises(SystemExit) as excinfo,
     ):
         start_server(bad_repo.working_dir, custom_port=40128)
 
     assert excinfo.value.code == ExitCode.SERVER_ERROR
     assert "Could not load" in capsys.readouterr().err
-    mock_create_app.assert_not_called()
+    # The port was bound first, and the bound socket is closed again when the
+    # explicitly started repository fails to load.
+    mock_create_app.assert_called_once()
+    mock_create_server.return_value.close.assert_called_once()
+
+
+def test_start_server_binds_the_port_before_loading_any_project(
+    repo, generate_repo, create_repositories_file, capsys
+):
+    """A port already in use exits with BIND_FAILED before any project loads."""
+    other_repo = generate_repo()
+    create_repositories_file([repo.working_dir, other_repo.working_dir])
+
+    with (
+        patch("seagoat.server.add_repository"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
+        patch("seagoat.server.load_configured_projects") as mock_load,
+        patch("seagoat.server.create_app"),
+        patch(
+            "seagoat.server.create_server",
+            side_effect=OSError(98, "Address already in use"),
+        ),
+        pytest.raises(SystemExit) as excinfo,
+    ):
+        start_server(repo.working_dir, custom_port=40198)
+
+    assert excinfo.value.code == ExitCode.BIND_FAILED
+    assert "could not bind" in capsys.readouterr().err
+    assert mock_load.call_count == 0
+
+
+def test_start_server_still_loads_listed_repositories_after_binding(
+    repo, generate_repo, create_repositories_file
+):
+    """The app and the projects object are created before loading, so the
+    server that is already bound serves every listed repository."""
+    repo1 = generate_repo()
+    create_repositories_file([repo.working_dir, repo1.working_dir])
+
+    with (
+        patch("seagoat.server.TaskQueue"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
+        patch("seagoat.server.create_app") as mock_create_app,
+        patch("seagoat.server.create_server") as mock_create_server,
+    ):
+        mock_create_server.return_value.effective_port = 40197
+        start_server(repo.working_dir, custom_port=40197)
+
+    projects = mock_create_app.call_args.args[0]
+    assert normalize_repo_path(repo.working_dir) in projects.repo_paths()
+    assert normalize_repo_path(repo1.working_dir) in projects.repo_paths()
 
 
 def test_start_server_reports_repositories_file_write_failure(repo, capsys):
@@ -281,7 +331,8 @@ def _running_instance_reloading(reload_answer, status_projects):
     return (
         patch("seagoat.server.claim_start", return_value=instance),
         patch(
-            "seagoat.server.fetch_status", return_value={"projects": status_projects}
+            "seagoat.server.running_instance",
+            return_value=(instance, {"pid": instance.pid, "projects": status_projects}),
         ),
         patch("seagoat.server.requests.post", return_value=response),
     )

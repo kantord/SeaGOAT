@@ -39,7 +39,7 @@ def test_rejects_requests_for_other_hosts(create_client, host):
 
 
 def test_accepts_any_host_when_hosted_for_other_computers(create_client):
-    response = create_client("0.0.0.0").get(
+    response = create_client("0.0.0.0").get(  # nosec B104 - no bind, a Host header check
         "/status", headers={"Host": "seagoat.example"}
     )
 

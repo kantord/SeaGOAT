@@ -6,6 +6,7 @@ import pytest
 
 from seagoat import __version__
 from seagoat.projects import Projects, git_root
+from seagoat.queue.base_queue import TaskTimedOut
 from seagoat.server import create_app
 from seagoat.utils.server import normalize_repo_path
 
@@ -198,6 +199,27 @@ def test_status_returns_loaded_projects_stats(create_client, generate_repo):
     queue.enqueue.assert_called_once_with("get_stats")
     data = response.get_json()
     assert data["stats"] == {"status": "ok"}
+
+
+def test_busy_project_returns_503(create_client, generate_repo):
+    repo = generate_repo()
+    client = create_client()
+    client._projects.get(repo.working_dir)
+    queue = client._queues[normalize_repo_path(repo.working_dir)]
+    queue.enqueue.side_effect = TaskTimedOut
+
+    response = client.post(
+        "/lines/query",
+        json={"repoPath": repo.working_dir, "queryText": "hello"},
+    )
+
+    data = response.get_json()
+    assert response.status_code == 503
+    assert data["code"] == 503
+    assert data["error"]["type"] == "TaskTimedOut"
+    assert data["error"]["message"] == (
+        f"{normalize_repo_path(repo.working_dir)} is busy (indexing); try again shortly"
+    )
 
 
 def test_status_describes_instance_without_touching_project_queues(
