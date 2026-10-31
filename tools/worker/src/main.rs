@@ -88,11 +88,13 @@ struct Args {
     json: Option<Vec<out::Field>>,
 }
 
-// Exit codes: 0 green, 1 red, 2 fatal (key, credit), 4 sandbox or repo setup. 3 was "out of
-// time" before runs ended by counts; it stays unused so old logs keep their meaning.
+// Exit codes: 0 green, 1 red, 2 fatal (key, credit), 4 sandbox or repo setup, 5 blocked (the
+// model stopped with BLOCKED:). 3 was "out of time" before runs ended by counts; it stays
+// unused so old logs keep their meaning.
 pub const EXIT_RED: u8 = 1;
 pub const EXIT_FATAL: u8 = 2;
 pub const EXIT_SETUP: u8 = 4;
+pub const EXIT_BLOCKED: u8 = 5;
 
 fn main() -> ExitCode {
     // DECISION: the runtime lives in a private MSB_HOME by default, never ~/.microsandbox, so

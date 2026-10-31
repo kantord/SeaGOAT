@@ -25,7 +25,16 @@
 //! The run is GREEN when every top-level step succeeds. Some failures end the run whatever is
 //! left to retry: a bad key or no credit (FATAL), a dead guest. A run ends by counts: at most
 //! each llm step's max_turns per pass, and each script's retries; a command that runs past its
-//! fixed timeout (30 minutes) fails like any other.
+//! fixed timeout (30 minutes) fails like any other. Five turns before an llm step's last, the
+//! model is told how many are left.
+//!
+//! TERM: BLOCKED -- an llm step's final reply (no tool calls) starting with `BLOCKED:`. The run
+//! ends there with status BLOCKED (exit 5): no later step, no script retry, no check runs. The
+//! patch is still collected and the reply is the report's `error`.
+//!
+//! DECISION (owner, 2026-10-31): a brief that says "if X, stop and report" is obeyed by a model
+//! that stops, so that stop is an outcome of its own, not a failure: retrying it only spends
+//! turns (2026-10-31: 56 and 79 turns in two such runs) on a run that already has its answer.
 //!
 //! DECISION (owner, 2026-10-29): a program is data, so which checks run, in what order and how
 //! often is chosen per run instead of being built into the loop. Four kinds and no more: no
