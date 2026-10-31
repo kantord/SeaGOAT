@@ -1,3 +1,5 @@
+import json
+import threading
 from pathlib import Path
 
 import chromadb
@@ -8,6 +10,34 @@ from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.utils.config import get_config_values
+
+# One embedding function is built per process, lazily the first time it is
+# needed, and shared by all projects. The name and arguments are a
+# global-only config key, so one instance has one, but tests set different
+# ones. The lock makes sure two projects starting at once build it once.
+_EMBEDDING_FUNCTION_LOCK = threading.Lock()
+_EMBEDDING_FUNCTIONS = {}
+
+# The shared embedding function's tokenizer changes state on every call,
+# so embedding calls take turns; that also caps how much CPU the projects
+# use together.
+_EMBEDDING_LOCK = threading.Lock()
+
+
+def _get_embedding_function(config):
+    embedding_function = config["server"]["chroma"]["embeddingFunction"]
+    key = (
+        embedding_function["name"],
+        json.dumps(embedding_function["arguments"], sort_keys=True, default=str),
+    )
+    with _EMBEDDING_FUNCTION_LOCK:
+        function = _EMBEDDING_FUNCTIONS.get(key)
+        if function is None:
+            function = getattr(embedding_functions, key[0])(
+                **embedding_function["arguments"]
+            )
+            _EMBEDDING_FUNCTIONS[key] = function
+        return function
 
 
 def get_metadata_and_distance_from_chromadb_result(chromadb_results):
@@ -62,13 +92,7 @@ def initialize(repository: Repository):
             anonymized_telemetry=False,
         ),
     )
-    embedding_function_name = config["server"]["chroma"]["embeddingFunction"]["name"]
-    embedding_function_kwargs = config["server"]["chroma"]["embeddingFunction"][
-        "arguments"
-    ]
-    embedding_function = getattr(embedding_functions, embedding_function_name)(
-        **embedding_function_kwargs
-    )
+    embedding_function = _get_embedding_function(config)
     chroma_collection = chroma_client.get_or_create_collection(
         name="code_data",
         embedding_function=embedding_function,
@@ -83,11 +107,12 @@ def initialize(repository: Repository):
     def _flush_batch():
         if not batch_buffer["ids"]:
             return
-        chroma_collection.upsert(
-            ids=batch_buffer["ids"],
-            documents=batch_buffer["documents"],
-            metadatas=batch_buffer["metadatas"],
-        )
+        with _EMBEDDING_LOCK:
+            chroma_collection.upsert(
+                ids=batch_buffer["ids"],
+                documents=batch_buffer["documents"],
+                metadatas=batch_buffer["metadatas"],
+            )
         batch_buffer["ids"].clear()
         batch_buffer["documents"].clear()
         batch_buffer["metadatas"].clear()
@@ -98,10 +123,11 @@ def initialize(repository: Repository):
         n_results_multiplier = config["server"]["chroma"]["nResultsMultiplier"]
         n_results = min(int((limit + 1) * n_results_multiplier), max_chunks_to_fetch)
 
-        chromadb_results = chroma_collection.query(
-            query_texts=[query_text],
-            n_results=n_results,
-        )
+        with _EMBEDDING_LOCK:
+            chromadb_results = chroma_collection.query(
+                query_texts=[query_text],
+                n_results=n_results,
+            )
 
         return format_results(query_text, repository, chromadb_results, config)
 

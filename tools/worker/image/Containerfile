@@ -1,0 +1,30 @@
+# The worker's environment, one layer per tool, built by build.sh from the repo at one commit.
+# A run copies its own repo over /repo (guest.rs `put_repo`); what the build warmed outside it
+# stays: the cargo target and the virtualenv under /cache, uv's, pre-commit's and pyright's
+# caches under /root/.cache. Rebuild when dependencies or pre-commit hooks change; a stale image
+# still works, the run just downloads and builds what differs.
+FROM docker.io/library/debian:trixie-slim
+ENV DEBIAN_FRONTEND=noninteractive
+# ripgrep: SeaGOAT's tests run it (CI installs it too). python3-dev: the root's cargo checks need
+# a python3 on PATH and `cargo test` links libpython (CI has setup-python); trixie's is 3.13, as
+# in .python-version.
+RUN apt-get update -q && apt-get install -yq --no-install-recommends \
+      build-essential pkg-config git curl ca-certificates ripgrep python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+ENV PATH=/root/.cargo/bin:$PATH
+RUN curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable -c clippy -c rustfmt
+# uv pinned: pyproject.toml requires a patched one (tool.uv required-version). Rust follows CI's stable.
+RUN curl -LsSf https://astral.sh/uv/0.13.5/install.sh | env UV_INSTALL_DIR=/root/.cargo/bin sh
+ENV CARGO_TARGET_DIR=/cache/target UV_PROJECT_ENVIRONMENT=/cache/venv
+COPY repo/ /repo/
+COPY verify.sh /build/
+WORKDIR /repo
+# pre-commit needs a git repository, which the archive lacks; committed, so check-added-large-files
+# does not see uv.lock as new. The identity is for this commit and for tests and models that commit.
+# pyright looks for the virtualenv at .venv only (pyproject.toml), so it links to the real one.
+RUN git config --global user.name seagoat-worker \
+    && git config --global user.email seagoat-worker@localhost \
+    && git init -q && git add -A && git commit -qm image \
+    && ln -s /cache/venv .venv
+# One full gate run fills every cache. A red commit still leaves them filled, so it only warns.
+RUN bash /build/verify.sh || echo "WARNING: verify failed at this commit; the caches are still warm"

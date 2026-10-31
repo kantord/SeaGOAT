@@ -10,10 +10,16 @@ from yaspin import yaspin
 from yaspin.spinners import Spinners
 
 from seagoat import __version__
+from seagoat.projects import NotAGitRepo, git_root
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.config import get_config_values
 from seagoat.utils.generative import enhance_results
-from seagoat.utils.server import ServerDoesNotExist, get_server_info
+from seagoat.utils.server import (
+    NoInstanceRunning,
+    instance_answers,
+    instance_url,
+    read_instance,
+)
 
 
 class ExitCode:
@@ -22,6 +28,14 @@ class ExitCode:
 
 
 UPDATE_CHECK_TIMEOUT_SECONDS = 3
+
+
+def get_repository_root(repo_path):
+    """Resolve the git repository root for repo_path, or None if not in one."""
+    try:
+        return git_root(repo_path)
+    except (NotAGitRepo, OSError):
+        return None
 
 
 def warn_if_update_available():
@@ -36,9 +50,14 @@ def warn_if_update_available():
         )
 
 
-def display_accuracy_warning(server_address):
-    response = requests.get(
+def display_accuracy_warning(server_address, repo_path):
+    status_request_body = {}
+    if repo_path is not None:
+        status_request_body["repoPath"] = repo_path
+
+    response = requests.post(
         f"{server_address}/status",
+        json=status_request_body,
     )
     response_data = orjson.loads(response.text)
     accuracy = response_data["stats"]["accuracy"]["percentage"]
@@ -54,15 +73,21 @@ def display_accuracy_warning(server_address):
         )
 
 
-def query_server(query, server_address, max_results, context_above, context_below):
+def query_server(
+    query, server_address, max_results, context_above, context_below, repo_path
+):
+    query_request_body = {
+        "queryText": query,
+        "limitClue": max_results,
+        "contextAbove": context_above,
+        "contextBelow": context_below,
+    }
+    if repo_path is not None:
+        query_request_body["repoPath"] = repo_path
+
     response = requests.post(
         f"{server_address}/lines/query",
-        json={
-            "queryText": query,
-            "limitClue": max_results,
-            "contextAbove": context_above,
-            "contextBelow": context_below,
-        },
+        json=query_request_body,
         headers={"Content-Type": "application/json"},
     )
 
@@ -176,10 +201,24 @@ def seagoat(
 
     try:
         if config["client"]["host"] is None:
-            server_info = get_server_info(repo_path)
-            server_address = server_info["address"]
+            # Resolve the repository root on the client (in the user's own
+            # directory). The server only matches roots exactly, and local
+            # paths must be rebuilt against the root too when running from a
+            # subdirectory.
+            local_repo_path = get_repository_root(repo_path) or os.path.abspath(
+                repo_path
+            )
+            instance = read_instance()
+            if instance is None or not instance_answers(instance):
+                raise NoInstanceRunning
+            server_address = instance_url(instance)
+            repo_path_for_server = local_repo_path
         else:
             server_address = config["client"]["host"]
+            repo_path_for_server = None
+            # Display results relative to the directory the user ran the
+            # command from; the remote server's paths are not local.
+            local_repo_path = repo_path
 
         if context is not None:
             context_above = context
@@ -191,9 +230,10 @@ def seagoat(
             max_results,
             context_above if context_above is not None else 3,
             context_below if context_below is not None else 3,
+            repo_path_for_server,
         )
 
-        results = rewrite_full_paths_to_use_local_path(repo_path, results)
+        results = rewrite_full_paths_to_use_local_path(local_repo_path, results)
         results = remove_results_from_unavailable_files(results)
         if reverse or generative:
             results = reversed(results)
@@ -209,11 +249,16 @@ def seagoat(
 
         display_results(results, max_results, color_enabled, vimgrep)
 
-        display_accuracy_warning(server_address)
+        display_accuracy_warning(server_address, repo_path_for_server)
+    except SystemExit:
+        # query_server exits directly on a server-side error; stop the spinner
+        # thread or the interpreter would wait for it forever on shutdown
+        spinner.stop()
+        raise
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,
-        ServerDoesNotExist,
+        NoInstanceRunning,
     ):
         spinner.fail("✖")
         click.echo(

@@ -215,12 +215,18 @@ def extend_config_with_file(base_config, config_file):
     return always_merger.merge(base_config, new_config) if new_config else base_config
 
 
-def get_config_values(repo_path: Path):
+def get_global_config_values():
     config = copy.deepcopy(DEFAULT_CONFIG)
-    repo_config_file = repo_path / ".seagoat.yml"
 
     if GLOBAL_CONFIG_FILE.exists():
         config = extend_config_with_file(config, GLOBAL_CONFIG_FILE)
+
+    return config
+
+
+def get_config_values(repo_path: Path):
+    config = get_global_config_values()
+    repo_config_file = repo_path / ".seagoat.yml"
 
     if repo_config_file.exists():
         repo_config = validate_config_file(str(repo_config_file))
@@ -249,6 +255,8 @@ GLOBAL_ONLY_KEYS = [
     # Network interface the server listens on: a repo must not be able to
     # expose your code to the network
     ("server", "host"),
+    # One instance listens on one port for every project
+    ("server", "port"),
     # Server the CLI sends queries to: it would receive every query, and
     # decide which file paths and text the CLI prints
     ("client", "host"),

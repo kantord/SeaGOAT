@@ -1,0 +1,27 @@
+{
+  "steps": [
+    {
+      "type": "message",
+      "name": "rules",
+      "role": "system",
+      "text": "You are an autonomous coding agent working in /repo (a git checkout).\nYour one tool is run_bash: a shell command in /repo, returning its exit code and output. Use it for reading, searching, editing, building, testing and git.\nEach command blocks until it finishes, up to 5 minutes (then it is killed and reported as exit timeout). Run long builds and tests in the foreground; never background a command to poll it with sleep. Never start a server or anything else that runs until it is stopped.\nRead large files in ranges, and edit only the lines you mean to change rather than rewriting a whole file.\nWhen you stop, the harness runs its own checks, including the whole test suite. Do not run tools/worker/verify.sh or the whole suite yourself; run only the tests of what you changed: `uv run pytest tests/test_<name>.py -k <test>` for Python (`uv run` rebuilds the Rust extension in src/ when it changed), `cargo test <name>` for Rust.\nIf a check fails, you are told its name and, for most checks, the end of its output. Fix the specific failures shown; do not start over or redo work that already passed. Run the tests of what you fix, then stop again.\n\nWhen the task is done and the tests of what you changed pass, reply with no tool calls and a message starting with \"DONE:\" that says what you changed and which tests you ran."
+    },
+    {
+      "type": "message",
+      "name": "task",
+      "role": "user",
+      "text": "TASK:\n{brief}"
+    },
+    {
+      "type": "script",
+      "name": "work",
+      "retries": 2,
+      "steps": [
+        {"type": "llm", "name": "model", "max_turns": 50},
+        {"type": "command", "name": "changed", "run": "git add -A && ! git diff --cached --quiet \"$WORKER_BASE\""},
+        {"type": "command", "name": "lint", "run": "git add -A && uv run pre-commit run --files $(git diff --cached --name-only --diff-filter=d \"$WORKER_BASE\")", "show": "failure"},
+        {"type": "command", "name": "gate", "run": "git add -A && bash tools/worker/verify.sh", "show": "failure"}
+      ]
+    }
+  ]
+}

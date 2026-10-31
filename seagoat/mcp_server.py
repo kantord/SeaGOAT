@@ -2,14 +2,18 @@
 MCP Server implementation for SeaGOAT.
 """
 
+import os
+
 import requests
 from mcp.server.mcpserver import MCPServer
 
 from seagoat import __version__
+from seagoat.projects import resolve_repo_path
 from seagoat.utils.server import (
-    ServerDoesNotExist,
-    get_server_info,
+    instance_answers,
+    instance_url,
     normalize_repo_path,
+    read_instance,
 )
 
 mcp = MCPServer("seagoat", version=__version__)
@@ -39,16 +43,17 @@ def search_code(
     if not query:
         return "Error: query is required."
     try:
-        repo = normalize_repo_path(repo_path)
+        repo = normalize_repo_path(resolve_repo_path(repo_path or os.getcwd()))
     except (OSError, ValueError) as e:
         return f"Error normalizing repo path: {e!s}"
 
-    try:
-        server_info = get_server_info(repo)
-    except ServerDoesNotExist:
-        return f"No server info found for repo: {repo}. Is the seagoat server running?"
+    instance = read_instance()
+    if instance is None or not instance_answers(instance):
+        return (
+            f"No instance info found for repo: {repo}. Is the SeaGOAT server running?"
+        )
 
-    address = server_info["address"]
+    address = instance_url(instance)
 
     try:
         result = requests.post(
@@ -58,12 +63,19 @@ def search_code(
                 "limitClue": str(limit),
                 "contextAbove": str(context_above),
                 "contextBelow": str(context_below),
+                "repoPath": repo,
             },
             timeout=10,
         )
-        result.raise_for_status()
     except requests.exceptions.RequestException as e:
         return f"Error querying server at {address} - {e!s}"
+
+    if not result.ok:
+        try:
+            error_message = result.json()["error"]["message"]
+        except (ValueError, KeyError, TypeError):
+            error_message = f"HTTP {result.status_code}"
+        return f"Error querying server at {address} - {error_message}"
 
     data = result.json()
 
