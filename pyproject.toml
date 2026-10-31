@@ -122,6 +122,9 @@ executionEnvironments = [ { root = "src" } ]
 
 [tool.pytest.ini_options]
 timeout = 60
+markers = [
+    "real_embeddings: use seagoat's default global config (the real ONNX embedding model) instead of the embedding cache",
+]
 
 [tool.ruff]
 exclude = [

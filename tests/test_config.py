@@ -12,6 +12,10 @@ from seagoat.utils.config import (
     get_global_config_values,
 )
 
+# These tests compare against seagoat's default configuration, so they must
+# not start from the test suite's cached-embeddings global config.
+pytestmark = pytest.mark.real_embeddings
+
 
 def _(config):
     # The merge mutates its first argument, so give it a private copy

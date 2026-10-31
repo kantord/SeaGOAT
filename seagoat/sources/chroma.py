@@ -1,3 +1,4 @@
+import importlib
 import json
 import threading
 from pathlib import Path
@@ -26,16 +27,21 @@ _EMBEDDING_LOCK = threading.Lock()
 
 def _get_embedding_function(config):
     embedding_function = config["server"]["chroma"]["embeddingFunction"]
+    name = embedding_function["name"]
+    arguments = embedding_function["arguments"]
     key = (
-        embedding_function["name"],
-        json.dumps(embedding_function["arguments"], sort_keys=True, default=str),
+        name,
+        json.dumps(arguments, sort_keys=True, default=str),
     )
     with _EMBEDDING_FUNCTION_LOCK:
         function = _EMBEDDING_FUNCTIONS.get(key)
         if function is None:
-            function = getattr(embedding_functions, key[0])(
-                **embedding_function["arguments"]
-            )
+            if ":" in name:
+                module_path, class_name = name.split(":", 1)
+                module = importlib.import_module(module_path)
+                function = getattr(module, class_name)(**arguments)
+            else:
+                function = getattr(embedding_functions, name)(**arguments)
             _EMBEDDING_FUNCTIONS[key] = function
         return function
 
