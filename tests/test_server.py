@@ -2,11 +2,13 @@ import copy
 import json
 import os
 import re
+import signal
 import socket
 import subprocess
 import sys
 import tempfile
 from contextlib import contextmanager
+from pathlib import Path
 from unittest.mock import ANY
 
 import psutil
@@ -54,11 +56,18 @@ def start_seagoat_server(managed_process):
 
     @contextmanager
     def _start(*args: str):
-        with managed_process(
-            _server_command("start", *args),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        ) as process:
+        # Send the server's output to a file: a pipe could fill up and deadlock
+        # the server while tests are not reading it
+        with (
+            tempfile.TemporaryDirectory() as output_dir,
+            (Path(output_dir) / "server_output.log").open("wb") as server_output,
+            managed_process(
+                _server_command("start", *args),
+                stdout=server_output,
+                stderr=subprocess.STDOUT,
+            ) as process,
+        ):
+            process.output_file = Path(server_output.name)
             wait_for(lambda: running_instance() is not None, 8)
             instance = read_instance()
             assert instance is not None
@@ -602,8 +611,7 @@ def test_start_on_directory_serves_each_git_repository_inside_it(
         stop_result = server_cli("stop")
         assert stop_result.returncode == 0, stop_result.stderr
         # The start output names every repository it added
-        stdout, _stderr = server_process.communicate()
-        stdout = stdout.decode()
+        stdout = server_process.output_file.read_text()
         assert normalize_repo_path(str(repo_a)) in stdout
         assert normalize_repo_path(str(repo_b)) in stdout
 
@@ -629,7 +637,7 @@ def test_start_on_directory_does_not_search_deeper_than_direct_children(
 
         stop_result = server_cli("stop")
         assert stop_result.returncode == 0, stop_result.stderr
-        assert server_process.wait(timeout=10) is not None
+        assert server_process.wait(timeout=10) == -signal.SIGTERM
 
 
 def test_start_on_directory_without_git_repositories_fails(tmp_path, runner_with_error):

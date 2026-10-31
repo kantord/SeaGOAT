@@ -75,6 +75,23 @@ client:
 
 ```
 
+## Environment variables
+
+Two environment variables let you override where SeaGOAT stores its caches
+and its global configuration file, for example in CI, containers or test
+suites:
+
+* `SEAGOAT_CACHE_DIR`: directory for per-repository caches and, under a
+  `servers` subdirectory, the instance file and `repositories.json`. Defaults
+  to your platform's user cache directory (e.g. `~/.cache/seagoat` on Linux).
+* `SEAGOAT_CONFIG_DIR`: directory for the global `config.yml`. Defaults to
+  your platform's user configuration directory (e.g.
+  `~/.config/seagoat` on Linux).
+
+They take precedence over the platform defaults and work on every operating
+system (unlike the `XDG_CACHE_HOME` / `XDG_CONFIG_HOME` variables, which
+platformdirs ignores on macOS and Windows).
+
 ## Available configuration options
 
 ### Server

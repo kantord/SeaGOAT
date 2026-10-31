@@ -4,11 +4,11 @@ import os
 from pathlib import Path
 
 import jsonschema
-import platformdirs
 import yaml
 from deepmerge import always_merger
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
+from seagoat.utils.paths import get_config_dir
 
 DEFAULT_CONFIG = {
     "server": {
@@ -193,11 +193,7 @@ CONFIG_SCHEMA = {
 
 logger = logging.getLogger(__name__)
 
-GLOBAL_CONFIG_DIR = Path(
-    platformdirs.user_config_dir(
-        "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
-    )
-)
+GLOBAL_CONFIG_DIR = get_config_dir()
 GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.yml"
 
 

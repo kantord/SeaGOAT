@@ -79,193 +79,185 @@ def test_add_result_twice_when_combining_sources(create_result):
     assert "context" in result.lines[40].types
 
 
-def test_add_context_above_one_line(create_result, repo):
+@pytest.mark.parametrize(
+    "context_lines, extra_lines, expected_lines, expected_blocks",
+    [
+        pytest.param(
+            -1,
+            [],
+            [39, 40],
+            [
+                {
+                    "score": 0.5,
+                    "lineTypeCount": {"context": 1, "result": 1},
+                    "lines": [
+                        {
+                            "score": 0.0,
+                            "line": 39,
+                            "lineText": "fake line 39",
+                            "resultTypes": [
+                                "context",
+                            ],
+                        },
+                        {
+                            "score": 0.5,
+                            "line": 40,
+                            "lineText": "fake line 40",
+                            "resultTypes": [
+                                "result",
+                            ],
+                        },
+                    ],
+                }
+            ],
+            id="above-one-line",
+        ),
+        pytest.param(
+            -1,
+            [20],
+            [19, 20, 39, 40],
+            [
+                {
+                    "score": 0.5,
+                    "lineTypeCount": {"context": 1, "result": 1},
+                    "lines": [
+                        {
+                            "score": 0.0,
+                            "line": 19,
+                            "lineText": "fake line 19",
+                            "resultTypes": [
+                                "context",
+                            ],
+                        },
+                        {
+                            "score": 0.5,
+                            "line": 20,
+                            "lineText": "fake line 20",
+                            "resultTypes": [
+                                "result",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    "score": 0.5,
+                    "lineTypeCount": {"context": 1, "result": 1},
+                    "lines": [
+                        {
+                            "score": 0.0,
+                            "line": 39,
+                            "lineText": "fake line 39",
+                            "resultTypes": [
+                                "context",
+                            ],
+                        },
+                        {
+                            "score": 0.5,
+                            "line": 40,
+                            "lineText": "fake line 40",
+                            "resultTypes": [
+                                "result",
+                            ],
+                        },
+                    ],
+                },
+            ],
+            id="above-each-result-line",
+        ),
+        pytest.param(
+            1,
+            [],
+            [40, 41],
+            [
+                {
+                    "score": 0.5,
+                    "lineTypeCount": {"context": 1, "result": 1},
+                    "lines": [
+                        {
+                            "score": 0.5,
+                            "line": 40,
+                            "lineText": "fake line 40",
+                            "resultTypes": [
+                                "result",
+                            ],
+                        },
+                        {
+                            "score": 0.0,
+                            "line": 41,
+                            "lineText": "fake line 41",
+                            "resultTypes": [
+                                "context",
+                            ],
+                        },
+                    ],
+                }
+            ],
+            id="below-one-line",
+        ),
+        pytest.param(
+            1,
+            [41, 42],
+            [40, 41, 42, 43],
+            [
+                {
+                    "score": 0.5,
+                    "lineTypeCount": {"context": 3, "result": 3},
+                    "lines": [
+                        {
+                            "score": 0.5,
+                            "line": 40,
+                            "lineText": "fake line 40",
+                            "resultTypes": [
+                                "result",
+                            ],
+                        },
+                        {
+                            "score": 0.5,
+                            "line": 41,
+                            "lineText": "fake line 41",
+                            "resultTypes": [
+                                "context",
+                                "result",
+                            ],
+                        },
+                        {
+                            "score": 0.5,
+                            "line": 42,
+                            "lineText": "fake line 42",
+                            "resultTypes": [
+                                "context",
+                                "result",
+                            ],
+                        },
+                        {
+                            "score": 0.0,
+                            "line": 43,
+                            "lineText": "fake line 43",
+                            "resultTypes": [
+                                "context",
+                            ],
+                        },
+                    ],
+                }
+            ],
+            id="below-adjacent-result-lines",
+        ),
+    ],
+)
+def test_add_context_lines(
+    create_result, repo, context_lines, extra_lines, expected_lines, expected_blocks
+):
     query = "QueryTest"
     result = create_result(query)
-    result.add_context_lines(-1)
+    for line in extra_lines:
+        result.add_line(line, 0.5)
+    result.add_context_lines(context_lines)
     actual_lines = result.get_lines()
-    assert actual_lines == [39, 40]
+    assert actual_lines == expected_lines
     assert result.to_json() == {
         "score": 0.75,
         "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "blocks": [
-            {
-                "score": 0.5,
-                "lineTypeCount": {"context": 1, "result": 1},
-                "lines": [
-                    {
-                        "score": 0.0,
-                        "line": 39,
-                        "lineText": "fake line 39",
-                        "resultTypes": [
-                            "context",
-                        ],
-                    },
-                    {
-                        "score": 0.5,
-                        "line": 40,
-                        "lineText": "fake line 40",
-                        "resultTypes": [
-                            "result",
-                        ],
-                    },
-                ],
-            }
-        ],
-        "path": "test.txt",
-    }
-
-
-def test_add_context_above_each_result_line(create_result, repo):
-    query = "QueryTest"
-    result = create_result(query)
-    result.add_line(20, 0.5)
-    result.add_context_lines(-1)
-    actual_lines = result.get_lines()
-    assert actual_lines == [19, 20, 39, 40]
-    assert result.to_json() == {
-        "score": 0.75,
-        "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "blocks": [
-            {
-                "score": 0.5,
-                "lineTypeCount": {"context": 1, "result": 1},
-                "lines": [
-                    {
-                        "score": 0.0,
-                        "line": 19,
-                        "lineText": "fake line 19",
-                        "resultTypes": [
-                            "context",
-                        ],
-                    },
-                    {
-                        "score": 0.5,
-                        "line": 20,
-                        "lineText": "fake line 20",
-                        "resultTypes": [
-                            "result",
-                        ],
-                    },
-                ],
-            },
-            {
-                "score": 0.5,
-                "lineTypeCount": {"context": 1, "result": 1},
-                "lines": [
-                    {
-                        "score": 0.0,
-                        "line": 39,
-                        "lineText": "fake line 39",
-                        "resultTypes": [
-                            "context",
-                        ],
-                    },
-                    {
-                        "score": 0.5,
-                        "line": 40,
-                        "lineText": "fake line 40",
-                        "resultTypes": [
-                            "result",
-                        ],
-                    },
-                ],
-            },
-        ],
-        "path": "test.txt",
-    }
-
-
-def test_add_context_below_one_line(create_result, repo):
-    query = "QueryTest"
-    result = create_result(query)
-    result.add_context_lines(1)
-    actual_lines = result.get_lines()
-    assert actual_lines == [40, 41]
-    assert result.to_json() == {
-        "score": 0.75,
-        "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "blocks": [
-            {
-                "score": 0.5,
-                "lineTypeCount": {"context": 1, "result": 1},
-                "lines": [
-                    {
-                        "score": 0.5,
-                        "line": 40,
-                        "lineText": "fake line 40",
-                        "resultTypes": [
-                            "result",
-                        ],
-                    },
-                    {
-                        "score": 0.0,
-                        "line": 41,
-                        "lineText": "fake line 41",
-                        "resultTypes": [
-                            "context",
-                        ],
-                    },
-                ],
-            },
-        ],
-        "path": "test.txt",
-    }
-
-
-def test_add_context_below_adjacent_result_lines(create_result, repo):
-    query = "QueryTest"
-    result = create_result(query)
-    result.add_line(41, 0.5)
-    result.add_line(42, 0.5)
-    result.add_context_lines(1)
-    actual_lines = result.get_lines()
-    assert actual_lines == [40, 41, 42, 43]
-    assert result.to_json() == {
-        "score": 0.75,
-        "fullPath": str(Path(repo.working_dir) / "test.txt"),
-        "blocks": [
-            {
-                "score": 0.5,
-                "lineTypeCount": {"context": 3, "result": 3},
-                "lines": [
-                    {
-                        "score": 0.5,
-                        "line": 40,
-                        "lineText": "fake line 40",
-                        "resultTypes": [
-                            "result",
-                        ],
-                    },
-                    {
-                        "score": 0.5,
-                        "line": 41,
-                        "lineText": "fake line 41",
-                        "resultTypes": [
-                            "context",
-                            "result",
-                        ],
-                    },
-                    {
-                        "score": 0.5,
-                        "line": 42,
-                        "lineText": "fake line 42",
-                        "resultTypes": [
-                            "context",
-                            "result",
-                        ],
-                    },
-                    {
-                        "score": 0.0,
-                        "line": 43,
-                        "lineText": "fake line 43",
-                        "resultTypes": [
-                            "context",
-                        ],
-                    },
-                ],
-            },
-        ],
+        "blocks": expected_blocks,
         "path": "test.txt",
     }
 

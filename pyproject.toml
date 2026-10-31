@@ -124,6 +124,7 @@ executionEnvironments = [ { root = "src" } ]
 timeout = 60
 markers = [
     "real_embeddings: use seagoat's default global config (the real ONNX embedding model) instead of the embedding cache",
+    "real_bat_check: tests that check is_bat_installed itself, so the autouse assume_bat_not_installed fixture does not mock it",
 ]
 
 [tool.ruff]

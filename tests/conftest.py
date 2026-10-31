@@ -4,19 +4,22 @@ import os
 import shutil
 import signal
 import subprocess
+import sys
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
-
-# Must be set before seagoat imports - config.py reads this at module load time
-os.environ["PYTEST_CURRENT_TEST"] = "true"
 
 # Give this pytest session its own cache and config directories, so two runs
 # (for example in two worktrees) never share the instance file,
 # repositories.json or the global config. Must be set before seagoat is
 # imported: seagoat.utils.config reads the config directory at module load
 # time and seagoat.utils.server reads the cache directory per request.
+# SEAGOAT_CACHE_DIR/SEAGOAT_CONFIG_DIR work on every platform (platformdirs
+# ignores XDG_* on macOS and Windows); the XDG_* lines are kept too for tools
+# that read them.
 SESSION_TEMP_DIR = Path(tempfile.mkdtemp(prefix="seagoat-pytest-"))
+os.environ["SEAGOAT_CACHE_DIR"] = str(SESSION_TEMP_DIR / "cache")
+os.environ["SEAGOAT_CONFIG_DIR"] = str(SESSION_TEMP_DIR / "config")
 os.environ["XDG_CACHE_HOME"] = str(SESSION_TEMP_DIR / "cache")
 os.environ["XDG_CONFIG_HOME"] = str(SESSION_TEMP_DIR / "config")
 
@@ -27,6 +30,30 @@ os.environ["XDG_CONFIG_HOME"] = str(SESSION_TEMP_DIR / "config")
 EMBEDDING_MISSES_LOG_DIR = SESSION_TEMP_DIR / "embedding-misses"
 os.environ["SEAGOAT_EMBEDDING_CACHE_LOG"] = str(EMBEDDING_MISSES_LOG_DIR)
 EMBEDDING_MISSES_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Guard the test suite's processes against the outside world.
+
+# Network: allow only localhost plus the embedding model download host. Nothing
+# listens on 127.0.0.1:9, so requests/httpx fail fast, in-process and in every
+# subprocess. The ONNX model host must stay reachable: on a fresh machine or CI
+# chromadb downloads the model from
+# https://chroma-onnx-models.s3.amazonaws.com/... into ~/.cache/chroma.
+_proxy = "http://127.0.0.1:9"
+_no_proxy = "localhost,127.0.0.1,::1,chroma-onnx-models.s3.amazonaws.com"
+for _proxy_var in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
+    os.environ[_proxy_var] = _proxy
+for _no_proxy_var in ("NO_PROXY", "no_proxy"):
+    os.environ[_no_proxy_var] = _no_proxy
+
+# Secrets: tests that need a credential set it themselves (mocker.patch.dict /
+# monkeypatch); nothing here may leak a real one into server subprocesses.
+for _secret_var in [
+    _name
+    for _name in os.environ
+    if _name.endswith(("_API_KEY", "_TOKEN", "_SECRET", "_PASSWORD"))
+    or _name.startswith("AWS_")
+]:
+    del os.environ[_secret_var]
 
 import copy
 import json
@@ -61,6 +88,7 @@ from seagoat.utils.server import (
 from seagoat.utils.wait import wait_for
 from tests.fixtures.mock_repo import MockRepo
 from tests.fixtures.realistic_repo import build
+from tests.process_guard import set_pdeathsig, start_server_with_pdeathsig
 
 try:
     from pytest_cov.embed import cleanup_on_sigterm
@@ -236,9 +264,12 @@ def _get_multiprocessing_context():
 def _start_server():
     def _start(repo_path: str):
         context = _get_multiprocessing_context()
-        server_process = context.Process(
-            target=start_server, args=(repo_path,), daemon=True
+        # On Linux the child first asks the kernel to SIGTERM it if pytest is
+        # SIGKILLed, so a killed test run cannot leave the server behind.
+        target = (
+            start_server_with_pdeathsig if sys.platform == "linux" else start_server
         )
+        server_process = context.Process(target=target, args=(repo_path,), daemon=True)
         server_process.start()
 
         def make_sure_server_is_running():
@@ -442,22 +473,40 @@ def mock_queue(client):
 def managed_process():
     processes = []
 
+    def _kill_group(proc):
+        """SIGTERM the whole process group, wait 10s, then SIGKILL it."""
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            proc.wait()
+
     @contextmanager
     def _process(*args, **kwargs):
+        # Own session so the whole process group dies together; on Linux the
+        # child also asks the kernel to SIGTERM it if pytest is SIGKILLed.
+        kwargs.setdefault("start_new_session", True)
+        if sys.platform == "linux":
+            kwargs.setdefault("preexec_fn", set_pdeathsig)
         proc = subprocess.Popen(*args, **kwargs)
         processes.append(proc)
         try:
             yield proc
         finally:
-            proc.terminate()
-            proc.wait()
+            _kill_group(proc)
             processes.remove(proc)
 
     yield _process
 
     for proc in processes:
-        proc.terminate()
-        proc.wait()
+        _kill_group(proc)
 
 
 @contextmanager
@@ -531,8 +580,10 @@ def repo_with_more_files(repo):
 
 
 @pytest.fixture(autouse=True)
-def assume_bat_not_installed(mocker):
-    """Tests run as if bat is not installed, unless they use bat_available."""
+def assume_bat_not_installed(request, mocker):
+    """Tests run as if bat is not installed, unless marked real_bat_check."""
+    if request.node.get_closest_marker("real_bat_check"):
+        return
     mocker.patch("seagoat.utils.cli_display.is_bat_installed", return_value=False)
 
 

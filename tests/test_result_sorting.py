@@ -1,42 +1,51 @@
-def test_sorts_files_by_their_closest_line(create_prepared_seagoat):
-    ripgrep_lines = {
-        "file1.md": [(1, 10.0), (2, 4.0)],
-        "file2.md": [(1, 5.0)],
-    }
-    chroma_lines = {
-        "file2.md": [(2, 6.0)],
-        "file3.md": [(1, 4.5)],
-    }
+import pytest
+
+
+@pytest.mark.parametrize(
+    "ripgrep_lines, chroma_lines, expected_paths",
+    [
+        pytest.param(
+            {
+                "file1.md": [(1, 10.0), (2, 4.0)],
+                "file2.md": [(1, 5.0)],
+            },
+            {
+                "file2.md": [(2, 6.0)],
+                "file3.md": [(1, 4.5)],
+            },
+            [
+                "file1.md",
+                "file3.md",
+                "file2.md",
+            ],
+            id="by-their-closest-line",
+        ),
+        pytest.param(
+            {
+                "file1.md": [(1, 10.0)],
+                "file2.md": [(1, 15.0)],
+            },
+            {
+                "file3.md": [(1, 5.0)],
+            },
+            [
+                "file3.md",
+                "file1.md",
+                "file2.md",
+            ],
+            id="from-both-sources-together",
+        ),
+    ],
+)
+def test_sorts_files(
+    create_prepared_seagoat, ripgrep_lines, chroma_lines, expected_paths
+):
     my_query = "fake query"
 
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     results = seagoat.query_sync(my_query)
 
-    assert [result.gitfile.path for result in results] == [
-        "file1.md",
-        "file3.md",
-        "file2.md",
-    ]
-
-
-def test_sorts_files_from_both_sources_together(create_prepared_seagoat):
-    ripgrep_lines = {
-        "file1.md": [(1, 10.0)],
-        "file2.md": [(1, 15.0)],
-    }
-    chroma_lines = {
-        "file3.md": [(1, 5.0)],
-    }
-    my_query = "fake query"
-
-    seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
-    results = seagoat.query_sync(my_query)
-
-    assert [result.gitfile.path for result in results] == [
-        "file3.md",
-        "file1.md",
-        "file2.md",
-    ]
+    assert [result.gitfile.path for result in results] == expected_paths
 
 
 def test_missing_file_in_one_source(create_prepared_seagoat):

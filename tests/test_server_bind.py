@@ -64,12 +64,6 @@ def test_start_server_listens_on_localhost_by_default(repo, mock_serve):
     assert mock_serve.call_args.kwargs["host"] == "127.0.0.1"
 
 
-def test_under_pytest_instance_lives_in_pytest_directory():
-    from seagoat.utils.server import instance_file_path
-
-    assert instance_file_path().parent.name == "seagoat-servers-pytest"
-
-
 def test_start_server_creates_projects_for_configured_repositories(
     repo, generate_repo, create_repositories_file
 ):

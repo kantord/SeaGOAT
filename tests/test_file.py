@@ -13,30 +13,32 @@ def repo_folder(repo):
     yield Path(repo.working_dir)
 
 
-def test_file_metadata_lists_all_commit_messages(repo_folder, snapshot):
+@pytest.mark.parametrize(
+    "score, commit_messages",
+    [
+        pytest.param(
+            0.543245,
+            [
+                "First commit",
+                "Second commit",
+            ],
+            id="lists-all-commit-messages",
+        ),
+        pytest.param(
+            0.234234,
+            ["unrelated commit"],
+            id="with-a-single-commit",
+        ),
+    ],
+)
+def test_file_metadata(repo_folder, snapshot, score, commit_messages):
     my_file = GitFile(
         None,
         "hello.md",
         repo_folder / "hello.md",
         "4eb3bd99c328ed9fdc4eeed781af39f19378fae7",
-        0.543245,
-        [
-            "First commit",
-            "Second commit",
-        ],
-    )
-
-    assert my_file.get_metadata() == snapshot
-
-
-def test_file_metadata_with_a_single_commit(repo_folder, snapshot):
-    my_file = GitFile(
-        None,
-        "hello.md",
-        repo_folder / "hello.md",
-        "4eb3bd99c328ed9fdc4eeed781af39f19378fae7",
-        0.234234,
-        ["unrelated commit"],
+        score,
+        commit_messages,
     )
 
     assert my_file.get_metadata() == snapshot

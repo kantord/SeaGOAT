@@ -135,15 +135,26 @@ def test_analysis_results_are_persisted_between_runs(repo):
     }
 
 
-def test_truncated_cache_does_not_crash_app(repo):
+@pytest.mark.parametrize(
+    "damage_cache",
+    [
+        pytest.param(
+            lambda cache_folder: (cache_folder / "cache").write_bytes(
+                (cache_folder / "cache").read_bytes()[:-1]
+            ),
+            id="truncated",
+        ),
+        pytest.param(
+            lambda cache_folder: (cache_folder / "cache").write_bytes(b""),
+            id="empty",
+        ),
+    ],
+)
+def test_damaged_cache_does_not_crash_app(repo, damage_cache):
     seagoat1 = Engine(repo.working_dir)
     seagoat1.analyze_codebase()
     cache_folder = seagoat1.cache.get_cache_folder()
-    with open(cache_folder / "cache", "rb") as input_file:
-        data = input_file.read()
-    damaged_data = data[:-1]
-    with open(cache_folder / "cache", "wb") as output_file:
-        output_file.write(damaged_data)
+    damage_cache(cache_folder)
     del seagoat1
     seagoat2 = Engine(repo.working_dir)
     seagoat2.analyze_codebase()
@@ -157,17 +168,11 @@ def test_truncated_cache_does_not_crash_app(repo):
     }
 
 
-def test_empty_cache_does_not_crash_app(repo):
-    seagoat1 = Engine(repo.working_dir)
-    seagoat1.analyze_codebase()
-    cache_folder = seagoat1.cache.get_cache_folder()
-    with open(cache_folder / "cache", "wb"):
-        pass
-    del seagoat1
-    seagoat2 = Engine(repo.working_dir)
-    seagoat2.analyze_codebase()
+def test_analyze_codebase_caps_minimum_chunks_to_analyze(repo):
+    seagoat = Engine(repo.working_dir)
+    seagoat.analyze_codebase(minimum_chunks_to_analyze=10_000)
 
-    assert {file.path for file, _ in seagoat2.repository.top_files()} == {
+    assert {file.path for file, _ in seagoat.repository.top_files()} == {
         "file1.md",
         "file2.py",
         "file3.py",

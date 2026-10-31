@@ -1,10 +1,9 @@
 import hashlib
-import os
 import pickle
 from pathlib import Path
 from typing import Generic, TypeVar
 
-import platformdirs
+from seagoat.utils.paths import get_cache_dir
 
 T = TypeVar("T")
 
@@ -14,11 +13,7 @@ CACHE_FORMAT_VERSION = 29
 
 
 def get_cache_root():
-    return Path(
-        platformdirs.user_cache_dir(
-            "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"
-        )
-    )
+    return get_cache_dir()
 
 
 class Cache(Generic[T]):
