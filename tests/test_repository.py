@@ -1,8 +1,12 @@
+import datetime
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 import pytest
 from freezegun import freeze_time
+from hypothesis import given, settings
+from hypothesis import strategies as st
 from pytest_mock import MockerFixture
 
 from seagoat.engine import Engine
@@ -405,3 +409,81 @@ def test_get_blobs_data_matches_get_blob_data(repo: MockRepo):
     assert blobs == {
         object_id: repository.get_blob_data(object_id) for object_id in object_ids
     }
+
+
+def test_parse_commit_info_handles_commits_from_timezones_ahead():
+    from seagoat.repository import parse_commit_info
+
+    with freeze_time("2024-01-01 12:00:00", tz_offset=0):
+        commit_hash, days_passed, author, subject = parse_commit_info(
+            "abc:::2024-01-02 01:00:00 +1400:::A <a@b>:::subject"
+        )
+
+    assert days_passed == 0
+    assert (commit_hash, author, subject) == ("abc", "A <a@b>", "subject")
+
+
+def test_parse_commit_info_clamps_future_commits_to_zero():
+    from seagoat.repository import parse_commit_info
+
+    with freeze_time("2024-01-01 12:00:00", tz_offset=0):
+        _, days_passed, _, _ = parse_commit_info(
+            "abc:::2030-01-01 00:00:00 +0000:::A <a@b>:::subject"
+        )
+
+    assert days_passed == 0
+
+
+def test_compute_frecency_does_not_crash_on_future_commit():
+    from seagoat.repository import parse_commit_info
+
+    with freeze_time("2024-01-01 12:00:00", tz_offset=0):
+        commit_info = parse_commit_info(
+            "abc:::2025-01-01 00:00:00 +0000:::A <a@b>:::subject"
+        )
+
+    repository = Repository.__new__(Repository)
+    repository.file_changes = defaultdict(list)
+    repository.file_changes["file1.py"] = [commit_info]
+    repository.frecency_scores = {}
+
+    repository._compute_frecency()
+
+    assert repository.frecency_scores["file1.py"] > 0
+
+
+@settings(deadline=None, max_examples=50)
+@given(
+    commit_naive=st.datetimes(
+        min_value=datetime.datetime(2000, 1, 1),
+        max_value=datetime.datetime(2100, 1, 1),
+    ),
+    offset_minutes=st.integers(-840, 840),
+    delta_days=st.integers(0, 1000),
+)
+def test_parse_commit_info_frecency_property(commit_naive, offset_minutes, delta_days):
+    from seagoat.repository import parse_commit_info
+
+    commit_tz = datetime.timezone(datetime.timedelta(minutes=offset_minutes))
+    commit_aware = commit_naive.replace(tzinfo=commit_tz)
+    commit_utc_naive = commit_aware.astimezone(datetime.UTC).replace(tzinfo=None)
+    now_aware = (commit_utc_naive + datetime.timedelta(days=delta_days)).replace(
+        tzinfo=datetime.UTC
+    )
+
+    commit_str = commit_naive.strftime("%Y-%m-%d %H:%M:%S ") + commit_aware.strftime(
+        "%z"
+    )
+
+    with freeze_time(now_aware):
+        _, days_passed, _, _ = parse_commit_info(
+            f"abc:::{commit_str}:::A <a@b>:::subject"
+        )
+
+    expected = (
+        now_aware.astimezone(datetime.UTC).date()
+        - commit_aware.astimezone(datetime.UTC).date()
+    ).days
+
+    assert days_passed == expected
+    assert days_passed >= 0

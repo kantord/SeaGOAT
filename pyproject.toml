@@ -68,6 +68,7 @@ dev = [
     "locust>=2.17.0,<3",
     "ruff>=0.17.1,<0.18",
     "mike>=2.1.0,<3",
+    "hypothesis>=6,<7",
 ]
 
 [tool.uv]
