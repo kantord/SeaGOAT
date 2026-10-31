@@ -269,12 +269,16 @@ def run_around_tests():
         cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
     _delete_unkept_cache_entries(cache_root)
 
-    # Each test starts from a clean slate: no instance and no global config
-    # (start commands add repositories to it while tests run).
-    from seagoat.utils.server import instance_file_path
+    # Each test starts from a clean slate: no instance, no repositories file
+    # and no global config (start commands add repositories while tests run).
+    from seagoat.utils.server import instance_file_path, repositories_file_path
 
     instance_path = instance_file_path()
-    for file_path in (instance_path, Path(f"{instance_path}.lock")):
+    for file_path in (
+        instance_path,
+        repositories_file_path(),
+        Path(f"{instance_path}.lock"),
+    ):
         file_path.unlink(missing_ok=True)
     GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
 
@@ -683,6 +687,25 @@ def create_config_file(repo):
         created_files.append(config_file_path)
 
     yield write_config
+
+    for file_path in created_files:
+        if file_path.exists():
+            file_path.unlink()
+
+
+@pytest.fixture
+def create_repositories_file():
+    created_files = []
+
+    def write_repositories(repositories):
+        from seagoat.utils.json_file import write_to_json_file
+        from seagoat.utils.server import repositories_file_path
+
+        file_path = repositories_file_path()
+        write_to_json_file(file_path, repositories)
+        created_files.append(file_path)
+
+    yield write_repositories
 
     for file_path in created_files:
         if file_path.exists():

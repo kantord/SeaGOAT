@@ -3,17 +3,14 @@ from pathlib import Path
 
 import jsonschema
 import pytest
-import yaml
 from deepmerge import always_merger
 
 from seagoat.utils.config import (
     DEFAULT_CONFIG,
     GLOBAL_CONFIG_FILE,
-    add_repository,
     get_config_values,
     get_global_config_values,
 )
-from seagoat.utils.server import normalize_repo_path
 
 
 def _(config):
@@ -174,7 +171,6 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             ("server", "chroma", "embeddingFunction"),
         ),
         ({"server": {"host": "0.0.0.0"}}, ("server", "host")),
-        ({"server": {"repositories": ["/some/repo"]}}, ("server", "repositories")),
         ({"client": {"host": "https://evil.example/"}}, ("client", "host")),
     ],
 )
@@ -240,37 +236,21 @@ def test_global_config_can_set_server_host(repo, create_config_file):
     assert config["server"]["host"] == "0.0.0.0"
 
 
-def test_repositories_defaults_to_empty(repo):
+def test_config_defaults_have_no_repositories(repo):
     config = get_config_values(Path(repo.working_dir))
 
-    assert config["server"]["repositories"] == []
+    assert "repositories" not in DEFAULT_CONFIG["server"]
+    assert "repositories" not in config["server"]
 
 
-def test_global_config_can_set_repositories(repo, create_config_file):
+def test_global_config_with_repositories_is_invalid(repo, create_config_file):
     create_config_file(
         {"server": {"repositories": ["/repo/one", "/repo/two"]}},
         global_config=True,
     )
 
-    config = get_config_values(Path(repo.working_dir))
-
-    assert config["server"]["repositories"] == ["/repo/one", "/repo/two"]
-
-
-def test_repo_config_repositories_is_ignored_uses_global(
-    repo, create_config_file, caplog
-):
-    create_config_file(
-        {"server": {"repositories": ["/global/repo"]}}, global_config=True
-    )
-    create_config_file(
-        {"server": {"repositories": ["/local/repo"]}}, global_config=False
-    )
-
-    config = get_config_values(Path(repo.working_dir))
-
-    assert config["server"]["repositories"] == ["/global/repo"]
-    assert "Ignoring 'server.repositories'" in caplog.text
+    with pytest.raises(jsonschema.ValidationError):
+        get_config_values(Path(repo.working_dir))
 
 
 def test_get_global_config_values_ignores_repo_config(repo, create_config_file):
@@ -291,81 +271,3 @@ def test_get_global_config_values_reads_global_config(repo, create_config_file):
     config = get_global_config_values()
 
     assert config["server"]["port"] == 6061
-
-
-def test_add_repository_adds_normalized_path(tmp_path, create_config_file):
-
-    create_config_file({"server": {"repositories": []}}, global_config=True)
-    repo_path = str(tmp_path / "repo")
-
-    result = add_repository(f"{repo_path}/")
-
-    assert result is True
-    config = yaml.safe_load(GLOBAL_CONFIG_FILE.read_text())
-    assert config["server"]["repositories"] == [normalize_repo_path(repo_path)]
-
-
-def test_add_repository_stores_repository_root_for_subdirectory(
-    repo, create_config_file
-):
-
-    create_config_file({"server": {"repositories": []}}, global_config=True)
-    subdirectory = str(Path(repo.working_dir) / "subdirectory")
-    Path(subdirectory).mkdir(exist_ok=True)
-
-    result = add_repository(subdirectory)
-
-    assert result is True
-    config = yaml.safe_load(GLOBAL_CONFIG_FILE.read_text())
-    assert config["server"]["repositories"] == [normalize_repo_path(repo.working_dir)]
-
-
-def test_add_repository_does_not_add_twice(tmp_path, create_config_file):
-
-    create_config_file({"server": {"repositories": []}}, global_config=True)
-    repo_path = str(tmp_path / "repo")
-
-    assert add_repository(repo_path) is True
-    assert add_repository(repo_path) is False
-    assert add_repository(f"{repo_path}/") is False
-
-    config = yaml.safe_load(GLOBAL_CONFIG_FILE.read_text())
-    assert config["server"]["repositories"] == [normalize_repo_path(repo_path)]
-
-
-def test_add_repository_creates_missing_file(tmp_path):
-
-    GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
-    try:
-        GLOBAL_CONFIG_FILE.parent.rmdir()
-    except OSError:
-        pass
-    repo_path = str(tmp_path / "repo")
-
-    try:
-        result = add_repository(repo_path)
-
-        assert result is True
-        assert GLOBAL_CONFIG_FILE.exists()
-        config = yaml.safe_load(GLOBAL_CONFIG_FILE.read_text())
-        assert config["server"]["repositories"] == [normalize_repo_path(repo_path)]
-    finally:
-        # This test writes the real global config file; do not leave it
-        # pointing at a temp path for the rest of the test session
-        GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
-
-
-def test_add_repository_keeps_other_keys(tmp_path, create_config_file):
-
-    create_config_file(
-        {"server": {"repositories": [], "readMaxCommits": 6060}},
-        global_config=True,
-    )
-    repo_path = str(tmp_path / "repo")
-
-    result = add_repository(repo_path)
-
-    assert result is True
-    config = yaml.safe_load(GLOBAL_CONFIG_FILE.read_text())
-    assert config["server"]["readMaxCommits"] == 6060
-    assert config["server"]["repositories"] == [normalize_repo_path(repo_path)]

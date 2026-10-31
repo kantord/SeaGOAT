@@ -39,6 +39,37 @@ def instance_file_path() -> Path:
     return user_cache_dir / "instance.json"
 
 
+def repositories_file_path() -> Path:
+    return instance_file_path().parent / "repositories.json"
+
+
+def add_repository(repo_path) -> bool:
+    # Imported here because seagoat.projects imports seagoat.utils.server
+    from seagoat.projects import resolve_repo_path
+
+    repositories = read_repositories()
+    normalized_path = normalize_repo_path(resolve_repo_path(repo_path))
+
+    if any(normalize_repo_path(path) == normalized_path for path in repositories):
+        return False
+
+    repositories.append(normalized_path)
+    write_to_json_file(repositories_file_path(), repositories)
+    return True
+
+
+def read_repositories() -> list[str]:
+    try:
+        repositories = get_json_file_contents(repositories_file_path())
+    except (OSError, ValueError):
+        return []
+
+    if not isinstance(repositories, list):
+        return []
+
+    return [path for path in repositories if isinstance(path, str)]
+
+
 def write_instance(instance: Instance) -> None:
     host = {
         "0.0.0.0": "127.0.0.1",

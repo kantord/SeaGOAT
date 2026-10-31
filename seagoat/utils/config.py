@@ -1,7 +1,6 @@
 import copy
 import logging
 import os
-import tempfile
 from pathlib import Path
 
 import jsonschema
@@ -10,13 +9,11 @@ import yaml
 from deepmerge import always_merger
 
 from seagoat.utils.file_reader import read_file_with_correct_encoding
-from seagoat.utils.server import normalize_repo_path
 
 DEFAULT_CONFIG = {
     "server": {
         "host": "127.0.0.1",
         "port": None,
-        "repositories": [],
         "ignorePatterns": [],
         "readMaxCommits": 5_000,
         "chroma": {
@@ -69,10 +66,6 @@ CONFIG_SCHEMA = {
             "properties": {
                 "host": {"type": "string", "minLength": 1},
                 "port": {"type": "integer", "minimum": 1, "maximum": 65535},
-                "repositories": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                },
                 "readMaxCommits": {
                     "type": ["integer", "null"],
                     "minimum": 1,
@@ -249,36 +242,6 @@ def get_config_values(repo_path: Path):
     return config
 
 
-def add_repository(repo_path) -> bool:
-    # Imported here because seagoat.projects imports seagoat.utils.config
-    from seagoat.projects import resolve_repo_path
-
-    config = {}
-    if GLOBAL_CONFIG_FILE.exists():
-        config = validate_config_file(str(GLOBAL_CONFIG_FILE)) or {}
-
-    repositories = config.setdefault("server", {}).setdefault("repositories", [])
-    normalized_path = normalize_repo_path(resolve_repo_path(repo_path))
-
-    if any(normalize_repo_path(path) == normalized_path for path in repositories):
-        return False
-
-    repositories.append(normalized_path)
-    GLOBAL_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    # Write through a temporary file and os.replace so a concurrent reader
-    # never sees a half-written config file.
-    fd, temp_path = tempfile.mkstemp(
-        dir=GLOBAL_CONFIG_DIR, prefix=".config-", suffix=".tmp"
-    )
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as config_file:
-            yaml.safe_dump(config, config_file, sort_keys=False)
-        os.replace(temp_path, GLOBAL_CONFIG_FILE)
-    finally:
-        Path(temp_path).unlink(missing_ok=True)
-    return True
-
-
 # The repo file is untrusted: it comes with whatever repository is being
 # searched. These settings choose where code or credentials are sent or exposed,
 # so only the global config file may set them.
@@ -294,8 +257,6 @@ GLOBAL_ONLY_KEYS = [
     ("server", "host"),
     # One instance listens on one port for every project
     ("server", "port"),
-    # Which repositories an instance serves is the instance owner's choice, never a repository's
-    ("server", "repositories"),
     # Server the CLI sends queries to: it would receive every query, and
     # decide which file paths and text the CLI prints
     ("client", "host"),

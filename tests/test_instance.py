@@ -8,10 +8,14 @@ import requests
 
 from seagoat.utils.server import (
     Instance,
+    add_repository,
     claim_start,
     instance_answers,
     instance_file_path,
+    normalize_repo_path,
     read_instance,
+    read_repositories,
+    repositories_file_path,
     stop_instance,
     write_instance,
 )
@@ -239,3 +243,118 @@ def test_stop_instance_counts_already_gone_process_as_stopped(mocker):
     assert result is True
     assert read_instance() is None
     assert not instance_file_path().exists()
+
+
+def test_add_repository_adds_normalized_path(tmp_path):
+    repo_path = str(tmp_path / "repo")
+
+    result = add_repository(f"{repo_path}/")
+
+    assert result is True
+    assert read_repositories() == [normalize_repo_path(repo_path)]
+
+
+def test_add_repository_stores_repository_root_for_subdirectory(repo):
+    subdirectory = str(Path(repo.working_dir) / "subdirectory")
+    Path(subdirectory).mkdir(exist_ok=True)
+
+    result = add_repository(subdirectory)
+
+    assert result is True
+    assert read_repositories() == [normalize_repo_path(repo.working_dir)]
+
+
+def test_add_repository_does_not_add_twice(tmp_path):
+    repo_path = str(tmp_path / "repo")
+
+    assert add_repository(repo_path) is True
+    assert add_repository(repo_path) is False
+    assert add_repository(f"{repo_path}/") is False
+
+    assert read_repositories() == [normalize_repo_path(repo_path)]
+
+
+def test_add_repository_creates_missing_file(tmp_path):
+    repo_path = str(tmp_path / "repo")
+
+    result = add_repository(repo_path)
+
+    assert result is True
+    assert repositories_file_path().exists()
+    assert read_repositories() == [normalize_repo_path(repo_path)]
+
+
+def test_add_repository_keeps_existing_repositories(tmp_path):
+    repo_path = str(tmp_path / "repo")
+
+    assert add_repository(repo_path) is True
+    assert add_repository(f"{tmp_path}/another") is True
+
+    assert read_repositories() == [
+        normalize_repo_path(repo_path),
+        normalize_repo_path(str(tmp_path / "another")),
+    ]
+
+
+def test_add_repository_does_not_touch_global_config(tmp_path, create_config_file):
+    # The list of served repositories lives in repositories.json, not the
+    # global config file: add_repository must never rewrite config.yml.
+    from seagoat.utils.config import GLOBAL_CONFIG_FILE
+
+    create_config_file(
+        {"server": {"readMaxCommits": 6060, "port": 6061}},
+        global_config=True,
+    )
+    global_config_before = GLOBAL_CONFIG_FILE.read_text()
+    repo_path = str(tmp_path / "repo")
+
+    result = add_repository(repo_path)
+
+    assert result is True
+    assert GLOBAL_CONFIG_FILE.read_text() == global_config_before
+
+
+def test_read_repositories_returns_empty_list_when_file_is_missing():
+    repositories_file_path().unlink(missing_ok=True)
+
+    assert read_repositories() == []
+
+
+def test_read_repositories_returns_empty_list_for_invalid_json():
+    repositories_file_path().write_text("not json", encoding="utf-8")
+
+    assert read_repositories() == []
+
+
+def test_read_repositories_returns_empty_list_for_non_list():
+    from seagoat.utils.json_file import write_to_json_file
+
+    write_to_json_file(repositories_file_path(), {"server": "not a list"})
+
+    assert read_repositories() == []
+
+
+def test_read_repositories_skips_non_string_entries():
+    from seagoat.utils.json_file import write_to_json_file
+
+    write_to_json_file(repositories_file_path(), ["/one", 3, None, "/two"])
+
+    assert read_repositories() == ["/one", "/two"]
+
+
+def test_write_instance_is_atomic():
+    # write_to_json_file writes through a temporary file and os.replace, so a
+    # concurrent reader never sees a half-written file.
+    import orjson
+
+    from seagoat.utils.json_file import write_to_json_file
+
+    file_path = Path(instance_file_path().parent) / "atomic-test.json"
+    file_path.unlink(missing_ok=True)
+    try:
+        write_to_json_file(file_path, ["a", "b"])
+
+        assert orjson.loads(file_path.read_bytes()) == ["a", "b"]
+        assert not list(file_path.parent.glob(".atomic-test.json-*.tmp"))
+    finally:
+        file_path.unlink(missing_ok=True)

@@ -23,16 +23,18 @@ from seagoat.projects import (
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.utils.config import (
     GLOBAL_CONFIG_FILE,
-    add_repository,
     get_global_config_values,
 )
 from seagoat.utils.server import (
     Instance,
+    add_repository,
     claim_start,
     fetch_status,
     instance_url,
     normalize_repo_path,
     read_instance,
+    read_repositories,
+    repositories_file_path,
     stop_instance,
 )
 
@@ -171,8 +173,8 @@ def create_app(projects, host):
     @app.route("/reload", methods=["POST"])
     def reload_():
         # Any caller may trigger this: it only reads the instance owner's config
-        load_configured_projects(projects)
-        return {"projects": projects.repo_paths()}
+        failed = load_configured_projects(projects)
+        return {"projects": projects.repo_paths(), "failed": failed}
 
     @app.route("/status", methods=["POST"])
     def project_status():
@@ -227,8 +229,10 @@ def create_app(projects, host):
     return app
 
 
-def load_configured_projects(projects) -> None:
-    for configured_path in get_global_config_values()["server"]["repositories"]:
+def load_configured_projects(projects) -> dict[str, str]:
+    """Load every listed repository; return the ones that failed, path -> error."""
+    failed = {}
+    for configured_path in read_repositories():
         try:
             projects.get(configured_path)
         except Exception as error:  # noqa: BLE001 - deliberately skip any bad repository
@@ -237,6 +241,16 @@ def load_configured_projects(projects) -> None:
             logger.warning(
                 "Skipping configured repository %s: %r", configured_path, error
             )
+            failed[configured_path] = str(error)
+    return failed
+
+
+class RepositoryFileWriteError(Exception):
+    pass
+
+
+class RepositoryLoadError(Exception):
+    pass
 
 
 def start_server(repo_path: str, custom_port=None):
@@ -257,23 +271,36 @@ def start_server(repo_path: str, custom_port=None):
         port = 0
 
     server = None
+    repo_root = normalize_repo_path(resolve_repo_path(repo_path))
 
     def bind() -> Instance:
         nonlocal server
         projects = Projects(
             lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
         )
-        load_configured_projects(projects)
-        projects.get(repo_path)
+        failed = load_configured_projects(projects)
+        if repo_root in failed:
+            raise RepositoryLoadError(failed[repo_root])
         app = create_app(projects, host)
         server = create_server(app, host=host, port=port, threads=4)
         return Instance(host, int(server.effective_port), os.getpid())  # type: ignore  # set in waitress at runtime
 
     def prepare() -> None:
-        add_repository(repo_path)
+        try:
+            add_repository(repo_path)
+        except OSError as error:
+            raise RepositoryFileWriteError(
+                f"could not write {repositories_file_path()}: {error}"
+            ) from error
 
     try:
         existing = claim_start(bind, prepare=prepare)
+    except RepositoryFileWriteError as error:
+        click.echo(f"Error: {error}", err=True)
+        sys.exit(ExitCode.SERVER_ERROR)
+    except RepositoryLoadError as error:
+        click.echo(f"Could not load {repo_root}: {error}", err=True)
+        sys.exit(ExitCode.SERVER_ERROR)
     except OSError as error:
         click.echo(
             f"Error: could not bind to {host}:{port} - {error.strerror or error}",
@@ -283,16 +310,32 @@ def start_server(repo_path: str, custom_port=None):
 
     if existing is not None:
         address = instance_url(existing)
+        if custom_port is not None and custom_port != existing.port:
+            click.echo(
+                f"Warning: --port {custom_port} ignored; the running instance keeps port {existing.port}",
+                err=True,
+            )
         try:
+            was_served = repo_root in (fetch_status(existing) or {}).get("projects", [])
             response = requests.post(f"{address}/reload", timeout=5)
             response.raise_for_status()
-        except requests.exceptions.RequestException as error:
+            reloaded = response.json()
+            projects = reloaded.get("projects") or []
+            failed = reloaded.get("failed") or {}
+        except (requests.exceptions.RequestException, ValueError) as error:
             click.echo(
                 f"Error: could not reload the running instance at {address} - {error}",
                 err=True,
             )
             sys.exit(ExitCode.SERVER_ERROR)
-        click.echo(f"Repository added to the running instance at {address}")
+        if repo_root not in projects:
+            reason = failed.get(repo_root, "see the instance's log")
+            click.echo(f"Could not load {repo_root}: {reason}", err=True)
+            sys.exit(ExitCode.SERVER_ERROR)
+        if was_served:
+            click.echo(f"{repo_root} is already served by the instance at {address}")
+        else:
+            click.echo(f"Repository added to the running instance at {address}")
         return
 
     assert server is not None  # claim_start returned None, so bind() ran
@@ -352,15 +395,21 @@ def get_status_data(repo_path=None):
 @click.option("--json", "use_json_format", is_flag=True, help="Output status as JSON.")
 def status(repo_path, use_json_format):
     """Describes the SeaGOAT instance; with REPO_PATH, whether it serves that repo."""
-    status_info = get_status_data(repo_path)
-
     if use_json_format:
-        click.echo(json.dumps(status_info))
+        click.echo(json.dumps(get_status_data(repo_path)))
+        return
+
+    status_info = get_status_data()
+    if not status_info["isRunning"]:
+        click.echo("No SeaGOAT instance running.")
+    elif repo_path is not None and (
+        normalize_repo_path(resolve_repo_path(repo_path)) not in status_info["projects"]
+    ):
+        click.echo(
+            f"The instance at {status_info['url']} does not serve {normalize_repo_path(resolve_repo_path(repo_path))}."
+        )
     else:
-        if status_info["isRunning"]:
-            click.echo(f"Instance is running at {status_info['url']}")
-        else:
-            click.echo("No SeaGOAT instance running.")
+        click.echo(f"Instance is running at {status_info['url']}")
 
 
 @server.command()

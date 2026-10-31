@@ -276,7 +276,7 @@ def test_one_instance_serves_two_repositories(generate_repo, managed_process):
 
 @pytest.mark.timeout(120)
 def test_bad_configured_repository_does_not_take_instance_down(
-    generate_repo, create_config_file, managed_process
+    generate_repo, create_repositories_file, managed_process
 ):
     good_repo = generate_repo()
     bad_repo = generate_repo()
@@ -284,10 +284,7 @@ def test_bad_configured_repository_does_not_take_instance_down(
         "server:\n  repositories: this-is-not-a-list\n",
         encoding="utf-8",
     )
-    create_config_file(
-        {"server": {"repositories": [bad_repo.working_dir, good_repo.working_dir]}},
-        global_config=True,
-    )
+    create_repositories_file([bad_repo.working_dir, good_repo.working_dir])
     requested_repo = generate_repo()
 
     server_cmd = [
@@ -337,15 +334,78 @@ def test_bad_configured_repository_does_not_take_instance_down(
         assert server_process.wait(timeout=10) is not None
 
 
-def test_start_fails_loudly_when_requested_repo_cannot_load(
-    generate_repo, create_config_file
+@pytest.mark.timeout(120)
+def test_start_reports_error_when_running_instance_cannot_serve_requested_repo(
+    generate_repo, managed_process
 ):
+    from seagoat.server import ExitCode
+
+    good_repo = generate_repo()
     bad_repo = generate_repo()
     (Path(bad_repo.working_dir) / ".seagoat.yml").write_text(
         "server:\n  repositories: this-is-not-a-list\n",
         encoding="utf-8",
     )
-    create_config_file({"server": {"repositories": []}}, global_config=True)
+
+    server_cmd = [
+        "python",
+        "-m",
+        "seagoat.server",
+        "start",
+        good_repo.working_dir,
+    ]
+
+    with managed_process(
+        server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ) as server_process:
+        wait_for(
+            lambda: (
+                (instance := read_instance()) is not None and instance_answers(instance)
+            ),
+            8,
+        )
+        instance = read_instance()
+        assert instance is not None
+
+        start_bad_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "start", bad_repo.working_dir],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+        assert start_bad_result.returncode == ExitCode.SERVER_ERROR, (
+            start_bad_result.stdout,
+            start_bad_result.stderr,
+        )
+        assert "Could not load" in start_bad_result.stderr
+        assert "Repository added to the running instance" not in start_bad_result.stdout
+
+        # The running instance still serves the repository it could load
+        status_response = requests.get(f"{instance_url(instance)}/status")
+        assert status_response.status_code == 200
+        assert (
+            normalize_repo_path(good_repo.working_dir)
+            in status_response.json()["projects"]
+        )
+
+        stop_result = subprocess.run(
+            ["python", "-m", "seagoat.server", "stop"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert stop_result.returncode == 0, stop_result.stderr
+        # This test is the server's parent, so it reaps it
+        assert server_process.wait(timeout=10) is not None
+
+
+def test_start_fails_loudly_when_requested_repo_cannot_load(generate_repo):
+    bad_repo = generate_repo()
+    (Path(bad_repo.working_dir) / ".seagoat.yml").write_text(
+        "server:\n  repositories: this-is-not-a-list\n",
+        encoding="utf-8",
+    )
 
     result = subprocess.run(
         ["python", "-m", "seagoat.server", "start", bad_repo.working_dir],
