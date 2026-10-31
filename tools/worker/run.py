@@ -149,7 +149,10 @@ RUN_ON_OPEN = (
     ".vscode/",
     ".idea/",
     "CLAUDE.md",
+    "CLAUDE.local.md",
     "AGENTS.md",
+    ".nvim.lua",
+    ".exrc",
 )
 RUN_ON_USE = (
     "conftest.py", "build.rs", "pyproject.toml", "Cargo.toml", "uv.lock", "Cargo.lock",
@@ -164,6 +167,21 @@ def patch_paths(patch: Path) -> list[str]:
     return [e.split("\t", 2)[2] for e in out.split("\0") if e]
 
 
+def patch_symlinks(patch: Path) -> list[str]:
+    """The paths the patch makes into symlinks.
+
+    A symlink would let a refused path through under another name: `.claude -> evil` plus
+    `evil/settings.json` is Claude Code's settings file, though neither path matches.
+    """
+    out = git("apply", "--summary", str(patch))
+    # " create mode 120000 path" or " mode change 100644 => 120000 path"
+    return [
+        line.split(" 120000 ", 1)[1]
+        for line in out.splitlines()
+        if " 120000 " in line and ("create mode" in line or "=> 120000" in line)
+    ]
+
+
 def risky(paths: list[str]) -> tuple[list[str], list[str]]:
     """(refused, to read first): the paths that match RUN_ON_OPEN and RUN_ON_USE.
 
@@ -173,7 +191,8 @@ def risky(paths: list[str]) -> tuple[list[str], list[str]]:
 
     def matches(path: str, pattern: str) -> bool:
         if pattern.endswith("/"):
-            return f"/{path}".find(f"/{pattern}") >= 0
+            # The trailing / also matches the directory itself (a symlink, or a file in its place)
+            return f"/{path}/".find(f"/{pattern}") >= 0
         return Path(path).name == pattern
 
     def hits(patterns) -> list[str]:
@@ -184,6 +203,7 @@ def risky(paths: list[str]) -> tuple[list[str], list[str]]:
 
 def apply_in_worktree(slug: str, base: str, patch: Path) -> Path:
     refused, read_first = risky(patch_paths(patch))
+    refused += [f"{p} (a symlink)" for p in patch_symlinks(patch)]
     if refused:
         sys.exit(
             f"worker: the patch touches files that run when the worktree is opened: "
