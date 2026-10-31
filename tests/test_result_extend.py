@@ -1,8 +1,10 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from seagoat.engine import Engine
 from seagoat.gitfile import GitFile
 from seagoat.result import Result, ResultLineType
+from tests.fixtures.sources import mock_sources_context
 
 
 class _FakeRepository:
@@ -86,3 +88,42 @@ def test_extend_is_commutative_for_distances(a_data, b_data):
 
     assert _line_distances(a_forward) == _line_distances(b_reverse)
     assert set(a_forward.lines) == set(b_reverse.lines)
+
+
+def test_context_line_merged_with_a_match_keeps_the_match_distance(repo):
+    # chroma: a.py line 10 (0.3) with line 11 as context below; ripgrep: a.py
+    # line 11 (0.4); b.py has the best match (0.05). Merging line 11 must keep
+    # ripgrep's 0.4, not the context placeholder 0.0, so a.py cannot jump
+    # ahead of b.py just because context was requested.
+    sources = (
+        repo,
+        {"a.py": [(11, 0.4)]},
+        {"a.py": [(10, 0.3)], "b.py": [(5, 0.05)]},
+    )
+    with mock_sources_context(*sources):
+        engine = Engine(repo.working_dir)
+        engine.repository.analyze_files()
+        with_context = engine.query_sync("zzz", context_above=0, context_below=1)
+    with mock_sources_context(*sources):
+        engine = Engine(repo.working_dir)
+        engine.repository.analyze_files()
+        without_context = engine.query_sync("zzz", context_above=0, context_below=0)
+
+    a_result = next(r for r in with_context if r.gitfile.path == "a.py")
+    assert ResultLineType.RESULT in a_result.lines[11].types
+    assert a_result.lines[11].vector_distance == 0.4
+    assert [r.gitfile.path for r in with_context] == [
+        r.gitfile.path for r in without_context
+    ]
+
+
+def test_add_line_ignores_a_context_placeholder_distance(repo):
+    with mock_sources_context(repo, {}, {"a.py": [(10, 0.3)]}):
+        engine = Engine(repo.working_dir)
+        engine.repository.analyze_files()
+        result = engine.query_sync("zzz", context_above=0, context_below=1)[0]
+
+    result.add_line(11, 0.5)
+
+    assert result.lines[11].vector_distance == 0.5
+    assert result.lines[11].types == {ResultLineType.RESULT, ResultLineType.CONTEXT}

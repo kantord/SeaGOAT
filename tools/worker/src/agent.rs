@@ -829,7 +829,8 @@ fn tools() -> Value {
 
 /// Once the conversation is over the limit, drops the oldest whole turns (an assistant message
 /// with every tool reply answering it) until it is down to TRIMMED_CONVERSATION_CHARS; never
-/// the program's preamble, so no tool reply is left without its call.
+/// the program's preamble or the newest turn, so no tool reply is left without its call and
+/// the model always sees the results of what it just ran.
 fn trim(conv: &mut Conversation) {
     let keep = conv.pinned.unwrap_or(0);
     let m = &mut conv.messages;
@@ -838,6 +839,12 @@ fn trim(conv: &mut Conversation) {
         return;
     }
     while size(m) > TRIMMED_CONVERSATION_CHARS && m.len() > keep + 1 {
+        // Never the newest turn: the model must see what it just ran, even when
+        // that one turn alone (many parallel tool calls) is over the target size
+        let newest = m.iter().rposition(|v| v["role"] == "assistant");
+        if newest.is_some_and(|newest| newest <= keep) {
+            break;
+        }
         let end = keep
             + 1
             + m[keep + 1..]
@@ -986,6 +993,35 @@ mod tests {
             json!({"role": "assistant", "tool_calls": [{"id": id}]}),
             json!({"role": "tool", "content": "x".repeat(chars)}),
         ]
+    }
+
+    #[test]
+    fn trim_never_cuts_the_newest_turn() {
+        let mut conv = Conversation {
+            messages: vec![json!({"role": "system", "content": "preamble"})],
+            pinned: Some(1),
+        };
+        conv.messages.extend(turn(0, 150_000));
+        // One turn with 12 parallel tool calls, together over the trim target
+        conv.messages
+            .push(json!({"role": "assistant", "tool_calls": [{"id": 1}]}));
+        for _ in 0..12 {
+            conv.messages
+                .push(json!({"role": "tool", "content": "x".repeat(10_000)}));
+        }
+
+        trim(&mut conv);
+
+        assert_eq!(conv.messages[0]["content"], "preamble");
+        assert_eq!(
+            conv.messages[1]["tool_calls"][0]["id"], 1,
+            "the older turn goes"
+        );
+        assert_eq!(
+            conv.messages.len(),
+            1 + 1 + 12,
+            "the newest turn stays whole"
+        );
     }
 
     #[test]

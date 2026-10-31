@@ -1,16 +1,18 @@
 """A git repository with a few made-up commits, for tests to add more to."""
 
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from git.repo import Repo
 from git.util import Actor
+
+from tests.fixtures.git import days_ago_at_noon_utc
 
 
 class MockRepo(Repo):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fake_commit_date = datetime.now(UTC) - timedelta(days=400)
+        self.fake_commit_date = days_ago_at_noon_utc(400)
         self.actors = {
             "John Doe": Actor("John Doe", "jdoe@example.com"),
             "Alice Smith": Actor("Alice Smith", "asmith@example.com"),

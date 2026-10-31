@@ -54,17 +54,21 @@ class TaskQueue(BaseQueue):
         ):
             return
 
+        # Chunks from the last analysis are still being processed; check again
+        # later. Other waiting tasks (queries, stats) do not block indexing.
+        if self._has_pending_task("analyze_chunk"):
+            return
+
         current_repo_state_hash = context["seagoat_engine"].repository.get_status_hash()
 
         # Do not re-analyze repo if nothing changed
         if context["last_repo_state_hash"] == current_repo_state_hash:
             return
 
+        # Record the state only now that it is analyzed: a pass that returned
+        # early must not hide changes from the next one
         context["last_repo_state_hash"] = current_repo_state_hash
         context["last_maintenance"] = time.time()
-
-        if self._task_queue.qsize() > 0:
-            return
 
         logger.info("Checking repository for new changes")
         remaining_chunks_to_analyze = context["seagoat_engine"].analyze_codebase(

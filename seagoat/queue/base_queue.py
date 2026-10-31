@@ -90,6 +90,11 @@ class BaseQueue:
     def handle_maintenance(self, context):
         pass
 
+    def _has_pending_task(self, task_name: str) -> bool:
+        """Whether a task with this name is waiting in the queue."""
+        with self._task_queue.mutex:
+            return any(task.name == task_name for task in self._task_queue.queue)
+
     def shutdown(self):
         self._task_queue.put(
             Task(priority=HIGH_PRIORITY, name="shutdown", args=(), kwargs={})

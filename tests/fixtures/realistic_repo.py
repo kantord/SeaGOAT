@@ -13,9 +13,9 @@ network access is needed.
 """
 
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
-from tests.fixtures.git import commit_env, run_git
+from tests.fixtures.git import commit_env, days_ago_at_noon_utc, run_git
 
 # Age of the newest commit on every test run. Frecency-based result order
 # depends on commit ages, and some snapshot orderings flip when the newest
@@ -47,11 +47,7 @@ def build(repo_path: str) -> str:
     newest_commit_date = max(
         datetime.fromisoformat(commit["date"]) for commit in COMMITS
     )
-    offset = (
-        datetime.now(UTC)
-        - timedelta(days=YOUNGEST_COMMIT_AGE_DAYS)
-        - newest_commit_date
-    )
+    offset = days_ago_at_noon_utc(YOUNGEST_COMMIT_AGE_DAYS) - newest_commit_date
 
     current_branch = "master"
     for commit in COMMITS:

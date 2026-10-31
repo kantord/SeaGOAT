@@ -5,7 +5,6 @@ import signal
 import subprocess
 import sys
 import tempfile
-from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 # Give this pytest session its own cache and config directories, so two runs
@@ -68,11 +67,11 @@ import yaml
 from click.testing import CliRunner
 from deepmerge import always_merger
 
-from seagoat.cache import get_cache_root
 from seagoat.engine import Engine
 from seagoat.projects import Projects
 from seagoat.server import create_app
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
+from seagoat.utils.paths import get_cache_dir
 from seagoat.utils.server import (
     Instance,
     instance_url,
@@ -80,6 +79,7 @@ from seagoat.utils.server import (
     running_instance,
 )
 from seagoat.utils.wait import wait_for
+from tests.fixtures.git import days_ago_at_noon_utc
 from tests.fixtures.mock_repo import MockRepo
 from tests.fixtures.realistic_repo import build
 from tests.fixtures.sources import mock_sources_context
@@ -120,7 +120,7 @@ def repo_template():
     # exactly the same as with per-test repos.
     template_dir = tempfile.mkdtemp()
     template_repo = cast(MockRepo, MockRepo.init(template_dir))
-    template_repo.fake_commit_date = datetime.now(UTC) - timedelta(days=400)
+    template_repo.fake_commit_date = days_ago_at_noon_utc(400)
     template_repo.add_fake_data()
     fake_commit_date = template_repo.fake_commit_date
     template_repo.close()
@@ -280,7 +280,7 @@ def _clean_instance_state(baseline: dict = BASELINE_GLOBAL_CONFIG) -> None:
 def run_around_tests(global_config_baseline):
     _clean_instance_state(global_config_baseline)
     yield
-    _delete_unkept_cache_entries(get_cache_root())
+    _delete_unkept_cache_entries(get_cache_dir())
     _clean_instance_state()
 
 
