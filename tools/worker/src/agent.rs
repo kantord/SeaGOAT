@@ -26,6 +26,11 @@ const MAX_TOOL_OUTPUT: usize = 8000;
 /// What a passing `show: always` command hands the model: room for the few files a part needs.
 const SHOWN_OUTPUT: usize = 40_000;
 const MAX_CONVERSATION_CHARS: usize = 200_000;
+/// Where a trim cuts the conversation down to, well below the limit: each cut changes the
+/// prompt right after the preamble, which the provider's cache then misses, so cutting rarely
+/// and deeply keeps the prefix the same for many turns. 2026-10-31: cutting one turn per
+/// request left only the preamble cached, 58% of prompt tokens instead of about 90%.
+const TRIMMED_CONVERSATION_CHARS: usize = MAX_CONVERSATION_CHARS / 2;
 const BASH_TIMEOUT: Duration = Duration::from_secs(300);
 /// A program's command blocks until it ends, up to this, so a cold full gate fits.
 /// DECISION (owner, 2026-10-29): time limits only stop commands that would never end. A run
@@ -503,7 +508,7 @@ async fn turns(
             && may_pin(cut_off, empty, has_calls)
             && let Some(p) = resp["provider"].as_str()
         {
-            *cfg.pinned.lock().unwrap() = Some(p.to_string());
+            pin_first(&mut cfg.pinned.lock().unwrap(), p);
         }
         empty_in_a_row = empty_streak(empty, has_calls, empty_in_a_row);
         if cfg.pin_provider && empty_in_a_row >= 3 {
@@ -782,13 +787,17 @@ fn tools() -> Value {
                        "required": ["command"]}}}])
 }
 
-/// Drops the oldest whole turns (an assistant message with every tool reply answering it),
-/// never the program's preamble, so no tool reply is left without its call.
+/// Once the conversation is over the limit, drops the oldest whole turns (an assistant message
+/// with every tool reply answering it) until it is down to TRIMMED_CONVERSATION_CHARS; never
+/// the program's preamble, so no tool reply is left without its call.
 fn trim(conv: &mut Conversation) {
     let keep = conv.pinned.unwrap_or(0);
     let m = &mut conv.messages;
     let size = |m: &[Value]| m.iter().map(|v| v.to_string().len()).sum::<usize>();
-    while size(m) > MAX_CONVERSATION_CHARS && m.len() > keep + 1 {
+    if size(m) <= MAX_CONVERSATION_CHARS {
+        return;
+    }
+    while size(m) > TRIMMED_CONVERSATION_CHARS && m.len() > keep + 1 {
         let end = keep
             + 1
             + m[keep + 1..]
@@ -827,6 +836,14 @@ fn tidy_reply(mut msg: Value, cut_off: bool, empty: bool, has_calls: bool) -> Va
         }
     }
     msg
+}
+
+/// Pins `provider` unless one is already pinned. A gateway falls back to another provider when
+/// the pinned one is busy; re-pinning from that reply would move the pin, and every move starts
+/// on an empty cache (2026-10-31: a run alternated between two providers for six turns). Only
+/// the empty-replies rule clears a pin.
+fn pin_first(pinned: &mut Option<String>, provider: &str) {
+    pinned.get_or_insert_with(|| provider.to_string());
 }
 
 /// Whether this reply may pin its provider: it must be usable (text or a tool call), so never
@@ -888,6 +905,53 @@ mod tests {
             body["provider"],
             json!({"order": ["b"], "allow_fallbacks": false, "sort": "x"})
         );
+    }
+
+    #[test]
+    fn a_fallback_reply_does_not_move_the_pin() {
+        let mut pinned = None;
+        pin_first(&mut pinned, "a");
+        pin_first(&mut pinned, "b");
+        assert_eq!(pinned.as_deref(), Some("a"));
+    }
+
+    fn turn(id: usize, chars: usize) -> [Value; 2] {
+        [
+            json!({"role": "assistant", "tool_calls": [{"id": id}]}),
+            json!({"role": "tool", "content": "x".repeat(chars)}),
+        ]
+    }
+
+    #[test]
+    fn trim_cuts_deep_and_rarely_so_the_prefix_stays_cached() {
+        let mut conv = Conversation {
+            messages: vec![json!({"role": "system", "content": "preamble"})],
+            pinned: Some(1),
+        };
+        let size = |c: &Conversation| {
+            c.messages
+                .iter()
+                .map(|v| v.to_string().len())
+                .sum::<usize>()
+        };
+        let mut cuts = 0;
+        for id in 0..60 {
+            let before = conv.messages[..2.min(conv.messages.len())].to_vec();
+            conv.messages.extend(turn(id, 10_000));
+            trim(&mut conv);
+            assert!(size(&conv) <= MAX_CONVERSATION_CHARS);
+            assert_eq!(conv.messages[0]["content"], "preamble");
+            assert_eq!(
+                conv.messages[1]["role"], "assistant",
+                "no tool reply without its call"
+            );
+            if conv.messages[..2.min(conv.messages.len())] != before[..] {
+                cuts += 1;
+            }
+        }
+        // 60 turns of about 10k chars: one cut per request would change the prefix about 40
+        // times; cutting down to half the limit changes it a handful of times.
+        assert!((1..=6).contains(&cuts), "{cuts} cuts");
     }
 
     #[test]
