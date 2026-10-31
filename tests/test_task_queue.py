@@ -7,12 +7,13 @@ and the reported accuracy of the index.
 
 import logging
 import time
+from queue import PriorityQueue
 
 import orjson
 
 from seagoat import __version__
 from seagoat.engine import Engine
-from seagoat.queue.base_queue import HIGH_PRIORITY, Task
+from seagoat.queue.base_queue import HIGH_PRIORITY, MEDIUM_PRIORITY, Task
 from seagoat.queue.task_queue import TaskQueue, calculate_accuracy
 from seagoat.repository import Repository
 from seagoat.utils.wait import wait_for
@@ -198,3 +199,46 @@ def test_accuracy_is_100_percent_when_no_chunks_or_all_analyzed():
     assert calculate_accuracy(chunks_analyzed=42, total_chunks=42) == 100
     assert calculate_accuracy(chunks_analyzed=0, total_chunks=100) == 0
     assert 0 < calculate_accuracy(chunks_analyzed=30, total_chunks=100) < 100
+
+
+def _queue_without_worker(engine):
+    """A TaskQueue whose maintenance can be called step by step: no thread runs."""
+    queue = TaskQueue.__new__(TaskQueue)
+    queue.kwargs = {"minimum_chunks_to_analyze": 0}
+    queue._task_queue = PriorityQueue()
+    context = {
+        "seagoat_engine": engine,
+        "last_maintenance": None,
+        "last_repo_state_hash": None,
+    }
+    return queue, context
+
+
+def test_maintenance_skipped_for_pending_chunks_runs_on_the_next_pass(mocker):
+    engine = mocker.Mock()
+    engine.repository.get_status_hash.return_value = "edited"
+    engine.analyze_codebase.return_value = []
+    queue, context = _queue_without_worker(engine)
+
+    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="analyze_chunk"))
+    queue.handle_maintenance(context)
+    engine.analyze_codebase.assert_not_called()
+
+    # Once the chunks are processed, the same (unchanged) repo state must still
+    # be analyzed: the skipped pass must not have recorded it as done
+    queue._task_queue.get()
+    queue.handle_maintenance(context)
+    engine.analyze_codebase.assert_called_once()
+
+
+def test_waiting_requests_do_not_block_maintenance(mocker):
+    engine = mocker.Mock()
+    engine.repository.get_status_hash.return_value = "edited"
+    engine.analyze_codebase.return_value = []
+    queue, context = _queue_without_worker(engine)
+
+    for _ in range(3):
+        queue._task_queue.put(Task(priority=HIGH_PRIORITY, name="get_stats"))
+    queue.handle_maintenance(context)
+
+    engine.analyze_codebase.assert_called_once()

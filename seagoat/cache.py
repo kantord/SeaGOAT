@@ -12,10 +12,6 @@ T = TypeVar("T")
 CACHE_FORMAT_VERSION = 29
 
 
-def get_cache_root():
-    return get_cache_dir()
-
-
 class Cache(Generic[T]):
     def __init__(self, cache_name: str, path: Path, initial_value: T):
         self._path = path
@@ -37,7 +33,7 @@ class Cache(Generic[T]):
         return self.get_cache_folder() / self._cache_name
 
     def get_cache_folder(self):
-        cache_folder = get_cache_root() / self._get_project_hash()
+        cache_folder = get_cache_dir() / self._get_project_hash()
         cache_folder.mkdir(parents=True, exist_ok=True)
 
         return (cache_folder).resolve()

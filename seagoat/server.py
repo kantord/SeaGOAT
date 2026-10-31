@@ -12,7 +12,7 @@ from flask import Flask, jsonify, request
 from waitress.server import create_server
 
 from seagoat import __version__
-from seagoat.cache import Cache, get_cache_root
+from seagoat.cache import Cache
 from seagoat.projects import (
     NotAGitRepo,
     Projects,
@@ -27,6 +27,7 @@ from seagoat.utils.config import (
     GLOBAL_CONFIG_FILE,
     get_global_config_values,
 )
+from seagoat.utils.paths import get_cache_dir
 from seagoat.utils.server import (
     Instance,
     add_repository,
@@ -553,7 +554,7 @@ def _server_info():
     info = {
         "version": __version__,
         "servers": formatted_servers_info,
-        "globalCache": str(get_cache_root()),
+        "globalCache": str(get_cache_dir()),
         "globalConfigFile": str(GLOBAL_CONFIG_FILE),
     }
 

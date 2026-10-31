@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 AUTHOR_NAME = "Test Author"
@@ -54,3 +55,13 @@ def make_git_repo(path: Path) -> Path:
     run_git(path, "add", "README.md")
     run_git(path, "commit", "-m", "initial commit", env=commit_env())
     return path
+
+
+def days_ago_at_noon_utc(days: int) -> datetime:
+    """Noon UTC, `days` calendar days ago.
+
+    Commit ages are counted in whole UTC days, so a fixed time of day keeps
+    them the same whatever time the test suite runs.
+    """
+    noon_today = datetime.now(UTC).replace(hour=12, minute=0, second=0, microsecond=0)
+    return noon_today - timedelta(days=days)

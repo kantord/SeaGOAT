@@ -117,10 +117,17 @@ class Result:
                 self.lines[line_number] = other_line
                 continue
 
-            if existing_line.vector_distance <= other_line.vector_distance:
-                winning_line = existing_line
-            else:
-                winning_line = other_line
+            # A context line's distance (0.0) is a placeholder, not a match:
+            # only result lines compete, and the closer one wins
+            result_lines = [
+                line
+                for line in (existing_line, other_line)
+                if ResultLineType.RESULT in line.types
+            ]
+            winning_line = min(
+                result_lines or [existing_line, other_line],
+                key=lambda line: line.vector_distance,
+            )
 
             self.lines[line_number] = ResultLine(
                 winning_line.parent,
@@ -131,14 +138,14 @@ class Result:
             )
 
     def add_line(self, line: int, vector_distance: float) -> None:
-        types = set()
-        if line in self.lines and self.lines[line].vector_distance < vector_distance:
-            vector_distance = self.lines[line].vector_distance
-            types = self.lines[line].types
+        existing_line = self.lines.get(line)
+        types = set(existing_line.types) if existing_line is not None else set()
+        # Only an earlier match on this line can lower the distance; a context
+        # line's 0.0 is a placeholder
+        if existing_line is not None and ResultLineType.RESULT in existing_line.types:
+            vector_distance = min(vector_distance, existing_line.vector_distance)
 
-        types.add(
-            ResultLineType.RESULT,
-        )
+        types.add(ResultLineType.RESULT)
 
         self.lines[line] = ResultLine(
             self,

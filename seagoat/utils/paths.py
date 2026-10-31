@@ -21,22 +21,25 @@ from pathlib import Path
 import platformdirs
 
 
+def _override(variable: str) -> Path | None:
+    value = os.environ.get(variable)
+    return Path(value) if value else None
+
+
 def get_cache_dir() -> Path:
-    override = os.environ.get("SEAGOAT_CACHE_DIR")
-    if override:
-        return Path(override)
-    return Path(platformdirs.user_cache_dir("seagoat"))
+    return _override("SEAGOAT_CACHE_DIR") or Path(
+        platformdirs.user_cache_dir("seagoat")
+    )
 
 
 def get_config_dir() -> Path:
-    override = os.environ.get("SEAGOAT_CONFIG_DIR")
-    if override:
-        return Path(override)
-    return Path(platformdirs.user_config_dir("seagoat"))
+    return _override("SEAGOAT_CONFIG_DIR") or Path(
+        platformdirs.user_config_dir("seagoat")
+    )
 
 
 def get_servers_dir() -> Path:
-    override = os.environ.get("SEAGOAT_CACHE_DIR")
-    if override:
-        return Path(override) / "servers"
+    cache_dir = _override("SEAGOAT_CACHE_DIR")
+    if cache_dir is not None:
+        return cache_dir / "servers"
     return Path(platformdirs.user_cache_dir("seagoat-servers"))
