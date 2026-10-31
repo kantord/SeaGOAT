@@ -301,7 +301,10 @@ async def test_does_not_crash_repo_when_files_are_deleted(repo):
     (Path(repo.working_dir) / "cooking_recipes.txt").unlink()
 
     seagoat.analyze_codebase()
-    await seagoat.query(my_query)
+    second_query_results = await seagoat.query(my_query)
+    assert "cooking_recipes.txt" not in {
+        result.gitfile.path for result in second_query_results
+    }
 
 
 @pytest.mark.asyncio

@@ -5,10 +5,7 @@ import re
 import signal
 import socket
 import subprocess
-import sys
 import tempfile
-from contextlib import contextmanager
-from pathlib import Path
 from unittest.mock import ANY
 
 import psutil
@@ -28,15 +25,11 @@ from seagoat.utils.server import (
     normalize_repo_path,
     read_instance,
     read_repositories,
-    running_instance,
 )
 from seagoat.utils.wait import wait_for
+from tests.conftest import _server_command
 from tests.fixtures.config import NOT_A_NUMBER, write_invalid_config
 from tests.fixtures.git import make_git_repo
-
-
-def _server_command(*args: str) -> list[str]:
-    return [sys.executable, "-m", "seagoat.server", *args]
 
 
 def server_cli(*args: str, check: bool = False) -> subprocess.CompletedProcess:
@@ -48,32 +41,6 @@ def server_cli(*args: str, check: bool = False) -> subprocess.CompletedProcess:
         check=check,
         timeout=30,
     )
-
-
-@pytest.fixture
-def start_seagoat_server(managed_process):
-    """Start `seagoat-server start ARGS` as a child process and wait for it."""
-
-    @contextmanager
-    def _start(*args: str):
-        # Send the server's output to a file: a pipe could fill up and deadlock
-        # the server while tests are not reading it
-        with (
-            tempfile.TemporaryDirectory() as output_dir,
-            (Path(output_dir) / "server_output.log").open("wb") as server_output,
-            managed_process(
-                _server_command("start", *args),
-                stdout=server_output,
-                stderr=subprocess.STDOUT,
-            ) as process,
-        ):
-            process.output_file = Path(server_output.name)
-            wait_for(lambda: running_instance() is not None, 8)
-            instance = read_instance()
-            assert instance is not None
-            yield process, instance
-
-    return _start
 
 
 def stop_seagoat_server(server_process: subprocess.Popen) -> None:

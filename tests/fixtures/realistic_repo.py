@@ -1,19 +1,49 @@
 """A made-up habit tracker repository, built entirely by the test suite.
 
-The repository is deterministic: every commit uses the same author and
-committer and a fixed date, so building in two empty directories yields the
-same HEAD commit ID. No network access is needed.
+The repository is deterministic in content and in the relative spacing of its
+commits: every commit uses the same author and committer and the same offset
+from the other commits, so building in two empty directories on the same day
+yields the same structure. The absolute dates are different on different days,
+however: build() shifts every commit by one offset so the last commit is
+exactly YOUNGEST_COMMIT_AGE_DAYS before the current UTC date, keeping the youngest commit's age
+(which feeds frecency-based result ordering) constant no matter when the suite
+runs. Because dates are part of the commits, commit IDs are not the same on
+different days; only the file content and the relative dates are fixed. No
+network access is needed.
 """
 
 import os
+from datetime import UTC, datetime, timedelta
 
 from tests.fixtures.git import commit_env, run_git
+
+# Age of the newest commit on every test run. Frecency-based result order
+# depends on commit ages, and some snapshot orderings flip when the newest
+# commit is younger than about 100 days; 1000 days (close to the age these
+# fixed dates had when the snapshots were recorded) keeps them stable.
+YOUNGEST_COMMIT_AGE_DAYS = 1000
+
+
+def _shifted_date(commit_date: str, offset: timedelta) -> str:
+    return (datetime.fromisoformat(commit_date) + offset).isoformat()
 
 
 def build(repo_path: str) -> str:
     """Create the made-up project in ``repo_path`` and return its path."""
     os.makedirs(repo_path, exist_ok=True)
     run_git(repo_path, "init", "-b", "master")
+
+    # Shift every commit by one offset so the last commit is exactly
+    # YOUNGEST_COMMIT_AGE_DAYS before the current UTC date; commit ages (and with them frecency-based
+    # result orderings) no longer drift as real time passes.
+    newest_commit_date = max(
+        datetime.fromisoformat(commit["date"]) for commit in COMMITS
+    )
+    offset = (
+        datetime.now(UTC)
+        - timedelta(days=YOUNGEST_COMMIT_AGE_DAYS)
+        - newest_commit_date
+    )
 
     current_branch = "master"
     for commit in COMMITS:
@@ -30,12 +60,12 @@ def build(repo_path: str) -> str:
                 commit["merge"],
                 "-m",
                 commit["message"],
-                env=commit_env(commit["date"]),
+                env=commit_env(_shifted_date(commit["date"], offset)),
             )
             current_branch = "master"
             continue
 
-        env = commit_env(commit["date"])
+        env = commit_env(_shifted_date(commit["date"], offset))
         for file_path, content in commit["files"].items():
             full_path = os.path.join(repo_path, file_path)
             os.makedirs(os.path.dirname(full_path) or repo_path, exist_ok=True)

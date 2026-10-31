@@ -1,12 +1,11 @@
 import logging
-import multiprocessing
 import os
 import shutil
 import signal
 import subprocess
 import sys
 import tempfile
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 # Give this pytest session its own cache and config directories, so two runs
@@ -65,30 +64,28 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import orjson
 import pytest
-import requests
 import yaml
 from click.testing import CliRunner
 from deepmerge import always_merger
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
 
 from seagoat.cache import get_cache_root
 from seagoat.engine import Engine
 from seagoat.projects import Projects
 from seagoat.repository import Repository
 from seagoat.result import Result
-from seagoat.server import create_app, start_server
+from seagoat.server import create_app
 from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import (
     Instance,
     instance_url,
+    read_instance,
     running_instance,
 )
 from seagoat.utils.wait import wait_for
 from tests.fixtures.mock_repo import MockRepo
 from tests.fixtures.realistic_repo import build
-from tests.process_guard import set_pdeathsig, start_server_with_pdeathsig
+from tests.process_guard import set_pdeathsig
 
 try:
     from pytest_cov.embed import cleanup_on_sigterm
@@ -111,17 +108,21 @@ def repo_template():
     # because it was ticked forward per commit; every copy must keep producing
     # commits after the template's commits, exactly as before.
     #
-    # The template's commit dates are anchored to a fixed date in the past
-    # (rather than "now - 400 days") so the repos also work for tests that
-    # fake the clock with freezegun, e.g.
-    # test_repository.py::test_file_score_is_recalculated_when_needed which
-    # freezes "today" to 2012-01-14/2018-01-15. With dates anchored to 2025
-    # those tests would see negative days_passed and crash in _compute_frecency.
-    # All copies share the same anchored dates, so every frecency-based ranking
-    # inside a test is exactly the same as with per-test repos.
+    # The template's commit dates are anchored at "now - 400 days", computed
+    # when the session builds the template (what MockRepo did before the
+    # template existed). The youngest fake commit is therefore exactly 389 days
+    # old on the day the session runs, so frecency-based rankings no longer
+    # drift as real time passes. Tests that fake the clock with freezegun
+    # (e.g. test_repository.py::test_file_score_is_recalculated_when_needed,
+    # which freezes "today" to 2012-01-14/2018-01-15) cannot use template
+    # copies: those commits would lie in the future relative to the frozen
+    # "today". They must build a fresh repo with ``generate_fresh_repo``, whose
+    # commits are anchored at the frozen "now" instead. All copies share the
+    # same anchored dates, so every frecency-based ranking inside a test is
+    # exactly the same as with per-test repos.
     template_dir = tempfile.mkdtemp()
     template_repo = cast(MockRepo, MockRepo.init(template_dir))
-    template_repo.fake_commit_date = datetime(2011, 1, 1, tzinfo=UTC)
+    template_repo.fake_commit_date = datetime.now(UTC) - timedelta(days=400)
     template_repo.add_fake_data()
     fake_commit_date = template_repo.fake_commit_date
     template_repo.close()
@@ -147,6 +148,37 @@ def generate_repo(repo_template):
         repo.fake_commit_date = fake_commit_date
         repos_to_delete.append(repo)
 
+        return repo
+
+    yield repo_generator
+
+    for directory in directories_to_delete:
+        try:
+            shutil.rmtree(directory, ignore_errors=True)
+        except PermissionError:
+            pass
+
+    for repo in repos_to_delete:
+        repo.close()
+
+
+@pytest.fixture
+def generate_fresh_repo():
+    """Build a brand new MockRepo (with fake data) only when called.
+
+    Unlike ``generate_repo``, the repo is created *inside* the caller's
+    (possibly frozen) clock, so tests that use freezegun get commits anchored
+    at the frozen "now" instead of the session's template dates.
+    """
+    directories_to_delete = []
+    repos_to_delete = []
+
+    def repo_generator():
+        new_directory = tempfile.mkdtemp()
+        directories_to_delete.append(new_directory)
+        repo = cast(MockRepo, MockRepo.init(new_directory))
+        repo.add_fake_data()
+        repos_to_delete.append(repo)
         return repo
 
     yield repo_generator
@@ -254,77 +286,40 @@ def run_around_tests(global_config_baseline):
     _clean_instance_state()
 
 
-def _get_multiprocessing_context():
-    if os.name == "nt":
-        return multiprocessing.get_context("spawn")
-    return multiprocessing.get_context("forkserver")
+def _server_command(*args: str) -> list[str]:
+    return [sys.executable, "-m", "seagoat.server", *args]
 
 
-@pytest.fixture(name="start_server", scope="session")
-def _start_server():
-    def _start(repo_path: str):
-        context = _get_multiprocessing_context()
-        # On Linux the child first asks the kernel to SIGTERM it if pytest is
-        # SIGKILLed, so a killed test run cannot leave the server behind.
-        target = (
-            start_server_with_pdeathsig if sys.platform == "linux" else start_server
-        )
-        server_process = context.Process(target=target, args=(repo_path,), daemon=True)
-        server_process.start()
+@pytest.fixture
+def start_seagoat_server(managed_process):
+    """Start `seagoat-server start ARGS` as a child process and wait for it."""
 
-        def make_sure_server_is_running():
-            return running_instance() is not None
+    @contextmanager
+    def _start(*args: str):
+        # Send the server's output to a file: a pipe could fill up and deadlock
+        # the server while tests are not reading it
+        with (
+            tempfile.TemporaryDirectory() as output_dir,
+            (Path(output_dir) / "server_output.log").open("wb") as server_output,
+            managed_process(
+                _server_command("start", *args),
+                stdout=server_output,
+                stderr=subprocess.STDOUT,
+            ) as process,
+        ):
+            process.output_file = Path(server_output.name)
+            wait_for(lambda: running_instance() is not None, 8)
+            instance = read_instance()
+            assert instance is not None
+            yield process, instance
 
-        wait_for(make_sure_server_is_running, timeout=3.0)
-
-        running = running_instance()
-        if running is None:
-            server_process.kill()
-            raise RuntimeError(f"Server for {repo_path} did not start.")
-
-        server_address = instance_url(running[0])
-
-        # type ignored because it is errounously marked as int, it is float
-        # as per the official documentation
-        retries = Retry(total=5, backoff_factor=0.1)  # type: ignore
-
-        session = requests.Session()
-        session.mount("http://", HTTPAdapter(max_retries=retries))
-        session.mount("https://", HTTPAdapter(max_retries=retries))
-
-        def _stop():
-            try:
-                if server_process.pid is not None:
-                    os.kill(server_process.pid, signal.SIGTERM)
-                server_process.join()
-            except ProcessLookupError:
-                pass
-
-        response = None
-        try:
-            response = session.get(f"{server_address}/status", timeout=1)
-            response.raise_for_status()
-        except requests.HTTPError:
-            # Make it easier to debug problems by printing error messages
-            if response is not None and response.status_code == 500:
-                print("Server responded with a 500 error:")
-                print(response.text)
-            _stop()
-            raise
-        except:
-            _stop()
-            raise
-
-        return server_address, _stop
-
-    yield _start
+    return _start
 
 
 @pytest.fixture(name="server")
-def _server(start_server, repo):
-    server_address, stop_server = start_server(str(repo.working_dir))
-    yield server_address
-    stop_server()
+def _server(repo, start_seagoat_server):
+    with start_seagoat_server(str(repo.working_dir)) as (_, instance):
+        yield instance_url(instance)
 
 
 @pytest.fixture

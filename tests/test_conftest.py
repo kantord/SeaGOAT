@@ -1,3 +1,5 @@
+import subprocess
+
 import yaml
 
 from tests.conftest import (
@@ -73,3 +75,43 @@ def test_clean_instance_state_removes_instance_and_repositories_and_writes_basel
     assert not repositories_path.exists()
     assert GLOBAL_CONFIG_FILE.exists()
     _assert_baseline_global_config()
+
+
+def test_fake_repo_commit_ages_are_constant(repo_template, realistic_engine):
+    """Commit ages (days_passed) are fixed constants, so they cannot drift.
+
+    The MockRepo template is anchored at "now - 400 days" when the session
+    builds it and add_fake_data makes 12 commits one day apart, so the
+    youngest commit is 400 - 12 + 1 = 389 days old. realistic_repo.build()
+    shifts every commit by one offset so its last commit is exactly
+    YOUNGEST_COMMIT_AGE_DAYS before the current UTC date.
+    """
+    from seagoat.repository import parse_commit_info
+    from tests.fixtures.realistic_repo import YOUNGEST_COMMIT_AGE_DAYS
+
+    template_dir, _ = repo_template
+    youngest_mock = subprocess.check_output(
+        [
+            "git",
+            "-C",
+            template_dir,
+            "log",
+            "-1",
+            "--pretty=format:%h:::%ai:::%an <%ae>:::%s",
+        ],
+        text=True,
+    )
+    assert parse_commit_info(youngest_mock)[1] == 389
+
+    youngest_real = subprocess.check_output(
+        [
+            "git",
+            "-C",
+            realistic_engine.path,
+            "log",
+            "-1",
+            "--pretty=format:%h:::%ai:::%an <%ae>:::%s",
+        ],
+        text=True,
+    )
+    assert parse_commit_info(youngest_real)[1] == YOUNGEST_COMMIT_AGE_DAYS

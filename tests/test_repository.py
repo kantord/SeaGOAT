@@ -204,9 +204,9 @@ def test_only_returns_supported_file_types(repo):
     }
 
 
-def test_file_score_is_recalculated_when_needed(generate_repo):
+def test_file_score_is_recalculated_when_needed(generate_fresh_repo):
     with freeze_time("2012-01-14"):
-        repo1 = generate_repo()
+        repo1 = generate_fresh_repo()
         seagoat1 = Engine(repo1.working_dir)
         repo1.add_file_change_commit(
             file_name="old_file.txt",
@@ -221,7 +221,7 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
         )
         seagoat1.analyze_codebase()
 
-        repo2 = generate_repo()
+        repo2 = generate_fresh_repo()
         seagoat2 = Engine(repo1.working_dir)
         repo2.add_file_change_commit(
             file_name="old_file.txt",

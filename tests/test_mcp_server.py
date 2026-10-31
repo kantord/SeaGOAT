@@ -18,19 +18,16 @@ from seagoat.utils.server import Instance, normalize_repo_path
 def mock_mcp_deps(mocker: MockerFixture) -> dict[str, Any]:
     """Mock dependencies for MCP server tests."""
     return {
-        "normalize": mocker.patch("seagoat.mcp_server.normalize_repo_path"),
         "read_instance": MagicMock(),  # only holds the Instance for running_instance
         "running_instance": mocker.patch("seagoat.mcp_server.running_instance"),
-        "instance_url": mocker.patch("seagoat.mcp_server.instance_url"),
         "post": mocker.patch("seagoat.mcp_server.requests.post"),
         "resolve": mocker.patch("seagoat.mcp_server.resolve_repo_path"),
     }
 
 
-def test_search_code_success(mock_mcp_deps) -> None:
+def test_search_code_success(mock_mcp_deps, tmp_path) -> None:
     """Test successful code search."""
-    mock_mcp_deps["resolve"].return_value = "."
-    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["resolve"].return_value = str(tmp_path)
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
@@ -38,7 +35,6 @@ def test_search_code_success(mock_mcp_deps) -> None:
         mock_mcp_deps["read_instance"].return_value,
         {"pid": 1},
     )
-    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
     mock_response.json.return_value = {
@@ -58,34 +54,33 @@ def test_search_code_success(mock_mcp_deps) -> None:
     }
     mock_mcp_deps["post"].return_value = mock_response
 
-    result = search_code("test query", repo_path=".")
+    result = search_code("test query", repo_path=str(tmp_path))
 
     assert "File: test_file.py" in result
     assert "def test_func():" in result
 
     mock_mcp_deps["post"].assert_called_once()
-    request_body = mock_mcp_deps["post"].call_args.kwargs["json"]
-    assert request_body["repoPath"] == "/abs/path/to/repo"
+    request = mock_mcp_deps["post"].call_args
+    assert request.args[0] == "http://localhost:1234/lines/query"
+    assert request.kwargs["json"]["repoPath"] == normalize_repo_path(tmp_path)
 
 
-def test_search_code_server_not_running(mock_mcp_deps) -> None:
+def test_search_code_server_not_running(mock_mcp_deps, tmp_path) -> None:
     """Test behavior when server is not running."""
-    mock_mcp_deps["resolve"].return_value = "."
-    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["resolve"].return_value = str(tmp_path)
     mock_mcp_deps["read_instance"].return_value = None
     mock_mcp_deps["running_instance"].return_value = None
 
-    result = search_code("test query", repo_path=".")
+    result = search_code("test query", repo_path=str(tmp_path))
 
     assert "No instance info found" in result
     assert "Is the SeaGOAT server running?" in result
     mock_mcp_deps["post"].assert_not_called()
 
 
-def test_search_code_no_results(mock_mcp_deps) -> None:
+def test_search_code_no_results(mock_mcp_deps, tmp_path) -> None:
     """Test when no results are found."""
-    mock_mcp_deps["resolve"].return_value = "."
-    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["resolve"].return_value = str(tmp_path)
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
@@ -93,19 +88,19 @@ def test_search_code_no_results(mock_mcp_deps) -> None:
         mock_mcp_deps["read_instance"].return_value,
         {"pid": 1},
     )
-    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
     mock_response.json.return_value = {"results": []}
     mock_mcp_deps["post"].return_value = mock_response
 
-    result = search_code("test query", repo_path=".")
+    result = search_code("test query", repo_path=str(tmp_path))
 
     assert "No results found" in result
 
     mock_mcp_deps["post"].assert_called_once()
-    request_body = mock_mcp_deps["post"].call_args.kwargs["json"]
-    assert request_body["repoPath"] == "/abs/path/to/repo"
+    request = mock_mcp_deps["post"].call_args
+    assert request.args[0] == "http://localhost:1234/lines/query"
+    assert request.kwargs["json"]["repoPath"] == normalize_repo_path(tmp_path)
 
 
 def test_search_code_missing_query() -> None:
@@ -124,9 +119,6 @@ def test_search_code_sends_repository_root_for_subdirectory(repo, mocker) -> Non
         "seagoat.mcp_server.running_instance",
         return_value=(instance, {"pid": instance.pid}),
     )
-    mocker.patch(
-        "seagoat.mcp_server.instance_url", return_value="http://localhost:1234"
-    )
     mock_response = MagicMock()
     mock_response.json.return_value = {"results": []}
     post = mocker.patch("seagoat.mcp_server.requests.post", return_value=mock_response)
@@ -134,14 +126,16 @@ def test_search_code_sends_repository_root_for_subdirectory(repo, mocker) -> Non
     result = search_code("test query", repo_path=subdirectory)
 
     assert "No results found" in result
-    request_body = post.call_args.kwargs["json"]
-    assert request_body["repoPath"] == normalize_repo_path(repo.working_dir)
+    request = post.call_args
+    assert request.args[0] == "http://localhost:1234/lines/query"
+    assert request.kwargs["json"]["repoPath"] == normalize_repo_path(repo.working_dir)
 
 
-def test_search_code_reports_server_error_message_for_http_error(mock_mcp_deps) -> None:
+def test_search_code_reports_server_error_message_for_http_error(
+    mock_mcp_deps, tmp_path
+) -> None:
     """Test that a 4xx/5xx answer shows the server's error message, not just the status."""
-    mock_mcp_deps["resolve"].return_value = "."
-    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["resolve"].return_value = str(tmp_path)
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
@@ -149,11 +143,11 @@ def test_search_code_reports_server_error_message_for_http_error(mock_mcp_deps) 
         mock_mcp_deps["read_instance"].return_value,
         {"pid": 1},
     )
-    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
+    repo = normalize_repo_path(tmp_path)
     server_error_message = (
-        "The SeaGOAT server does not serve the repository at '/abs/path/to/repo'. "
-        "Run `seagoat-server start /abs/path/to/repo` to add it to the server."
+        f"The SeaGOAT server does not serve the repository at '{repo}'. "
+        f"Run `seagoat-server start {repo}` to add it to the server."
     )
     mock_response = MagicMock()
     mock_response.ok = False
@@ -164,18 +158,17 @@ def test_search_code_reports_server_error_message_for_http_error(mock_mcp_deps) 
     }
     mock_mcp_deps["post"].return_value = mock_response
 
-    result = search_code("test query", repo_path=".")
+    result = search_code("test query", repo_path=str(tmp_path))
 
     assert server_error_message in result
     assert "404 Client Error" not in result
 
 
 def test_search_code_falls_back_to_status_when_error_body_has_no_message(
-    mock_mcp_deps,
+    mock_mcp_deps, tmp_path
 ) -> None:
     """Test that a non-JSON error answer still reports the HTTP status."""
-    mock_mcp_deps["resolve"].return_value = "."
-    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["resolve"].return_value = str(tmp_path)
     mock_mcp_deps["read_instance"].return_value = Instance(
         host="localhost", port=1234, pid=1
     )
@@ -183,7 +176,6 @@ def test_search_code_falls_back_to_status_when_error_body_has_no_message(
         mock_mcp_deps["read_instance"].return_value,
         {"pid": 1},
     )
-    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
 
     mock_response = MagicMock()
     mock_response.ok = False
@@ -191,21 +183,19 @@ def test_search_code_falls_back_to_status_when_error_body_has_no_message(
     mock_response.json.side_effect = ValueError("No JSON object could be decoded")
     mock_mcp_deps["post"].return_value = mock_response
 
-    result = search_code("test query", repo_path=".")
+    result = search_code("test query", repo_path=str(tmp_path))
 
     assert "HTTP 503" in result
 
 
-def test_search_code_explains_a_timeout(mock_mcp_deps) -> None:
-    mock_mcp_deps["resolve"].return_value = "."
-    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+def test_search_code_explains_a_timeout(mock_mcp_deps, tmp_path) -> None:
+    mock_mcp_deps["resolve"].return_value = str(tmp_path)
     mock_mcp_deps["running_instance"].return_value = (
         Instance(host="localhost", port=1234, pid=1),
         {"pid": 1},
     )
-    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
     mock_mcp_deps["post"].side_effect = requests.exceptions.Timeout()
 
-    result = search_code("test query", repo_path=".")
+    result = search_code("test query", repo_path=str(tmp_path))
 
-    assert "may still be indexing /abs/path/to/repo" in result
+    assert f"may still be indexing {normalize_repo_path(tmp_path)}" in result
