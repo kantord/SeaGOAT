@@ -31,9 +31,6 @@
 # ---
 # name: test_snapshot_results_with_real_repo[-15-installation instructions for arch linux]
   '''
-  streak/__init__.py:1:"""streak — a command-line habit tracker."""
-  streak/__init__.py:2:
-  streak/__init__.py:3:__version__ = "2.1.0"
   README.md:7:## Features
   README.md:8:
   README.md:9:- Add, list, check, and delete habits from the terminal
@@ -312,9 +309,6 @@
 # ---
 # name: test_snapshot_results_with_real_repo[-None-installation instructions for arch linux]
   '''
-  streak/__init__.py:1:"""streak — a command-line habit tracker."""
-  streak/__init__.py:2:
-  streak/__init__.py:3:__version__ = "2.1.0"
   README.md:7:## Features
   README.md:8:
   README.md:9:- Add, list, check, and delete habits from the terminal
@@ -359,6 +353,9 @@
   README.md:84:The available themes are `default`, `ocean`, `sunset`, `forest`, and `pastel`.
   README.md:85:
   README.md:86:### Reminders
+  streak/__init__.py:1:"""streak — a command-line habit tracker."""
+  streak/__init__.py:2:
+  streak/__init__.py:3:__version__ = "2.1.0"
   
   '''
 # ---
@@ -533,8 +530,6 @@
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-15-installation instructions for arch linux]
   '''
-  streak/__init__.py:1:0:"""streak — a command-line habit tracker."""
-  streak/__init__.py:3:0:__version__ = "2.1.0"
   README.md:7:0:## Features
   README.md:9:0:- Add, list, check, and delete habits from the terminal
   README.md:13:0:- Works fully offline; your data never leaves your machine
@@ -754,8 +749,6 @@
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-None-installation instructions for arch linux]
   '''
-  streak/__init__.py:1:0:"""streak — a command-line habit tracker."""
-  streak/__init__.py:3:0:__version__ = "2.1.0"
   README.md:7:0:## Features
   README.md:9:0:- Add, list, check, and delete habits from the terminal
   README.md:13:0:- Works fully offline; your data never leaves your machine
@@ -785,6 +778,8 @@
   README.md:57:0:Start by adding a habit:
   README.md:84:0:The available themes are `default`, `ocean`, `sunset`, `forest`, and `pastel`.
   README.md:86:0:### Reminders
+  streak/__init__.py:1:0:"""streak — a command-line habit tracker."""
+  streak/__init__.py:3:0:__version__ = "2.1.0"
   
   '''
 # ---
