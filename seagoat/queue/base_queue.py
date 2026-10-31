@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 # How long to wait before retrying maintenance after it failed
 MAINTENANCE_RETRY_DELAY_SECONDS = 10
 
+# How long the worker may go without maintenance before running it after a task
+MAINTENANCE_MAX_DELAY_SECONDS = 1.0
+
 # How long a caller waits for a task result before giving up
 TASK_TIMEOUT_SECONDS = 120
 
@@ -40,6 +43,9 @@ class BaseQueue:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self._task_queue = PriorityQueue()
+        # When maintenance may run again after a failure, and when it last ran
+        self._next_maintenance = 0.0
+        self._last_maintenance = 0.0
         # A daemon thread does not keep the process alive on its own
         self._worker_thread = threading.Thread(
             target=self._worker_function, daemon=True
@@ -112,6 +118,20 @@ class BaseQueue:
         if result_queue is not None:
             result_queue.put(result)
 
+    def _run_maintenance_if_allowed(self, context, context_error):
+        """Run maintenance unless the context failed or a retry delay is active."""
+        if context_error is not None:
+            return
+        now = time.monotonic()
+        if now < self._next_maintenance:
+            return
+        self._last_maintenance = now
+        try:
+            self.handle_maintenance(context)
+        except Exception:  # pylint: disable=broad-except
+            logger.exception("Maintenance failed")
+            self._next_maintenance = time.monotonic() + MAINTENANCE_RETRY_DELAY_SECONDS
+
     def _worker_function(self):
         logger.info("Starting worker thread...")
         try:
@@ -121,23 +141,19 @@ class BaseQueue:
             logger.exception("Failed to build context")
             context = None
             context_error = exception
-        next_maintenance = 0.0
-
         while True:
             try:
                 task = self._task_queue.get(timeout=0.1)
                 if task.name == "shutdown":
                     break
                 self._handle_task(context, task, context_error=context_error)
+                # Under a steady stream of tasks the queue is never empty, so
+                # also run maintenance (indexing) when it is overdue
+                overdue = (
+                    time.monotonic() - self._last_maintenance
+                    >= MAINTENANCE_MAX_DELAY_SECONDS
+                )
+                if overdue:
+                    self._run_maintenance_if_allowed(context, context_error)
             except Empty:
-                if context_error is not None:
-                    continue
-                if time.monotonic() < next_maintenance:
-                    continue
-                try:
-                    self.handle_maintenance(context)
-                except Exception:  # pylint: disable=broad-except
-                    logger.exception("Maintenance failed")
-                    next_maintenance = (
-                        time.monotonic() + MAINTENANCE_RETRY_DELAY_SECONDS
-                    )
+                self._run_maintenance_if_allowed(context, context_error)

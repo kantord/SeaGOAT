@@ -111,8 +111,9 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
             and stats["queue"]["size"] == 0
         )
 
-    # Each status request is a task for the single worker, and indexing only
-    # starts once the worker has been idle for 0.1s, so poll slower than that
+    # Each status request is a task for the single worker. Indexing runs both
+    # when the worker is idle and, after a short delay, while the queue is
+    # busy, so polling frequently is fine; keep a modest period to stay quick.
     wait_for(fully_analyzed, timeout=10, period=0.5)
     response = requests.post(url, json={"repoPath": repo.working_dir})
 

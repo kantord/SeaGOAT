@@ -1,4 +1,5 @@
 import threading
+import time
 from unittest.mock import Mock, patch
 
 import pytest
@@ -160,4 +161,38 @@ def test_late_result_from_timed_out_task_is_dropped():
         assert queue.enqueue("echo", "fresh result") == "fresh result"
     finally:
         release.set()
+        queue.shutdown()
+
+
+def test_maintenance_runs_even_when_queue_is_busy():
+    maintenance_runs = 0
+
+    class BusyQueue(BaseQueue):
+        def handle_echo(self, _context, value):
+            # Keep the worker busy longer than the enqueue interval so the
+            # queue never empties and the idle maintenance path cannot run.
+            time.sleep(0.03)
+            return value
+
+        def handle_maintenance(self, context):
+            nonlocal maintenance_runs
+            maintenance_runs += 1
+
+    queue = BusyQueue()
+    try:
+        # Wait for the initial idle maintenance run (the queue is empty at
+        # startup), then flood the queue so it never goes idle again.
+        deadline = time.monotonic() + 5
+        while maintenance_runs == 0 and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert maintenance_runs >= 1
+
+        runs_before_busy_period = maintenance_runs
+        busy_deadline = time.monotonic() + 2
+        while time.monotonic() < busy_deadline:
+            queue.enqueue("echo", "ping", wait_for_result=False)
+            time.sleep(0.02)
+
+        assert maintenance_runs > runs_before_busy_period
+    finally:
         queue.shutdown()
