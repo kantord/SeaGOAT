@@ -394,6 +394,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#available-configuration-options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -559,6 +570,17 @@
     <span class="md-ellipsis">
       
         Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
       
     </span>
   </a>
@@ -758,6 +780,21 @@ with a warning.</p>
 </span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">  </span><span class="c1"># Connect the CLI to a remote server (global configuration file only)</span>
 </span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://example.com/seagoat-instance/</span>
 </span></code></pre></div>
+<h2 id="environment-variables">Environment variables</h2>
+<p>Two environment variables let you override where SeaGOAT stores its caches
+and its global configuration file, for example in CI, containers or test
+suites:</p>
+<ul>
+<li><code>SEAGOAT_CACHE_DIR</code>: directory for per-repository caches and, under a
+  <code>servers</code> subdirectory, the instance file and <code>repositories.json</code>. Defaults
+  to your platform's user cache directory (e.g. <code>~/.cache/seagoat</code> on Linux).</li>
+<li><code>SEAGOAT_CONFIG_DIR</code>: directory for the global <code>config.yml</code>. Defaults to
+  your platform's user configuration directory (e.g.
+  <code>~/.config/seagoat</code> on Linux).</li>
+</ul>
+<p>They take precedence over the platform defaults and work on every operating
+system (unlike the <code>XDG_CACHE_HOME</code> / <code>XDG_CONFIG_HOME</code> variables, which
+platformdirs ignores on macOS and Windows).</p>
 <h2 id="available-configuration-options">Available configuration options</h2>
 <h3 id="server">Server</h3>
 <p>Server-related configuration resides under the <code>server</code> attribute in your
