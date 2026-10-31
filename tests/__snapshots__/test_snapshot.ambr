@@ -1,39 +1,60 @@
 # serializer version: 1
 # name: test_snapshot_results_with_real_repo[-15-I want to change the color theme of my habit report]
   '''
-  streak/cli.py:1:"""Command-line interface for streak."""
-  streak/cli.py:2:
-  streak/cli.py:3:import json
-  streak/cli.py:4:from datetime import date
-  streak/cli.py:5:from pathlib import Path
-  streak/cli.py:6:
-  streak/cli.py:7:import click
-  streak/cli.py:8:import platformdirs
-  streak/cli.py:9:
-  streak/cli.py:10:from streak.reminders import ReminderScheduler
-  streak/cli.py:11:from streak.report import render_report
-  streak/cli.py:12:from streak.storage import HabitStore, StorageError
-  streak/cli.py:76:@click.option(
-  streak/cli.py:77:    "--theme",
-  streak/cli.py:78:    default="default",
-  streak/cli.py:79:    show_default=True,
-  streak/cli.py:80:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
-  streak/cli.py:81:)
-  streak/cli.py:82:def report(theme):
-  streak/cli.py:83:    """Print a report of your habit progress."""
-  streak/cli.py:84:    for line in render_report(_load_store(), theme):
-  streak/cli.py:85:        click.echo(line)
-  streak/cli.py:86:
-  streak/cli.py:87:
-  streak/cli.py:88:@main.command()
+  streak/report.py:1:"""Renders a colored terminal report of habit progress."""
+  streak/report.py:2:
+  streak/report.py:3:from collections import Counter
+  streak/report.py:4:from datetime import date
+  streak/report.py:5:
+  streak/report.py:6:from streak.storage import HabitStore, compute_streak
+  streak/report.py:7:
+  streak/report.py:8:# Color themes map semantic roles to ANSI escape codes. Users can pick one
+  streak/report.py:9:# with the --theme option of the report command.
+  streak/report.py:10:COLOR_THEMES = {
+  streak/report.py:11:    "default": {
+  streak/report.py:12:        "heading": "\033[1;37m",
+  streak/report.py:13:        "positive": "\033[1;32m",
+  streak/report.py:14:        "warning": "\033[1;33m",
+  streak/report.py:15:        "negative": "\033[1;31m",
+  streak/report.py:16:        "muted": "\033[2m",
+  streak/report.py:17:        "reset": "\033[0m",
+  streak/report.py:18:    },
+  streak/report.py:19:    "ocean": {
+  streak/report.py:20:        "heading": "\033[1;36m",
+  streak/report.py:21:        "positive": "\033[1;34m",
+  streak/report.py:22:        "warning": "\033[1;35m",
+  streak/report.py:23:        "negative": "\033[1;31m",
+  streak/report.py:24:        "muted": "\033[2;34m",
+  streak/report.py:25:        "reset": "\033[0m",
+  streak/report.py:26:    },
+  streak/report.py:27:    "sunset": {
+  streak/report.py:28:        "heading": "\033[1;33m",
+  streak/report.py:29:        "positive": "\033[1;32m",
+  streak/report.py:30:        "warning": "\033[1;31m",
+  streak/report.py:31:        "negative": "\033[1;35m",
+  streak/report.py:32:        "muted": "\033[2;33m",
+  streak/report.py:33:        "reset": "\033[0m",
+  streak/report.py:34:    },
+  streak/report.py:35:    "forest": {
+  streak/report.py:36:        "heading": "\033[1;32m",
+  streak/report.py:37:        "positive": "\033[1;37m",
+  streak/report.py:38:        "warning": "\033[1;33m",
+  streak/report.py:39:        "negative": "\033[1;31m",
+  streak/report.py:40:        "muted": "\033[2;32m",
+  streak/report.py:41:        "reset": "\033[0m",
+  streak/report.py:42:    },
+  streak/report.py:43:    "pastel": {
+  streak/report.py:44:        "heading": "\033[1;38;5;219m",
+  streak/report.py:45:        "positive": "\033[38;5;114m",
+  streak/report.py:46:        "warning": "\033[38;5;222m",
+  streak/report.py:47:        "negative": "\033[38;5;203m",
+  streak/report.py:48:        "muted": "\033[2;38;5;145m",
+  streak/report.py:49:        "reset": "\033[0m",
   
   '''
 # ---
 # name: test_snapshot_results_with_real_repo[-15-installation instructions for arch linux]
   '''
-  README.md:7:## Features
-  README.md:8:
-  README.md:9:- Add, list, check, and delete habits from the terminal
   README.md:13:- Works fully offline; your data never leaves your machine
   README.md:14:
   README.md:15:## Installation
@@ -88,51 +109,27 @@
   streak/cli.py:9:
   streak/cli.py:10:from streak.reminders import ReminderScheduler
   streak/cli.py:11:from streak.report import render_report
-  streak/cli.py:19:def _load_store() -> HabitStore:
-  streak/cli.py:20:    return HabitStore(_data_file())
-  streak/cli.py:21:
-  streak/cli.py:22:
-  streak/cli.py:23:@click.group()
-  streak/cli.py:24:def main():
-  streak/cli.py:25:    """streak — a command-line habit tracker."""
-  streak/cli.py:26:
-  streak/cli.py:27:
-  streak/cli.py:28:@main.command()
-  streak/cli.py:33:@click.option(
-  streak/cli.py:34:    "--weekly", "frequency", flag_value="weekly", help="Repeat once a week."
-  streak/cli.py:35:)
-  streak/cli.py:36:def add(name, frequency):
+  streak/cli.py:88:@main.command()
+  streak/cli.py:89:@click.option(
+  streak/cli.py:90:    "--interval",
+  streak/cli.py:91:    "interval_minutes",
+  streak/cli.py:92:    default=None,
+  streak/cli.py:93:    help="Minutes between reminder checks. Defaults to the configured value.",
+  streak/cli.py:94:)
+  streak/cli.py:95:def daemon(interval_minutes):
+  streak/cli.py:96:    """Run in the background and send desktop reminders."""
+  streak/cli.py:97:    ReminderScheduler(_load_store(), interval_minutes).run_forever()
+  streak/cli.py:98:
+  streak/cli.py:99:
+  streak/cli.py:100:@main.command()
+  streak/cli.py:101:@click.argument("output", type=click.Path())
+  streak/cli.py:102:@click.option(
+  streak/cli.py:103:    "--format",
   
   '''
 # ---
 # name: test_snapshot_results_with_real_repo[-None-I want to change the color theme of my habit report]
   '''
-  streak/cli.py:1:"""Command-line interface for streak."""
-  streak/cli.py:2:
-  streak/cli.py:3:import json
-  streak/cli.py:4:from datetime import date
-  streak/cli.py:5:from pathlib import Path
-  streak/cli.py:6:
-  streak/cli.py:7:import click
-  streak/cli.py:8:import platformdirs
-  streak/cli.py:9:
-  streak/cli.py:10:from streak.reminders import ReminderScheduler
-  streak/cli.py:11:from streak.report import render_report
-  streak/cli.py:12:from streak.storage import HabitStore, StorageError
-  streak/cli.py:76:@click.option(
-  streak/cli.py:77:    "--theme",
-  streak/cli.py:78:    default="default",
-  streak/cli.py:79:    show_default=True,
-  streak/cli.py:80:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
-  streak/cli.py:81:)
-  streak/cli.py:82:def report(theme):
-  streak/cli.py:83:    """Print a report of your habit progress."""
-  streak/cli.py:84:    for line in render_report(_load_store(), theme):
-  streak/cli.py:85:        click.echo(line)
-  streak/cli.py:86:
-  streak/cli.py:87:
-  streak/cli.py:88:@main.command()
-  streak/cli.py:103:    "--format",
   streak/report.py:1:"""Renders a colored terminal report of habit progress."""
   streak/report.py:2:
   streak/report.py:3:from collections import Counter
@@ -220,57 +217,56 @@
   streak/report.py:89:    if not completions:
   streak/report.py:90:        lines.append(f"{colors['muted']}No completions yet this month.{colors['reset']}")
   streak/report.py:94:    return lines
-  README.md:1:# streak — a command-line habit tracker
-  README.md:2:
-  README.md:3:streak is a small command-line habit tracker written in Python. It keeps your
+  streak/cli.py:7:import click
+  streak/cli.py:8:import platformdirs
+  streak/cli.py:9:
+  streak/cli.py:10:from streak.reminders import ReminderScheduler
+  streak/cli.py:11:from streak.report import render_report
+  streak/cli.py:12:from streak.storage import HabitStore, StorageError
+  streak/cli.py:16:    return platformdirs.user_data_dir("streak") / "habits.json"
+  streak/cli.py:17:
+  streak/cli.py:18:
+  streak/cli.py:19:def _load_store() -> HabitStore:
+  streak/cli.py:20:    return HabitStore(_data_file())
+  streak/cli.py:25:    """streak — a command-line habit tracker."""
+  streak/cli.py:37:    """Add a new habit with the given NAME."""
+  streak/cli.py:38:    try:
+  streak/cli.py:39:        habit = _load_store().add_habit(name, frequency)
+  streak/cli.py:40:    except StorageError as error:
+  streak/cli.py:41:        raise click.ClickException(str(error)) from error
+  streak/cli.py:42:    click.echo(f"Added habit {habit['name']!r} ({habit['frequency']}).")
+  streak/cli.py:61:        _load_store().delete_habit(name)
+  streak/cli.py:62:    except StorageError as error:
+  streak/cli.py:63:        raise click.ClickException(str(error)) from error
+  streak/cli.py:64:    click.echo(f"Deleted habit {name!r}.")
+  streak/cli.py:69:    """List all habits with their frequency."""
+  streak/cli.py:70:    store = _load_store()
+  streak/cli.py:71:    for habit in store.list_habits():
+  streak/cli.py:72:        click.echo(f"- {habit['name']} ({habit['frequency']})")
+  streak/cli.py:76:@click.option(
+  streak/cli.py:77:    "--theme",
+  streak/cli.py:78:    default="default",
+  streak/cli.py:79:    show_default=True,
+  streak/cli.py:80:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
+  streak/cli.py:81:)
+  streak/cli.py:82:def report(theme):
+  streak/cli.py:83:    """Print a report of your habit progress."""
+  streak/cli.py:84:    for line in render_report(_load_store(), theme):
+  streak/cli.py:85:        click.echo(line)
+  streak/cli.py:86:
+  streak/cli.py:87:
+  streak/cli.py:88:@main.command()
+  streak/cli.py:103:    "--format",
+  streak/cli.py:110:    """Export all habit data to a JSON or CSV file."""
+  streak/cli.py:114:        for habit in store.list_habits():
+  streak/cli.py:115:            rows.append(
+  streak/cli.py:116:                f"{habit['name']},{habit['frequency']},{habit['created']},"
+  streak/cli.py:117:                f"{habit['reminder_time'] or ''}"
+  streak/cli.py:126:    click.echo(f"Exported habit data to {output}.")
   README.md:4:habits in a local JSON database, tracks your streaks, and prints a colored
-  README.md:5:report so you can see your progress at a glance.
-  README.md:9:- Add, list, check, and delete habits from the terminal
   README.md:10:- Automatic streak and best-streak tracking
   README.md:11:- A colored terminal report with configurable color themes
   README.md:12:- Desktop reminders for habits that are due
-  README.md:13:- Works fully offline; your data never leaves your machine
-  README.md:14:
-  README.md:15:## Installation
-  README.md:16:
-  README.md:17:### Arch Linux
-  README.md:18:
-  README.md:19:Installation instructions for Arch Linux:
-  README.md:20:
-  README.md:21:streak is available in the Arch User Repository as the `streak` package:
-  README.md:27:### Debian and Ubuntu
-  README.md:28:
-  README.md:29:Install the `.deb` package from the [releases page](https://example.com/releases)
-  README.md:30:or with apt from the streak apt repository:
-  README.md:31:
-  README.md:32:```sh
-  README.md:33:sudo apt install streak
-  README.md:38:Install from the COPR repository:
-  README.md:42:sudo dnf install streak
-  README.md:47:Clone the repository and install with pip:
-  README.md:48:
-  README.md:49:```sh
-  README.md:50:git clone https://example.com/streak.git
-  README.md:51:cd streak
-  README.md:52:pip install .
-  README.md:57:Start by adding a habit:
-  README.md:58:
-  README.md:59:```sh
-  README.md:60:streak add "drink two liters of water" --daily
-  README.md:61:```
-  README.md:62:
-  README.md:63:Mark a habit as done for today:
-  README.md:64:
-  README.md:65:```sh
-  README.md:66:streak check "drink two liters of water"
-  README.md:67:```
-  README.md:68:
-  README.md:69:List all habits with their current streaks:
-  README.md:70:
-  README.md:71:```sh
-  README.md:72:streak list
-  README.md:73:```
-  README.md:74:
   README.md:75:### The report
   README.md:76:
   README.md:77:The `streak report` command prints a colored overview of your habits. Pick a
@@ -283,27 +279,10 @@
   README.md:84:The available themes are `default`, `ocean`, `sunset`, `forest`, and `pastel`.
   README.md:85:
   README.md:86:### Reminders
-  README.md:87:
-  README.md:88:Set a daily reminder time for a habit:
-  README.md:89:
-  README.md:90:```sh
-  README.md:91:streak remind "drink two liters of water" --at 20:00
-  README.md:92:```
-  README.md:93:
-  README.md:94:Then run the background daemon that sends desktop notifications:
-  README.md:95:
-  README.md:96:```sh
-  README.md:97:streak daemon --interval 30
-  README.md:98:```
-  README.md:99:
-  README.md:100:## Configuration
-  README.md:101:
   README.md:102:streak stores its data in `~/.local/share/streak/habits.json`. The report
   README.md:103:colors and other options live in `~/.config/streak/config.toml`.
   README.md:104:
   README.md:105:## License
-  README.md:106:
-  README.md:107:MIT
   
   '''
 # ---
@@ -472,6 +451,8 @@
   streak/reminders.py:46:        subprocess.run(
   streak/reminders.py:47:            ["notify-send", "--app-name=streak", title, message],
   streak/reminders.py:48:            check=False,
+  streak/report.py:4:from datetime import date
+  streak/report.py:81:    month_prefix = today.strftime("%Y-%m")
   streak/storage.py:5:import tempfile
   streak/storage.py:6:from datetime import date, timedelta
   streak/storage.py:7:from pathlib import Path
@@ -491,8 +472,6 @@
   streak/storage.py:91:        self.save()
   streak/storage.py:114:        day -= timedelta(days=1)
   streak/storage.py:115:    return streak
-  streak/report.py:4:from datetime import date
-  streak/report.py:81:    month_prefix = today.strftime("%Y-%m")
   README.md:12:- Desktop reminders for habits that are due
   README.md:86:### Reminders
   README.md:87:
@@ -505,33 +484,57 @@
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-15-I want to change the color theme of my habit report]
   '''
-  streak/cli.py:1:0:"""Command-line interface for streak."""
-  streak/cli.py:3:0:import json
-  streak/cli.py:4:0:from datetime import date
-  streak/cli.py:5:0:from pathlib import Path
-  streak/cli.py:7:0:import click
-  streak/cli.py:8:0:import platformdirs
-  streak/cli.py:10:0:from streak.reminders import ReminderScheduler
-  streak/cli.py:11:0:from streak.report import render_report
-  streak/cli.py:12:0:from streak.storage import HabitStore, StorageError
-  streak/cli.py:76:0:@click.option(
-  streak/cli.py:77:0:    "--theme",
-  streak/cli.py:78:0:    default="default",
-  streak/cli.py:79:0:    show_default=True,
-  streak/cli.py:80:0:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
-  streak/cli.py:81:0:)
-  streak/cli.py:82:0:def report(theme):
-  streak/cli.py:83:0:    """Print a report of your habit progress."""
-  streak/cli.py:84:0:    for line in render_report(_load_store(), theme):
-  streak/cli.py:85:0:        click.echo(line)
-  streak/cli.py:88:0:@main.command()
+  streak/report.py:1:0:"""Renders a colored terminal report of habit progress."""
+  streak/report.py:3:0:from collections import Counter
+  streak/report.py:4:0:from datetime import date
+  streak/report.py:6:0:from streak.storage import HabitStore, compute_streak
+  streak/report.py:8:0:# Color themes map semantic roles to ANSI escape codes. Users can pick one
+  streak/report.py:9:0:# with the --theme option of the report command.
+  streak/report.py:10:0:COLOR_THEMES = {
+  streak/report.py:11:0:    "default": {
+  streak/report.py:12:0:        "heading": "\033[1;37m",
+  streak/report.py:13:0:        "positive": "\033[1;32m",
+  streak/report.py:14:0:        "warning": "\033[1;33m",
+  streak/report.py:15:0:        "negative": "\033[1;31m",
+  streak/report.py:16:0:        "muted": "\033[2m",
+  streak/report.py:17:0:        "reset": "\033[0m",
+  streak/report.py:18:0:    },
+  streak/report.py:19:0:    "ocean": {
+  streak/report.py:20:0:        "heading": "\033[1;36m",
+  streak/report.py:21:0:        "positive": "\033[1;34m",
+  streak/report.py:22:0:        "warning": "\033[1;35m",
+  streak/report.py:23:0:        "negative": "\033[1;31m",
+  streak/report.py:24:0:        "muted": "\033[2;34m",
+  streak/report.py:25:0:        "reset": "\033[0m",
+  streak/report.py:26:0:    },
+  streak/report.py:27:0:    "sunset": {
+  streak/report.py:28:0:        "heading": "\033[1;33m",
+  streak/report.py:29:0:        "positive": "\033[1;32m",
+  streak/report.py:30:0:        "warning": "\033[1;31m",
+  streak/report.py:31:0:        "negative": "\033[1;35m",
+  streak/report.py:32:0:        "muted": "\033[2;33m",
+  streak/report.py:33:0:        "reset": "\033[0m",
+  streak/report.py:34:0:    },
+  streak/report.py:35:0:    "forest": {
+  streak/report.py:36:0:        "heading": "\033[1;32m",
+  streak/report.py:37:0:        "positive": "\033[1;37m",
+  streak/report.py:38:0:        "warning": "\033[1;33m",
+  streak/report.py:39:0:        "negative": "\033[1;31m",
+  streak/report.py:40:0:        "muted": "\033[2;32m",
+  streak/report.py:41:0:        "reset": "\033[0m",
+  streak/report.py:42:0:    },
+  streak/report.py:43:0:    "pastel": {
+  streak/report.py:44:0:        "heading": "\033[1;38;5;219m",
+  streak/report.py:45:0:        "positive": "\033[38;5;114m",
+  streak/report.py:46:0:        "warning": "\033[38;5;222m",
+  streak/report.py:47:0:        "negative": "\033[38;5;203m",
+  streak/report.py:48:0:        "muted": "\033[2;38;5;145m",
+  streak/report.py:49:0:        "reset": "\033[0m",
   
   '''
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-15-installation instructions for arch linux]
   '''
-  README.md:7:0:## Features
-  README.md:9:0:- Add, list, check, and delete habits from the terminal
   README.md:13:0:- Works fully offline; your data never leaves your machine
   README.md:15:0:## Installation
   README.md:17:0:### Arch Linux
@@ -570,42 +573,25 @@
   streak/cli.py:8:0:import platformdirs
   streak/cli.py:10:0:from streak.reminders import ReminderScheduler
   streak/cli.py:11:0:from streak.report import render_report
-  streak/cli.py:19:0:def _load_store() -> HabitStore:
-  streak/cli.py:20:0:    return HabitStore(_data_file())
-  streak/cli.py:23:0:@click.group()
-  streak/cli.py:24:0:def main():
-  streak/cli.py:25:0:    """streak — a command-line habit tracker."""
-  streak/cli.py:28:0:@main.command()
-  streak/cli.py:33:0:@click.option(
-  streak/cli.py:34:0:    "--weekly", "frequency", flag_value="weekly", help="Repeat once a week."
-  streak/cli.py:35:0:)
-  streak/cli.py:36:0:def add(name, frequency):
+  streak/cli.py:88:0:@main.command()
+  streak/cli.py:89:0:@click.option(
+  streak/cli.py:90:0:    "--interval",
+  streak/cli.py:91:0:    "interval_minutes",
+  streak/cli.py:92:0:    default=None,
+  streak/cli.py:93:0:    help="Minutes between reminder checks. Defaults to the configured value.",
+  streak/cli.py:94:0:)
+  streak/cli.py:95:0:def daemon(interval_minutes):
+  streak/cli.py:96:0:    """Run in the background and send desktop reminders."""
+  streak/cli.py:97:0:    ReminderScheduler(_load_store(), interval_minutes).run_forever()
+  streak/cli.py:100:0:@main.command()
+  streak/cli.py:101:0:@click.argument("output", type=click.Path())
+  streak/cli.py:102:0:@click.option(
+  streak/cli.py:103:0:    "--format",
   
   '''
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-None-I want to change the color theme of my habit report]
   '''
-  streak/cli.py:1:0:"""Command-line interface for streak."""
-  streak/cli.py:3:0:import json
-  streak/cli.py:4:0:from datetime import date
-  streak/cli.py:5:0:from pathlib import Path
-  streak/cli.py:7:0:import click
-  streak/cli.py:8:0:import platformdirs
-  streak/cli.py:10:0:from streak.reminders import ReminderScheduler
-  streak/cli.py:11:0:from streak.report import render_report
-  streak/cli.py:12:0:from streak.storage import HabitStore, StorageError
-  streak/cli.py:76:0:@click.option(
-  streak/cli.py:77:0:    "--theme",
-  streak/cli.py:78:0:    default="default",
-  streak/cli.py:79:0:    show_default=True,
-  streak/cli.py:80:0:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
-  streak/cli.py:81:0:)
-  streak/cli.py:82:0:def report(theme):
-  streak/cli.py:83:0:    """Print a report of your habit progress."""
-  streak/cli.py:84:0:    for line in render_report(_load_store(), theme):
-  streak/cli.py:85:0:        click.echo(line)
-  streak/cli.py:88:0:@main.command()
-  streak/cli.py:103:0:    "--format",
   streak/report.py:1:0:"""Renders a colored terminal report of habit progress."""
   streak/report.py:3:0:from collections import Counter
   streak/report.py:4:0:from datetime import date
@@ -686,43 +672,51 @@
   streak/report.py:89:0:    if not completions:
   streak/report.py:90:0:        lines.append(f"{colors['muted']}No completions yet this month.{colors['reset']}")
   streak/report.py:94:0:    return lines
-  README.md:1:0:# streak — a command-line habit tracker
-  README.md:3:0:streak is a small command-line habit tracker written in Python. It keeps your
+  streak/cli.py:7:0:import click
+  streak/cli.py:8:0:import platformdirs
+  streak/cli.py:10:0:from streak.reminders import ReminderScheduler
+  streak/cli.py:11:0:from streak.report import render_report
+  streak/cli.py:12:0:from streak.storage import HabitStore, StorageError
+  streak/cli.py:16:0:    return platformdirs.user_data_dir("streak") / "habits.json"
+  streak/cli.py:19:0:def _load_store() -> HabitStore:
+  streak/cli.py:20:0:    return HabitStore(_data_file())
+  streak/cli.py:25:0:    """streak — a command-line habit tracker."""
+  streak/cli.py:37:0:    """Add a new habit with the given NAME."""
+  streak/cli.py:38:0:    try:
+  streak/cli.py:39:0:        habit = _load_store().add_habit(name, frequency)
+  streak/cli.py:40:0:    except StorageError as error:
+  streak/cli.py:41:0:        raise click.ClickException(str(error)) from error
+  streak/cli.py:42:0:    click.echo(f"Added habit {habit['name']!r} ({habit['frequency']}).")
+  streak/cli.py:61:0:        _load_store().delete_habit(name)
+  streak/cli.py:62:0:    except StorageError as error:
+  streak/cli.py:63:0:        raise click.ClickException(str(error)) from error
+  streak/cli.py:64:0:    click.echo(f"Deleted habit {name!r}.")
+  streak/cli.py:69:0:    """List all habits with their frequency."""
+  streak/cli.py:70:0:    store = _load_store()
+  streak/cli.py:71:0:    for habit in store.list_habits():
+  streak/cli.py:72:0:        click.echo(f"- {habit['name']} ({habit['frequency']})")
+  streak/cli.py:76:0:@click.option(
+  streak/cli.py:77:0:    "--theme",
+  streak/cli.py:78:0:    default="default",
+  streak/cli.py:79:0:    show_default=True,
+  streak/cli.py:80:0:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
+  streak/cli.py:81:0:)
+  streak/cli.py:82:0:def report(theme):
+  streak/cli.py:83:0:    """Print a report of your habit progress."""
+  streak/cli.py:84:0:    for line in render_report(_load_store(), theme):
+  streak/cli.py:85:0:        click.echo(line)
+  streak/cli.py:88:0:@main.command()
+  streak/cli.py:103:0:    "--format",
+  streak/cli.py:110:0:    """Export all habit data to a JSON or CSV file."""
+  streak/cli.py:114:0:        for habit in store.list_habits():
+  streak/cli.py:115:0:            rows.append(
+  streak/cli.py:116:0:                f"{habit['name']},{habit['frequency']},{habit['created']},"
+  streak/cli.py:117:0:                f"{habit['reminder_time'] or ''}"
+  streak/cli.py:126:0:    click.echo(f"Exported habit data to {output}.")
   README.md:4:0:habits in a local JSON database, tracks your streaks, and prints a colored
-  README.md:5:0:report so you can see your progress at a glance.
-  README.md:9:0:- Add, list, check, and delete habits from the terminal
   README.md:10:0:- Automatic streak and best-streak tracking
   README.md:11:0:- A colored terminal report with configurable color themes
   README.md:12:0:- Desktop reminders for habits that are due
-  README.md:13:0:- Works fully offline; your data never leaves your machine
-  README.md:15:0:## Installation
-  README.md:17:0:### Arch Linux
-  README.md:19:0:Installation instructions for Arch Linux:
-  README.md:21:0:streak is available in the Arch User Repository as the `streak` package:
-  README.md:27:0:### Debian and Ubuntu
-  README.md:29:0:Install the `.deb` package from the [releases page](https://example.com/releases)
-  README.md:30:0:or with apt from the streak apt repository:
-  README.md:32:0:```sh
-  README.md:33:0:sudo apt install streak
-  README.md:38:0:Install from the COPR repository:
-  README.md:42:0:sudo dnf install streak
-  README.md:47:0:Clone the repository and install with pip:
-  README.md:49:0:```sh
-  README.md:50:0:git clone https://example.com/streak.git
-  README.md:51:0:cd streak
-  README.md:52:0:pip install .
-  README.md:57:0:Start by adding a habit:
-  README.md:59:0:```sh
-  README.md:60:0:streak add "drink two liters of water" --daily
-  README.md:61:0:```
-  README.md:63:0:Mark a habit as done for today:
-  README.md:65:0:```sh
-  README.md:66:0:streak check "drink two liters of water"
-  README.md:67:0:```
-  README.md:69:0:List all habits with their current streaks:
-  README.md:71:0:```sh
-  README.md:72:0:streak list
-  README.md:73:0:```
   README.md:75:0:### The report
   README.md:77:0:The `streak report` command prints a colored overview of your habits. Pick a
   README.md:78:0:color theme with `--theme`:
@@ -731,19 +725,9 @@
   README.md:82:0:```
   README.md:84:0:The available themes are `default`, `ocean`, `sunset`, `forest`, and `pastel`.
   README.md:86:0:### Reminders
-  README.md:88:0:Set a daily reminder time for a habit:
-  README.md:90:0:```sh
-  README.md:91:0:streak remind "drink two liters of water" --at 20:00
-  README.md:92:0:```
-  README.md:94:0:Then run the background daemon that sends desktop notifications:
-  README.md:96:0:```sh
-  README.md:97:0:streak daemon --interval 30
-  README.md:98:0:```
-  README.md:100:0:## Configuration
   README.md:102:0:streak stores its data in `~/.local/share/streak/habits.json`. The report
   README.md:103:0:colors and other options live in `~/.config/streak/config.toml`.
   README.md:105:0:## License
-  README.md:107:0:MIT
   
   '''
 # ---
@@ -877,6 +861,8 @@
   streak/reminders.py:46:0:        subprocess.run(
   streak/reminders.py:47:0:            ["notify-send", "--app-name=streak", title, message],
   streak/reminders.py:48:0:            check=False,
+  streak/report.py:4:0:from datetime import date
+  streak/report.py:81:0:    month_prefix = today.strftime("%Y-%m")
   streak/storage.py:5:0:import tempfile
   streak/storage.py:6:0:from datetime import date, timedelta
   streak/storage.py:7:0:from pathlib import Path
@@ -895,8 +881,6 @@
   streak/storage.py:91:0:        self.save()
   streak/storage.py:114:0:        day -= timedelta(days=1)
   streak/storage.py:115:0:    return streak
-  streak/report.py:4:0:from datetime import date
-  streak/report.py:81:0:    month_prefix = today.strftime("%Y-%m")
   README.md:12:0:- Desktop reminders for habits that are due
   README.md:86:0:### Reminders
   README.md:88:0:Set a daily reminder time for a habit:

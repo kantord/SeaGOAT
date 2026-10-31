@@ -54,19 +54,34 @@ def print_result_line(result, block, line, color_enabled, vimgrep):
 def iterate_result_blocks(
     results, max_results: int | None
 ) -> Iterator[tuple[dict[str, Any], dict[str, Any]]]:
+    """Yield (result, block) pairs to print, within a budget of result lines.
+
+    Files keep their order. Within a file, the best-scoring blocks (lowest
+    score) are chosen first while budget remains, then printed in line order,
+    so weak matches early in a file cannot push out strong ones further down.
+    The last chosen block may go over the budget, and at least one block is
+    always printed.
+    """
     lines_left_to_print = max_results if max_results is not None else math.inf
-    number_of_blocks_printed = 0
+    printed_any = False
 
     for result in results:
-        for block in result["blocks"]:
-            if lines_left_to_print <= 0 and number_of_blocks_printed >= 1:
-                return
+        if lines_left_to_print <= 0 and printed_any:
+            return
 
+        chosen = []
+        # Results from servers that send no block score keep their line order
+        for block in sorted(
+            result["blocks"], key=lambda block: block.get("score", 0.0)
+        ):
+            if lines_left_to_print <= 0 and (chosen or printed_any):
+                break
+            chosen.append(block)
             lines_left_to_print -= block["lineTypeCount"]["result"]
 
+        for block in sorted(chosen, key=lambda block: block["lines"][0]["line"]):
+            printed_any = True
             yield result, block
-
-            number_of_blocks_printed += 1
 
 
 def display_results_using_bat(results, max_results):

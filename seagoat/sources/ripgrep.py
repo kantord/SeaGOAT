@@ -22,6 +22,17 @@ KILOBYTE = 1024
 BLOB_BATCH_SIZE = 500
 MEGABYTE = KILOBYTE * 1024
 STOP_WORDS = set(get_stop_words("english"))
+RIPGREP_CANDIDATE_MULTIPLIER = 10
+
+
+def _count_distinct_matched_words(line_text: str, pattern_words: list[str]) -> int:
+    """Count how many DISTINCT query words a matched line contains.
+
+    Words are matched case-insensitively as substrings, the same literal
+    words that go into the ripgrep pattern after stopword removal.
+    """
+    lowered_line = line_text.lower()
+    return sum(1 for word in set(pattern_words) if word.lower() in lowered_line)
 
 
 class RipGrepCache(str):
@@ -137,19 +148,21 @@ def initialize(repository: Repository):
         memory_cache.rebuild()
 
     def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
-        query_text_without_stopwords = " ".join(
-            query for query in query_text.split(" ") if query not in STOP_WORDS
-        )
+        words = [word for word in query_text.split(" ") if word not in STOP_WORDS]
+        query_text_without_stopwords = " ".join(words)
         if len(query_text_without_stopwords) > 2:
             query_text = query_text_without_stopwords
         query_text = re.sub(r"\s+", "|", query_text)
+        # The exact literal words that go into the ripgrep pattern
+        pattern_words = [word for word in query_text.split("|") if word]
         files = {}
         max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
+        candidate_limit = limit * RIPGREP_CANDIDATE_MULTIPLIER
 
         cmd = [
             "rg",
             "--max-count",
-            str(limit),
+            str(candidate_limit),
             "--ignore-case",
             # The cache contains NUL separators, which would otherwise make rg
             # treat it as a binary file
@@ -165,19 +178,38 @@ def initialize(repository: Repository):
             )
         except subprocess.CalledProcessError as exception:
             rg_output = exception.output
+
+        # (path, line number, distinct query words) in ripgrep's order
+        matches = []
         for line in rg_output.splitlines():
-            relative_path, raw_line_number, _ = line.split("\0", 2)
-            line_number = int(raw_line_number)
-            gitfile = repository.get_file(relative_path)
+            relative_path, raw_line_number, line_text = line.split("\0", 2)
 
             if not is_file_type_supported(relative_path):
                 continue
 
-            if relative_path not in files:
-                files[relative_path] = Result(query_text, gitfile)
+            matches.append(
+                (
+                    relative_path,
+                    int(raw_line_number),
+                    _count_distinct_matched_words(line_text, pattern_words),
+                )
+            )
 
-            # This is so that ripgrep results are on comparable levels with chroma results
-            files[relative_path].add_line(line_number, max_vector_distance * 0.8)
+        # Keep the limit best lines overall: most distinct query words first;
+        # the sort is stable, so ties keep ripgrep's order (important files
+        # first)
+        matches.sort(key=lambda match: -match[2])
+        for relative_path, line_number, distinct_words in matches[:limit]:
+            if relative_path not in files:
+                files[relative_path] = Result(
+                    query_text, repository.get_file(relative_path)
+                )
+            # A regex word (e.g. "[0-9]{2,10}") never appears literally; count
+            # it as one word. This keeps ripgrep results on comparable levels
+            # with chroma results.
+            files[relative_path].add_line(
+                line_number, max_vector_distance * 0.8 / max(distinct_words, 1)
+            )
 
         return files.values()
 
