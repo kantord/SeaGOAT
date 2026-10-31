@@ -24,7 +24,6 @@ from typing import cast
 from unittest.mock import MagicMock, patch
 
 import orjson
-import platformdirs
 import pytest
 import requests
 import yaml
@@ -32,6 +31,7 @@ from click.testing import CliRunner
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
+from seagoat.cache import get_cache_root
 from seagoat.engine import Engine
 from seagoat.projects import Projects
 from seagoat.repository import Repository
@@ -133,10 +133,7 @@ def _clean_instance_state() -> None:
 def run_around_tests():
     _clean_instance_state()
     yield
-    cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
-    if "RUNNER_TEMP" in os.environ:
-        cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
-    _delete_unkept_cache_entries(cache_root)
+    _delete_unkept_cache_entries(get_cache_root())
     _clean_instance_state()
 
 
@@ -283,7 +280,7 @@ def mock_server_factory(mocker, repo, init_server_mock):
                     {
                         "line": i + 1,
                         "lineText": line_text,
-                        "resultTypes": ["result"] if is_context_line else ["context"],
+                        "resultTypes": ["context"] if is_context_line else ["result"],
                     }
                 )
                 result["blocks"][0]["lineTypeCount"][

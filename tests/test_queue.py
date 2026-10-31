@@ -1,5 +1,5 @@
-from time import sleep
-from unittest.mock import Mock
+import threading
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -55,8 +55,21 @@ def test_handle_get_stats(
 
 def test_important_files_are_analyzed_first(create_task_queue, mocker, repo):
     enqueue = mocker.patch("seagoat.queue.task_queue.TaskQueue.enqueue")
-    create_task_queue()
-    sleep(2.0)
+    first_maintenance_done = threading.Event()
+    original_maintenance = TaskQueue.handle_maintenance
+
+    def tracked_maintenance(self, context):
+        try:
+            original_maintenance(self, context)
+        finally:
+            first_maintenance_done.set()
+
+    mocker.patch.object(TaskQueue, "handle_maintenance", tracked_maintenance)
+    task_queue = create_task_queue()
+    # Maintenance enqueues every chunk in one pass, so waiting for its
+    # first run is waiting for the whole enqueue order to exist
+    assert first_maintenance_done.wait(timeout=30)
+    task_queue.shutdown()
     repository = Repository(repo.working_dir)
     repository.analyze_files()
     order_of_files_analyzed = []
@@ -105,9 +118,11 @@ def test_worker_keeps_running_after_a_task_fails(repo):
 
 
 def test_enqueue_raises_task_timed_out_when_handler_blocks(mocker):
+    release = threading.Event()
+
     class BusyQueue(BaseQueue):
         def handle_block(self, _context):
-            sleep(2.0)
+            release.wait(timeout=30)
             return "late result"
 
     queue = BusyQueue()
@@ -116,13 +131,16 @@ def test_enqueue_raises_task_timed_out_when_handler_blocks(mocker):
         with pytest.raises(TaskTimedOut):
             queue.enqueue("block")
     finally:
+        release.set()
         queue.shutdown()
 
 
-def test_late_result_from_timed_out_task_is_dropped(mocker):
+def test_late_result_from_timed_out_task_is_dropped():
+    release = threading.Event()
+
     class BusyQueue(BaseQueue):
         def handle_block(self, _context):
-            sleep(2.0)
+            release.wait(timeout=30)
             return "late result"
 
         def handle_echo(self, _context, value):
@@ -130,13 +148,16 @@ def test_late_result_from_timed_out_task_is_dropped(mocker):
 
     queue = BusyQueue()
     try:
-        mocker.patch("seagoat.queue.base_queue.TASK_TIMEOUT_SECONDS", 0.1)
-        with pytest.raises(TaskTimedOut):
+        with (
+            patch("seagoat.queue.base_queue.TASK_TIMEOUT_SECONDS", 0.1),
+            pytest.raises(TaskTimedOut),
+        ):
             queue.enqueue("block")
 
-        # Let the blocked handler finish and drop its result, then make sure
-        # a later caller gets its own result, not the stale one.
-        sleep(2.2)
+        # The single worker finishes the blocked task (producing the late
+        # result) before it runs echo, so echo must get its own result.
+        release.set()
         assert queue.enqueue("echo", "fresh result") == "fresh result"
     finally:
+        release.set()
         queue.shutdown()

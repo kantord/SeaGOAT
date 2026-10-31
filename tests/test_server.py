@@ -6,7 +6,6 @@ import socket
 import subprocess
 import sys
 import tempfile
-import time
 from contextlib import contextmanager
 from unittest.mock import ANY
 
@@ -124,7 +123,21 @@ def test_query_codebase(server, snapshot, repo):
 
 def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
     url = f"{server}/status"
-    time.sleep(3)
+
+    def fully_analyzed():
+        stats = requests.post(url, json={"repoPath": repo.working_dir}).json()["stats"]
+        # Before indexing starts nothing is unanalyzed yet either, so also
+        # require that something was analyzed
+        chunks = stats["chunks"]
+        return (
+            chunks["analyzed"] > 0
+            and chunks["unanalyzed"] == 0
+            and stats["queue"]["size"] == 0
+        )
+
+    # Each status request is a task for the single worker, and indexing only
+    # starts once the worker has been idle for 0.1s, so poll slower than that
+    wait_for(fully_analyzed, timeout=10, period=0.5)
     response = requests.post(url, json={"repoPath": repo.working_dir})
 
     assert response.status_code == 200, response.text
