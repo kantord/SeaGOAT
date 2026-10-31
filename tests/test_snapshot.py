@@ -6,8 +6,8 @@ from seagoat.cli import display_results
 @pytest.mark.parametrize(
     "query",
     [
-        ("I want to use a pink color on my led while I'm working"),
-        ("where do we decide what type of status bar app to use"),
+        ("I want to change the color theme of my habit report"),
+        ("where do we decide what time reminders are scheduled"),
         ("installation instructions for arch linux"),
     ],
 )

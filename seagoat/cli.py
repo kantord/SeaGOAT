@@ -10,15 +10,42 @@ from yaspin import yaspin
 from yaspin.spinners import Spinners
 
 from seagoat import __version__
+from seagoat.projects import NotAGitRepo, git_root
 from seagoat.utils.cli_display import display_results
 from seagoat.utils.config import get_config_values
 from seagoat.utils.generative import enhance_results
-from seagoat.utils.server import ServerDoesNotExist, get_server_info
+from seagoat.utils.server import (
+    NoInstanceRunning,
+    instance_url,
+    running_instance,
+)
 
 
 class ExitCode:
     SERVER_NOT_RUNNING = 3
     SERVER_ERROR = 4
+    NOT_A_GIT_REPO = 5
+
+
+class IncompatibleServer(Exception):
+    pass
+
+
+def read_server_json(response):
+    """The JSON body of a SeaGOAT server answer.
+
+    A server of another SeaGOAT version may not have the route (404, 405) or may
+    answer with something that is not JSON; that raises IncompatibleServer.
+    """
+    if response.status_code == 405:
+        raise IncompatibleServer
+    try:
+        data = orjson.loads(response.text)
+    except orjson.JSONDecodeError:
+        raise IncompatibleServer from None
+    if not isinstance(data, dict):
+        raise IncompatibleServer
+    return data
 
 
 UPDATE_CHECK_TIMEOUT_SECONDS = 3
@@ -36,12 +63,20 @@ def warn_if_update_available():
         )
 
 
-def display_accuracy_warning(server_address):
-    response = requests.get(
+def display_accuracy_warning(server_address, repo_path):
+    status_request_body = {}
+    if repo_path is not None:
+        status_request_body["repoPath"] = repo_path
+
+    response = requests.post(
         f"{server_address}/status",
+        json=status_request_body,
     )
-    response_data = orjson.loads(response.text)
-    accuracy = response_data["stats"]["accuracy"]["percentage"]
+    response_data = read_server_json(response)
+    try:
+        accuracy = response_data["stats"]["accuracy"]["percentage"]
+    except (KeyError, TypeError):
+        raise IncompatibleServer from None
 
     if accuracy < 100:
         click.echo(
@@ -54,19 +89,25 @@ def display_accuracy_warning(server_address):
         )
 
 
-def query_server(query, server_address, max_results, context_above, context_below):
+def query_server(
+    query, server_address, max_results, context_above, context_below, repo_path
+):
+    query_request_body = {
+        "queryText": query,
+        "limitClue": max_results,
+        "contextAbove": context_above,
+        "contextBelow": context_below,
+    }
+    if repo_path is not None:
+        query_request_body["repoPath"] = repo_path
+
     response = requests.post(
         f"{server_address}/lines/query",
-        json={
-            "queryText": query,
-            "limitClue": max_results,
-            "contextAbove": context_above,
-            "contextBelow": context_below,
-        },
+        json=query_request_body,
         headers={"Content-Type": "application/json"},
     )
 
-    response_data = orjson.loads(response.text)
+    response_data = read_server_json(response)
 
     if "error" in response_data:
         click.echo(response_data["error"]["message"], err=True)
@@ -74,6 +115,8 @@ def query_server(query, server_address, max_results, context_above, context_belo
 
     response.raise_for_status()
 
+    if "results" not in response_data:
+        raise IncompatibleServer
     return response_data["results"]
 
 
@@ -173,13 +216,33 @@ def seagoat(
     config = get_config_values(Path(repo_path))
     spinner = yaspin(Spinners.dots, text="Generating response...", stream=sys.stderr)
     spinner.start()
+    server_address = None
 
     try:
         if config["client"]["host"] is None:
-            server_info = get_server_info(repo_path)
-            server_address = server_info["address"]
+            # Resolve the repository root on the client (in the user's own
+            # directory). The server only matches roots exactly, and local
+            # paths must be rebuilt against the root too when running from a
+            # subdirectory. When the path is not in a Git repository there is
+            # nothing the server could ever serve, so fail before suggesting
+            # to start one.
+            try:
+                local_repo_path = git_root(repo_path)
+            except NotAGitRepo:
+                spinner.fail("✖")
+                click.echo(f"{repo_path} is not inside a Git repository", err=True)
+                sys.exit(ExitCode.NOT_A_GIT_REPO)
+            running = running_instance()
+            if running is None:
+                raise NoInstanceRunning
+            server_address = instance_url(running[0])
+            repo_path_for_server = local_repo_path
         else:
             server_address = config["client"]["host"]
+            repo_path_for_server = None
+            # Display results relative to the directory the user ran the
+            # command from; the remote server's paths are not local.
+            local_repo_path = repo_path
 
         if context is not None:
             context_above = context
@@ -191,9 +254,10 @@ def seagoat(
             max_results,
             context_above if context_above is not None else 3,
             context_below if context_below is not None else 3,
+            repo_path_for_server,
         )
 
-        results = rewrite_full_paths_to_use_local_path(repo_path, results)
+        results = rewrite_full_paths_to_use_local_path(local_repo_path, results)
         results = remove_results_from_unavailable_files(results)
         if reverse or generative:
             results = reversed(results)
@@ -209,11 +273,24 @@ def seagoat(
 
         display_results(results, max_results, color_enabled, vimgrep)
 
-        display_accuracy_warning(server_address)
+        display_accuracy_warning(server_address, repo_path_for_server)
+    except IncompatibleServer:
+        spinner.fail("✖")
+        click.echo(
+            f"The SeaGOAT server at {server_address} does not understand this client "
+            f"(client version {__version__}); use the same SeaGOAT version on both.",
+            err=True,
+        )
+        sys.exit(ExitCode.SERVER_ERROR)
+    except SystemExit:
+        # query_server exits directly on a server-side error; stop the spinner
+        # thread or the interpreter would wait for it forever on shutdown
+        spinner.stop()
+        raise
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.RequestException,
-        ServerDoesNotExist,
+        NoInstanceRunning,
     ):
         spinner.fail("✖")
         click.echo(

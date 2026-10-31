@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 # How long to wait before retrying maintenance after it failed
 MAINTENANCE_RETRY_DELAY_SECONDS = 10
 
+# How long a caller waits for a task result before giving up
+TASK_TIMEOUT_SECONDS = 120
+
 HIGH_PRIORITY = 0.0
 MEDIUM_PRIORITY = 0.5
 LOW_PRIORITY = 1.0
@@ -27,6 +30,10 @@ class Task:
 
 class TaskFailed(Exception):
     """A task raised an exception in the worker thread"""
+
+
+class TaskTimedOut(Exception):
+    """A task did not produce a result within the time limit"""
 
 
 class BaseQueue:
@@ -59,7 +66,16 @@ class BaseQueue:
         )
         self._task_queue.put(task)
         if wait_for_result:
-            result = result_queue.get()
+            try:
+                result = result_queue.get(timeout=TASK_TIMEOUT_SECONDS)
+            except Empty:
+                # The worker may still finish the task later, but each call
+                # owns a private result queue, so a late result is dropped
+                # and can never be delivered to a later caller.
+                raise TaskTimedOut(
+                    f"Task '{task_name}' did not finish in time "
+                    f"({TASK_TIMEOUT_SECONDS} seconds)"
+                ) from None
             if isinstance(result, TaskFailed):
                 raise result
             return result
@@ -74,13 +90,16 @@ class BaseQueue:
         )
         self._worker_thread.join()
 
-    def _handle_task(self, context, task: Task):
+    def _handle_task(self, context, task: Task, context_error=None):
         logger.info("Handling task: %s", task.name)
         handler_name = f"handle_{task.name}"
         handler = getattr(self, handler_name, None)
         kwargs = dict(task.kwargs or {})
         result_queue = kwargs.pop("__result_queue", None)
-        if handler is None:
+        if context_error is not None:
+            # No context means no task can run, so each one fails instead of waiting
+            result = TaskFailed(f"Context failed to initialize: {context_error}")
+        elif handler is None:
             result = TaskFailed(f"Unknown task: {task.name}")
         else:
             try:
@@ -95,7 +114,13 @@ class BaseQueue:
 
     def _worker_function(self):
         logger.info("Starting worker thread...")
-        context = self._get_context()
+        try:
+            context = self._get_context()
+            context_error = None
+        except Exception as exception:  # pylint: disable=broad-except
+            logger.exception("Failed to build context")
+            context = None
+            context_error = exception
         next_maintenance = 0.0
 
         while True:
@@ -103,8 +128,10 @@ class BaseQueue:
                 task = self._task_queue.get(timeout=0.1)
                 if task.name == "shutdown":
                     break
-                self._handle_task(context, task)
+                self._handle_task(context, task, context_error=context_error)
             except Empty:
+                if context_error is not None:
+                    continue
                 if time.monotonic() < next_maintenance:
                     continue
                 try:

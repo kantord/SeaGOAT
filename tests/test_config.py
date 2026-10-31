@@ -1,3 +1,4 @@
+import copy
 from pathlib import Path
 
 import jsonschema
@@ -8,11 +9,14 @@ from seagoat.utils.config import (
     DEFAULT_CONFIG,
     GLOBAL_CONFIG_FILE,
     get_config_values,
+    get_global_config_values,
 )
 
 
 def _(config):
-    return always_merger.merge({**DEFAULT_CONFIG}, {**config})
+    # The merge mutates its first argument, so give it a private copy
+    # instead of the shared DEFAULT_CONFIG.
+    return always_merger.merge(copy.deepcopy(DEFAULT_CONFIG), config)
 
 
 def test_no_config_files(repo):
@@ -21,17 +25,19 @@ def test_no_config_files(repo):
 
 
 @pytest.mark.parametrize(
-    "config_content,expected_port",
+    "config_content,expected_read_max_commits",
     [
-        ({"server": {"port": 6060}}, 6060),
-        ({"server": {"port": 7070}}, 7070),
+        ({"server": {"readMaxCommits": 6060}}, 6060),
+        ({"server": {"readMaxCommits": 7070}}, 7070),
     ],
 )
-def test_local_config_override(repo, config_content, expected_port, create_config_file):
+def test_local_config_override(
+    repo, config_content, expected_read_max_commits, create_config_file
+):
     GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
     create_config_file(config_content, global_config=False)
     final_config = get_config_values(Path(repo.working_dir))
-    assert final_config["server"]["port"] == expected_port
+    assert final_config["server"]["readMaxCommits"] == expected_read_max_commits
 
 
 @pytest.mark.parametrize(
@@ -53,14 +59,14 @@ def test_global_config_override(
     "global_config_content,local_config_content,expected_config",
     [
         (
-            {"server": {"port": 6060}},
-            {"server": {"port": 7070}},
-            {"server": {"port": 7070}},
+            {"server": {"readMaxCommits": 6060}},
+            {"server": {"readMaxCommits": 7070}},
+            {"server": {"readMaxCommits": 7070}},
         ),
         (
-            {"server": {"port": 8000}},
-            {"server": {"port": 9000}},
-            {"server": {"port": 9000}},
+            {"server": {"readMaxCommits": 8000}},
+            {"server": {"readMaxCommits": 9000}},
+            {"server": {"readMaxCommits": 9000}},
         ),
     ],
 )
@@ -76,6 +82,16 @@ def test_local_overrides_global(
 
     final_config = get_config_values(Path(repo.working_dir))
     assert final_config == _(expected_config)
+
+
+def test_repo_config_port_is_ignored_uses_global(repo, create_config_file, caplog):
+    create_config_file({"server": {"port": 6060}}, global_config=True)
+    create_config_file({"server": {"port": 7070}}, global_config=False)
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config["server"]["port"] == 6060
+    assert "Ignoring 'server.port'" in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -154,7 +170,7 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             },
             ("server", "chroma", "embeddingFunction"),
         ),
-        ({"server": {"host": "0.0.0.0"}}, ("server", "host")),
+        ({"server": {"host": "0.0.0.0"}}, ("server", "host")),  # nosec B104 - config only
         ({"client": {"host": "https://evil.example/"}}, ("client", "host")),
     ],
 )
@@ -213,8 +229,45 @@ def test_server_listens_on_localhost_by_default(repo):
 
 
 def test_global_config_can_set_server_host(repo, create_config_file):
-    create_config_file({"server": {"host": "0.0.0.0"}}, global_config=True)
+    create_config_file({"server": {"host": "0.0.0.0"}}, global_config=True)  # nosec B104
 
     config = get_config_values(Path(repo.working_dir))
 
-    assert config["server"]["host"] == "0.0.0.0"
+    assert config["server"]["host"] == "0.0.0.0"  # nosec B104 - config only
+
+
+def test_config_defaults_have_no_repositories(repo):
+    config = get_config_values(Path(repo.working_dir))
+
+    assert "repositories" not in DEFAULT_CONFIG["server"]
+    assert "repositories" not in config["server"]
+
+
+def test_global_config_with_repositories_is_invalid(repo, create_config_file):
+    create_config_file(
+        {"server": {"repositories": ["/repo/one", "/repo/two"]}},
+        global_config=True,
+    )
+
+    with pytest.raises(jsonschema.ValidationError):
+        get_config_values(Path(repo.working_dir))
+
+
+def test_get_global_config_values_ignores_repo_config(repo, create_config_file):
+
+    create_config_file({"server": {"readMaxCommits": 7070}}, global_config=False)
+
+    config = get_global_config_values()
+
+    assert (
+        config["server"]["readMaxCommits"] == DEFAULT_CONFIG["server"]["readMaxCommits"]
+    )
+
+
+def test_get_global_config_values_reads_global_config(repo, create_config_file):
+
+    create_config_file({"server": {"port": 6061}}, global_config=True)
+
+    config = get_global_config_values()
+
+    assert config["server"]["port"] == 6061

@@ -1,0 +1,8 @@
+# The SDK's build script installs its runtime into $MSB_HOME (default ~/.microsandbox) when the
+# version there differs, so a plain `cargo build` would replace the msb CLI in ~/.microsandbox
+# (it did once, 2026-10-20). Building against a home under target/ keeps builds side-effect free.
+[env]
+MSB_HOME = { value = "target/msb-build-home", relative = true }
+# It also reaches `cargo run`/`cargo test`, where it must not be the runtime home: under a
+# worktree the derived socket path ran to 176 bytes against Unix's 108. Run those with
+# MSB_HOME=~/.cache/seagoat-worker/msb, which wins over this value.

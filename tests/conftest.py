@@ -1,18 +1,26 @@
-import os
-
-# Must be set before seagoat imports - config.py reads this at module load time
-os.environ["PYTEST_CURRENT_TEST"] = "true"
-
 import logging
 import multiprocessing
+import os
 import shutil
 import signal
 import subprocess
 import tempfile
+from pathlib import Path
+
+# Must be set before seagoat imports - config.py reads this at module load time
+os.environ["PYTEST_CURRENT_TEST"] = "true"
+
+# Give this pytest session its own cache and config directories, so two runs
+# (for example in two worktrees) never share the instance file,
+# repositories.json or the global config. Must be set before seagoat is
+# imported: seagoat.utils.config reads the config directory at module load
+# time and seagoat.utils.server reads the cache directory per request.
+SESSION_TEMP_DIR = Path(tempfile.mkdtemp(prefix="seagoat-pytest-"))
+os.environ["XDG_CACHE_HOME"] = str(SESSION_TEMP_DIR / "cache")
+os.environ["XDG_CONFIG_HOME"] = str(SESSION_TEMP_DIR / "config")
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import cast
 from unittest.mock import MagicMock, patch
 
@@ -28,13 +36,19 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
 from seagoat.engine import Engine
+from seagoat.projects import Projects
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.server import create_app, start_server
 from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
-from seagoat.utils.server import ServerDoesNotExist, get_server_info
+from seagoat.utils.server import (
+    Instance,
+    instance_url,
+    running_instance,
+)
 from seagoat.utils.wait import wait_for
+from tests.fixtures.realistic_repo import build
 
 try:
     from pytest_cov.embed import cleanup_on_sigterm
@@ -232,13 +246,59 @@ def repo(generate_repo):
     yield repo
 
 
+_kept_cache_folders: set[Path] = set()
+
+
+def keep_cache_folder(path: Path) -> None:
+    """Register a cache folder so per-test cleanup keeps it (session fixtures)."""
+    _kept_cache_folders.add(Path(path).resolve())
+
+
+def _delete_unkept_cache_entries(cache_root: Path) -> None:
+    """Delete every entry in the cache folder except registered kept folders."""
+    if not cache_root.is_dir():
+        return
+
+    for entry in cache_root.iterdir():
+        if entry.resolve() in _kept_cache_folders:
+            continue
+        if entry.is_dir():
+            shutil.rmtree(entry, ignore_errors=True)
+        else:
+            entry.unlink(missing_ok=True)
+
+
+def _clean_instance_state() -> None:
+    # Each test starts from a clean slate: no instance, no repositories file
+    # and no global config (start commands add repositories while tests run).
+    from seagoat.utils.server import instance_file_path, repositories_file_path
+
+    instance_path = instance_file_path()
+    for file_path in (
+        instance_path,
+        repositories_file_path(),
+        Path(f"{instance_path}.lock"),
+    ):
+        file_path.unlink(missing_ok=True)
+    GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
+
+
 @pytest.fixture(autouse=True)
 def run_around_tests():
+    _clean_instance_state()
     yield
     cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
     if "RUNNER_TEMP" in os.environ:
         cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
-    shutil.rmtree(cache_root, ignore_errors=True)
+    _delete_unkept_cache_entries(cache_root)
+    _clean_instance_state()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _cleanup_session_temp_dir():
+    # Remove the per-session cache/config directory once all tests are done.
+    yield
+    shutil.rmtree(SESSION_TEMP_DIR, ignore_errors=True)
 
 
 chromadb_patcher = patch("chromadb.Client")
@@ -278,24 +338,16 @@ def _start_server():
         server_process.start()
 
         def make_sure_server_is_running():
-            try:
-                get_server_info(repo_path)
-                return True
-
-            except Exception:  # noqa: BLE001 - any failure means "not ready yet"
-                return False
+            return running_instance() is not None
 
         wait_for(make_sure_server_is_running, timeout=3.0)
 
-        try:
-            server_info = get_server_info(repo_path)
-        except ServerDoesNotExist as error:
+        running = running_instance()
+        if running is None:
             server_process.kill()
-            raise ServerDoesNotExist(
-                f"Server info for {repo_path} not found."
-            ) from error
+            raise RuntimeError(f"Server for {repo_path} did not start.")
 
-        server_address = server_info["address"]
+        server_address = instance_url(running[0])
 
         # type ignored because it is errounously marked as int, it is float
         # as per the official documentation
@@ -343,9 +395,10 @@ def _server(start_server, repo):
 @pytest.fixture
 def init_server_mock(mocker):
     def _init_server_mock():
+        instance = Instance(host="localhost", port=1234, pid=1)
         mocker.patch(
-            "seagoat.cli.get_server_info",
-            return_value={"address": ""},
+            "seagoat.cli.running_instance",
+            return_value=(instance, {"pid": instance.pid, "projects": []}),
         )
         mocker.patch("os.isatty", return_value=True)
 
@@ -462,24 +515,18 @@ def runner_with_error(mocker, mock_spinner):
 
 
 @pytest.fixture
-def app(repo):
-    app = create_app(repo.working_dir)
-    yield app
-
-
-@pytest.fixture
 def client(repo):
     mock_queue = MagicMock()
 
-    with patch("seagoat.server.TaskQueue", mock_queue):
-        app = create_app(repo.working_dir)
-        app.config["TESTING"] = True
-        app.extensions["task_queue"] = mock_queue
-        client = app.test_client()
+    projects = Projects(lambda path, config: mock_queue)
+    projects.get(repo.working_dir)
+    app = create_app(projects, "127.0.0.1")
+    app.config["TESTING"] = True
+    client = app.test_client()
 
-        client._mock_queue = mock_queue  # type: ignore
+    client._mock_queue = mock_queue  # type: ignore
 
-        yield client
+    yield client
 
 
 @pytest.fixture
@@ -664,6 +711,25 @@ def create_config_file(repo):
 
 
 @pytest.fixture
+def create_repositories_file():
+    created_files = []
+
+    def write_repositories(repositories):
+        from seagoat.utils.json_file import write_to_json_file
+        from seagoat.utils.server import repositories_file_path
+
+        file_path = repositories_file_path()
+        write_to_json_file(file_path, repositories)
+        created_files.append(file_path)
+
+    yield write_repositories
+
+    for file_path in created_files:
+        if file_path.exists():
+            file_path.unlink()
+
+
+@pytest.fixture
 def temporary_cd():
     @contextmanager
     def _temporary_cd(path):
@@ -679,54 +745,13 @@ def temporary_cd():
 
 @pytest.fixture(scope="session")
 def realistic_server(start_server):
+    # A made-up repository the suite builds itself, so no test needs the network
     realrepo = tempfile.mkdtemp()
-    subprocess.check_output(
-        [
-            "git",
-            "clone",
-            "https://github.com/kantord/i3-gnome-pomodoro.git",
-            realrepo,
-        ],
-        text=True,
-    )
+    build(realrepo)
 
-    ## Checkout a specific commit to make sure the results are deterministic
-    subprocess.check_output(
-        [
-            "git",
-            "-C",
-            realrepo,
-            "checkout",
-            "8bdea398906e7a706a28254cfd19b83dca136324",
-        ],
-        text=True,
-    )
-
-    subprocess.check_output(
-        [
-            "git",
-            "-C",
-            realrepo,
-            "branch",
-            "-D",
-            "master",
-        ],
-        text=True,
-    )
-
-    subprocess.check_output(
-        [
-            "git",
-            "-C",
-            realrepo,
-            "switch",
-            "-c",
-            "master",
-        ],
-        text=True,
-    )
     my_engine = Engine(realrepo)
-    my_engine.analyze_codebase(minimum_chunks_to_analyze=339)
+    keep_cache_folder(my_engine.cache.get_cache_folder())
+    my_engine.analyze_codebase(minimum_chunks_to_analyze=351)
     assert my_engine.cache.data["chunks_not_yet_analyzed"] == set()
 
     yield my_engine
