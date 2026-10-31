@@ -354,6 +354,13 @@ def main(argv) -> int:
         print("worker: GREEN, nothing to apply", flush=True)
         print_timings(out)
         return 0
+    if report.get("status") == "BLOCKED":
+        # The model stopped as its brief told it to: its reply is the answer, and the patch is
+        # whatever it had changed, for reading, not applying.
+        print(f"worker: blocked: {report.get('error')}", flush=True)
+        print(f"worker: see {out}; its patch is {patch}", flush=True)
+        print_timings(out)
+        return 5
     if (
         report.get("status") != "GREEN"
         or not patch.is_file()

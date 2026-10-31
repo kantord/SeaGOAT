@@ -91,6 +91,9 @@ pub enum Status {
     /// read-only and the model spent its last ten turns diagnosing it). Not the model's fault,
     /// so it is reported like a failed boot.
     SetupFailed,
+    /// The model replied `BLOCKED:` (see program.rs): it stopped as the brief told it to, so
+    /// the run ends there, without retries or checks, and keeps its patch and its reply.
+    Blocked,
 }
 
 pub struct Report {
@@ -112,6 +115,7 @@ impl Report {
             Status::Red => crate::EXIT_RED,
             Status::Fatal => crate::EXIT_FATAL,
             Status::SetupFailed => crate::EXIT_SETUP,
+            Status::Blocked => crate::EXIT_BLOCKED,
         }
     }
 
@@ -121,6 +125,7 @@ impl Report {
             Status::Red => "RED",
             Status::Fatal => "FATAL",
             Status::SetupFailed => "SETUP_FAILED",
+            Status::Blocked => "BLOCKED",
         }
     }
 
@@ -169,6 +174,10 @@ pub async fn run(g: &Guest, cfg: &Config, program: &Program) -> Report {
             r.error = Some(e);
             Status::SetupFailed
         }
+        Err(Stop::Blocked(reply)) => {
+            r.error = Some(reply);
+            Status::Blocked
+        }
     };
     r
 }
@@ -190,7 +199,7 @@ async fn run_steps(
             }
             Step::Llm { name, max_turns } => {
                 conv.pinned.get_or_insert(conv.messages.len());
-                let ending = turns(g, cfg, conv, r, *max_turns).await?;
+                let ending = turns(g, cfg, conv, r, name, *max_turns).await?;
                 let (ok, detail) = match ending {
                     Ending::ModelDone => (true, "model_done".to_string()),
                     Ending::MaxTurns => (false, "max_turns".to_string()),
@@ -440,6 +449,26 @@ fn outcome(cfg: &Config, r: &mut Report, name: &str, ok: bool, detail: Value) {
 enum Stop {
     Fatal(String),
     GuestDead(String),
+    /// The model's `BLOCKED:` reply.
+    Blocked(String),
+}
+
+/// What a reply that starts with `BLOCKED:` says, leading whitespace ignored; None otherwise.
+fn blocked_reply(content: Option<&str>) -> Option<String> {
+    let text = content?.trim_start();
+    text.starts_with("BLOCKED:").then(|| text.to_string())
+}
+
+/// How many turns before the end of an llm step the model is told to finish up.
+const TURNS_LEFT_WARNING: usize = 5;
+
+/// The note the model gets when `TURNS_LEFT_WARNING` turns of `step` are left, counting the
+/// one about to start, at the end of the conversation so the cached prefix stays the same.
+/// A step with no more turns than that gets none: the warning would come on its first turn.
+/// 2026-10-31: a run spent its last turns re-checking work that was done and ended RED.
+fn turns_left_note(step: &str, max_turns: usize, done: usize) -> Option<String> {
+    (max_turns > TURNS_LEFT_WARNING && max_turns - done == TURNS_LEFT_WARNING)
+        .then(|| format!("{TURNS_LEFT_WARNING} turns left in `{step}`: finish up and stop."))
 }
 
 async fn turns(
@@ -447,12 +476,16 @@ async fn turns(
     cfg: &Config,
     conv: &mut Conversation,
     r: &mut Report,
+    step: &str,
     max_turns: usize,
 ) -> Result<Ending, Stop> {
     // How many replies in a row had no text and no tool call; three of them clear the pinned
     // provider: it keeps answering nothing, so routing to it is the problem, not the fallback.
     let mut empty_in_a_row = 0usize;
-    for _ in 0..max_turns {
+    for done in 0..max_turns {
+        if let Some(note) = turns_left_note(step, max_turns, done) {
+            say(cfg, conv, "user", note);
+        }
         // Numbered across the whole run, so events and the table never repeat a turn number.
         let turn = r.turns + 1;
         let turn_start = Instant::now();
@@ -501,6 +534,9 @@ async fn turns(
         let empty = msg["content"].as_str().is_none_or(|t| t.trim().is_empty());
         let has_calls = !calls.is_empty();
         let msg = tidy_reply(msg, cut_off, empty, has_calls);
+        let blocked = (!cut_off && !has_calls)
+            .then(|| blocked_reply(msg["content"].as_str()))
+            .flatten();
         // Pin only from a reply the model actually made: one with text or a tool call. An
         // empty or cut-off reply names the provider that produced nothing, and pinning it
         // would only pin the failure.
@@ -528,6 +564,10 @@ async fn turns(
                 continue;
             }
             finish_turn(g, cfg, r, row, 0, turn_start).await;
+            if let Some(reply) = blocked {
+                outcome(cfg, r, step, false, json!({"ending": "blocked"}));
+                return Err(Stop::Blocked(reply));
+            }
             return Ok(Ending::ModelDone);
         }
         for c in calls {
@@ -905,6 +945,32 @@ mod tests {
             body["provider"],
             json!({"order": ["b"], "allow_fallbacks": false, "sort": "x"})
         );
+    }
+
+    #[test]
+    fn only_a_reply_starting_with_blocked_blocks() {
+        let reply = blocked_reply(Some("\n BLOCKED: the brief says stop if X; X holds"));
+        assert_eq!(
+            reply.as_deref(),
+            Some("BLOCKED: the brief says stop if X; X holds")
+        );
+        assert_eq!(blocked_reply(Some("DONE: fixed it")), None);
+        assert_eq!(blocked_reply(Some("DONE: was BLOCKED: at first")), None);
+        assert_eq!(blocked_reply(Some("blocked: lower case")), None);
+        assert_eq!(blocked_reply(None), None);
+    }
+
+    #[test]
+    fn the_turns_left_note_comes_once_five_turns_before_the_end() {
+        let notes: Vec<usize> = (0..50)
+            .filter(|&done| turns_left_note("model", 50, done).is_some())
+            .collect();
+        assert_eq!(notes, [45]);
+        assert_eq!(
+            turns_left_note("model", 50, 45).unwrap(),
+            "5 turns left in `model`: finish up and stop."
+        );
+        assert!((0..5).all(|done| turns_left_note("model", 5, done).is_none()));
     }
 
     #[test]
