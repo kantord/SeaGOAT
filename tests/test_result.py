@@ -1,8 +1,9 @@
 from pathlib import Path
 
+import pytest
+
 from seagoat.repository import Repository
 from seagoat.result import Result
-from tests.conftest import pytest
 
 
 @pytest.fixture(name="create_result")
@@ -23,7 +24,6 @@ def create_result_(repo):
         repo.add_file_change_commit(
             test_file_path,
             fake_content,
-            author=repo.actors["John Doe"],
             commit_message="added my changes",
         )
 
@@ -79,7 +79,7 @@ def test_add_result_twice_when_combining_sources(create_result):
     assert "context" in result.lines[40].types
 
 
-def test_add_context_above_1(create_result, repo):
+def test_add_context_above_one_line(create_result, repo):
     query = "QueryTest"
     result = create_result(query)
     result.add_context_lines(-1)
@@ -116,7 +116,7 @@ def test_add_context_above_1(create_result, repo):
     }
 
 
-def test_add_context_above_2(create_result, repo):
+def test_add_context_above_each_result_line(create_result, repo):
     query = "QueryTest"
     result = create_result(query)
     result.add_line(20, 0.5)
@@ -176,7 +176,7 @@ def test_add_context_above_2(create_result, repo):
     }
 
 
-def test_add_context_below_1(create_result, repo):
+def test_add_context_below_one_line(create_result, repo):
     query = "QueryTest"
     result = create_result(query)
     result.add_context_lines(1)
@@ -213,7 +213,7 @@ def test_add_context_below_1(create_result, repo):
     }
 
 
-def test_add_context_below_2(create_result, repo):
+def test_add_context_below_adjacent_result_lines(create_result, repo):
     query = "QueryTest"
     result = create_result(query)
     result.add_line(41, 0.5)

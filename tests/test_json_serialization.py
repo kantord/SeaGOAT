@@ -10,7 +10,6 @@ def fakefile(repo):
         repo.add_file_change_commit(
             filename,
             contents,
-            author=repo.actors["John Doe"],
             commit_message="add my fake file",
         )
         repository = Repository(repo.working_dir)

@@ -1,4 +1,4 @@
-def test_sort_results_test1(create_prepared_seagoat):
+def test_sorts_files_by_their_closest_line(create_prepared_seagoat):
     ripgrep_lines = {
         "file1.md": [(1, 10.0), (2, 4.0)],
         "file2.md": [(1, 5.0)],
@@ -19,7 +19,7 @@ def test_sort_results_test1(create_prepared_seagoat):
     ]
 
 
-def test_sort_results_test2(create_prepared_seagoat):
+def test_sorts_files_from_both_sources_together(create_prepared_seagoat):
     ripgrep_lines = {
         "file1.md": [(1, 10.0)],
         "file2.md": [(1, 15.0)],
@@ -70,7 +70,6 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
     repo.add_file_change_commit(
         file_name="file_few_edits.md",
         contents="Some content",
-        author=repo.actors["John Doe"],
         commit_message="Edit file_few_edits.md",
     )
 
@@ -79,7 +78,6 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
             repo.add_file_change_commit(
                 file_name=f"file_with_some_edits_{i}.md",
                 contents=f"Some content {i} {j}",
-                author=repo.actors["John Doe"],
                 commit_message="Edit file_many_edits.md",
             )
             repo.tick_fake_date(days=1)
@@ -88,7 +86,6 @@ def test_file_edits_influence_order(create_prepared_seagoat, repo):
         repo.add_file_change_commit(
             file_name="file_many_edits.md",
             contents=f"Some content {i}",
-            author=repo.actors["John Doe"],
             commit_message="Edit file_many_edits.md",
         )
         repo.tick_fake_date(days=1)

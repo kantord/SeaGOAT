@@ -14,7 +14,6 @@ async def test_simple_regexp(repo):
 
 9999999
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add fruits data",
     )
 
@@ -49,7 +48,6 @@ asdf
 asdf
 asdf
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add fruits data",
     )
 

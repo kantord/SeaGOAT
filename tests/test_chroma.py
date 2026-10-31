@@ -49,20 +49,17 @@ def test_allows_fetching_data_synchronously(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents="Italian food recipes, tükörfúrógép, spaghetti, pomodoro, pepperoni\n",
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
         encoding="utf-8",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="Ford",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="motorbike, ford, mercedes\n",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     seagoat = Engine(repo.working_dir)
@@ -78,19 +75,16 @@ async def test_considers_filename_in_results(repo):
     repo.add_file_change_commit(
         file_name="cooking_recipes.txt",
         contents="motorbike, ford, mercedes\n",
-        author=repo.actors["John Doe"],
         commit_message=".",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="Ford",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="motorbike, ford, mercedes\n",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     seagoat = Engine(repo.working_dir)
@@ -106,19 +100,16 @@ async def test_considers_commit_messages(repo):
     repo.add_file_change_commit(
         file_name="vehicles_1.txt",
         contents="the the the",
-        author=repo.actors["John Doe"],
         commit_message="pizza tomato salami recipe",
     )
     repo.add_file_change_commit(
         file_name="vehicles_2.txt",
         contents=".",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     repo.add_file_change_commit(
         file_name="vehicles_2.txt",
         contents="",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     seagoat = Engine(repo.working_dir)
@@ -134,19 +125,16 @@ async def test_truncates_very_long_lines(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents=f"car {'the a about ' * 40} pizza recipe tomato italian pie\n",
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="Ford tomato",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="motorbike, ford, mercedes with tomato and cheese\n",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     seagoat = Engine(repo.working_dir)
@@ -176,7 +164,6 @@ async def test_includes_all_matching_lines_from_line(repo):
         13:
         14:
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     seagoat = Engine(repo.working_dir)
@@ -215,7 +202,6 @@ async def test_exact_matches_have_higher_score(repo):
         13:
         14:
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     seagoat = Engine(repo.working_dir)
@@ -232,19 +218,16 @@ async def test_chunks_are_persisted_between_runs(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents="Italian food recipes, spaghetti, pomodoro, pepperoni\n",
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="Ford",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     repo.add_file_change_commit(
         file_name="vehicles.txt",
         contents="motorbike, ford, mercedes\n",
-        author=repo.actors["John Doe"],
         commit_message="Add vehicle information",
     )
     seagoat1 = Engine(repo.working_dir)
@@ -273,7 +256,6 @@ async def test_respects_limit_in_chromadb(repo):
         repo.add_file_change_commit(
             file_name="devices2.txt",
             contents="food from an orchard, but not a banana or pear. It's red",
-            author=repo.actors["John Doe"],
             commit_message=f"commit {i}",
         )
         repo.tick_fake_date(days=1)
@@ -283,7 +265,6 @@ async def test_respects_limit_in_chromadb(repo):
         contents="""banana, fruit, red, Macintosh, iPhone
         """
         * 6,
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     seagoat = Engine(repo.working_dir)
@@ -310,7 +291,6 @@ async def test_does_not_crash_repo_when_files_are_deleted(repo):
     repo.add_file_change_commit(
         file_name="cooking_recipes.txt",
         contents="motorbike, ford, mercedes\n",
-        author=repo.actors["John Doe"],
         commit_message=".",
     )
     seagoat = Engine(repo.working_dir)
@@ -333,7 +313,6 @@ async def test_custom_ignore_patterns(repo, create_config_file):
     repo.add_file_change_commit(
         file_name="foo/devices2.txt",
         contents="food from an orchard, but not a banana or pear. It's red",
-        author=repo.actors["John Doe"],
         commit_message="commit",
     )
     repo.add_file_change_commit(
@@ -341,7 +320,6 @@ async def test_custom_ignore_patterns(repo, create_config_file):
         contents="""banana, fruit, red, Macintosh, iPhone
         """
         * 6,
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     seagoat = Engine(repo.working_dir)
@@ -393,7 +371,6 @@ async def test_does_not_crash_when_file_lines_are_removed(repo):
         13:
         14:
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     seagoat = Engine(repo.working_dir)
@@ -407,7 +384,6 @@ async def test_does_not_crash_when_file_lines_are_removed(repo):
         3:
         4: Mango juice
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add italian food recipes",
     )
     seagoat.analyze_codebase()
@@ -424,7 +400,6 @@ async def test_supports_fractional_n_results_multiplier(repo, create_config_file
     repo.add_file_change_commit(
         file_name="fruit.txt",
         contents="apple, banana, pear",
-        author=repo.actors["John Doe"],
         commit_message="Add fruit",
     )
     seagoat = Engine(repo.working_dir)

@@ -1,130 +1,133 @@
 """Tests for the generative search enhancement module."""
 
-from unittest.mock import MagicMock, patch
-
 from seagoat.utils.generative import _strip_thinking_tags, enhance_results, get_prompt
 
 
-class TestGetPrompt:
-    def test_includes_query(self):
-        prompt = get_prompt("some code", "find login")
-        assert "find login" in prompt
-
-    def test_includes_context(self):
-        prompt = get_prompt("def hello():\n    pass", "hello func")
-        assert "def hello():" in prompt
-
-
-class TestStripThinkingTags:
-    def test_strips_think_blocks(self):
-        text = "<think>reasoning here</think>actual response"
-        assert _strip_thinking_tags(text) == "actual response"
-
-    def test_no_think_tags_returns_original(self):
-        text = "just a normal response"
-        assert _strip_thinking_tags(text) == text
-
-    def test_multiple_think_blocks(self):
-        text = "<think>first</think><think>second</think>final"
-        result = _strip_thinking_tags(text)
-        assert "final" in result
+def make_result(path):
+    return {
+        "path": path,
+        "fullPath": f"/repo/{path}",
+        "blocks": [
+            {
+                "lines": [
+                    {"line": 1, "lineText": f"# {path} content"},
+                    {"line": 2, "lineText": "some code here"},
+                ],
+                "lineTypeCount": {"result": 2, "context": 0},
+            }
+        ],
+    }
 
 
-class TestEnhanceResults:
-    def _make_result(self, path):
-        return {
-            "path": path,
-            "fullPath": f"/repo/{path}",
-            "blocks": [
-                {
-                    "lines": [
-                        {"line": 1, "lineText": f"# {path} content"},
-                        {"line": 2, "lineText": "some code here"},
-                    ],
-                    "lineTypeCount": {"result": 2, "context": 0},
-                }
-            ],
-        }
+def mock_stream_chat(mocker, *chunks):
+    """Patch stream_chat so the LLM streams the given chunks."""
+    return mocker.patch(
+        "seagoat.utils.generative.stream_chat", return_value=iter(chunks)
+    )
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_filters_results_by_llm_response(self, mock_stream):
-        mock_stream.return_value = iter(["The relevant file is ", "main.py"])
-        spinner = MagicMock()
 
-        results = [self._make_result("main.py"), self._make_result("utils.py")]
+def test_prompt_includes_query():
+    prompt = get_prompt("some code", "find login")
+    assert "find login" in prompt
 
-        filtered = enhance_results("find main", results, spinner, {})
 
-        assert len(filtered) == 1
-        assert filtered[0]["path"] == "main.py"
+def test_prompt_includes_context():
+    prompt = get_prompt("def hello():\n    pass", "hello func")
+    assert "def hello():" in prompt
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_strips_thinking_tags(self, mock_stream):
-        mock_stream.return_value = iter(
-            ["<think>let me think</think>", "main.py is relevant"]
-        )
-        spinner = MagicMock()
 
-        results = [self._make_result("main.py"), self._make_result("utils.py")]
+def test_strip_thinking_tags_strips_think_blocks():
+    text = "<think>reasoning here</think>actual response"
+    assert _strip_thinking_tags(text) == "actual response"
 
-        filtered = enhance_results("find main", results, spinner, {})
 
-        assert len(filtered) == 1
-        assert filtered[0]["path"] == "main.py"
+def test_strip_thinking_tags_without_tags_returns_original():
+    text = "just a normal response"
+    assert _strip_thinking_tags(text) == text
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_returns_empty_when_no_match(self, mock_stream):
-        mock_stream.return_value = iter(["No relevant files found"])
-        spinner = MagicMock()
 
-        results = [self._make_result("main.py")]
+def test_strip_thinking_tags_handles_multiple_think_blocks():
+    text = "<think>first</think><think>second</think>final"
+    result = _strip_thinking_tags(text)
+    assert "final" in result
 
-        filtered = enhance_results("find login", results, spinner, {})
 
-        assert len(filtered) == 0
+def test_enhance_results_filters_results_by_llm_response(mocker):
+    mock_stream_chat(mocker, "The relevant file is ", "main.py")
+    spinner = mocker.MagicMock()
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_returns_all_when_all_match(self, mock_stream):
-        mock_stream.return_value = iter(["Both main.py and utils.py are relevant"])
-        spinner = MagicMock()
+    results = [make_result("main.py"), make_result("utils.py")]
 
-        results = [self._make_result("main.py"), self._make_result("utils.py")]
+    filtered = enhance_results("find main", results, spinner, {})
 
-        filtered = enhance_results("find all", results, spinner, {})
+    assert len(filtered) == 1
+    assert filtered[0]["path"] == "main.py"
 
-        assert len(filtered) == 2
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_updates_spinner_text(self, mock_stream):
-        mock_stream.return_value = iter(["chunk1", "chunk2"])
-        spinner = MagicMock()
+def test_enhance_results_strips_thinking_tags(mocker):
+    mock_stream_chat(mocker, "<think>let me think</think>", "main.py is relevant")
+    spinner = mocker.MagicMock()
 
-        results = [self._make_result("main.py")]
-        enhance_results("query", results, spinner, {})
+    results = [make_result("main.py"), make_result("utils.py")]
 
-        assert spinner.text is not None
+    filtered = enhance_results("find main", results, spinner, {})
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_passes_config_to_stream_chat(self, mock_stream):
-        mock_stream.return_value = iter(["main.py"])
-        spinner = MagicMock()
+    assert len(filtered) == 1
+    assert filtered[0]["path"] == "main.py"
 
-        config = {"generative": {"provider": "minimax", "apiKey": "test"}}
-        results = [self._make_result("main.py")]
 
-        enhance_results("query", results, spinner, config)
+def test_enhance_results_returns_empty_when_no_match(mocker):
+    mock_stream_chat(mocker, "No relevant files found")
+    spinner = mocker.MagicMock()
 
-        mock_stream.assert_called_once()
-        call_args = mock_stream.call_args
-        assert call_args[0][0] == config
+    results = [make_result("main.py")]
 
-    @patch("seagoat.utils.generative.stream_chat")
-    def test_defaults_config_to_empty_dict(self, mock_stream):
-        mock_stream.return_value = iter(["main.py"])
-        spinner = MagicMock()
+    filtered = enhance_results("find login", results, spinner, {})
 
-        results = [self._make_result("main.py")]
-        enhance_results("query", results, spinner)
+    assert len(filtered) == 0
 
-        call_args = mock_stream.call_args
-        assert call_args[0][0] == {}
+
+def test_enhance_results_returns_all_when_all_match(mocker):
+    mock_stream_chat(mocker, "Both main.py and utils.py are relevant")
+    spinner = mocker.MagicMock()
+
+    results = [make_result("main.py"), make_result("utils.py")]
+
+    filtered = enhance_results("find all", results, spinner, {})
+
+    assert len(filtered) == 2
+
+
+def test_enhance_results_updates_spinner_text(mocker):
+    mock_stream_chat(mocker, "chunk1", "chunk2")
+    spinner = mocker.MagicMock()
+
+    results = [make_result("main.py")]
+    enhance_results("query", results, spinner, {})
+
+    assert spinner.text is not None
+
+
+def test_enhance_results_passes_config_to_stream_chat(mocker):
+    stream_chat = mock_stream_chat(mocker, "main.py")
+    spinner = mocker.MagicMock()
+
+    config = {"generative": {"provider": "minimax", "apiKey": "test"}}
+    results = [make_result("main.py")]
+
+    enhance_results("query", results, spinner, config)
+
+    stream_chat.assert_called_once()
+    call_args = stream_chat.call_args
+    assert call_args[0][0] == config
+
+
+def test_enhance_results_defaults_config_to_empty_dict(mocker):
+    stream_chat = mock_stream_chat(mocker, "main.py")
+    spinner = mocker.MagicMock()
+
+    results = [make_result("main.py")]
+    enhance_results("query", results, spinner)
+
+    call_args = stream_chat.call_args
+    assert call_args[0][0] == {}

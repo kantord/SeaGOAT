@@ -1,16 +1,16 @@
 from pathlib import Path
 from typing import Any
 
+import pytest
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
 
 from seagoat.engine import Engine
 from seagoat.repository import Repository
-from tests.conftest import MockRepo
-from tests.test_server import pytest
+from tests.fixtures.mock_repo import MockRepo
 
 
-def test_returns_file_list_1(repo):
+def test_lists_files_of_the_repository(repo):
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
 
@@ -27,12 +27,11 @@ def test_returns_file_list_1(repo):
     }
 
 
-def test_returns_file_list_2(repo):
+def test_lists_files_committed_after_engine_creation(repo):
     seagoat = Engine(repo.working_dir)
     repo.add_file_change_commit(
         file_name="new_file.cpp",
         contents="#include <iostream>",
-        author=repo.actors["John Doe"],
         commit_message="Initial commit for C++ file",
     )
     seagoat.analyze_codebase()
@@ -56,7 +55,6 @@ def test_file_change_many_times_is_first_result(repo):
         repo.add_file_change_commit(
             file_name="new_file.txt",
             contents=f"{i}",
-            author=repo.actors["John Doe"],
             commit_message="add my file",
         )
         repo.tick_fake_date(minutes=1)
@@ -71,14 +69,12 @@ def test_newer_change_can_beat_frequent_change_in_past(repo):
         repo.add_file_change_commit(
             file_name="old_file.txt",
             contents=f"{i}",
-            author=repo.actors["John Doe"],
             commit_message="add my file",
         )
     repo.tick_fake_date(days=300)
     repo.add_file_change_commit(
         file_name="new_file.txt",
         contents="hello",
-        author=repo.actors["John Doe"],
         commit_message="add another file",
     )
     seagoat.analyze_codebase()
@@ -95,7 +91,6 @@ def test_commit_messages_with_three_or_more_colons(repo):
         repo.add_file_change_commit(
             file_name="file.txt",
             contents=f"{i}",
-            author=repo.actors["John Doe"],
             commit_message=message,
         )
     seagoat.analyze_codebase()
@@ -113,7 +108,6 @@ def test_ignores_certain_branches(repo):
     repo.add_file_change_commit(
         file_name="file_on_other_branch.cpp",
         contents="",
-        author=repo.actors["John Doe"],
         commit_message="add my file",
     )
     main.checkout()
@@ -141,7 +135,7 @@ def test_analysis_results_are_persisted_between_runs(repo):
     }
 
 
-def test_damaged_cache_doesnt_crash_app_1(repo):
+def test_truncated_cache_does_not_crash_app(repo):
     seagoat1 = Engine(repo.working_dir)
     seagoat1.analyze_codebase()
     cache_folder = seagoat1.cache.get_cache_folder()
@@ -163,7 +157,7 @@ def test_damaged_cache_doesnt_crash_app_1(repo):
     }
 
 
-def test_damaged_cache_doesnt_crash_app_2(repo):
+def test_empty_cache_does_not_crash_app(repo):
     seagoat1 = Engine(repo.working_dir)
     seagoat1.analyze_codebase()
     cache_folder = seagoat1.cache.get_cache_folder()
@@ -188,7 +182,6 @@ def test_only_returns_supported_file_types(repo):
         repo.add_file_change_commit(
             file_name=f"new_file.txt.extension{i}",
             contents=f"{i}",
-            author=repo.actors["John Doe"],
             commit_message="add my file",
         )
     seagoat.analyze_codebase()
@@ -213,14 +206,12 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
         repo1.add_file_change_commit(
             file_name="old_file.txt",
             contents="",
-            author=repo1.actors["John Doe"],
             commit_message="add my file",
         )
         repo1.tick_fake_date(days=300)
         repo1.add_file_change_commit(
             file_name="new_file.txt",
             contents="hello",
-            author=repo1.actors["John Doe"],
             commit_message="add another file",
         )
         seagoat1.analyze_codebase()
@@ -230,7 +221,6 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
         repo2.add_file_change_commit(
             file_name="old_file.txt",
             contents="",
-            author=repo2.actors["John Doe"],
             commit_message="add my file",
         )
         seagoat2.analyze_codebase()
@@ -245,7 +235,6 @@ def test_file_score_is_recalculated_when_needed(generate_repo):
         repo2.add_file_change_commit(
             file_name="new_file.txt",
             contents="hello",
-            author=repo2.actors["John Doe"],
             commit_message="add another file",
         )
         seagoat2.analyze_codebase()
@@ -274,18 +263,15 @@ def test_ignored_files_is_really_ignored(repo: MockRepo):
     repo.add_file_change_commit(
         file_name=file_name,
         contents="Hello",
-        author=repo.actors["John Doe"],
         commit_message="Incidentally commited node_modules.",
     )
     repo.add_file_change_commit(
         file_name=".gitignore",
         contents="node_modules",
-        author=repo.actors["John Doe"],
         commit_message="Added node_modules to gitignore.",
     )
     repo.add_file_delete_commit(
         file_name=file_name,
-        author=repo.actors["John Doe"],
         commit_message="Removed node_modules.",
     )
     # File is added in the filesystem, but should be ignored by git.
@@ -307,12 +293,10 @@ def test_does_not_crash_because_of_untracked_files_that_used_to_be_tracked(
     repo.add_file_change_commit(
         file_name=file_name,
         contents="notes = 1",
-        author=repo.actors["John Doe"],
         commit_message="Added notes.",
     )
     repo.add_file_delete_commit(
         file_name=file_name,
-        author=repo.actors["John Doe"],
         commit_message="Removed notes.",
     )
     # The file is re-created in the filesystem, but it is not tracked by git
@@ -360,7 +344,6 @@ async def test_allows_limiting_how_many_files_are_automatically_analized(
     repo.add_file_change_commit(
         file_name="new_file.cpp",
         contents="#include <iostream>",
-        author=repo.actors["John Doe"],
         commit_message="Initial commit for C++ file",
     )
     seagoat.analyze_codebase(minimum_chunks_to_analyze=chunks_to_analyze)
@@ -397,13 +380,11 @@ def test_get_blobs_data_matches_get_blob_data(repo: MockRepo):
     repo.add_file_change_commit(
         file_name="a.py",
         contents="first file\nwith two lines\n",
-        author=repo.actors["John Doe"],
         commit_message="Add a.py",
     )
     repo.add_file_change_commit(
         file_name="b.md",
         contents="",
-        author=repo.actors["John Doe"],
         commit_message="Add empty b.md",
     )
     repository = Repository(repo.working_dir)

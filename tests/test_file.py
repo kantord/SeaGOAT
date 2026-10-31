@@ -13,7 +13,7 @@ def repo_folder(repo):
     yield Path(repo.working_dir)
 
 
-def test_file_returns_global_metadata_1(repo_folder, snapshot):
+def test_file_metadata_lists_all_commit_messages(repo_folder, snapshot):
     my_file = GitFile(
         None,
         "hello.md",
@@ -29,7 +29,7 @@ def test_file_returns_global_metadata_1(repo_folder, snapshot):
     assert my_file.get_metadata() == snapshot
 
 
-def test_file_returns_global_metadata_2(repo_folder, snapshot):
+def test_file_metadata_with_a_single_commit(repo_folder, snapshot):
     my_file = GitFile(
         None,
         "hello.md",
@@ -42,7 +42,7 @@ def test_file_returns_global_metadata_2(repo_folder, snapshot):
     assert my_file.get_metadata() == snapshot
 
 
-def test_ignores_almost_empyt_lines_in_chunks(repo):
+def test_ignores_almost_empty_lines_in_chunks(repo):
     repo.add_file_change_commit(
         file_name="example.py",
         contents="""#this is a Python file
@@ -54,7 +54,6 @@ class FooBar:
 
 def __init__(self):
         pass""",
-        author=repo.actors["John Doe"],
         commit_message=".",
     )
 

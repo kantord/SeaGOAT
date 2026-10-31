@@ -12,12 +12,30 @@ from seagoat import __version__
 from seagoat.cli import ExitCode, query_server, seagoat, warn_if_update_available
 from seagoat.utils.cli_display import is_bat_installed
 from seagoat.utils.server import Instance
-from tests.conftest import MagicMock
 
 
 @pytest.fixture
-def real_bat():
-    return
+def assume_bat_not_installed():
+    """Some tests here check is_bat_installed itself, so do not replace it."""
+
+
+def status_payload(accuracy: int = 100) -> dict:
+    """A /status response for a fully indexed repository by default."""
+    return {
+        "stats": {
+            "chunks": {"analyzed": 100, "unanalyzed": 0},
+            "queue": {"size": 0},
+            "accuracy": {"percentage": accuracy},
+        },
+        "version": __version__,
+    }
+
+
+def mock_running_instance(mocker) -> None:
+    mocker.patch(
+        "seagoat.cli.running_instance",
+        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
+    )
 
 
 def test_non_git_path_fails_early_with_git_repository_error(
@@ -58,189 +76,6 @@ def test_forwards_repository_root_when_run_from_subdirectory(
 
     assert result.exit_code == 0
     assert request_args["json"]["repoPath"] == os.path.abspath(repo.working_dir)
-
-
-@pytest.fixture
-def lots_of_fake_results(mocker):
-    mock_results = {
-        "results": [
-            {
-                "blocks": [
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 9,
-                                "lineText": "* feat: only display full code blocks in result ([`e2767f9`](https://github.com/kantord/SeaGOAT/commit/e2767f98ece3023e01ec4a6d95cd14701b11f842))",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 24,
-                                "lineText": "* refactor: group continuous lines into blocks ([`6a15673`](https://github.com/kantord/SeaGOAT/commit/6a15673e27bf906f8aca4e7eb000a8e24ba56acf))",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                ],
-                "fullPath": "/home/kantord/repos/SeaGOAT/CHANGELOG.md",
-                "path": "CHANGELOG.md",
-            },
-            {
-                "blocks": [
-                    {
-                        "lineTypeCount": {"result": 2},
-                        "lines": [
-                            {
-                                "line": 240,
-                                "lineText": '                    print("Server responded with a 500 error:")',
-                                "resultTypes": ["result"],
-                            },
-                            {
-                                "line": 241,
-                                "lineText": "                    print(response.text)",
-                                "resultTypes": ["result"],
-                            },
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 2},
-                        "lines": [
-                            {
-                                "line": 283,
-                                "lineText": "    def _mock_results(results_template):",
-                                "resultTypes": ["result"],
-                            },
-                            {
-                                "line": 284,
-                                "lineText": "        results = []",
-                                "resultTypes": ["result"],
-                            },
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 2},
-                        "lines": [
-                            {
-                                "line": 287,
-                                "lineText": "        for filename, lines in results_template:",
-                                "resultTypes": ["result"],
-                            },
-                            {
-                                "line": 288,
-                                "lineText": "            for i, line_text in enumerate(lines):",
-                                "resultTypes": ["result"],
-                            },
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 291,
-                                "lineText": "        for filename, lines in fake_files.items():",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 295,
-                                "lineText": "                lines_sorted_by_line_number = sorted(lines.items(), key=lambda x: x[0])",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 297,
-                                "lineText": "                    [line for _, line in lines_sorted_by_line_number]",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 2},
-                        "lines": [
-                            {
-                                "line": 301,
-                                "lineText": "        for filename, lines in results_template:",
-                                "resultTypes": ["result"],
-                            },
-                            {
-                                "line": 302,
-                                "lineText": "            result = {",
-                                "resultTypes": ["result"],
-                            },
-                        ],
-                    },
-                ],
-                "fullPath": "/home/kantord/repos/SeaGOAT/tests/conftest.py",
-                "path": "tests/conftest.py",
-            },
-            {
-                "blocks": [
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 43,
-                                "lineText": '        results = current_app.extensions["task_queue"].enqueue_high_prio(',
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 51,
-                                "lineText": "        for result in results:",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 53,
-                                "lineText": "                result.add_context_lines(-int(context_above))",
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                    {
-                        "lineTypeCount": {"result": 1},
-                        "lines": [
-                            {
-                                "line": 56,
-                                "lineText": '            "results": [result.to_json(query) for result in results],',
-                                "resultTypes": ["result"],
-                            }
-                        ],
-                    },
-                ],
-                "fullPath": "/home/kantord/repos/SeaGOAT/seagoat/server.py",
-                "path": "seagoat/server.py",
-            },
-        ],
-        "version": "0.18.0",
-    }
-
-    mock_response = MagicMock()
-    mock_response.text = orjson.dumps(mock_results)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    return mock_results
 
 
 @pytest.fixture(name="get_request_args_from_cli_call")
@@ -321,22 +156,12 @@ def test_seagoat_warns_on_incomplete_accuracy(
     mocker,
     mock_response,
 ):
-    mock_status_response = {
-        "stats": {
-            "chunks": {"analyzed": 100, "unanalyzed": 0},
-            "queue": {"size": 0},
-            "accuracy": {"percentage": accuracy_percentage},
-        },
-        "version": __version__,
-    }
+    mock_status_response = status_payload(accuracy=accuracy_percentage)
 
     mocked_status_request = mocker.patch(
         "requests.post", return_value=mock_response(mock_status_response)
     )
-    mocker.patch(
-        "seagoat.cli.running_instance",
-        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
-    )
+    mock_running_instance(mocker)
 
     query = "some random query"
     result = runner_with_error.invoke(seagoat, [query, ".", "--no-color"])
@@ -448,17 +273,14 @@ def test_version_option(runner):
 
 
 def test_server_is_not_running_error(mocker, repo, snapshot, mock_spinner):
-    mocker.patch(
-        "seagoat.cli.running_instance",
-        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
-    )
+    mock_running_instance(mocker)
     runner = CliRunner()
 
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript"
     result = runner.invoke(seagoat, [query, repo.working_dir])
 
-    assert result.exit_code == 3
+    assert result.exit_code == ExitCode.SERVER_NOT_RUNNING
     assert "The SeaGOAT server is not running." in result.output
     assert f"seagoat-server start {repo.working_dir}" in result.output
 
@@ -654,7 +476,7 @@ def test_server_error_handling(
         [query, repo.working_dir, "--no-color", "-l2", "--context=3"],
     )
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.SERVER_ERROR
     assert error_message in result.stderr
 
 
@@ -664,7 +486,7 @@ def test_bat_installed(mocker):
     assert is_bat_installed() is True
 
 
-def test_bat_not_installed_1(mocker):
+def test_bat_not_installed_when_command_is_missing(mocker):
     mocker.patch(
         "seagoat.utils.cli_display.subprocess.run",
         side_effect=FileNotFoundError,
@@ -672,7 +494,7 @@ def test_bat_not_installed_1(mocker):
     assert is_bat_installed() is False
 
 
-def test_bat_not_installed_2(mocker):
+def test_bat_not_installed_when_command_fails(mocker):
     mock_run = mocker.patch("seagoat.utils.cli_display.subprocess.run")
     mock_run.return_value.returncode = 1
     assert is_bat_installed() is False
@@ -717,7 +539,6 @@ def test_warn_if_update_available_no_warning(
     "server",
     "mock_accuracy_warning",
     "bat_available",
-    "mock_warn_if_update_available",
 )
 def test_integration_test_no_results(snapshot, repo, mocker, runner):
     mocker.patch("os.isatty", return_value=True)
@@ -749,14 +570,7 @@ def test_status_request_with_remote_server_sends_no_repo_path(
     create_config_file(
         {"client": {"host": "http://example.com/nose"}}, global_config=True
     )
-    mock_status_response = {
-        "stats": {
-            "chunks": {"analyzed": 100, "unanalyzed": 0},
-            "queue": {"size": 0},
-            "accuracy": {"percentage": 100},
-        },
-        "version": __version__,
-    }
+    mock_status_response = status_payload()
 
     mocked_status_request = mocker.patch(
         "requests.post", return_value=mock_response(mock_status_response)
@@ -813,7 +627,6 @@ def test_connecting_to_remote_server(
         repo.add_file_change_commit(
             file_name="example_should_not_exist_in_copy.txt",
             contents="""JavaScript is an amazing programming language""",
-            author=repo.actors["John Doe"],
             commit_message="Add fruits data",
         )
         with temporary_cd(os.path.join(tmpdirname, "repo_copy")):
@@ -840,7 +653,7 @@ def test_server_does_not_exist_error(runner_with_error, mocker, repo):
     query = "JavaScript"
     result = runner_with_error.invoke(seagoat, [query, repo.working_dir])
 
-    assert result.exit_code == 3
+    assert result.exit_code == ExitCode.SERVER_NOT_RUNNING
     assert "The SeaGOAT server is not running" in result.stderr
 
 
@@ -852,20 +665,10 @@ def test_server_does_not_exist_error(runner_with_error, mocker, repo):
 def test_no_network_to_update(
     runner_with_error, mocker, mock_response, repo, network_error
 ):
-    mocked_response = {
-        "stats": {
-            "chunks": {"analyzed": 100, "unanalyzed": 0},
-            "queue": {"size": 0},
-            "accuracy": {"percentage": 100},
-        },
-        "version": __version__,
-    }
+    mocked_response = status_payload()
 
     mocker.patch("requests.post", return_value=mock_response(mocked_response))
-    mocker.patch(
-        "seagoat.cli.running_instance",
-        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
-    )
+    mock_running_instance(mocker)
     mocker.patch(
         "seagoat.cli.warn_if_update_available",
         side_effect=network_error,
@@ -917,20 +720,10 @@ def test_unexpected_pypi_responses_raise_errors_the_cli_handles(mocker, response
 def test_unexpected_update_check_errors_do_not_fail_the_search(
     runner_with_error, mocker, mock_response, repo, error
 ):
-    mocked_response = {
-        "stats": {
-            "chunks": {"analyzed": 100, "unanalyzed": 0},
-            "queue": {"size": 0},
-            "accuracy": {"percentage": 100},
-        },
-        "version": __version__,
-    }
+    mocked_response = status_payload()
 
     mocker.patch("requests.post", return_value=mock_response(mocked_response))
-    mocker.patch(
-        "seagoat.cli.running_instance",
-        return_value=(Instance(host="localhost", port=1234, pid=1), {"pid": 1}),
-    )
+    mock_running_instance(mocker)
     mocker.patch("seagoat.cli.warn_if_update_available", side_effect=error)
     result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])
 
@@ -952,5 +745,5 @@ def test_server_error_message_advises_starting_the_repository(
         seagoat, [repo_path, "--no-color", "-l2", "--context=3"]
     )
 
-    assert result.exit_code == 4
+    assert result.exit_code == ExitCode.SERVER_ERROR
     assert error_message in result.stderr

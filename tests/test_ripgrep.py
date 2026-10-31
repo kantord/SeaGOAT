@@ -20,7 +20,6 @@ async def test_includes_all_matching_lines_from_line(repo):
         8: Some other information
         9: The fall of the Berlin Wall 1989
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
     seagoat = Engine(repo.working_dir)
@@ -46,7 +45,6 @@ async def test_search_is_case_insensitive(repo):
         8: Some other information
         9: The fall of the Berlin Wall 1989
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
     seagoat = Engine(repo.working_dir)
@@ -63,7 +61,6 @@ async def test_respects_file_extension_restrictions(repo):
     repo.add_file_change_commit(
         file_name="rock.mp3",
         contents="19",
-        author=repo.actors["John Doe"],
         commit_message="Add music file",
     )
     seagoat = Engine(repo.working_dir)
@@ -100,7 +97,6 @@ async def test_includes_context_lines_properly(
         9: The fall of the Berlin Wall 1989
         10: Random event
         11: Another unrelated data""",
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
     seagoat = Engine(repo.working_dir)
@@ -121,14 +117,12 @@ async def test_ripgrep_respects_custom_ignore_patterns(repo, create_config_file)
     repo.add_file_change_commit(
         file_name="history/files/events.txt",
         contents="Battle of Waterloo 1815",
-        author=repo.actors["John Doe"],
         commit_message="commit",
     )
 
     repo.add_file_change_commit(
         file_name="events.txt",
         contents="Moon landing 1969",
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
 
@@ -156,7 +150,6 @@ async def test_filters_stop_words(repo):
         8: Some other information
         9: The fall of the Berlin Wall 1989
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
     seagoat = Engine(repo.working_dir)
@@ -184,7 +177,6 @@ async def test_does_not_filter_stop_words_if_that_is_all_whats_in_the_query(repo
         8: Some other information
         9: The fall of the Berlin Wall 1989
         """,
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
     seagoat = Engine(repo.working_dir)
@@ -203,7 +195,6 @@ async def test_uses_committed_version_of_files_with_uncommitted_changes(repo):
     repo.add_file_change_commit(
         file_name="events.txt",
         contents="1: Moon landing 1969\n",
-        author=repo.actors["John Doe"],
         commit_message="Add historical events",
     )
     # Uncommitted lines after the end of the committed file: results are
@@ -225,7 +216,6 @@ async def test_queries_that_look_like_options_are_patterns(repo, query):
     repo.add_file_change_commit(
         file_name="flags.txt",
         contents=f"1: run with {query} to see it\n",
-        author=repo.actors["John Doe"],
         commit_message="Add flags",
     )
     seagoat = Engine(repo.working_dir)
@@ -257,7 +247,6 @@ async def test_searches_files_that_are_not_valid_utf8(repo):
     repo.add_file_change_commit(
         file_name="latin1.txt",
         contents="1: Moon landing 1969, café\n",
-        author=repo.actors["John Doe"],
         commit_message="Add Latin-1 file",
         encoding="latin-1",
     )

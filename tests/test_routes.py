@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from unittest.mock import ANY, MagicMock
 
 import pytest
@@ -9,6 +8,7 @@ from seagoat.projects import Projects, git_root
 from seagoat.queue.base_queue import TaskTimedOut
 from seagoat.server import create_app
 from seagoat.utils.server import normalize_repo_path
+from tests.fixtures.config import write_invalid_config
 
 REMOTE_ADDR = "192.0.2.7"
 
@@ -277,10 +277,7 @@ def test_reload_skips_configured_repository_with_invalid_config(
 ):
     repo = generate_repo()
     bad_repo = generate_repo()
-    (Path(bad_repo.working_dir) / ".seagoat.yml").write_text(
-        "server:\n  repositories: this-is-not-a-list\n",
-        encoding="utf-8",
-    )
+    write_invalid_config(bad_repo.working_dir)
     create_repositories_file([repo.working_dir, bad_repo.working_dir])
     client = create_client()
 
