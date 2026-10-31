@@ -2,8 +2,6 @@ import threading
 from pathlib import Path
 
 import pytest
-from git.repo import Repo
-from git.util import Actor
 
 from seagoat.projects import (
     NotAGitRepo,
@@ -13,16 +11,7 @@ from seagoat.projects import (
     git_root,
 )
 from seagoat.utils.server import normalize_repo_path
-
-
-def init_git_repo(path: Path) -> Path:
-    path.mkdir(parents=True, exist_ok=True)
-    repo = Repo.init(str(path))
-    (path / "README.md").write_text("hello", encoding="utf-8")
-    repo.index.add(["README.md"])
-    actor = Actor("Test Author", "test@example.com")
-    repo.index.commit("initial commit", author=actor, committer=actor)
-    return path
+from tests.fixtures.git import make_git_repo
 
 
 def test_get_on_root_and_subdirectory_return_same_project(repo):
@@ -130,8 +119,8 @@ def test_find_repositories_in_directory_returns_only_direct_repository_roots(
     tmp_path,
 ):
     parent = tmp_path / "projects"
-    repo_a = init_git_repo(parent / "a")
-    repo_b = init_git_repo(parent / "b")
+    repo_a = make_git_repo(parent / "a")
+    repo_b = make_git_repo(parent / "b")
 
     repositories = find_repositories_in_directory(str(parent))
 
@@ -142,9 +131,9 @@ def test_find_repositories_in_directory_returns_only_direct_repository_roots(
 
 def test_find_repositories_in_directory_skips_non_repos_and_deeper_repos(tmp_path):
     parent = tmp_path / "projects"
-    repo_child = init_git_repo(parent / "repo-child")
+    repo_child = make_git_repo(parent / "repo-child")
     # A deeper repository inside a plain subdirectory is not a direct child
-    deep_repo = init_git_repo(parent / "nested" / "deep")
+    deep_repo = make_git_repo(parent / "nested" / "deep")
     parent.mkdir(exist_ok=True)
     (parent / "plain").mkdir()
 

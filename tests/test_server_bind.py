@@ -1,12 +1,13 @@
-import subprocess
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
 
+from seagoat.projects import Projects
 from seagoat.server import ExitCode, start_server
 from seagoat.utils.server import Instance, normalize_repo_path
+from tests.fixtures.config import NOT_A_NUMBER, write_invalid_config
+from tests.fixtures.git import make_git_repo
 
 
 def _fake_claim_start(bind, prepare=None, **kwargs):
@@ -15,6 +16,23 @@ def _fake_claim_start(bind, prepare=None, **kwargs):
     if prepare is not None:
         prepare()
     bind()
+
+
+def projects_start_server_would_serve(repo_path: str) -> Projects:
+    """Run start_server without binding a port or starting workers.
+
+    Returns the projects it hands to the app.
+    """
+    with (
+        patch("seagoat.server.TaskQueue"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
+        patch("seagoat.server.create_app") as mock_create_app,
+        patch("seagoat.server.create_server") as mock_create_server,
+    ):
+        mock_create_server.return_value.effective_port = 40125
+        start_server(repo_path, custom_port=40125)
+
+    return mock_create_app.call_args.args[0]
 
 
 @pytest.fixture(name="mock_serve")
@@ -59,16 +77,7 @@ def test_start_server_creates_projects_for_configured_repositories(
     repo2 = generate_repo()
     create_repositories_file([repo1.working_dir, repo2.working_dir])
 
-    with (
-        patch("seagoat.server.TaskQueue"),
-        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
-        patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.create_server") as mock_create_server,
-    ):
-        mock_create_server.return_value.effective_port = 40125
-        start_server(repo.working_dir, custom_port=40125)
-
-    projects = mock_create_app.call_args.args[0]
+    projects = projects_start_server_would_serve(repo.working_dir)
     paths = projects.repo_paths()
     assert normalize_repo_path(repo.working_dir) in paths
     assert normalize_repo_path(repo1.working_dir) in paths
@@ -80,22 +89,10 @@ def test_start_server_skips_configured_repository_with_invalid_config(
 ):
     good_repo = generate_repo()
     bad_repo = generate_repo()
-    (Path(bad_repo.working_dir) / ".seagoat.yml").write_text(
-        "server:\n  repositories: this-is-not-a-list\n",
-        encoding="utf-8",
-    )
+    write_invalid_config(bad_repo.working_dir)
     create_repositories_file([bad_repo.working_dir, good_repo.working_dir])
 
-    with (
-        patch("seagoat.server.TaskQueue"),
-        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
-        patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.create_server") as mock_create_server,
-    ):
-        mock_create_server.return_value.effective_port = 40127
-        start_server(repo.working_dir, custom_port=40127)
-
-    projects = mock_create_app.call_args.args[0]
+    projects = projects_start_server_would_serve(repo.working_dir)
     paths = projects.repo_paths()
     assert normalize_repo_path(bad_repo.working_dir) not in paths
     assert normalize_repo_path(good_repo.working_dir) in paths
@@ -108,10 +105,7 @@ def test_start_server_fails_loudly_when_requested_repo_cannot_load(
     generate_repo, create_repositories_file, capsys
 ):
     bad_repo = generate_repo()
-    (Path(bad_repo.working_dir) / ".seagoat.yml").write_text(
-        "server:\n  readMaxCommits: not-a-number\n",
-        encoding="utf-8",
-    )
+    write_invalid_config(bad_repo.working_dir, NOT_A_NUMBER)
     create_repositories_file([normalize_repo_path(bad_repo.working_dir)])
 
     with (
@@ -164,16 +158,7 @@ def test_start_server_still_loads_listed_repositories_after_binding(
     repo1 = generate_repo()
     create_repositories_file([repo.working_dir, repo1.working_dir])
 
-    with (
-        patch("seagoat.server.TaskQueue"),
-        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
-        patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.create_server") as mock_create_server,
-    ):
-        mock_create_server.return_value.effective_port = 40197
-        start_server(repo.working_dir, custom_port=40197)
-
-    projects = mock_create_app.call_args.args[0]
+    projects = projects_start_server_would_serve(repo.working_dir)
     assert normalize_repo_path(repo.working_dir) in projects.repo_paths()
     assert normalize_repo_path(repo1.working_dir) in projects.repo_paths()
 
@@ -210,16 +195,7 @@ def test_start_server_skips_configured_non_git_path(
 ):
     create_repositories_file(["/does/not/exist"])
 
-    with (
-        patch("seagoat.server.TaskQueue"),
-        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
-        patch("seagoat.server.create_app") as mock_create_app,
-        patch("seagoat.server.create_server") as mock_create_server,
-    ):
-        mock_create_server.return_value.effective_port = 40126
-        start_server(repo.working_dir, custom_port=40126)
-
-    projects = mock_create_app.call_args.args[0]
+    projects = projects_start_server_would_serve(repo.working_dir)
     assert "/does/not/exist" not in projects.repo_paths()
     assert normalize_repo_path(repo.working_dir) in projects.repo_paths()
     assert "Skipping configured repository" in caplog.text
@@ -370,17 +346,12 @@ def test_start_server_says_when_repo_is_already_served(repo, capsys):
     assert "keeps port 45678" in captured.err
 
 
-def _git_init(path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["git", "init", "-q", str(path)], check=True)
-
-
 def test_folder_of_repositories_inside_a_work_tree_serves_its_children(tmp_path):
     from seagoat.server import find_repositories_to_serve
 
-    _git_init(tmp_path)  # say, a dotfiles repository at ~
-    _git_init(tmp_path / "repos" / "a")
-    _git_init(tmp_path / "repos" / "b")
+    make_git_repo(tmp_path)  # say, a dotfiles repository at ~
+    make_git_repo(tmp_path / "repos" / "a")
+    make_git_repo(tmp_path / "repos" / "b")
 
     repositories, found_in_directory = find_repositories_to_serve(
         str(tmp_path / "repos")
@@ -396,7 +367,7 @@ def test_folder_of_repositories_inside_a_work_tree_serves_its_children(tmp_path)
 def test_plain_subdirectory_of_a_repository_serves_the_repository(tmp_path):
     from seagoat.server import find_repositories_to_serve
 
-    _git_init(tmp_path)
+    make_git_repo(tmp_path)
     (tmp_path / "src").mkdir()
 
     assert find_repositories_to_serve(str(tmp_path / "src")) == (
@@ -406,11 +377,9 @@ def test_plain_subdirectory_of_a_repository_serves_the_repository(tmp_path):
 
 
 def test_one_bad_repository_in_a_folder_does_not_block_the_others(tmp_path, capsys):
-    _git_init(tmp_path / "good")
-    _git_init(tmp_path / "bad")
-    (tmp_path / "bad" / ".seagoat.yml").write_text(
-        "server:\n  readMaxCommits: not-a-number\n", encoding="utf-8"
-    )
+    make_git_repo(tmp_path / "good")
+    make_git_repo(tmp_path / "bad")
+    write_invalid_config(tmp_path / "bad", NOT_A_NUMBER)
 
     with (
         patch("seagoat.server.TaskQueue"),

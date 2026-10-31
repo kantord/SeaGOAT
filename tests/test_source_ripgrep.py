@@ -32,7 +32,6 @@ hello foo bar baz 23
     repo.add_file_change_commit(
         file_name="file1.txt",
         contents=contents,
-        author=repo.actors["John Doe"],
         commit_message="Initial commit for text file",
     )
 
@@ -62,7 +61,6 @@ b3
     repo.add_file_change_commit(
         file_name="file1.txt",
         contents=contents,
-        author=repo.actors["John Doe"],
         commit_message="Initial commit for text file",
     )
 

@@ -20,21 +20,18 @@ os.environ["XDG_CACHE_HOME"] = str(SESSION_TEMP_DIR / "cache")
 os.environ["XDG_CONFIG_HOME"] = str(SESSION_TEMP_DIR / "config")
 from collections import defaultdict
 from contextlib import contextmanager
-from datetime import UTC, datetime, timedelta
 from typing import cast
 from unittest.mock import MagicMock, patch
 
 import orjson
-import platformdirs
 import pytest
 import requests
 import yaml
 from click.testing import CliRunner
-from git.repo import Repo
-from git.util import Actor
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
+from seagoat.cache import get_cache_root
 from seagoat.engine import Engine
 from seagoat.projects import Projects
 from seagoat.repository import Repository
@@ -48,6 +45,7 @@ from seagoat.utils.server import (
     running_instance,
 )
 from seagoat.utils.wait import wait_for
+from tests.fixtures.mock_repo import MockRepo
 from tests.fixtures.realistic_repo import build
 
 try:
@@ -61,157 +59,6 @@ else:
 @pytest.fixture(scope="session", autouse=True)
 def suppress_chromadb_logger():
     logging.getLogger("chromadb").setLevel(logging.WARNING)
-
-
-class MockRepo(Repo):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fake_commit_date = datetime.now(UTC) - timedelta(days=400)
-        self.actors = {
-            "John Doe": Actor("John Doe", "jdoe@example.com"),
-            "Alice Smith": Actor("Alice Smith", "asmith@example.com"),
-            "Charlie Brown": Actor("Charlie Brown", "cbrown@example.com"),
-        }
-
-    def tick_fake_date(self, days=0, hours=0, minutes=0):
-        delta = timedelta(days=days, hours=hours, minutes=minutes)
-        self.fake_commit_date += delta
-
-    def add_fake_data(self):
-        file_changes = [
-            {
-                "name": "file1.md",
-                "contents": [
-                    "# Markdown file\nThis is an example Markdown file.",
-                    (
-                        "# Markdown file\nThis is an example Markdown file. Updated. \n"
-                        + "HTML is for markup, but it's complicated. Markdown is simpler."
-                    ),
-                ],
-                "authors": [
-                    self.actors["John Doe"],
-                    self.actors["Alice Smith"],
-                ],
-                "commit_messages": [
-                    "Initial commit for Markdown file",
-                    "Update to Markdown file",
-                ],
-            },
-            {
-                "name": "file2.py",
-                "contents": [
-                    "# This is an example Python file",
-                    "# This is an updated example Python file",
-                ],
-                "authors": [
-                    self.actors["Alice Smith"],
-                    self.actors["Charlie Brown"],
-                ],
-                "commit_messages": [
-                    "Initial commit for Python file",
-                    "Update to Python file",
-                ],
-            },
-            {
-                "name": "file3.py",
-                "contents": ["# This is another example Python file"],
-                "authors": [self.actors["Charlie Brown"]],
-                "commit_messages": ["Initial commit for another Python file"],
-            },
-            {
-                "name": "file4.js",
-                "contents": [
-                    "// This is an example JavaScript file",
-                    "// This is an updated example JavaScript file",
-                    "// This is a second updated example JavaScript file",
-                ],
-                "authors": [
-                    self.actors["John Doe"],
-                    self.actors["Alice Smith"],
-                    self.actors["Charlie Brown"],
-                ],
-                "commit_messages": [
-                    "Initial commit for JavaScript file",
-                    "Update to JavaScript file",
-                    "Second update to JavaScript file",
-                ],
-            },
-            {
-                "name": "file4.md",
-                "contents": [
-                    "// This is an example JavaScript file",
-                    "// This is an example JavaScript file 2",
-                    "// This is an updated example JavaScript file",
-                    "// This is a second updated example JavaScript file",
-                ],
-                "authors": [
-                    self.actors["John Doe"],
-                    self.actors["John Doe"],
-                    self.actors["Alice Smith"],
-                    self.actors["Charlie Brown"],
-                ],
-                "commit_messages": [
-                    "Initial commit for JavaScript file",
-                    "Initial commit for JavaScript file 2",
-                    "Update to JavaScript file",
-                    "Second update to JavaScript file",
-                ],
-            },
-        ]
-
-        for file_change in file_changes:
-            for i in range(len(file_change["contents"])):
-                self.add_file_change_commit(
-                    file_change["name"],
-                    file_change["contents"][i],
-                    file_change["authors"][i],
-                    file_change["commit_messages"][i],
-                )
-                self.tick_fake_date(days=1)
-
-    def add_file_change_commit(
-        self,
-        file_name: str,
-        contents: str,
-        author: Actor,
-        commit_message: str,
-        encoding="utf-8",
-    ) -> str:
-        # Create parent directory if it doesn't exist:
-        parent_folder = os.path.dirname(os.path.join(self.working_dir, file_name))
-        if parent_folder:
-            os.makedirs(parent_folder, exist_ok=True)
-
-        file_path = os.path.join(self.working_dir, file_name)
-
-        with open(file_path, "w", encoding=encoding) as output_file:
-            output_file.write(contents)
-        self.index.add([file_name])
-
-        return self._commit_changes(commit_message, author)
-
-    def _commit_changes(self, commit_message: str, author: Actor) -> str:
-        return self.index.commit(
-            commit_message,
-            author=author,
-            committer=author,
-            author_date=self.fake_commit_date,
-            commit_date=self.fake_commit_date,
-            skip_hooks=True,
-        ).hexsha
-
-    def add_file_delete_commit(
-        self,
-        file_name: str,
-        author: Actor,
-        commit_message: str,
-    ) -> str:
-        file_path = os.path.join(self.working_dir, file_name)
-
-        os.unlink(file_path)
-        self.index.remove(file_name)
-
-        return self._commit_changes(commit_message, author)
 
 
 @pytest.fixture
@@ -242,8 +89,7 @@ def generate_repo():
 
 @pytest.fixture
 def repo(generate_repo):
-    repo = generate_repo()
-    yield repo
+    return generate_repo()
 
 
 _kept_cache_folders: set[Path] = set()
@@ -287,10 +133,7 @@ def _clean_instance_state() -> None:
 def run_around_tests():
     _clean_instance_state()
     yield
-    cache_root = Path(platformdirs.user_cache_dir("seagoat-pytest"))
-    if "RUNNER_TEMP" in os.environ:
-        cache_root = Path(os.environ["RUNNER_TEMP"]) / "seagoat-pytest"
-    _delete_unkept_cache_entries(cache_root)
+    _delete_unkept_cache_entries(get_cache_root())
     _clean_instance_state()
 
 
@@ -299,27 +142,6 @@ def _cleanup_session_temp_dir():
     # Remove the per-session cache/config directory once all tests are done.
     yield
     shutil.rmtree(SESSION_TEMP_DIR, ignore_errors=True)
-
-
-chromadb_patcher = patch("chromadb.Client")
-
-
-@pytest.fixture(autouse=True)
-def mock_chromadb():
-    mock_collection = MagicMock()
-    mock_client = MagicMock()
-    mock_client.create_collection.return_value = mock_collection
-
-    chromadb_patcher.start().return_value = mock_client
-    yield
-    chromadb_patcher.stop()
-
-
-@pytest.fixture
-def real_chromadb():
-    chromadb_patcher.stop()
-    yield
-    chromadb_patcher.start()
 
 
 def _get_multiprocessing_context():
@@ -437,7 +259,7 @@ def mock_server_factory(mocker, repo, init_server_mock):
                     {
                         "line": i + 1,
                         "lineText": line_text,
-                        "resultTypes": ["result"] if is_context_line else ["context"],
+                        "resultTypes": ["context"] if is_context_line else ["result"],
                     }
                 )
                 result["blocks"][0]["lineTypeCount"][
@@ -582,7 +404,6 @@ def mock_sources_context(repo, ripgrep_lines, chroma_lines):
         repo.add_file_change_commit(
             file_name=file_path,
             contents="\n" * 50,
-            author=repo.actors["John Doe"],
             commit_message=f"Add {file_path}",
         )
 
@@ -621,37 +442,16 @@ def repo_with_more_files(repo):
         repo.add_file_change_commit(
             file_name=f"file{i}.py",
             contents=("hello()\n" * (i % 50)),
-            author=repo.actors["John Doe"],
             commit_message=f"add file{i}.py",
         )
 
     return repo
 
 
-@pytest.fixture
-def mock_sources(create_prepared_seagoat):
-    ripgrep_lines = {
-        "docs1.md": [(1, 15.0), (2, 6.0)],
-        "docs2.md": [(1, 4.81)],
-    }
-    chroma_lines = {
-        "docs2.md": [(2, 7.5)],
-        "docs3.md": [(1, 5.332)],
-    }
-    my_query = "fake query"
-    create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
-
-
-@pytest.fixture
-def bat_not_available(mocker):
-    """This fixture makes the assumption that bat is NOT available by default."""
-    mocker.patch("seagoat.utils.cli_display.is_bat_installed", return_value=False)
-
-
 @pytest.fixture(autouse=True)
-def real_bat(bat_not_available):
-    """This fixture sets the default behavior of is_bat_installed."""
-    # Nothing to do here since bat_not_available has already set the behavior
+def assume_bat_not_installed(mocker):
+    """Tests run as if bat is not installed, unless they use bat_available."""
+    mocker.patch("seagoat.utils.cli_display.is_bat_installed", return_value=False)
 
 
 @pytest.fixture
@@ -744,7 +544,7 @@ def temporary_cd():
 
 
 @pytest.fixture(scope="session")
-def realistic_server(start_server):
+def realistic_engine():
     # A made-up repository the suite builds itself, so no test needs the network
     realrepo = tempfile.mkdtemp()
     build(realrepo)

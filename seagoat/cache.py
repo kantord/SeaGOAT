@@ -14,9 +14,6 @@ CACHE_FORMAT_VERSION = 29
 
 
 def get_cache_root():
-    if "RUNNER_TEMP" in os.environ:
-        return Path(os.environ["RUNNER_TEMP"])
-
     return Path(
         platformdirs.user_cache_dir(
             "seagoat-pytest" if "PYTEST_CURRENT_TEST" in os.environ else "seagoat"

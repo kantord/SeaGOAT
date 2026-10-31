@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: test_file_returns_global_metadata_1
+# name: test_file_metadata_lists_all_commit_messages
   '''
   ###
       Filename: hello.md
@@ -8,7 +8,7 @@
   -Second commit
   '''
 # ---
-# name: test_file_returns_global_metadata_2
+# name: test_file_metadata_with_a_single_commit
   '''
   ###
       Filename: hello.md
