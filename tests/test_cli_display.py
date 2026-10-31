@@ -11,9 +11,10 @@ from seagoat.utils.cli_display import (
 )
 
 
-def _block(lines, start=1):
+def _block(lines, start=1, score=0.0):
     """A result block in the shape the server sends to the CLI."""
     return {
+        "score": score,
         "lineTypeCount": {"result": len(lines)},
         "lines": [
             {
@@ -224,3 +225,127 @@ def test_display_results_with_bat_stops_after_max_results(
     display_results(results, max_results=2, color_enabled=True, vimgrep=False)
 
     assert len(bat_calls) == 2
+
+
+def test_display_results_within_file_prefers_lower_score_block_over_line_order(
+    tmp_path, capsys
+):
+    source_file = tmp_path / "module.py"
+    source_file.write_text(
+        "first line\nsecond line\nthird line\nfourth line\nfifth line\nsixth line\n",
+        encoding="utf-8",
+    )
+    # An earlier block with a bad (high) score and a later block with a good
+    # (low) score. With a budget that fits only one block, the later block is
+    # chosen because its score is better.
+    results = [
+        _result(
+            "module.py",
+            source_file,
+            [
+                _block(["first line", "second line", "third line"], start=1, score=0.8),
+                _block(["fourth line", "fifth line", "sixth line"], start=4, score=0.2),
+            ],
+        ),
+    ]
+
+    display_results(results, max_results=3, color_enabled=False, vimgrep=False)
+
+    assert capsys.readouterr().out == (
+        "module.py:4:fourth line\nmodule.py:5:fifth line\nmodule.py:6:sixth line\n"
+    )
+
+
+def test_display_results_yields_chosen_blocks_in_line_order(tmp_path, capsys):
+    source_file = tmp_path / "module.py"
+    source_file.write_text(
+        "line one\nline two\nline three\nline four\nline five\nline six\n",
+        encoding="utf-8",
+    )
+    # Three blocks; the budget fits all of them, but they are yielded in line
+    # order even though they were chosen in score order.
+    results = [
+        _result(
+            "module.py",
+            source_file,
+            [
+                _block(["line one", "line two"], start=1, score=0.9),
+                _block(["line three", "line four"], start=3, score=0.1),
+                _block(["line five", "line six"], start=5, score=0.5),
+            ],
+        ),
+    ]
+
+    display_results(results, max_results=6, color_enabled=False, vimgrep=False)
+
+    assert capsys.readouterr().out == (
+        "module.py:1:line one\nmodule.py:2:line two\n"
+        "module.py:3:line three\nmodule.py:4:line four\n"
+        "module.py:5:line five\nmodule.py:6:line six\n"
+    )
+
+
+def test_display_results_within_file_takes_best_blocks_fitting_the_budget(
+    tmp_path, capsys
+):
+    source_file = tmp_path / "module.py"
+    source_file.write_text(
+        "line one\nline two\nline three\nline four\nline five\nline six\n",
+        encoding="utf-8",
+    )
+    # Budget of 3 lines: the best-scoring block (0.1) and the third-best (0.4)
+    # fit, but the second-best (0.9) does not. The chosen blocks are yielded in
+    # line order.
+    results = [
+        _result(
+            "module.py",
+            source_file,
+            [
+                _block(["line one", "line two"], start=1, score=0.9),
+                _block(["line three"], start=3, score=0.1),
+                _block(["line four", "line five"], start=4, score=0.4),
+            ],
+        ),
+    ]
+
+    display_results(results, max_results=3, color_enabled=False, vimgrep=False)
+
+    assert capsys.readouterr().out == (
+        "module.py:3:line three\nmodule.py:4:line four\nmodule.py:5:line five\n"
+    )
+
+
+def test_display_results_keeps_file_order_when_choosing_blocks(tmp_path, capsys):
+    first_file = tmp_path / "first.py"
+    first_file.write_text("line one\nline two\n", encoding="utf-8")
+    second_file = tmp_path / "second.py"
+    second_file.write_text("line three\nline four\n", encoding="utf-8")
+    results = [
+        _result("first.py", first_file, [_block(["line one"], start=1, score=0.9)]),
+        _result(
+            "second.py",
+            second_file,
+            [_block(["line three", "line four"], start=1, score=0.1)],
+        ),
+    ]
+
+    display_results(results, max_results=2, color_enabled=False, vimgrep=False)
+
+    # File order is kept: the first file is shown even though the second file
+    # has the better-scoring block. The second file's block does not fit the
+    # remaining budget, but a block is always printed in full (today's rule).
+    assert capsys.readouterr().out == (
+        "first.py:1:line one\nsecond.py:1:line three\nsecond.py:2:line four\n"
+    )
+
+
+def test_display_results_always_prints_at_least_one_block(tmp_path, capsys):
+    source_file = tmp_path / "module.py"
+    source_file.write_text("line one\n", encoding="utf-8")
+    results = [
+        _result("module.py", source_file, [_block(["line one"], start=1, score=0.2)]),
+    ]
+
+    display_results(results, max_results=0, color_enabled=False, vimgrep=False)
+
+    assert capsys.readouterr().out == "module.py:1:line one\n"

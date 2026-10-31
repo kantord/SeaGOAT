@@ -121,8 +121,7 @@ async def test_considers_commit_messages(repo):
     assert results[0].gitfile.path == "vehicles_1.txt"
 
 
-@pytest.mark.asyncio
-async def test_truncates_very_long_lines(repo):
+def test_truncates_very_long_lines(repo):
     repo.add_file_change_commit(
         file_name="articles.txt",
         contents=f"car {'the a about ' * 40} pizza recipe tomato italian pie\n",
@@ -140,8 +139,11 @@ async def test_truncates_very_long_lines(repo):
     )
     seagoat = Engine(repo.working_dir)
     seagoat.analyze_codebase()
-    my_query = "tomato pizza"
-    results = await seagoat.query(my_query)
+
+    # Only the vector search truncates lines: query it alone, since ripgrep
+    # reads whole lines and rightly finds both words in articles.txt
+    chroma_fetch = chroma.initialize(seagoat.repository)["fetch"]
+    results = list(chroma_fetch("tomato pizza", 10))
 
     assert results[0].gitfile.path == "vehicles.txt"
 

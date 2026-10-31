@@ -487,3 +487,30 @@ def test_parse_commit_info_frecency_property(commit_naive, offset_minutes, delta
 
     assert days_passed == expected
     assert days_passed >= 0
+
+
+def test_top_files_are_sorted_by_score_descending(repo):
+    seagoat = Engine(repo.working_dir)
+    repo.tick_fake_date(days=-100)
+    repo.add_file_change_commit(
+        file_name="least_frecent.txt",
+        contents="least frecent",
+        commit_message="add least frecent file",
+    )
+    repo.tick_fake_date(days=300)
+    for i in range(10):
+        repo.add_file_change_commit(
+            file_name="most_frecent.txt",
+            contents=f"{i}",
+            commit_message="add most frecent file",
+        )
+    seagoat.analyze_codebase()
+
+    top_files = seagoat.repository.top_files()
+    scores = [score for _, score in top_files]
+
+    assert all(scores[i] >= scores[i + 1] for i in range(len(scores) - 1)), (
+        "scores should be non-increasing in top_files order"
+    )
+    assert top_files[0][0].path == "most_frecent.txt"
+    assert top_files[-1][0].path == "least_frecent.txt"

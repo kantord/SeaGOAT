@@ -10,6 +10,9 @@ from seagoat.utils.config import get_config_values
 from seagoat.utils.file_reader import autodecode_bytes
 from seagoat.utils.file_types import is_file_type_supported
 
+# A recent change counts more than many changes long ago
+FRECENCY_DECAY_DAYS = 90
+
 
 def parse_commit_info(raw_line: str):
     commit_hash, date_str, author, commit_subject = raw_line.split(":::", 3)
@@ -198,7 +201,8 @@ class Repository:
         self.frecency_scores = {}
         for file, commits in self.file_changes.items():
             score = sum(
-                1 / (math.log2(days_passed + 2)) for _, days_passed, __, ___ in commits
+                math.exp(-days_passed / FRECENCY_DECAY_DAYS)
+                for _, days_passed, __, ___ in commits
             )
             self.frecency_scores[file] = score
 
@@ -206,7 +210,8 @@ class Repository:
         return [
             (self.get_file(filename), score)
             for filename, score in sorted(
-                self.frecency_scores.items(), key=lambda x: x[0][1]
+                self.frecency_scores.items(),
+                key=lambda item: (-item[1], item[0]),
             )
         ]
 

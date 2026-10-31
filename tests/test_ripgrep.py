@@ -4,6 +4,8 @@ from pathlib import Path
 import pytest
 
 from seagoat.engine import Engine
+from seagoat.repository import Repository
+from seagoat.sources.ripgrep import initialize
 
 
 @pytest.mark.asyncio
@@ -256,3 +258,93 @@ async def test_searches_files_that_are_not_valid_utf8(repo):
     results = await seagoat.query("1969")
 
     assert [result.gitfile.path for result in results] == ["latin1.txt"]
+
+
+@pytest.fixture(name="initialize_ripgrep_source")
+def _initialize_ripgrep_source():
+    def _initialize(repo):
+        path = repo.working_dir
+        my_repo = Repository(path)
+        my_repo.analyze_files()
+        source = initialize(my_repo)
+
+        source["cache_repo"]()
+
+        return source["fetch"]
+
+    return _initialize
+
+
+@pytest.mark.asyncio
+async def test_line_with_three_query_words_beats_lines_with_one(
+    repo, initialize_ripgrep_source
+):
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="""1: moon landing 1969
+        2: landing
+        3: moon
+        4: 1969
+        5: moon landing
+        """,
+        commit_message="Add events",
+    )
+
+    fetch = initialize_ripgrep_source(repo)
+    results = fetch("moon landing 1969", limit=1)
+
+    assert len(results) == 1
+    result = next(iter(results))
+    assert result.gitfile.path == "events.txt"
+    # Only the line containing all three distinct query words is kept
+    assert set(result.lines) == {1}
+
+
+@pytest.mark.asyncio
+async def test_line_with_three_query_words_kept_before_single_word_lines(
+    repo, initialize_ripgrep_source
+):
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="""1: landing
+        2: moon
+        3: 1969
+        4: moon landing 1969
+        """,
+        commit_message="Add events",
+    )
+
+    fetch = initialize_ripgrep_source(repo)
+    results = fetch("moon landing 1969", limit=2)
+
+    assert len(results) == 1
+    result = next(iter(results))
+    # The two kept lines are the three-word line and (tie broken by rg order)
+    # the first single-word line; the three-word line must be among them
+    assert set(result.lines) == {1, 4}
+
+
+@pytest.mark.asyncio
+async def test_distance_shrinks_with_more_distinct_query_words(
+    repo, initialize_ripgrep_source
+):
+    repo.add_file_change_commit(
+        file_name="events.txt",
+        contents="""1: moon
+        2: moon landing
+        3: moon landing 1969
+        """,
+        commit_message="Add events",
+    )
+
+    fetch = initialize_ripgrep_source(repo)
+    results = fetch("moon landing 1969", limit=10)
+
+    assert len(results) == 1
+    result = next(iter(results))
+    # max_vector_distance defaults to 1.5, so a single-word match is 1.2
+    assert result.lines[1].vector_distance == pytest.approx(1.2)
+    # A two-word match gets half the distance
+    assert result.lines[2].vector_distance == pytest.approx(0.6)
+    # A three-word match gets a third of the distance
+    assert result.lines[3].vector_distance == pytest.approx(0.4)
