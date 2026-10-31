@@ -789,7 +789,10 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
   Has the following attributes:</li>
 <li><code>embeddingFunction</code> (global configuration file only):<ul>
 <li><code>name</code>: Name of the embedding function to use.
-See <a href="https://docs.trychroma.com/embeddings">ChromaDB's docs for more</a></li>
+See <a href="https://docs.trychroma.com/embeddings">ChromaDB's docs for more</a>
+If the name contains a <code>:</code>, it is treated as
+<code>module.path:ClassName</code> and imported with Python's <code>importlib</code>, so any
+installed embedding function class can be used.</li>
 <li><code>arguments</code>: Arguments to pass to the embedding function.</li>
 </ul>
 </li>
