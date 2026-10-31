@@ -1,55 +1,26 @@
 # serializer version: 1
 # name: test_snapshot_results_with_real_repo[-15-I want to change the color theme of my habit report]
   '''
-  streak/report.py:1:"""Renders a colored terminal report of habit progress."""
-  streak/report.py:2:
-  streak/report.py:3:from collections import Counter
-  streak/report.py:4:from datetime import date
-  streak/report.py:5:
-  streak/report.py:6:from streak.storage import HabitStore, compute_streak
-  streak/report.py:7:
-  streak/report.py:8:# Color themes map semantic roles to ANSI escape codes. Users can pick one
-  streak/report.py:9:# with the --theme option of the report command.
-  streak/report.py:10:COLOR_THEMES = {
-  streak/report.py:11:    "default": {
-  streak/report.py:12:        "heading": "\033[1;37m",
-  streak/report.py:13:        "positive": "\033[1;32m",
-  streak/report.py:14:        "warning": "\033[1;33m",
-  streak/report.py:15:        "negative": "\033[1;31m",
-  streak/report.py:16:        "muted": "\033[2m",
-  streak/report.py:17:        "reset": "\033[0m",
-  streak/report.py:18:    },
-  streak/report.py:19:    "ocean": {
-  streak/report.py:20:        "heading": "\033[1;36m",
-  streak/report.py:21:        "positive": "\033[1;34m",
-  streak/report.py:22:        "warning": "\033[1;35m",
-  streak/report.py:23:        "negative": "\033[1;31m",
-  streak/report.py:24:        "muted": "\033[2;34m",
-  streak/report.py:25:        "reset": "\033[0m",
-  streak/report.py:26:    },
-  streak/report.py:27:    "sunset": {
-  streak/report.py:28:        "heading": "\033[1;33m",
-  streak/report.py:29:        "positive": "\033[1;32m",
-  streak/report.py:30:        "warning": "\033[1;31m",
-  streak/report.py:31:        "negative": "\033[1;35m",
-  streak/report.py:32:        "muted": "\033[2;33m",
-  streak/report.py:33:        "reset": "\033[0m",
-  streak/report.py:34:    },
-  streak/report.py:35:    "forest": {
-  streak/report.py:36:        "heading": "\033[1;32m",
-  streak/report.py:37:        "positive": "\033[1;37m",
-  streak/report.py:38:        "warning": "\033[1;33m",
-  streak/report.py:39:        "negative": "\033[1;31m",
-  streak/report.py:40:        "muted": "\033[2;32m",
-  streak/report.py:41:        "reset": "\033[0m",
-  streak/report.py:42:    },
-  streak/report.py:43:    "pastel": {
-  streak/report.py:44:        "heading": "\033[1;38;5;219m",
-  streak/report.py:45:        "positive": "\033[38;5;114m",
-  streak/report.py:46:        "warning": "\033[38;5;222m",
-  streak/report.py:47:        "negative": "\033[38;5;203m",
-  streak/report.py:48:        "muted": "\033[2;38;5;145m",
-  streak/report.py:49:        "reset": "\033[0m",
+  streak/cli.py:7:import click
+  streak/cli.py:8:import platformdirs
+  streak/cli.py:9:
+  streak/cli.py:10:from streak.reminders import ReminderScheduler
+  streak/cli.py:11:from streak.report import render_report
+  streak/cli.py:12:from streak.storage import HabitStore, StorageError
+  streak/cli.py:76:@click.option(
+  streak/cli.py:77:    "--theme",
+  streak/cli.py:78:    default="default",
+  streak/cli.py:79:    show_default=True,
+  streak/cli.py:80:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
+  streak/cli.py:81:)
+  streak/cli.py:82:def report(theme):
+  streak/cli.py:83:    """Print a report of your habit progress."""
+  streak/cli.py:84:    for line in render_report(_load_store(), theme):
+  streak/cli.py:85:        click.echo(line)
+  streak/cli.py:86:
+  streak/cli.py:87:
+  streak/cli.py:88:@main.command()
+  streak/cli.py:103:    "--format",
   
   '''
 # ---
@@ -130,6 +101,52 @@
 # ---
 # name: test_snapshot_results_with_real_repo[-None-I want to change the color theme of my habit report]
   '''
+  streak/cli.py:7:import click
+  streak/cli.py:8:import platformdirs
+  streak/cli.py:9:
+  streak/cli.py:10:from streak.reminders import ReminderScheduler
+  streak/cli.py:11:from streak.report import render_report
+  streak/cli.py:12:from streak.storage import HabitStore, StorageError
+  streak/cli.py:16:    return platformdirs.user_data_dir("streak") / "habits.json"
+  streak/cli.py:17:
+  streak/cli.py:18:
+  streak/cli.py:19:def _load_store() -> HabitStore:
+  streak/cli.py:20:    return HabitStore(_data_file())
+  streak/cli.py:25:    """streak — a command-line habit tracker."""
+  streak/cli.py:37:    """Add a new habit with the given NAME."""
+  streak/cli.py:38:    try:
+  streak/cli.py:39:        habit = _load_store().add_habit(name, frequency)
+  streak/cli.py:40:    except StorageError as error:
+  streak/cli.py:41:        raise click.ClickException(str(error)) from error
+  streak/cli.py:42:    click.echo(f"Added habit {habit['name']!r} ({habit['frequency']}).")
+  streak/cli.py:61:        _load_store().delete_habit(name)
+  streak/cli.py:62:    except StorageError as error:
+  streak/cli.py:63:        raise click.ClickException(str(error)) from error
+  streak/cli.py:64:    click.echo(f"Deleted habit {name!r}.")
+  streak/cli.py:69:    """List all habits with their frequency."""
+  streak/cli.py:70:    store = _load_store()
+  streak/cli.py:71:    for habit in store.list_habits():
+  streak/cli.py:72:        click.echo(f"- {habit['name']} ({habit['frequency']})")
+  streak/cli.py:76:@click.option(
+  streak/cli.py:77:    "--theme",
+  streak/cli.py:78:    default="default",
+  streak/cli.py:79:    show_default=True,
+  streak/cli.py:80:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
+  streak/cli.py:81:)
+  streak/cli.py:82:def report(theme):
+  streak/cli.py:83:    """Print a report of your habit progress."""
+  streak/cli.py:84:    for line in render_report(_load_store(), theme):
+  streak/cli.py:85:        click.echo(line)
+  streak/cli.py:86:
+  streak/cli.py:87:
+  streak/cli.py:88:@main.command()
+  streak/cli.py:103:    "--format",
+  streak/cli.py:110:    """Export all habit data to a JSON or CSV file."""
+  streak/cli.py:114:        for habit in store.list_habits():
+  streak/cli.py:115:            rows.append(
+  streak/cli.py:116:                f"{habit['name']},{habit['frequency']},{habit['created']},"
+  streak/cli.py:117:                f"{habit['reminder_time'] or ''}"
+  streak/cli.py:126:    click.echo(f"Exported habit data to {output}.")
   streak/report.py:1:"""Renders a colored terminal report of habit progress."""
   streak/report.py:2:
   streak/report.py:3:from collections import Counter
@@ -217,52 +234,6 @@
   streak/report.py:89:    if not completions:
   streak/report.py:90:        lines.append(f"{colors['muted']}No completions yet this month.{colors['reset']}")
   streak/report.py:94:    return lines
-  streak/cli.py:7:import click
-  streak/cli.py:8:import platformdirs
-  streak/cli.py:9:
-  streak/cli.py:10:from streak.reminders import ReminderScheduler
-  streak/cli.py:11:from streak.report import render_report
-  streak/cli.py:12:from streak.storage import HabitStore, StorageError
-  streak/cli.py:16:    return platformdirs.user_data_dir("streak") / "habits.json"
-  streak/cli.py:17:
-  streak/cli.py:18:
-  streak/cli.py:19:def _load_store() -> HabitStore:
-  streak/cli.py:20:    return HabitStore(_data_file())
-  streak/cli.py:25:    """streak — a command-line habit tracker."""
-  streak/cli.py:37:    """Add a new habit with the given NAME."""
-  streak/cli.py:38:    try:
-  streak/cli.py:39:        habit = _load_store().add_habit(name, frequency)
-  streak/cli.py:40:    except StorageError as error:
-  streak/cli.py:41:        raise click.ClickException(str(error)) from error
-  streak/cli.py:42:    click.echo(f"Added habit {habit['name']!r} ({habit['frequency']}).")
-  streak/cli.py:61:        _load_store().delete_habit(name)
-  streak/cli.py:62:    except StorageError as error:
-  streak/cli.py:63:        raise click.ClickException(str(error)) from error
-  streak/cli.py:64:    click.echo(f"Deleted habit {name!r}.")
-  streak/cli.py:69:    """List all habits with their frequency."""
-  streak/cli.py:70:    store = _load_store()
-  streak/cli.py:71:    for habit in store.list_habits():
-  streak/cli.py:72:        click.echo(f"- {habit['name']} ({habit['frequency']})")
-  streak/cli.py:76:@click.option(
-  streak/cli.py:77:    "--theme",
-  streak/cli.py:78:    default="default",
-  streak/cli.py:79:    show_default=True,
-  streak/cli.py:80:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
-  streak/cli.py:81:)
-  streak/cli.py:82:def report(theme):
-  streak/cli.py:83:    """Print a report of your habit progress."""
-  streak/cli.py:84:    for line in render_report(_load_store(), theme):
-  streak/cli.py:85:        click.echo(line)
-  streak/cli.py:86:
-  streak/cli.py:87:
-  streak/cli.py:88:@main.command()
-  streak/cli.py:103:    "--format",
-  streak/cli.py:110:    """Export all habit data to a JSON or CSV file."""
-  streak/cli.py:114:        for habit in store.list_habits():
-  streak/cli.py:115:            rows.append(
-  streak/cli.py:116:                f"{habit['name']},{habit['frequency']},{habit['created']},"
-  streak/cli.py:117:                f"{habit['reminder_time'] or ''}"
-  streak/cli.py:126:    click.echo(f"Exported habit data to {output}.")
   README.md:4:habits in a local JSON database, tracks your streaks, and prints a colored
   README.md:10:- Automatic streak and best-streak tracking
   README.md:11:- A colored terminal report with configurable color themes
@@ -484,52 +455,23 @@
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-15-I want to change the color theme of my habit report]
   '''
-  streak/report.py:1:0:"""Renders a colored terminal report of habit progress."""
-  streak/report.py:3:0:from collections import Counter
-  streak/report.py:4:0:from datetime import date
-  streak/report.py:6:0:from streak.storage import HabitStore, compute_streak
-  streak/report.py:8:0:# Color themes map semantic roles to ANSI escape codes. Users can pick one
-  streak/report.py:9:0:# with the --theme option of the report command.
-  streak/report.py:10:0:COLOR_THEMES = {
-  streak/report.py:11:0:    "default": {
-  streak/report.py:12:0:        "heading": "\033[1;37m",
-  streak/report.py:13:0:        "positive": "\033[1;32m",
-  streak/report.py:14:0:        "warning": "\033[1;33m",
-  streak/report.py:15:0:        "negative": "\033[1;31m",
-  streak/report.py:16:0:        "muted": "\033[2m",
-  streak/report.py:17:0:        "reset": "\033[0m",
-  streak/report.py:18:0:    },
-  streak/report.py:19:0:    "ocean": {
-  streak/report.py:20:0:        "heading": "\033[1;36m",
-  streak/report.py:21:0:        "positive": "\033[1;34m",
-  streak/report.py:22:0:        "warning": "\033[1;35m",
-  streak/report.py:23:0:        "negative": "\033[1;31m",
-  streak/report.py:24:0:        "muted": "\033[2;34m",
-  streak/report.py:25:0:        "reset": "\033[0m",
-  streak/report.py:26:0:    },
-  streak/report.py:27:0:    "sunset": {
-  streak/report.py:28:0:        "heading": "\033[1;33m",
-  streak/report.py:29:0:        "positive": "\033[1;32m",
-  streak/report.py:30:0:        "warning": "\033[1;31m",
-  streak/report.py:31:0:        "negative": "\033[1;35m",
-  streak/report.py:32:0:        "muted": "\033[2;33m",
-  streak/report.py:33:0:        "reset": "\033[0m",
-  streak/report.py:34:0:    },
-  streak/report.py:35:0:    "forest": {
-  streak/report.py:36:0:        "heading": "\033[1;32m",
-  streak/report.py:37:0:        "positive": "\033[1;37m",
-  streak/report.py:38:0:        "warning": "\033[1;33m",
-  streak/report.py:39:0:        "negative": "\033[1;31m",
-  streak/report.py:40:0:        "muted": "\033[2;32m",
-  streak/report.py:41:0:        "reset": "\033[0m",
-  streak/report.py:42:0:    },
-  streak/report.py:43:0:    "pastel": {
-  streak/report.py:44:0:        "heading": "\033[1;38;5;219m",
-  streak/report.py:45:0:        "positive": "\033[38;5;114m",
-  streak/report.py:46:0:        "warning": "\033[38;5;222m",
-  streak/report.py:47:0:        "negative": "\033[38;5;203m",
-  streak/report.py:48:0:        "muted": "\033[2;38;5;145m",
-  streak/report.py:49:0:        "reset": "\033[0m",
+  streak/cli.py:7:0:import click
+  streak/cli.py:8:0:import platformdirs
+  streak/cli.py:10:0:from streak.reminders import ReminderScheduler
+  streak/cli.py:11:0:from streak.report import render_report
+  streak/cli.py:12:0:from streak.storage import HabitStore, StorageError
+  streak/cli.py:76:0:@click.option(
+  streak/cli.py:77:0:    "--theme",
+  streak/cli.py:78:0:    default="default",
+  streak/cli.py:79:0:    show_default=True,
+  streak/cli.py:80:0:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
+  streak/cli.py:81:0:)
+  streak/cli.py:82:0:def report(theme):
+  streak/cli.py:83:0:    """Print a report of your habit progress."""
+  streak/cli.py:84:0:    for line in render_report(_load_store(), theme):
+  streak/cli.py:85:0:        click.echo(line)
+  streak/cli.py:88:0:@main.command()
+  streak/cli.py:103:0:    "--format",
   
   '''
 # ---
@@ -592,6 +534,47 @@
 # ---
 # name: test_snapshot_results_with_real_repo[vimgrep-None-I want to change the color theme of my habit report]
   '''
+  streak/cli.py:7:0:import click
+  streak/cli.py:8:0:import platformdirs
+  streak/cli.py:10:0:from streak.reminders import ReminderScheduler
+  streak/cli.py:11:0:from streak.report import render_report
+  streak/cli.py:12:0:from streak.storage import HabitStore, StorageError
+  streak/cli.py:16:0:    return platformdirs.user_data_dir("streak") / "habits.json"
+  streak/cli.py:19:0:def _load_store() -> HabitStore:
+  streak/cli.py:20:0:    return HabitStore(_data_file())
+  streak/cli.py:25:0:    """streak — a command-line habit tracker."""
+  streak/cli.py:37:0:    """Add a new habit with the given NAME."""
+  streak/cli.py:38:0:    try:
+  streak/cli.py:39:0:        habit = _load_store().add_habit(name, frequency)
+  streak/cli.py:40:0:    except StorageError as error:
+  streak/cli.py:41:0:        raise click.ClickException(str(error)) from error
+  streak/cli.py:42:0:    click.echo(f"Added habit {habit['name']!r} ({habit['frequency']}).")
+  streak/cli.py:61:0:        _load_store().delete_habit(name)
+  streak/cli.py:62:0:    except StorageError as error:
+  streak/cli.py:63:0:        raise click.ClickException(str(error)) from error
+  streak/cli.py:64:0:    click.echo(f"Deleted habit {name!r}.")
+  streak/cli.py:69:0:    """List all habits with their frequency."""
+  streak/cli.py:70:0:    store = _load_store()
+  streak/cli.py:71:0:    for habit in store.list_habits():
+  streak/cli.py:72:0:        click.echo(f"- {habit['name']} ({habit['frequency']})")
+  streak/cli.py:76:0:@click.option(
+  streak/cli.py:77:0:    "--theme",
+  streak/cli.py:78:0:    default="default",
+  streak/cli.py:79:0:    show_default=True,
+  streak/cli.py:80:0:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
+  streak/cli.py:81:0:)
+  streak/cli.py:82:0:def report(theme):
+  streak/cli.py:83:0:    """Print a report of your habit progress."""
+  streak/cli.py:84:0:    for line in render_report(_load_store(), theme):
+  streak/cli.py:85:0:        click.echo(line)
+  streak/cli.py:88:0:@main.command()
+  streak/cli.py:103:0:    "--format",
+  streak/cli.py:110:0:    """Export all habit data to a JSON or CSV file."""
+  streak/cli.py:114:0:        for habit in store.list_habits():
+  streak/cli.py:115:0:            rows.append(
+  streak/cli.py:116:0:                f"{habit['name']},{habit['frequency']},{habit['created']},"
+  streak/cli.py:117:0:                f"{habit['reminder_time'] or ''}"
+  streak/cli.py:126:0:    click.echo(f"Exported habit data to {output}.")
   streak/report.py:1:0:"""Renders a colored terminal report of habit progress."""
   streak/report.py:3:0:from collections import Counter
   streak/report.py:4:0:from datetime import date
@@ -672,47 +655,6 @@
   streak/report.py:89:0:    if not completions:
   streak/report.py:90:0:        lines.append(f"{colors['muted']}No completions yet this month.{colors['reset']}")
   streak/report.py:94:0:    return lines
-  streak/cli.py:7:0:import click
-  streak/cli.py:8:0:import platformdirs
-  streak/cli.py:10:0:from streak.reminders import ReminderScheduler
-  streak/cli.py:11:0:from streak.report import render_report
-  streak/cli.py:12:0:from streak.storage import HabitStore, StorageError
-  streak/cli.py:16:0:    return platformdirs.user_data_dir("streak") / "habits.json"
-  streak/cli.py:19:0:def _load_store() -> HabitStore:
-  streak/cli.py:20:0:    return HabitStore(_data_file())
-  streak/cli.py:25:0:    """streak — a command-line habit tracker."""
-  streak/cli.py:37:0:    """Add a new habit with the given NAME."""
-  streak/cli.py:38:0:    try:
-  streak/cli.py:39:0:        habit = _load_store().add_habit(name, frequency)
-  streak/cli.py:40:0:    except StorageError as error:
-  streak/cli.py:41:0:        raise click.ClickException(str(error)) from error
-  streak/cli.py:42:0:    click.echo(f"Added habit {habit['name']!r} ({habit['frequency']}).")
-  streak/cli.py:61:0:        _load_store().delete_habit(name)
-  streak/cli.py:62:0:    except StorageError as error:
-  streak/cli.py:63:0:        raise click.ClickException(str(error)) from error
-  streak/cli.py:64:0:    click.echo(f"Deleted habit {name!r}.")
-  streak/cli.py:69:0:    """List all habits with their frequency."""
-  streak/cli.py:70:0:    store = _load_store()
-  streak/cli.py:71:0:    for habit in store.list_habits():
-  streak/cli.py:72:0:        click.echo(f"- {habit['name']} ({habit['frequency']})")
-  streak/cli.py:76:0:@click.option(
-  streak/cli.py:77:0:    "--theme",
-  streak/cli.py:78:0:    default="default",
-  streak/cli.py:79:0:    show_default=True,
-  streak/cli.py:80:0:    help="Color theme for the report: default, ocean, sunset, forest, or pastel.",
-  streak/cli.py:81:0:)
-  streak/cli.py:82:0:def report(theme):
-  streak/cli.py:83:0:    """Print a report of your habit progress."""
-  streak/cli.py:84:0:    for line in render_report(_load_store(), theme):
-  streak/cli.py:85:0:        click.echo(line)
-  streak/cli.py:88:0:@main.command()
-  streak/cli.py:103:0:    "--format",
-  streak/cli.py:110:0:    """Export all habit data to a JSON or CSV file."""
-  streak/cli.py:114:0:        for habit in store.list_habits():
-  streak/cli.py:115:0:            rows.append(
-  streak/cli.py:116:0:                f"{habit['name']},{habit['frequency']},{habit['created']},"
-  streak/cli.py:117:0:                f"{habit['reminder_time'] or ''}"
-  streak/cli.py:126:0:    click.echo(f"Exported habit data to {output}.")
   README.md:4:0:habits in a local JSON database, tracks your streaks, and prints a colored
   README.md:10:0:- Automatic streak and best-streak tracking
   README.md:11:0:- A colored terminal report with configurable color themes
