@@ -1175,6 +1175,10 @@ and Windows (<a href="https://github.com/kantord/SeaGOAT/issues/179"><strong>hel
 using the following command:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>seagoat-server<span class="w"> </span>start<span class="w"> </span>/path/to/your/repo
 </span></code></pre></div>
+<p>One SeaGOAT server process (an <em>instance</em>) serves every repository (a
+<em>project</em>). The first <code>seagoat-server start</code> launches the instance; running
+it again for another repository adds that repository to the running
+instance, starts indexing it and returns at once.</p>
 <h3 id="search-your-repository">Search your repository</h3>
 <p>If you have the server running, you can simply use the
 <code>gt</code> or <code>seagoat</code> command to query your repository. For example:</p>
@@ -1187,13 +1191,15 @@ in your queries, for example</p>
 </span></code></pre></div>
 <h3 id="stopping-the-server">Stopping the server</h3>
 <p>You can stop the running server using the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>seagoat-server<span class="w"> </span>stop<span class="w"> </span>/path/to/your/repo
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>seagoat-server<span class="w"> </span>stop
 </span></code></pre></div>
+<p>This stops the instance and, with it, every repository it serves. A path
+after <code>stop</code> is accepted and ignored.</p>
 <h3 id="configuring-seagoat">Configuring SeaGOAT</h3>
 <p>SeaGOAT can be tailored to your needs through YAML configuration files,
 either globally or project-specifically with a <code>.seagoat.yml</code> file.
 For instance:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># .seagoat.yml</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># global config file</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nt">server</span><span class="p">:</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">31134</span><span class="w">  </span><span class="c1"># Specify server port</span>
@@ -1352,6 +1358,12 @@ internet.</p>
 <p>By default the server only accepts connections from the same computer. To
 accept remote connections, set <code>host: 0.0.0.0</code> under <code>server</code> in the global
 configuration file of the computer running the server.</p>
+<p>The instance serves the repositories listed in the <code>repositories.json</code> file
+next to the instance file, in the cache directory of the computer running
+the server (for example <code>~/.cache/seagoat-servers/repositories.json</code> on
+Linux); <code>seagoat-server start</code> writes this file. With <code>client.host</code> set, the
+CLI sends no repository path, so that remote instance must serve exactly one
+repository.</p>
 <p>Keep in mind that SeaGOAT itself does not enforce any security as it is
 primarily designed to run locally. If you have private code that you do not
 wish to leak, you will have to make sure that only trusted people have

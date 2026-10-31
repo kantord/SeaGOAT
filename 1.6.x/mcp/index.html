@@ -490,6 +490,16 @@ codebase utilizing SeaGOAT's semantic search engine.</p>
 </ol>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>seagoat-server<span class="w"> </span>start<span class="w"> </span>/path/to/your/repository
 </span></code></pre></div>
+<p>One SeaGOAT server process (an <em>instance</em>) serves the repositories listed in
+the <code>repositories.json</code> file next to the instance file in SeaGOAT's cache
+directory (for example <code>~/.cache/seagoat-servers/repositories.json</code> on
+Linux). <code>seagoat-server start &lt;repo&gt;</code> writes <code>&lt;repo&gt;</code> into that file, starts
+the instance if none is running, and otherwise tells the running instance to
+load it. Removing a repository from the list takes effect when the instance
+restarts; a repository's own <code>.seagoat.yml</code> cannot set it. The <code>search_code</code>
+tool sends the repository path with every query, so any program that can
+reach the server can query the repositories it serves. A query naming a
+repository the instance does not serve gets an HTTP 404 error saying so.</p>
 <h2 id="configuration">Configuration</h2>
 <p>To use SeaGOAT with Claude Desktop, add the following configuration to your
 <code>claude_desktop_config.json</code> file.</p>
@@ -527,7 +537,9 @@ indicating the server is connected.</p>
 <p>"Find code related to data processing in <code>src/utils</code>"</p>
 </blockquote>
 <p>Claude will use the <code>search_code</code> tool to query your local SeaGOAT server and
-retrieve relevant code snippets to answer your question.</p>
+retrieve relevant code snippets to answer your question. The tool's
+<code>repo_path</code> argument tells the instance which repository to search; the
+MCP server sends it with every query.</p>
 
 
 
