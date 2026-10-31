@@ -14,9 +14,9 @@ from seagoat.utils.file_types import is_file_type_supported
 def parse_commit_info(raw_line: str):
     commit_hash, date_str, author, commit_subject = raw_line.split(":::", 3)
 
-    commit_date = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z").date()
-    today = datetime.date.today()
-    days_passed = (today - commit_date).days
+    commit_dt = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S %z")
+    today_utc = datetime.datetime.now(datetime.UTC).date()
+    days_passed = max(0, (today_utc - commit_dt.astimezone(datetime.UTC).date()).days)
 
     return (commit_hash, days_passed, author, commit_subject)
 
