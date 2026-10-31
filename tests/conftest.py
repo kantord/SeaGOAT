@@ -144,27 +144,6 @@ def _cleanup_session_temp_dir():
     shutil.rmtree(SESSION_TEMP_DIR, ignore_errors=True)
 
 
-chromadb_patcher = patch("chromadb.Client")
-
-
-@pytest.fixture(autouse=True)
-def mock_chromadb():
-    mock_collection = MagicMock()
-    mock_client = MagicMock()
-    mock_client.create_collection.return_value = mock_collection
-
-    chromadb_patcher.start().return_value = mock_client
-    yield
-    chromadb_patcher.stop()
-
-
-@pytest.fixture
-def real_chromadb():
-    chromadb_patcher.stop()
-    yield
-    chromadb_patcher.start()
-
-
 def _get_multiprocessing_context():
     if os.name == "nt":
         return multiprocessing.get_context("spawn")

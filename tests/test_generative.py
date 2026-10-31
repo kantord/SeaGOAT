@@ -1,6 +1,11 @@
 """Tests for the generative search enhancement module."""
 
-from seagoat.utils.generative import _strip_thinking_tags, enhance_results, get_prompt
+from seagoat.utils.generative import (
+    _strip_thinking_tags,
+    enhance_results,
+    get_prompt,
+    get_spinner_text,
+)
 
 
 def make_result(path):
@@ -49,7 +54,7 @@ def test_strip_thinking_tags_without_tags_returns_original():
 def test_strip_thinking_tags_handles_multiple_think_blocks():
     text = "<think>first</think><think>second</think>final"
     result = _strip_thinking_tags(text)
-    assert "final" in result
+    assert result == "final"
 
 
 def test_enhance_results_filters_results_by_llm_response(mocker):
@@ -105,7 +110,7 @@ def test_enhance_results_updates_spinner_text(mocker):
     results = [make_result("main.py")]
     enhance_results("query", results, spinner, {})
 
-    assert spinner.text is not None
+    assert spinner.text == get_spinner_text("chunk1chunk2")
 
 
 def test_enhance_results_passes_config_to_stream_chat(mocker):

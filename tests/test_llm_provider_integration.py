@@ -9,7 +9,7 @@ from jsonschema.exceptions import ValidationError
 from seagoat.utils.config import CONFIG_SCHEMA, get_config_values
 from seagoat.utils.generative import enhance_results
 from seagoat.utils.llm_provider import stream_chat
-from tests.fixtures.llm import mock_openai_stream
+from tests.fixtures.llm import mock_ollama_stream, mock_openai_stream
 
 
 def test_minimax_config_validates():
@@ -158,8 +158,7 @@ def test_switch_to_minimax(mocker):
 
 def test_switch_to_ollama(mocker):
     mocker.patch.dict("os.environ", {}, clear=True)
-    chat = mocker.MagicMock(return_value=[{"message": {"content": "ok"}}])
-    mocker.patch("seagoat.utils.llm_provider._get_ollama_chat", return_value=chat)
+    chat = mock_ollama_stream(mocker, "ok")
 
     config = {"generative": {"provider": "ollama", "model": "llama3:8b"}}
     list(stream_chat(config, [{"role": "user", "content": "q"}]))

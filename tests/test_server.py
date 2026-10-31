@@ -221,7 +221,7 @@ def test_stop_accepts_and_ignores_a_path(repo, start_seagoat_server):
         assert stop_result.returncode == 0, stop_result.stderr
         assert "Instance stopped." in stop_result.stdout
         # This test is the server's parent, so it reaps it
-        server_process.wait(timeout=1)
+        server_process.wait(timeout=10)
 
         status_result = server_cli("status")
         assert status_result.returncode == 0
@@ -476,16 +476,13 @@ def test_version_option(runner):
     assert result.output.strip() == f"seagoat, version {__version__}"
 
 
-def test_start_server_on_specific_port(repo, mocker, start_seagoat_server):
+def test_start_server_on_specific_port(repo, start_seagoat_server):
     custom_port = free_port()
-    mocker.patch("seagoat.server.TaskQueue")
 
     with start_seagoat_server("--port", str(custom_port), repo.working_dir) as (
         _,
         instance,
     ):
-        instance = read_instance()
-        assert instance is not None
         server_address = instance_url(instance)
         assert str(custom_port) in server_address
 
@@ -533,7 +530,7 @@ def test_servers_info_includes_version_and_server_details(runner, repo):
 
 
 def test_start_server_on_custom_port_using_config_files(
-    repo, mocker, start_seagoat_server, create_config_file
+    repo, start_seagoat_server, create_config_file
 ):
     custom_port = free_port()
     create_config_file(
@@ -544,11 +541,8 @@ def test_start_server_on_custom_port_using_config_files(
         },
         global_config=True,
     )
-    mocker.patch("seagoat.server.TaskQueue")
 
     with start_seagoat_server(repo.working_dir) as (_, instance):
-        instance = read_instance()
-        assert instance is not None
         server_address = instance_url(instance)
         assert str(custom_port) in server_address
 

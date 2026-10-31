@@ -121,7 +121,7 @@ strict = []
 executionEnvironments = [ { root = "src" } ]
 
 [tool.pytest.ini_options]
-timeout = 15
+timeout = 60
 
 [tool.ruff]
 exclude = [

@@ -9,6 +9,8 @@ from seagoat.repository import Repository
 from seagoat.sources import chroma
 from seagoat.utils.config import DEFAULT_CONFIG
 
+# These tests use the real ChromaDB and embedding model.
+
 
 def normalize_full_paths(data, repo):
     real_repo_path = repo.working_dir
@@ -19,11 +21,6 @@ def normalize_full_paths(data, repo):
     )
 
     return deep_copy_of_data
-
-
-@pytest.fixture(autouse=True)
-def use_real_db(real_chromadb):
-    pass
 
 
 @pytest.mark.asyncio
@@ -332,24 +329,17 @@ async def test_custom_ignore_patterns(repo, create_config_file):
     assert "foo/devices2.txt" not in results_files
 
 
-@pytest.mark.asyncio
-async def test_user_defined_execution_provider(repo, create_config_file):
-    create_config_file(
-        {
-            "server": {
-                "chroma": {
-                    "embeddingFunction": {
-                        "name": "ONNXMiniLM_L6_V2",
-                        "arguments": {"preferred_providers": ["CPUExecutionProvider"]},
-                    },
-                }
-            }
-        }
+def test_user_defined_execution_provider(generate_repo):
+    repo = generate_repo()
+    embedding_function = _initialize_and_get_embedding_function(
+        repo,
+        embedding_function={
+            "name": "ONNXMiniLM_L6_V2",
+            "arguments": {"preferred_providers": ["CPUExecutionProvider"]},
+        },
     )
-    seagoat = Engine(repo.working_dir)
-    seagoat.analyze_codebase()
-    my_query = "apple"
-    seagoat.query_sync(my_query)
+
+    assert embedding_function._preferred_providers == ["CPUExecutionProvider"]
 
 
 @pytest.mark.asyncio

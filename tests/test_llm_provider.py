@@ -8,16 +8,7 @@ from seagoat.utils.llm_provider import (
     _get_provider_config,
     stream_chat,
 )
-from tests.fixtures.llm import mock_openai_stream
-
-
-def mock_ollama_stream(mocker, *contents):
-    """Patch the ollama chat function so it streams one message per content."""
-    chat = mocker.MagicMock(
-        return_value=[{"message": {"content": content}} for content in contents]
-    )
-    mocker.patch("seagoat.utils.llm_provider._get_ollama_chat", return_value=chat)
-    return chat
+from tests.fixtures.llm import mock_ollama_stream, mock_openai_stream
 
 
 def test_ollama_is_supported():
