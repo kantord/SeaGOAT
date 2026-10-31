@@ -59,7 +59,7 @@ import json
 from collections import defaultdict
 from contextlib import contextmanager
 from typing import cast
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import orjson
@@ -71,10 +71,7 @@ from deepmerge import always_merger
 from seagoat.cache import get_cache_root
 from seagoat.engine import Engine
 from seagoat.projects import Projects
-from seagoat.repository import Repository
-from seagoat.result import Result
 from seagoat.server import create_app
-from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import GLOBAL_CONFIG_FILE
 from seagoat.utils.server import (
     Instance,
@@ -85,6 +82,7 @@ from seagoat.utils.server import (
 from seagoat.utils.wait import wait_for
 from tests.fixtures.mock_repo import MockRepo
 from tests.fixtures.realistic_repo import build
+from tests.fixtures.sources import mock_sources_context
 from tests.process_guard import set_pdeathsig
 
 try:
@@ -502,52 +500,6 @@ def managed_process():
 
     for proc in processes:
         _kill_group(proc)
-
-
-@contextmanager
-def mock_sources_context(repo, ripgrep_lines, chroma_lines):
-    def noop(*args, **kwargs):
-        pass
-
-    def create_mock_query(repo, file_lines):
-        def mock_query(_, __):
-            results = []
-            repository = Repository(repo.working_dir)
-            repository.analyze_files()
-            for file_path, lines in file_lines.items():
-                gitfile = repository.get_file(file_path)
-                result = Result("", gitfile)
-                for line, vector_distance in lines:
-                    result.add_line(line=line, vector_distance=vector_distance)
-                results.append(result)
-
-            del repository
-            return results
-
-        return mock_query
-
-    for file_path in set(list(ripgrep_lines.keys()) + list(chroma_lines.keys())):
-        repo.add_file_change_commit(
-            file_name=file_path,
-            contents="\n" * 50,
-            commit_message=f"Add {file_path}",
-        )
-
-    with (
-        patch.object(ripgrep, "initialize") as mock_ripgrep,
-        patch.object(chroma, "initialize") as mock_chroma,
-    ):
-        mock_ripgrep.return_value = {
-            "fetch": create_mock_query(repo, ripgrep_lines),
-            "cache_chunk": noop,
-            "cache_repo": noop,
-        }
-        mock_chroma.return_value = {
-            "fetch": create_mock_query(repo, chroma_lines),
-            "cache_chunk": noop,
-            "cache_repo": noop,
-        }
-        yield
 
 
 @pytest.fixture(name="create_prepared_seagoat")

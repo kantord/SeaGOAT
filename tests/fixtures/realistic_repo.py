@@ -23,6 +23,14 @@ from tests.fixtures.git import commit_env, run_git
 # fixed dates had when the snapshots were recorded) keeps them stable.
 YOUNGEST_COMMIT_AGE_DAYS = 1000
 
+# Questions a user might ask about the made-up project, used by the tests
+# that query it
+SAMPLE_QUERIES = [
+    "I want to change the color theme of my habit report",
+    "where do we decide what time reminders are scheduled",
+    "installation instructions for arch linux",
+]
+
 
 def _shifted_date(commit_date: str, offset: timedelta) -> str:
     return (datetime.fromisoformat(commit_date) + offset).isoformat()

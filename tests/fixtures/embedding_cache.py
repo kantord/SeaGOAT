@@ -114,3 +114,33 @@ class CachedEmbeddingFunction(EmbeddingFunction[Documents]):
     @staticmethod
     def validate_config(config: dict[str, Any]) -> None:
         return
+
+
+class NoisyCachedEmbeddingFunction(CachedEmbeddingFunction):
+    """CachedEmbeddingFunction that perturbs every vector by a few ULPs.
+
+    Each value of each returned vector is moved by a small, deterministic
+    number of units in the last place (drawn per value from a numpy
+    Generator seeded with ``(seed, sha256(text))``), mimicking the tiny
+    last-place differences different CPUs produce. Vectors stay float32 and
+    are deterministic per (seed, text), so repeated embedding of the same
+    text yields the same perturbed vector. Only un-noised vectors (real
+    cache misses, computed by the parent) may be logged as misses; the
+    noisy vectors themselves are never logged.
+    """
+
+    def __init__(self, seed: int, ulps: int = 4) -> None:
+        super().__init__()
+        self.seed = seed
+        self.ulps = ulps
+
+    def _perturb(self, text: str, vector) -> np.ndarray:
+        digest = hashlib.sha256(text.encode()).hexdigest()
+        generator = np.random.default_rng([self.seed, int(digest, 16)])
+        vector32 = np.asarray(vector, dtype=np.float32)
+        shifts = generator.integers(-self.ulps, self.ulps + 1, size=vector32.size)
+        return (vector32 + shifts * np.spacing(vector32)).astype(np.float32)
+
+    def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
+        vectors = super().__call__(input)
+        return [self._perturb(text, vector) for text, vector in zip(input, vectors)]

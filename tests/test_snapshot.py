@@ -1,15 +1,12 @@
 import pytest
 
 from seagoat.cli import display_results
+from tests.fixtures.realistic_repo import SAMPLE_QUERIES
 
 
 @pytest.mark.parametrize(
     "query",
-    [
-        ("I want to change the color theme of my habit report"),
-        ("where do we decide what time reminders are scheduled"),
-        ("installation instructions for arch linux"),
-    ],
+    SAMPLE_QUERIES,
 )
 @pytest.mark.parametrize("max_results", [None, 15])
 @pytest.mark.parametrize("vimgrep", ["", "vimgrep"])
