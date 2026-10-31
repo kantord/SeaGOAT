@@ -110,7 +110,25 @@ class Result:
         return f"Result(path={self.gitfile.path})"
 
     def extend(self, other) -> None:
-        self.lines.update(other.lines)
+        for line_number, other_line in other.lines.items():
+            existing_line = self.lines.get(line_number)
+
+            if existing_line is None:
+                self.lines[line_number] = other_line
+                continue
+
+            if existing_line.vector_distance <= other_line.vector_distance:
+                winning_line = existing_line
+            else:
+                winning_line = other_line
+
+            self.lines[line_number] = ResultLine(
+                winning_line.parent,
+                line_number,
+                winning_line.vector_distance,
+                winning_line.line_text,
+                existing_line.types | other_line.types,
+            )
 
     def add_line(self, line: int, vector_distance: float) -> None:
         types = set()
