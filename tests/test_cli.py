@@ -154,7 +154,7 @@ def test_seagoat_warns_on_incomplete_accuracy(
     mock_status_response = status_payload(accuracy=accuracy_percentage)
 
     mocked_status_request = mocker.patch(
-        "requests.post", return_value=mock_response(mock_status_response)
+        "seagoat.cli.requests.post", return_value=mock_response(mock_status_response)
     )
     mock_running_instance(mocker)
 
@@ -503,7 +503,9 @@ def test_warn_if_update_available_shows_warning(
 ):
     mock_version_response = {"info": {"version": newer_version}}
 
-    mocker.patch("requests.get", return_value=mock_response(mock_version_response))
+    mocker.patch(
+        "seagoat.cli.requests.get", return_value=mock_response(mock_version_response)
+    )
 
     warn_if_update_available()
     captured = capsys.readouterr()
@@ -524,7 +526,9 @@ def test_warn_if_update_available_no_warning(
 ):
     mock_version_response = {"info": {"version": older_or_same_version}}
 
-    mocker.patch("requests.get", return_value=mock_response(mock_version_response))
+    mocker.patch(
+        "seagoat.cli.requests.get", return_value=mock_response(mock_version_response)
+    )
 
     warn_if_update_available()
     captured = capsys.readouterr()
@@ -570,7 +574,7 @@ def test_status_request_with_remote_server_sends_no_repo_path(
     mock_status_response = status_payload()
 
     mocked_status_request = mocker.patch(
-        "requests.post", return_value=mock_response(mock_status_response)
+        "seagoat.cli.requests.post", return_value=mock_response(mock_status_response)
     )
 
     result = runner_with_error.invoke(seagoat, ["some random query", ".", "--no-color"])
@@ -664,7 +668,9 @@ def test_no_network_to_update(
 ):
     mocked_response = status_payload()
 
-    mocker.patch("requests.post", return_value=mock_response(mocked_response))
+    mocker.patch(
+        "seagoat.cli.requests.post", return_value=mock_response(mocked_response)
+    )
     mock_running_instance(mocker)
     mocker.patch(
         "seagoat.cli.warn_if_update_available",
@@ -697,7 +703,9 @@ def test_does_not_crash_with_slash_in_request(repo, mocker, runner, temporary_cd
     ],
 )
 def test_unexpected_pypi_responses_raise_errors_the_cli_handles(mocker, response_text):
-    mocker.patch("requests.get", return_value=mocker.Mock(text=response_text))
+    mocker.patch(
+        "seagoat.cli.requests.get", return_value=mocker.Mock(text=response_text)
+    )
 
     with pytest.raises((ValueError, KeyError, TypeError)):
         warn_if_update_available()
@@ -717,7 +725,9 @@ def test_unexpected_update_check_errors_do_not_fail_the_search(
 ):
     mocked_response = status_payload()
 
-    mocker.patch("requests.post", return_value=mock_response(mocked_response))
+    mocker.patch(
+        "seagoat.cli.requests.post", return_value=mock_response(mocked_response)
+    )
     mock_running_instance(mocker)
     mocker.patch("seagoat.cli.warn_if_update_available", side_effect=error)
     result = runner_with_error.invoke(seagoat, ["search", repo.working_dir])

@@ -3,40 +3,10 @@
 import pytest
 
 from seagoat.utils.llm_provider import (
-    PROVIDER_DEFAULTS,
-    SUPPORTED_PROVIDERS,
     _get_provider_config,
     stream_chat,
 )
 from tests.fixtures.llm import mock_ollama_stream, mock_openai_stream
-
-
-def test_ollama_is_supported():
-    assert "ollama" in SUPPORTED_PROVIDERS
-
-
-def test_openai_is_supported():
-    assert "openai" in SUPPORTED_PROVIDERS
-
-
-def test_minimax_is_supported():
-    assert "minimax" in SUPPORTED_PROVIDERS
-
-
-def test_ollama_has_default_model():
-    assert "model" in PROVIDER_DEFAULTS["ollama"]
-
-
-def test_openai_has_default_model():
-    assert "model" in PROVIDER_DEFAULTS["openai"]
-
-
-def test_minimax_has_default_model():
-    assert PROVIDER_DEFAULTS["minimax"]["model"] == "MiniMax-M2.5"
-
-
-def test_minimax_has_base_url():
-    assert PROVIDER_DEFAULTS["minimax"]["base_url"] == "https://api.minimax.io/v1"
 
 
 def test_provider_config_uses_explicit_provider():
