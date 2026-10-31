@@ -110,6 +110,10 @@ class Engine:
                 max(min_value, int(len(chunks_to_process) * percentage)),
                 len(chunks_to_process),
             )
+        else:
+            minimum_chunks_to_analyze = min(
+                minimum_chunks_to_analyze, len(chunks_to_process)
+            )
 
         for _ in tqdm(
             enumerate(range(minimum_chunks_to_analyze)),

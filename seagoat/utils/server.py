@@ -3,12 +3,12 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import NamedTuple
 
-import platformdirs
 import psutil
 import requests
 from filelock import FileLock
 
 from seagoat.utils.json_file import get_json_file_contents, write_to_json_file
+from seagoat.utils.paths import get_servers_dir
 
 
 class NoInstanceRunning(Exception):
@@ -28,15 +28,9 @@ class Instance(NamedTuple):
 
 
 def instance_file_path() -> Path:
-    user_cache_dir = Path(
-        platformdirs.user_cache_dir(
-            "seagoat-servers-pytest"
-            if "PYTEST_CURRENT_TEST" in os.environ
-            else "seagoat-servers"
-        )
-    )
-    user_cache_dir.mkdir(parents=True, exist_ok=True)
-    return user_cache_dir / "instance.json"
+    servers_dir = get_servers_dir()
+    servers_dir.mkdir(parents=True, exist_ok=True)
+    return servers_dir / "instance.json"
 
 
 def repositories_file_path() -> Path:

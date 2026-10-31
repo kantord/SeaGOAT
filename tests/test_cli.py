@@ -14,11 +14,6 @@ from seagoat.utils.cli_display import is_bat_installed
 from seagoat.utils.server import Instance
 
 
-@pytest.fixture
-def assume_bat_not_installed():
-    """Some tests here check is_bat_installed itself, so do not replace it."""
-
-
 def status_payload(accuracy: int = 100) -> dict:
     """A /status response for a fully indexed repository by default."""
     return {
@@ -261,7 +256,6 @@ def test_limit_output_length(
     )
 
     assert len(result.output.splitlines()) == min(expected_length, 15)
-    assert result.output.splitlines() == result.output.splitlines()[:expected_length]
     assert result.exit_code == 0
 
 
@@ -272,7 +266,7 @@ def test_version_option(runner):
     assert result.output.strip() == f"seagoat, version {__version__}"
 
 
-def test_server_is_not_running_error(mocker, repo, snapshot, mock_spinner):
+def test_server_is_not_running_error(mocker, repo, mock_spinner):
     mock_running_instance(mocker)
     runner = CliRunner()
 
@@ -480,12 +474,14 @@ def test_server_error_handling(
     assert error_message in result.stderr
 
 
+@pytest.mark.real_bat_check
 def test_bat_installed(mocker):
     mock_run = mocker.patch("seagoat.utils.cli_display.subprocess.run")
     mock_run.return_value.returncode = 0
     assert is_bat_installed() is True
 
 
+@pytest.mark.real_bat_check
 def test_bat_not_installed_when_command_is_missing(mocker):
     mocker.patch(
         "seagoat.utils.cli_display.subprocess.run",
@@ -494,6 +490,7 @@ def test_bat_not_installed_when_command_is_missing(mocker):
     assert is_bat_installed() is False
 
 
+@pytest.mark.real_bat_check
 def test_bat_not_installed_when_command_fails(mocker):
     mock_run = mocker.patch("seagoat.utils.cli_display.subprocess.run")
     mock_run.return_value.returncode = 1
@@ -680,9 +677,7 @@ def test_no_network_to_update(
 
 
 @pytest.mark.usefixtures("server", "mock_accuracy_warning")
-def test_does_not_crash_with_slash_in_request(
-    snapshot, repo, mocker, runner, temporary_cd
-):
+def test_does_not_crash_with_slash_in_request(repo, mocker, runner, temporary_cd):
     mocker.patch("os.isatty", return_value=True)
     query = "JavaScript/TypeScript"
 
