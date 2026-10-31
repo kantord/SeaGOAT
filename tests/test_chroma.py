@@ -2,7 +2,10 @@ import copy
 from pathlib import Path
 from unittest.mock import patch
 
+import chromadb
+import numpy as np
 import pytest
+from chromadb.utils import embedding_functions
 
 from seagoat.engine import Engine
 from seagoat.repository import Repository
@@ -421,7 +424,8 @@ class _DummyEmbeddingFunction:
     def __init__(self, greeting="hello"):
         self.greeting = greeting
 
-    def __call__(self, input):
+    # Same parameter name as chromadb's EmbeddingFunction protocol
+    def __call__(self, input):  # pylint: disable=redefined-builtin
         return [[0.0] * 384 for _ in input]
 
 
@@ -476,3 +480,45 @@ def test_different_embedding_function_arguments_are_not_shared(generate_repo):
     )
 
     assert embedding_function1 is not embedding_function2
+
+
+def test_default_embedding_function_loads_the_model_once_while_indexing(
+    mocker, tmp_path
+):
+    # Goes through a real collection: chromadb replaces some embedding
+    # functions with its own, so calling ours directly proves nothing
+    model_class = mocker.patch(
+        "chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2.ONNXMiniLM_L6_V2"
+    )
+    model_class.return_value.side_effect = lambda texts: [
+        np.zeros(384, dtype=np.float32) for _ in texts
+    ]
+    collection = chromadb.PersistentClient(path=str(tmp_path)).get_or_create_collection(
+        "code_data",
+        embedding_function=chroma.for_collection(chroma._DefaultEmbeddingFunction()),
+    )
+
+    collection.upsert(ids=["1"], documents=["first batch"])
+    collection.upsert(ids=["2"], documents=["second batch"])
+
+    model_class.assert_called_once_with()
+    assert model_class.return_value.call_count == 2
+
+
+def test_default_embedding_function_opens_collections_made_with_chromadbs(
+    tmp_path,
+):
+    client = chromadb.PersistentClient(path=str(tmp_path))
+    client.create_collection(
+        "code_data",
+        embedding_function=chroma.for_collection(
+            embedding_functions.DefaultEmbeddingFunction()
+        ),
+    )
+
+    collection = client.get_or_create_collection(
+        "code_data",
+        embedding_function=chroma.for_collection(chroma._DefaultEmbeddingFunction()),
+    )
+
+    assert collection.name == "code_data"

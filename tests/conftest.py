@@ -181,22 +181,28 @@ def _write_global_config(content: dict) -> None:
         yaml.dump(content, file)
 
 
-# The global config every test starts from: BASELINE_GLOBAL_CONFIG, or none
-# at all (seagoat's defaults) for tests marked real_embeddings.
-# create_config_file(global_config=True) merges a test's content over it.
-_active_global_config_baseline: dict = BASELINE_GLOBAL_CONFIG
-
-
-def _use_global_config_baseline(baseline: dict) -> None:
-    global _active_global_config_baseline
-    _active_global_config_baseline = baseline
+def _write_baseline_global_config(baseline: dict) -> None:
     if baseline:
         _write_global_config(copy.deepcopy(baseline))
     else:
         GLOBAL_CONFIG_FILE.unlink(missing_ok=True)
 
 
-def _clean_instance_state() -> None:
+@pytest.fixture
+def global_config_baseline(request) -> dict:
+    """The global config a test starts from.
+
+    BASELINE_GLOBAL_CONFIG (cached embeddings), or none at all (seagoat's
+    defaults, so the real ONNX model) for tests marked real_embeddings: the
+    real-model smoke test, and tests that compare against seagoat's default
+    configuration. create_config_file(global_config=True) merges over it.
+    """
+    if request.node.get_closest_marker("real_embeddings") is not None:
+        return {}
+    return BASELINE_GLOBAL_CONFIG
+
+
+def _clean_instance_state(baseline: dict = BASELINE_GLOBAL_CONFIG) -> None:
     # Each test starts from a clean slate: no instance, no repositories file
     # and only the baseline global config (start commands add repositories
     # while tests run).
@@ -209,12 +215,12 @@ def _clean_instance_state() -> None:
         Path(f"{instance_path}.lock"),
     ):
         file_path.unlink(missing_ok=True)
-    _use_global_config_baseline(BASELINE_GLOBAL_CONFIG)
+    _write_baseline_global_config(baseline)
 
 
 @pytest.fixture(autouse=True)
-def run_around_tests():
-    _clean_instance_state()
+def run_around_tests(global_config_baseline):
+    _clean_instance_state(global_config_baseline)
     yield
     _delete_unkept_cache_entries(get_cache_root())
     _clean_instance_state()
@@ -563,7 +569,7 @@ def mock_warn_if_update_available(mocker):
 
 
 @pytest.fixture
-def create_config_file(repo):
+def create_config_file(repo, global_config_baseline):
     created_files = []
 
     def write_config(content, global_config=False):
@@ -571,7 +577,7 @@ def create_config_file(repo):
             config_file_path = GLOBAL_CONFIG_FILE
             # Keep the cached embedding function from the baseline unless the
             # test explicitly overrides it.
-            merged = copy.deepcopy(_active_global_config_baseline)
+            merged = copy.deepcopy(global_config_baseline)
             always_merger.merge(merged, content)
             content = merged
         else:
@@ -639,22 +645,6 @@ def realistic_engine():
     del my_engine
 
     shutil.rmtree(realrepo, ignore_errors=True)
-
-
-@pytest.fixture(autouse=True)
-def real_embeddings(request, run_around_tests):
-    """Tests marked real_embeddings run with seagoat's default global config.
-
-    That means the real ONNX model instead of the cached embeddings: use it
-    for the real-model smoke test, and for tests that compare against
-    seagoat's default configuration.
-
-    Depends on run_around_tests so it runs after that fixture writes the
-    cached-embeddings baseline, not before (autouse fixtures otherwise run
-    in alphabetical order).
-    """
-    if request.node.get_closest_marker("real_embeddings") is not None:
-        _use_global_config_baseline({})
 
 
 def pytest_addoption(parser):

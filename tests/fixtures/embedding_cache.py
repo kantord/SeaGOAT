@@ -73,7 +73,8 @@ class CachedEmbeddingFunction(EmbeddingFunction[Documents]):
             output.write(json.dumps([key, [float(value) for value in vector]]) + "\n")
             output.flush()
 
-    def __call__(self, input: Documents) -> Embeddings:
+    # chromadb requires this exact parameter name
+    def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
         cached_vectors = self._load_cache()
         results: list = [None] * len(input)
         # (position in input, text, key) of every text not in the cache

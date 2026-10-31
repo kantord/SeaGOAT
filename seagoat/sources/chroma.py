@@ -2,8 +2,10 @@ import importlib
 import json
 import threading
 from pathlib import Path
+from typing import Any, cast
 
 import chromadb
+from chromadb.api.types import Documents, Embeddable, EmbeddingFunction, Embeddings
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
@@ -25,6 +27,63 @@ _EMBEDDING_FUNCTIONS = {}
 _EMBEDDING_LOCK = threading.Lock()
 
 
+class _DefaultEmbeddingFunction(EmbeddingFunction[Documents]):
+    """chromadb's DefaultEmbeddingFunction, but with one loaded model.
+
+    The original builds a new ONNXMiniLM_L6_V2, and so loads the ONNX model
+    again, on every call: once per batch of chunks while indexing.
+
+    This is deliberately not a subclass of DefaultEmbeddingFunction: chromadb
+    ignores any embedding function that is an instance of it, and builds a
+    fresh default one from the collection config instead. It has the same
+    name and config, so collections created with the original still open.
+    """
+
+    def __init__(self) -> None:
+        self._model = None
+
+    # chromadb requires this exact parameter name
+    def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
+        if self._model is None:
+            from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
+                ONNXMiniLM_L6_V2,
+            )
+
+            self._model = ONNXMiniLM_L6_V2()
+        return self._model(input)
+
+    @staticmethod
+    def name() -> str:
+        return embedding_functions.DefaultEmbeddingFunction.name()
+
+    def get_config(self) -> dict[str, Any]:
+        return {}
+
+    def max_tokens(self) -> int:
+        return 256
+
+    @staticmethod
+    def build_from_config(config: dict[str, Any]) -> "_DefaultEmbeddingFunction":
+        return _DefaultEmbeddingFunction()
+
+    @staticmethod
+    def validate_config(config: dict[str, Any]) -> None:
+        return
+
+
+def for_collection(function: Any) -> EmbeddingFunction[Embeddable]:
+    """Type an embedding function for chromadb's collection API.
+
+    chromadb types that API for EmbeddingFunction[Embeddable], but text
+    embedding functions (its own included) are EmbeddingFunction[Documents].
+    """
+    return cast(EmbeddingFunction[Embeddable], function)
+
+
+# Built-in names that seagoat replaces with its own implementation
+_EMBEDDING_FUNCTION_OVERRIDES = {"DefaultEmbeddingFunction": _DefaultEmbeddingFunction}
+
+
 def _get_embedding_function(config):
     embedding_function = config["server"]["chroma"]["embeddingFunction"]
     name = embedding_function["name"]
@@ -41,7 +100,10 @@ def _get_embedding_function(config):
                 module = importlib.import_module(module_path)
                 function = getattr(module, class_name)(**arguments)
             else:
-                function = getattr(embedding_functions, name)(**arguments)
+                function_class = _EMBEDDING_FUNCTION_OVERRIDES.get(name) or getattr(
+                    embedding_functions, name
+                )
+                function = function_class(**arguments)
             _EMBEDDING_FUNCTIONS[key] = function
         return function
 
@@ -101,7 +163,7 @@ def initialize(repository: Repository):
     embedding_function = _get_embedding_function(config)
     chroma_collection = chroma_client.get_or_create_collection(
         name="code_data",
-        embedding_function=embedding_function,
+        embedding_function=for_collection(embedding_function),
         # A high ef_search makes the approximate HNSW search close to exact,
         # so results do not depend on the order in which chunks were added
         configuration={"hnsw": {"ef_search": 1000}},
