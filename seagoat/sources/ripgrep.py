@@ -2,7 +2,6 @@ import logging
 import mmap
 import os
 import platform
-import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -33,6 +32,32 @@ def _count_distinct_matched_words(line_text: str, pattern_words: list[str]) -> i
     """
     lowered_line = line_text.lower()
     return sum(1 for word in set(pattern_words) if word.lower() in lowered_line)
+
+
+def _is_utf8_encodable(char: str) -> bool:
+    try:
+        char.encode("utf-8")
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
+def query_terms(query_text: str) -> list[str]:
+    """Split a query into cleaned, non-stop-word terms for ripgrep."""
+    cleaned_tokens = []
+    for token in query_text.split():
+        cleaned_token = "".join(
+            char for char in token if char != "\x00" and _is_utf8_encodable(char)
+        )
+        if cleaned_token:
+            cleaned_tokens.append(cleaned_token)
+
+    terms = [token for token in cleaned_tokens if token.lower() not in STOP_WORDS]
+
+    if not terms:
+        terms = cleaned_tokens
+
+    return terms
 
 
 class RipGrepCache(str):
@@ -148,13 +173,11 @@ def initialize(repository: Repository):
         memory_cache.rebuild()
 
     def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
-        words = [word for word in query_text.split(" ") if word not in STOP_WORDS]
-        query_text_without_stopwords = " ".join(words)
-        if len(query_text_without_stopwords) > 2:
-            query_text = query_text_without_stopwords
-        query_text = re.sub(r"\s+", "|", query_text)
+        terms = query_terms(query_text)
+        pattern = "|".join(terms)
         # The exact literal words that go into the ripgrep pattern
-        pattern_words = [word for word in query_text.split("|") if word]
+        pattern_words = terms
+        query_text = " ".join(terms)
         files = {}
         max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
         candidate_limit = limit * RIPGREP_CANDIDATE_MULTIPLIER
@@ -169,7 +192,7 @@ def initialize(repository: Repository):
             "--text",
             # -e: a query starting with "-" is a pattern, not an option
             "-e",
-            query_text,
+            pattern,
         ]
 
         try:
