@@ -7,6 +7,7 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+import requests
 from pytest_mock import MockerFixture
 
 from seagoat.mcp_server import search_code
@@ -193,3 +194,18 @@ def test_search_code_falls_back_to_status_when_error_body_has_no_message(
     result = search_code("test query", repo_path=".")
 
     assert "HTTP 503" in result
+
+
+def test_search_code_explains_a_timeout(mock_mcp_deps) -> None:
+    mock_mcp_deps["resolve"].return_value = "."
+    mock_mcp_deps["normalize"].return_value = "/abs/path/to/repo"
+    mock_mcp_deps["running_instance"].return_value = (
+        Instance(host="localhost", port=1234, pid=1),
+        {"pid": 1},
+    )
+    mock_mcp_deps["instance_url"].return_value = "http://localhost:1234"
+    mock_mcp_deps["post"].side_effect = requests.exceptions.Timeout()
+
+    result = search_code("test query", repo_path=".")
+
+    assert "may still be indexing /abs/path/to/repo" in result

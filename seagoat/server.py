@@ -277,23 +277,30 @@ def find_repositories_to_serve(repo_path: str) -> tuple[list[str], bool]:
     they were found inside a directory (rather than repo_path itself being a
     repository).
 
-    When repo_path is a git repository it is served as-is. Otherwise each of its
+    When repo_path is a repository root it is served as-is. Otherwise each of its
     direct subdirectories that is itself a repository root is served, in the same
     start (no deeper search and no children picked up later without re-running
-    ``start``). When repo_path is neither, this exits with the usual error.
+    ``start``). This also holds for a folder of repositories that sits inside
+    another work tree (say ~/repos inside a dotfiles repository at ~). A
+    subdirectory of a repository with no repositories in it serves that
+    repository. Anything else exits with the usual error.
     """
     try:
-        git_root(repo_path)
+        root = git_root(repo_path)
     except NotAGitRepo:
-        repositories = find_repositories_in_directory(repo_path)
-        if not repositories:
-            click.echo(
-                f"SeaGOAT can only operate in Git repositories. No Git repository found at path '{repo_path}'.",
-                err=True,
-            )
-            sys.exit(ExitCode.NOT_A_GIT_REPO)
+        root = None
+    if root is not None and normalize_repo_path(root) == normalize_repo_path(repo_path):
+        return [repo_path], False
+    repositories = find_repositories_in_directory(repo_path)
+    if repositories:
         return repositories, True
-    return [repo_path], False
+    if root is not None:
+        return [repo_path], False
+    click.echo(
+        f"SeaGOAT can only operate in Git repositories. No Git repository found at path '{repo_path}'.",
+        err=True,
+    )
+    sys.exit(ExitCode.NOT_A_GIT_REPO)
 
 
 def start_server(repo_path: str, custom_port=None):
@@ -307,6 +314,7 @@ def start_server(repo_path: str, custom_port=None):
         port = 0
 
     server = None
+    load_failures: list[str] = []
     repo_roots = [normalize_repo_path(resolve_repo_path(path)) for path in repositories]
 
     def bind() -> Instance:
@@ -324,10 +332,15 @@ def start_server(repo_path: str, custom_port=None):
         except Exception:
             server.close()
             raise
-        failed_root = next((root for root in repo_roots if root in failed), None)
-        if failed_root is not None:
+        # One bad repository in a folder of them must not block the others:
+        # fail only when nothing that was asked for loaded.
+        failed_roots = [root for root in repo_roots if root in failed]
+        if len(failed_roots) == len(repo_roots):
             server.close()
-            raise RepositoryLoadError(failed_root, failed[failed_root])
+            raise RepositoryLoadError(failed_roots[0], failed[failed_roots[0]])
+        load_failures.extend(failed_roots)
+        for root in failed_roots:
+            click.echo(f"Warning: could not load {root}: {failed[root]}", err=True)
         return Instance(host, int(server.effective_port), os.getpid())  # type: ignore  # set in waitress at runtime
 
     def prepare() -> None:
@@ -376,10 +389,17 @@ def start_server(repo_path: str, custom_port=None):
             )
             sys.exit(ExitCode.SERVER_ERROR)
         missing = [root for root in repo_roots if root not in projects]
-        if missing:
-            reason = failed.get(missing[0], "see the instance's log")
-            click.echo(f"Could not load {missing[0]}: {reason}", err=True)
+        for root in missing:
+            reason = failed.get(root, "see the instance's log")
+            prefix = (
+                "Could not load"
+                if len(missing) == len(repo_roots)
+                else "Warning: could not load"
+            )
+            click.echo(f"{prefix} {root}: {reason}", err=True)
+        if len(missing) == len(repo_roots):
             sys.exit(ExitCode.SERVER_ERROR)
+        repo_roots = [root for root in repo_roots if root not in missing]
         newly_served = [root for root in repo_roots if root not in previously_served]
         if len(repo_roots) == 1:
             if newly_served:
@@ -402,7 +422,8 @@ def start_server(repo_path: str, custom_port=None):
     if found_in_directory:
         click.echo("Added repositories:")
         for root in repo_roots:
-            click.echo(f"  {root}")
+            if root not in load_failures:
+                click.echo(f"  {root}")
     listening = Instance(client_host(host), int(server.effective_port), os.getpid())  # type: ignore  # set in waitress at runtime
     click.echo(f"Instance listening at {instance_url(listening)}")
     server.run()

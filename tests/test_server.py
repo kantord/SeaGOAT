@@ -907,24 +907,24 @@ def test_start_on_directory_without_git_repositories_fails(tmp_path, runner_with
 
 
 @pytest.mark.timeout(120)
-def test_start_on_directory_with_an_unloadable_repository_fails(
+def test_start_on_directory_where_no_repository_loads_fails(
     tmp_path, runner_with_error
 ):
     from seagoat.server import ExitCode
 
     parent = tmp_path / "projects"
-    make_git_repo(parent / "good")
-    bad_repo = make_git_repo(parent / "bad")
-    (Path(str(bad_repo)) / ".seagoat.yml").write_text(
-        "server:\n  repositories: this-is-not-a-list\n",
-        encoding="utf-8",
-    )
+    bad_repos = [make_git_repo(parent / name) for name in ("bad1", "bad2")]
+    for bad_repo in bad_repos:
+        (Path(str(bad_repo)) / ".seagoat.yml").write_text(
+            "server:\n  readMaxCommits: not-a-number\n",
+            encoding="utf-8",
+        )
 
     result = runner_with_error.invoke(seagoat_server, ["start", str(parent)])
 
-    # Like starting a single unloadable repository, the whole start fails and
-    # no instance is started; the failing repository is named in the error.
+    # One bad repository in a folder only warns (test_server_bind.py); when
+    # nothing in the folder loads, the start fails and no instance starts.
     assert result.exit_code == ExitCode.SERVER_ERROR
     combined = (result.stdout or "") + (result.stderr or "")
-    assert f"Could not load {normalize_repo_path(str(bad_repo))}" in combined
+    assert "Could not load" in combined
     assert read_instance() is None

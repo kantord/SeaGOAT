@@ -15,6 +15,9 @@ from seagoat.utils.server import (
     running_instance,
 )
 
+# MCP clients wait for tool calls, so a query must not hang for long
+QUERY_TIMEOUT_SECONDS = 10
+
 mcp = MCPServer("seagoat", version=__version__)
 
 
@@ -64,7 +67,13 @@ def search_code(
                 "contextBelow": str(context_below),
                 "repoPath": repo,
             },
-            timeout=10,
+            timeout=QUERY_TIMEOUT_SECONDS,
+        )
+    except requests.exceptions.Timeout:
+        return (
+            f"Error querying server at {address} - no answer within "
+            f"{QUERY_TIMEOUT_SECONDS} seconds; the server may still be indexing "
+            f"{repo}. Try again shortly."
         )
     except requests.exceptions.RequestException as e:
         return f"Error querying server at {address} - {e!s}"

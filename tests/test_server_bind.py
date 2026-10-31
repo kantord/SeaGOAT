@@ -1,3 +1,4 @@
+import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -367,3 +368,63 @@ def test_start_server_says_when_repo_is_already_served(repo, capsys):
     captured = capsys.readouterr()
     assert f"{root} is already served by the instance" in captured.out
     assert "keeps port 45678" in captured.err
+
+
+def _git_init(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q", str(path)], check=True)
+
+
+def test_folder_of_repositories_inside_a_work_tree_serves_its_children(tmp_path):
+    from seagoat.server import find_repositories_to_serve
+
+    _git_init(tmp_path)  # say, a dotfiles repository at ~
+    _git_init(tmp_path / "repos" / "a")
+    _git_init(tmp_path / "repos" / "b")
+
+    repositories, found_in_directory = find_repositories_to_serve(
+        str(tmp_path / "repos")
+    )
+
+    assert found_in_directory
+    assert [normalize_repo_path(path) for path in repositories] == [
+        normalize_repo_path(tmp_path / "repos" / "a"),
+        normalize_repo_path(tmp_path / "repos" / "b"),
+    ]
+
+
+def test_plain_subdirectory_of_a_repository_serves_the_repository(tmp_path):
+    from seagoat.server import find_repositories_to_serve
+
+    _git_init(tmp_path)
+    (tmp_path / "src").mkdir()
+
+    assert find_repositories_to_serve(str(tmp_path / "src")) == (
+        [str(tmp_path / "src")],
+        False,
+    )
+
+
+def test_one_bad_repository_in_a_folder_does_not_block_the_others(tmp_path, capsys):
+    _git_init(tmp_path / "good")
+    _git_init(tmp_path / "bad")
+    (tmp_path / "bad" / ".seagoat.yml").write_text(
+        "server:\n  readMaxCommits: not-a-number\n", encoding="utf-8"
+    )
+
+    with (
+        patch("seagoat.server.TaskQueue"),
+        patch("seagoat.server.claim_start", side_effect=_fake_claim_start),
+        patch("seagoat.server.create_app") as mock_create_app,
+        patch("seagoat.server.create_server") as mock_create_server,
+    ):
+        mock_create_server.return_value.effective_port = 40124
+        start_server(str(tmp_path))
+
+    captured = capsys.readouterr()
+    bad, good = (normalize_repo_path(tmp_path / name) for name in ("bad", "good"))
+    assert f"Warning: could not load {bad}" in captured.err
+    assert good in captured.out
+    assert bad not in captured.out
+    assert mock_create_app.call_args.args[0].repo_paths() == [good]
+    mock_create_server.return_value.run.assert_called_once()
