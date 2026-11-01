@@ -83,7 +83,7 @@ def normalize_version(data):
 def test_query_codebase(server, snapshot, repo):
     url = f"{server}/lines/query"
     response = requests.post(
-        url, json={"query_text": "Markdown", "repoPath": repo.working_dir}
+        url, json={"queryText": "Markdown", "repoPath": repo.working_dir}
     )
 
     assert response.status_code == 200, response.text
@@ -527,7 +527,7 @@ def test_start_server_on_custom_port_using_config_files(
 def test_query_files_endpoint(server, snapshot, repo):
     url = f"{server}/files/query"
     response = requests.post(
-        url, json={"query_text": "Markdown", "repoPath": repo.working_dir}
+        url, json={"queryText": "Markdown", "repoPath": repo.working_dir}
     )
 
     assert response.status_code == 200, response.text

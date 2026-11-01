@@ -213,7 +213,9 @@ async def test_exact_matches_have_higher_score(repo):
     results = await seagoat.query(my_query)
 
     assert results[0].gitfile.path == "devices.txt"
-    assert set(results[0].get_lines()) == {7, 8, 12}
+    # Line 12 is blank: it used to match "12" only through the line number
+    # stored in the ripgrep cache
+    assert set(results[0].get_lines()) == {7, 8}
 
 
 @pytest.mark.asyncio

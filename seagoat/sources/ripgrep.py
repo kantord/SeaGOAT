@@ -1,3 +1,4 @@
+import bisect
 import logging
 import mmap
 import os
@@ -70,6 +71,8 @@ class RipGrepCache(str):
         self.is_initialized = False
         self._data = ""
         self.config = get_config_values(Path(repository.path))
+        self.file_paths: list[str] = []
+        self.cumulative_line_counts: list[int] = []
 
     def _iterate_files_to_cache(self):
         for file, _ in self.repository.top_files():
@@ -98,22 +101,27 @@ class RipGrepCache(str):
             for line_number, line in enumerate(file_contents.splitlines(), start=1):
                 yield file, line_number, line
 
-    def _generate_cache_lines(self):
-        for file, line_number, line in self._iterate_lines_to_cache():
-            # NUL separated: unlike ":", it cannot appear in a file path
-            yield f"{file.path}\0{line_number}\0{line}\n"
-
     def _build_cache_file(self):
+        self.file_paths = []
+        self.cumulative_line_counts = []
         total_estimated_cache_size = 0
+        running_total = 0
         line_count = 0
         max_mmap_size = self.config["server"]["ripgrep"]["maxMmapSize"]
         max_mmap_size_bytes = max_mmap_size * MEGABYTE
 
         with open(self.file_path, "w", encoding="utf-8") as cache_file:
-            for formattted_cache_line in self._generate_cache_lines():
-                cache_file.write(formattted_cache_line)
-                total_estimated_cache_size += len(formattted_cache_line)
+            for file, _, line in self._iterate_lines_to_cache():
+                if not self.file_paths or self.file_paths[-1] != file.path:
+                    self.file_paths.append(file.path)
+                    self.cumulative_line_counts.append(running_total)
+
+                cache_line = f"{line}\n"
+                cache_file.write(cache_line)
+                total_estimated_cache_size += len(cache_line)
+                running_total += 1
                 line_count += 1
+                self.cumulative_line_counts[-1] = running_total
 
                 if total_estimated_cache_size > max_mmap_size_bytes:
                     logger.warning(
@@ -161,6 +169,60 @@ class RipGrepCache(str):
         return self
 
 
+def map_global_line_to_file(cumulative: list[int], global_line: int) -> tuple[int, int]:
+    index = bisect.bisect_left(cumulative, global_line)
+    start = cumulative[index - 1] if index > 0 else 0
+    return index, global_line - start
+
+
+def run_ripgrep(cache_input, terms: list[str], max_count: int) -> list[tuple[int, str]]:
+    # Before the emptiness check: a RipGrepCache is a str subclass whose own
+    # value is "", its data (mmap or bytes) only comes out of encode()
+    if isinstance(cache_input, str):
+        cache_input = cache_input.encode("utf-8")
+    if isinstance(cache_input, str):
+        # On Windows, RipGrepCache.encode() returns its data as a plain str
+        cache_input = str.encode(cache_input, "utf-8")
+    if not cache_input or not terms:
+        return []
+    terms = [term for term in terms if "\n" not in term]
+    if not terms:
+        return []
+
+    def build_cmd(with_fixed_strings: bool):
+        cmd = [
+            "rg",
+            "--no-config",
+            "--line-number",
+            "--ignore-case",
+            "--max-count",
+            str(max_count),
+        ]
+        if with_fixed_strings:
+            cmd.append("--fixed-strings")
+        for term in terms:
+            cmd += ["-e", term]
+        return cmd
+
+    result = subprocess.run(
+        build_cmd(False), input=cache_input, capture_output=True, check=False
+    )
+    if result.returncode == 2:
+        result = subprocess.run(
+            build_cmd(True), input=cache_input, capture_output=True, check=False
+        )
+    if result.returncode == 2:
+        raise RuntimeError(result.stderr)
+    if result.returncode == 1:
+        return []
+
+    matches = []
+    for line in result.stdout.splitlines():
+        number, _, text = line.partition(b":")
+        matches.append((int(number), text.decode("utf-8", "replace")))
+    return matches
+
+
 def initialize(repository: Repository):
     path = repository.path
     memory_cache = RipGrepCache(repository)
@@ -174,7 +236,6 @@ def initialize(repository: Repository):
 
     def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
         terms = query_terms(query_text)
-        pattern = "|".join(terms)
         # The exact literal words that go into the ripgrep pattern
         pattern_words = terms
         query_text = " ".join(terms)
@@ -182,30 +243,15 @@ def initialize(repository: Repository):
         max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
         candidate_limit = limit * RIPGREP_CANDIDATE_MULTIPLIER
 
-        cmd = [
-            "rg",
-            "--max-count",
-            str(candidate_limit),
-            "--ignore-case",
-            # The cache contains NUL separators, which would otherwise make rg
-            # treat it as a binary file
-            "--text",
-            # -e: a query starting with "-" is a pattern, not an option
-            "-e",
-            pattern,
-        ]
-
-        try:
-            rg_output = subprocess.check_output(
-                cmd, encoding="utf-8", input=cache.as_input()
-            )
-        except subprocess.CalledProcessError as exception:
-            rg_output = exception.output
-
         # (path, line number, distinct query words) in ripgrep's order
         matches = []
-        for line in rg_output.splitlines():
-            relative_path, raw_line_number, line_text = line.split("\0", 2)
+        for global_line, line_text in run_ripgrep(
+            cache.as_input(), terms, candidate_limit
+        ):
+            file_index, raw_line_number = map_global_line_to_file(
+                cache.cumulative_line_counts, global_line
+            )
+            relative_path = cache.file_paths[file_index]
 
             if not is_file_type_supported(relative_path):
                 continue
@@ -213,7 +259,7 @@ def initialize(repository: Repository):
             matches.append(
                 (
                     relative_path,
-                    int(raw_line_number),
+                    raw_line_number,
                     _count_distinct_matched_words(line_text, pattern_words),
                 )
             )
