@@ -69,6 +69,7 @@ dev = [
     "ruff>=0.17.1,<0.18",
     "mike>=2.1.0,<3",
     "hypothesis>=6,<7",
+    "pytest-randomly>=5.0.0,<6",
 ]
 
 [tool.uv]
