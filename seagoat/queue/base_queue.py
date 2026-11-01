@@ -2,6 +2,7 @@ import logging
 import threading
 import time
 from dataclasses import dataclass, field
+from itertools import count
 from queue import Empty, PriorityQueue
 from typing import Any
 from uuid import uuid4
@@ -21,14 +22,22 @@ HIGH_PRIORITY = 0.0
 MEDIUM_PRIORITY = 0.5
 LOW_PRIORITY = 1.0
 
+_TASK_SEQUENCE = count()
+
 
 @dataclass(order=True)
 class Task:
     priority: float
-    name: str
+    name: str = field(compare=False)
     args: tuple[Any, ...] = field(default_factory=tuple, compare=False)
     kwargs: dict[str, Any] = field(default_factory=dict, compare=False)
-    task_id: str = field(default_factory=lambda: uuid4().hex, compare=True)
+    task_id: str = field(default_factory=lambda: uuid4().hex, compare=False)
+    _sequence: int = field(
+        default_factory=lambda: next(_TASK_SEQUENCE),
+        init=False,
+        repr=False,
+        compare=True,
+    )
 
 
 class TaskFailed(Exception):
