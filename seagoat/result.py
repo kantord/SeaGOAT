@@ -123,13 +123,15 @@ class Result:
                 self.lines[line_number] = other_line
                 continue
 
-            # Only matches compete (see ResultLine.is_match); the closer wins
+            # Only matches compete (see ResultLine.is_match), and the better
+            # final score wins: each source scores a line against its own
+            # query text, so a larger distance can still be the better match
             result_lines = [
                 line for line in (existing_line, other_line) if line.is_match
             ]
             winning_line = min(
                 result_lines or [existing_line, other_line],
-                key=lambda line: line.vector_distance,
+                key=lambda line: line.get_score(),
             )
 
             self.lines[line_number] = ResultLine(

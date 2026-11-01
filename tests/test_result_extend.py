@@ -127,3 +127,30 @@ def test_add_line_ignores_a_context_placeholder_distance(repo):
 
     assert result.lines[11].vector_distance == 0.5
     assert result.lines[11].types == {ResultLineType.RESULT, ResultLineType.CONTEXT}
+
+
+class _RepositoryWithLine:
+    def get_blob_data(self, object_id):
+        return "first\nfoo bar"
+
+
+def _result_for(query, line_distances):
+    gitfile = GitFile(_RepositoryWithLine(), "t.txt", "/t.txt", "abc", 0.5, [])
+    result = Result(query, gitfile)
+    for line, distance in line_distances.items():
+        result.add_line(line, distance)
+    return result
+
+
+def test_merge_keeps_the_line_with_the_better_final_score():
+    # The vector search keeps the raw query, ripgrep strips stopwords, so only
+    # ripgrep's copy of line 2 gets the exact-match bonus: 0.8 / 2 = 0.4,
+    # better than the vector search's 0.5 even though its distance is larger
+    vector = _result_for("where is the foo bar", {2: 0.5})
+    ripgrep = _result_for("foo bar", {2: 0.8})
+    assert vector.lines[2].get_score() == 0.5
+    assert ripgrep.lines[2].get_score() == 0.4
+
+    vector.extend(ripgrep)
+
+    assert vector.lines[2].get_score() == 0.4
