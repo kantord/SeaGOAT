@@ -156,7 +156,10 @@ class Repository:
         symref_check = self._run_git("symbolic-ref", "--quiet", "HEAD", check=False)
         if symref_check.returncode == 0:
             target = self._run_git(
-                "show-ref", "--verify", "--quiet", symref_check.stdout.strip(),
+                "show-ref",
+                "--verify",
+                "--quiet",
+                symref_check.stdout.strip(),
                 check=False,
             )
             if target.returncode == 1:

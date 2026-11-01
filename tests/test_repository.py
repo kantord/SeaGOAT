@@ -702,7 +702,6 @@ def test_analyze_files_raises_outside_a_git_repository(tmp_path: Path):
         repository.analyze_files()
 
 
-
 def test_failed_head_lookup_preserves_previous_scan_on_existing_branch(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
