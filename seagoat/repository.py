@@ -117,18 +117,20 @@ class Repository:
 
     _MAX_HEAD_VERIFICATION_ATTEMPTS = 3
 
-    def _run_git(self, *args, check=True):
-        """Run a read-only git command, returning its CompletedProcess.
-
-        Raises if git reports an error (``check=True``) so that command
-        failures are never mistaken for an empty scan result.
-        """
-        return subprocess.run(
-            ["git", "-C", str(self.path), *args],
-            capture_output=True,
-            text=True,
-            check=check,
+    @staticmethod
+    def _run_scan_command(command, *, check=False, **kwargs):
+        # Decode bytes ourselves: text=True normalizes carriage returns in
+        # filenames before the NUL-delimited output can be parsed.
+        result = subprocess.run(command, capture_output=True, check=check, **kwargs)
+        return subprocess.CompletedProcess(
+            result.args,
+            result.returncode,
+            result.stdout.decode("utf-8", errors="surrogateescape"),
+            result.stderr.decode("utf-8", errors="surrogateescape"),
         )
+
+    def _run_git(self, *args, check=True):
+        return self._run_scan_command(["git", "-C", str(self.path), *args], check=check)
 
     def _get_scan_head(self) -> str | None:
         """Return the current HEAD commit hash, or None if the repository is
@@ -196,13 +198,7 @@ class Repository:
         ripgrep exit code 1 means "no files found", which is a valid empty
         result; exit code 2 (or anything else) means ripgrep itself failed.
         """
-        result = subprocess.run(
-            ["rg", "--files", "-0"],
-            cwd=self.path,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        result = self._run_scan_command(["rg", "--files", "-0"], cwd=self.path)
 
         if result.returncode not in (0, 1):
             raise RuntimeError(
@@ -291,7 +287,7 @@ class Repository:
             head,
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = self._run_scan_command(cmd)
         if result.returncode != 0:
             raise RuntimeError(
                 f"git log failed on {self.path}: "

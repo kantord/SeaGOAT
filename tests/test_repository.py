@@ -524,6 +524,7 @@ def test_analyze_files_preserves_whitespace_and_quoted_filenames(repo: MockRepo)
         'file"with"quotes.py',
         "file\twith\ttab.py",
         "file\nwith\nnewline.py",
+        "file\rwith\rcarriage-return.py",
     ]
     for name in weird_names:
         repo.add_file_change_commit(
@@ -564,7 +565,9 @@ def _patch_command(mocker, matcher, returncode, stdout="", stderr="failure"):
 
     def fake_run(cmd, *args, **kwargs):
         if matcher(cmd):
-            return subprocess.CompletedProcess(cmd, returncode, stdout, stderr)
+            output = stdout if kwargs.get("text") else stdout.encode("utf-8")
+            errors = stderr if kwargs.get("text") else stderr.encode("utf-8")
+            return subprocess.CompletedProcess(cmd, returncode, output, errors)
         return real_run(cmd, *args, **kwargs)
 
     return mocker.patch("seagoat.repository.subprocess.run", side_effect=fake_run)
