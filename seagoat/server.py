@@ -320,9 +320,7 @@ def start_server(repo_path: str, custom_port=None):
 
     def bind() -> Instance:
         nonlocal server
-        projects = Projects(
-            lambda path, config: TaskQueue(repo_path=path, minimum_chunks_to_analyze=0)
-        )
+        projects = Projects(lambda path, config: TaskQueue(repo_path=path))
         app = create_app(projects, host)
         server = create_server(app, host=host, port=port, threads=16)
         # Bind the port before loading any project: loading runs git in the

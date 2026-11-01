@@ -56,6 +56,9 @@ class Engine:
         self.cache.load()
         self.repository = Repository(path)
         self.config = get_config_values(Path(path))
+        # Startup reconciliation of durable analyzed marks against the real
+        # vector store happens at most once per Engine instance.
+        self._repair_done = False
 
         self._fetchers = {
             "async": [
@@ -67,37 +70,14 @@ class Engine:
         }
 
     def analyze_codebase(self, minimum_chunks_to_analyze=None):
-        self.repository.analyze_files()
+        """Synchronous compatibility wrapper around the batch pipeline.
 
-        for fetcher in self._fetchers["async"] + self._fetchers["sync"]:
-            fetcher["cache_repo"]()
-
-        return self._create_vector_embeddings(minimum_chunks_to_analyze)
-
-    def _add_to_collection(self, chunk):
-        for source in chain(*self._fetchers.values()):
-            source["cache_chunk"](chunk)
-
-    def process_chunk(self, chunk):
-        if chunk.chunk_id in self.cache.data["chunks_already_analyzed"]:
-            return
-
-        self._add_to_collection(chunk)
-        self.cache.data["chunks_already_analyzed"].add(chunk.chunk_id)
-
-        if chunk.chunk_id in self.cache.data["chunks_not_yet_analyzed"]:
-            self.cache.data["chunks_not_yet_analyzed"].remove(chunk.chunk_id)
-
-        self.cache.persist()
-
-    def _create_vector_embeddings(self, minimum_chunks_to_analyze=None):
-        chunks_to_process = []
-
-        for file, _ in self.repository.top_files():
-            for chunk in file.get_chunks():
-                if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]:
-                    chunks_to_process.append(chunk)
-                    self.cache.data["chunks_not_yet_analyzed"].add(chunk.chunk_id)
+        Plans all pending chunks, then embeds the requested number of them
+        (or the historical default quota) through :meth:`process_batch`,
+        honoring explicit minimums exactly and processing the final partial
+        batch.
+        """
+        chunks_to_process = self.plan_indexing()
 
         if minimum_chunks_to_analyze is None:
             min_value = self.config["server"]["engine"]["minChunksToAnalyze"][
@@ -115,17 +95,122 @@ class Engine:
                 minimum_chunks_to_analyze, len(chunks_to_process)
             )
 
-        for _ in tqdm(
-            enumerate(range(minimum_chunks_to_analyze)),
+        batch_size = self.config["server"]["chroma"]["batchSize"]
+        chunks_to_analyze = chunks_to_process[:minimum_chunks_to_analyze]
+        for start in tqdm(
+            range(0, len(chunks_to_analyze), batch_size),
             desc="Analyzing source code",
         ):
-            chunk = chunks_to_process.pop(0)
-            self.process_chunk(chunk)
+            batch = chunks_to_analyze[start : start + batch_size]
+            self.process_batch(batch)
 
-        for source in chain(*self._fetchers.values()):
-            source.get("flush_batch", lambda: None)()
+        return chunks_to_process[minimum_chunks_to_analyze:]
 
+    def plan_indexing(self, excluded_ids=frozenset()):
+        """Plan pending indexing work without embedding anything.
+
+        Analyzes repository metadata, refreshes source caches, reconciles
+        legacy "analyzed" marks against the real vector store and returns the
+        pending FileChunks in ranking order. In-memory failed chunk IDs are
+        excluded from both the returned chunks and the pending-ID set.
+        """
+        excluded = frozenset(excluded_ids)
+        self.repository.analyze_files()
+
+        for fetcher in self._fetchers["async"] + self._fetchers["sync"]:
+            fetcher["cache_repo"]()
+
+        current_chunks = [
+            chunk
+            for file, _ in self.repository.top_files()
+            for chunk in file.get_chunks()
+        ]
+        self._reconcile_legacy_marks({chunk.chunk_id for chunk in current_chunks})
+        chunks_to_process = [
+            chunk
+            for chunk in current_chunks
+            if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]
+            and chunk.chunk_id not in excluded
+        ]
+        self.cache.data["chunks_not_yet_analyzed"].difference_update(excluded)
+        self.cache.data["chunks_not_yet_analyzed"].update(
+            chunk.chunk_id for chunk in chunks_to_process
+        )
         return chunks_to_process
+
+    def _reconcile_legacy_marks(self, current_ids):
+        """Re-queue IDs the old cache marked analyzed but Chroma never stored.
+
+        Runs once per Engine, after a successful repository read. A failed
+        Chroma read propagates and leaves repair pending for the next pass.
+        """
+        if self._repair_done:
+            return
+        marked_ids = set(self.cache.data["chunks_already_analyzed"])
+        if marked_ids:
+            indexed_ids = self._query_indexed_ids(marked_ids)
+            missing = marked_ids - indexed_ids
+            if missing:
+                self.cache.data["chunks_already_analyzed"].difference_update(missing)
+                self.cache.data["chunks_not_yet_analyzed"].update(missing & current_ids)
+                self.cache.persist()
+        self._repair_done = True
+
+    def _query_indexed_ids(self, ids: set[str]) -> set[str]:
+        """Ask the real (sync) sources which of the given IDs are indexed."""
+        indexed: set[str] = set()
+        for source in self._fetchers["sync"]:
+            indexed.update(source["indexed_ids"](list(ids)))
+        return indexed
+
+    def probe_embedding(self):
+        """Check embedding availability without writing vectors."""
+        for source in self._fetchers["sync"]:
+            if source.get("probe_embedding") is not None:
+                source["probe_embedding"]()
+
+    def process_batch(self, chunks):
+        """The only completion path: embed/upsert a batch, then persist once.
+
+        Only after the whole batch reaches storage do IDs move from pending
+        to analyzed. Duplicate already-indexed tasks are filtered safely.
+        """
+        chunks = [
+            chunk
+            for chunk in chunks
+            if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]
+        ]
+        if not chunks:
+            return
+
+        self._add_batch_to_collection(chunks)
+
+        ids = {chunk.chunk_id for chunk in chunks}
+        pending = self.cache.data["chunks_not_yet_analyzed"]
+        previously_pending = pending & ids
+        self.cache.data["chunks_already_analyzed"].update(ids)
+        pending.difference_update(ids)
+        try:
+            self.cache.persist()
+        except Exception:
+            # Upsert is idempotent: preserve retryable in-memory bookkeeping
+            # when persisting the completion record fails after storage succeeds.
+            self.cache.data["chunks_already_analyzed"].difference_update(ids)
+            pending.update(previously_pending)
+            raise
+
+    def process_chunk(self, chunk):
+        """Single-element compatibility wrapper around process_batch."""
+        self.process_batch([chunk])
+
+    def _add_batch_to_collection(self, chunks):
+        for source in chain(*self._fetchers.values()):
+            cache_batch = source.get("cache_batch")
+            if cache_batch is not None:
+                cache_batch(chunks)
+            elif source.get("cache_chunk") is not None:
+                for chunk in chunks:
+                    source["cache_chunk"](chunk)
 
     def query_sync(self, query: str, limit_clue=50, context_above=0, context_below=0):
         """

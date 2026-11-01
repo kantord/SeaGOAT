@@ -6,10 +6,14 @@ import orjson
 
 from seagoat import __version__
 from seagoat.queue.base_queue import LOW_PRIORITY, MEDIUM_PRIORITY, BaseQueue
+from seagoat.sources.chroma import EmbeddingError
 
 logger = logging.getLogger(__name__)
 
 SECONDS_BETWEEN_MAINTENANCE = 10
+
+# How long a paused/backed-off indexer waits before probing/retrying again
+RETRY_DEADLINE_SECONDS = 10
 
 
 def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
@@ -36,6 +40,9 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
 
 
 class TaskQueue(BaseQueue):
+    BATCH_TASK = "analyze_batch"
+    LEGACY_CHUNK_TASK = "analyze_chunk"
+
     def _get_context(self):
         context = super()._get_context()
 
@@ -47,65 +54,145 @@ class TaskQueue(BaseQueue):
         context["last_repo_state_hash"] = None
         return context
 
+    def _ensure_recovery_state(self, context):
+        context.setdefault("failed_chunks", set())
+        context.setdefault("paused", False)
+        context.setdefault("pause_reason", None)
+        context.setdefault("retry_after", 0.0)
+        context.setdefault("retained_batches", [])
+        context.setdefault("replan_pending", False)
+
+    def _enqueue_batch(self, chunks, priority, parent_name=BATCH_TASK):
+        self.enqueue(
+            parent_name,
+            chunks,
+            priority=priority,
+            batch_priority=priority,
+            parent_name=parent_name,
+            wait_for_result=False,
+        )
+
+    def _enqueue_batches(self, context, chunks):
+        if not chunks:
+            return
+        batch_size = context["seagoat_engine"].config["server"]["chroma"]["batchSize"]
+        for start in range(0, len(chunks), batch_size):
+            priority = MEDIUM_PRIORITY + (
+                (LOW_PRIORITY - MEDIUM_PRIORITY) * start / len(chunks)
+            )
+            self._enqueue_batch(chunks[start : start + batch_size], priority)
+
     def handle_maintenance(self, context):
+        self._ensure_recovery_state(context)
+        self._run_recovery(context)
+        if context["paused"]:
+            return
         if (
             context["last_maintenance"] is not None
             and time.time() - context["last_maintenance"] < SECONDS_BETWEEN_MAINTENANCE
         ):
             return
-
-        # Chunks from the last analysis are still being processed; check again
-        # later. Other waiting tasks (queries, stats) do not block indexing.
-        if self._has_pending_task("analyze_chunk"):
+        if self._has_pending_task(self.BATCH_TASK) or self._has_pending_task(
+            self.LEGACY_CHUNK_TASK
+        ):
             return
 
-        current_repo_state_hash = context["seagoat_engine"].repository.get_status_hash()
-        # Throttle the git status check itself, whatever it finds
+        engine = context["seagoat_engine"]
+        current_repo_state_hash = engine.repository.get_status_hash()
         context["last_maintenance"] = time.time()
-
-        # Do not re-analyze repo if nothing changed
-        if context["last_repo_state_hash"] == current_repo_state_hash:
+        if (
+            not context["replan_pending"]
+            and context["last_repo_state_hash"] == current_repo_state_hash
+        ):
             return
 
-        logger.info("Checking repository for new changes")
-        remaining_chunks_to_analyze = context["seagoat_engine"].analyze_codebase(
-            self.kwargs["minimum_chunks_to_analyze"]
-        )
-
-        logger.info("Analyzed the minimum number of chunks needed to operate. ")
-        if remaining_chunks_to_analyze:
-            logger.info(
-                "Note, %s chunks need to be analyzed for optimum performance.",
-                len(remaining_chunks_to_analyze),
-            )
-
-            for task_index, chunk in enumerate(remaining_chunks_to_analyze):
-                priority = MEDIUM_PRIORITY + (
-                    (LOW_PRIORITY - MEDIUM_PRIORITY)
-                    / len(remaining_chunks_to_analyze)
-                    * task_index
-                )
-                self.enqueue(
-                    "analyze_chunk",
-                    chunk,
-                    priority=priority,
-                    wait_for_result=False,
-                )
-        else:
+        chunks = engine.plan_indexing(excluded_ids=context["failed_chunks"])
+        self._enqueue_batches(context, chunks)
+        if not chunks:
             logger.info("Analyzed all chunks!")
-
-        # Record the state only after the analysis and the scheduling of its
-        # chunks have both succeeded: a pass that raised must not hide the
-        # change from the next maintenance pass, which then retries it
+        # Preserve retry eligibility until planning and all enqueue calls succeed.
         context["last_repo_state_hash"] = current_repo_state_hash
+        context["replan_pending"] = False
+
+    def _run_recovery(self, context):
+        if context["paused"]:
+            if time.monotonic() < context["retry_after"]:
+                return
+            if context["pause_reason"] == "embedding":
+                try:
+                    context["seagoat_engine"].probe_embedding()
+                except EmbeddingError:
+                    context["retry_after"] = time.monotonic() + RETRY_DEADLINE_SECONDS
+                    return
+                context["failed_chunks"].clear()
+            context["paused"] = False
+            context["pause_reason"] = None
+            context["retry_after"] = 0.0
+            context["replan_pending"] = True
+
+        retained = context["retained_batches"]
+        while retained:
+            chunks, priority, name = retained[0]
+            self._enqueue_batch(chunks, priority, name)
+            # An enqueue failure must leave this batch retained for the next pass.
+            retained.pop(0)
+
+    @staticmethod
+    def _retain_and_pause(context, chunks, priority, name, reason):
+        context["retained_batches"].append((chunks, priority, name))
+        context["paused"] = True
+        context["pause_reason"] = reason
+        context["retry_after"] = time.monotonic() + RETRY_DEADLINE_SECONDS
+
+    def handle_analyze_batch(
+        self, context, chunks, batch_priority=MEDIUM_PRIORITY, parent_name=BATCH_TASK
+    ):
+        self._ensure_recovery_state(context)
+        engine = context["seagoat_engine"]
+        chunks = [
+            chunk
+            for chunk in chunks
+            if chunk.chunk_id not in engine.cache.data["chunks_already_analyzed"]
+            and chunk.chunk_id not in context["failed_chunks"]
+        ]
+        if not chunks:
+            return
+        if context["paused"]:
+            context["retained_batches"].append((chunks, batch_priority, parent_name))
+            return
+
+        logger.info("Processing chunk batch of %s chunks", len(chunks))
+        try:
+            engine.process_batch(chunks)
+        except EmbeddingError:
+            try:
+                engine.probe_embedding()
+            except EmbeddingError:
+                self._retain_and_pause(
+                    context, chunks, batch_priority, parent_name, "embedding"
+                )
+                return
+            if len(chunks) == 1:
+                failed_id = chunks[0].chunk_id
+                context["failed_chunks"].add(failed_id)
+                engine.cache.data["chunks_not_yet_analyzed"].discard(failed_id)
+                logger.warning("Quarantining failing chunk %s", failed_id)
+                return
+            midpoint = len(chunks) // 2
+            self._enqueue_batch(chunks[:midpoint], batch_priority, parent_name)
+            self._enqueue_batch(chunks[midpoint:], batch_priority, parent_name)
+        except Exception:  # pylint: disable=broad-except
+            logger.exception("Batch storage failed; retaining work for retry")
+            self._retain_and_pause(
+                context, chunks, batch_priority, parent_name, "storage"
+            )
+        else:
+            if not engine.cache.data["chunks_not_yet_analyzed"]:
+                logger.info("Analyzed all chunks!")
 
     def handle_analyze_chunk(self, context, chunk):
-        logger.info("Note, %s tasks left in the queue.", self._task_queue.qsize())
-        logger.info("Processing chunk %s...", chunk)
-        context["seagoat_engine"].process_chunk(chunk)
-
-        if self._task_queue.qsize() == 0:
-            logger.info("Analyzed all chunks!")
+        """Legacy task names use the same completion and recovery path."""
+        self.handle_analyze_batch(context, [chunk])
 
     def handle_query(self, context, **kwargs):
         results = context["seagoat_engine"].query_sync(
@@ -127,6 +214,7 @@ class TaskQueue(BaseQueue):
 
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
+        self._ensure_recovery_state(context)
         analyzed_count = len(engine.cache.data["chunks_already_analyzed"])
         unanalyzed_count = len(engine.cache.data["chunks_not_yet_analyzed"])
         total_chunks = analyzed_count + unanalyzed_count
@@ -138,6 +226,10 @@ class TaskQueue(BaseQueue):
             "chunks": {
                 "analyzed": analyzed_count,
                 "unanalyzed": unanalyzed_count,
+                "failed": len(context["failed_chunks"]),
+            },
+            "indexing": {
+                "paused": context["paused"],
             },
             "accuracy": {
                 "percentage": calculate_accuracy(analyzed_count, total_chunks),

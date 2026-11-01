@@ -1,7 +1,8 @@
 import datetime
+import subprocess
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from freezegun import freeze_time
@@ -514,3 +515,249 @@ def test_top_files_are_sorted_by_score_descending(repo):
     )
     assert top_files[0][0].path == "most_frecent.txt"
     assert top_files[-1][0].path == "least_frecent.txt"
+
+
+def test_analyze_files_preserves_whitespace_and_quoted_filenames(repo: MockRepo):
+    repository = Repository(repo.working_dir)
+    weird_names = [
+        "file with spaces.py",
+        'file"with"quotes.py',
+        "file\twith\ttab.py",
+        "file\nwith\nnewline.py",
+        "file\rwith\rcarriage-return.py",
+    ]
+    for name in weird_names:
+        repo.add_file_change_commit(
+            file_name=name,
+            contents=f"content for {name}\n",
+            commit_message=f"Commit for {name!r}",
+        )
+
+    repository.analyze_files()
+
+    # The newline-named file is the only file in its commit, so it goes
+    # through the header-attached path of the git log parser.
+    assert set(weird_names) <= set(repository.file_changes)
+    for name in weird_names:
+        assert repository.file_changes[name], name
+
+
+def test_analyze_files_supports_valid_committed_empty_repository(tmp_path: Path):
+    repo = cast(MockRepo, MockRepo.init(str(tmp_path)))
+    repo.index.commit(
+        "empty commit with no files",
+        author=repo.actors["John Doe"],
+        committer=repo.actors["John Doe"],
+        skip_hooks=True,
+    )
+    repo.close()
+    repository = Repository(str(tmp_path))
+
+    repository.analyze_files()
+
+    assert repository.file_changes == {}
+    assert repository.frecency_scores == {}
+    assert repository.top_files() == []
+
+
+def _patch_command(mocker, matcher, returncode, stdout="", stderr="failure"):
+    real_run = subprocess.run
+
+    def fake_run(cmd, *args, **kwargs):
+        if matcher(cmd):
+            output = stdout if kwargs.get("text") else stdout.encode("utf-8")
+            errors = stderr if kwargs.get("text") else stderr.encode("utf-8")
+            return subprocess.CompletedProcess(cmd, returncode, output, errors)
+        return real_run(cmd, *args, **kwargs)
+
+    return mocker.patch("seagoat.repository.subprocess.run", side_effect=fake_run)
+
+
+def test_analyze_files_keeps_previous_state_when_ripgrep_fails(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    previous_frecency = dict(repository.frecency_scores)
+    assert previous_changes
+
+    _patch_command(mocker, lambda cmd: bool(cmd) and cmd[0] == "rg", 2)
+    with pytest.raises(RuntimeError, match="ripgrep"):
+        repository.analyze_files()
+
+    assert dict(repository.file_changes) == previous_changes
+    assert repository.frecency_scores == previous_frecency
+
+
+def test_analyze_files_keeps_previous_state_when_ls_tree_fails(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    previous_frecency = dict(repository.frecency_scores)
+    assert previous_changes
+
+    _patch_command(mocker, lambda cmd: bool(cmd) and "ls-tree" in cmd, 128)
+    with pytest.raises(RuntimeError, match="ls-tree"):
+        repository.analyze_files()
+
+    assert dict(repository.file_changes) == previous_changes
+    assert repository.frecency_scores == previous_frecency
+
+
+def test_analyze_files_keeps_previous_state_when_git_log_fails(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    previous_frecency = dict(repository.frecency_scores)
+    assert previous_changes
+
+    _patch_command(
+        mocker,
+        lambda cmd: bool(cmd) and cmd[0] == "git" and "log" in cmd,
+        128,
+    )
+    with pytest.raises(RuntimeError, match="git log"):
+        repository.analyze_files()
+
+    assert dict(repository.file_changes) == previous_changes
+    assert repository.frecency_scores == previous_frecency
+
+
+def test_analyze_files_keeps_previous_state_on_partial_git_log_stream(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    previous_frecency = dict(repository.frecency_scores)
+    assert previous_changes
+
+    # Successful exit code but the NUL-delimited stream is cut off in the
+    # middle of the next commit's header: the parser must notice the
+    # truncation instead of silently publishing a partial result.
+    partial_stream = (
+        "\x00###abc:::2024-01-01 00:00:00 +0000:::A <a@b>:::subject\nfile1.py\x00\x00#"
+    )
+    _patch_command(
+        mocker,
+        lambda cmd: bool(cmd) and cmd[0] == "git" and "log" in cmd,
+        0,
+        stdout=partial_stream,
+    )
+    with pytest.raises(RuntimeError, match="malformed git log output"):
+        repository.analyze_files()
+
+    assert dict(repository.file_changes) == previous_changes
+    assert repository.frecency_scores == previous_frecency
+
+
+def test_analyze_files_retries_and_publishes_when_head_changes(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    assert previous_changes
+
+    heads = iter(["1" * 40, "2" * 40, "2" * 40, "2" * 40])
+    scanned_heads = []
+    mocker.patch.object(repository, "_get_scan_head", side_effect=lambda: next(heads))
+
+    def fake_scan(head):
+        scanned_heads.append(head)
+        return {f"scanned_{head[:1]}.py": [("###abc", 0, "A <a@b>", "s")]}, {
+            f"scanned_{head[:1]}.py": 1.0
+        }
+
+    mocker.patch.object(repository, "_scan_at_head", side_effect=fake_scan)
+
+    repository.analyze_files()
+
+    # First scan observed a moved HEAD and was retried at the new revision.
+    assert scanned_heads == ["1" * 40, "2" * 40]
+    assert dict(repository.file_changes) == {
+        "scanned_2.py": [("###abc", 0, "A <a@b>", "s")]
+    }
+    assert repository.frecency_scores == {"scanned_2.py": 1.0}
+
+
+def test_analyze_files_raises_and_keeps_state_when_head_keeps_changing(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    previous_frecency = dict(repository.frecency_scores)
+    assert previous_changes
+
+    heads = ["1" * 40, "2" * 40] * 4
+    mocker.patch.object(repository, "_get_scan_head", side_effect=lambda: heads.pop(0))
+    mocker.patch.object(
+        repository,
+        "_scan_at_head",
+        side_effect=lambda head: ({"moved.py": []}, {"moved.py": 1.0}),
+    )
+
+    with pytest.raises(RuntimeError, match="HEAD kept changing"):
+        repository.analyze_files()
+
+    assert dict(repository.file_changes) == previous_changes
+    assert repository.frecency_scores == previous_frecency
+
+
+def test_analyze_files_raises_outside_a_git_repository(tmp_path: Path):
+    repository = Repository(str(tmp_path))
+
+    with pytest.raises(RuntimeError, match="not a valid git working tree"):
+        repository.analyze_files()
+
+
+def test_failed_head_lookup_preserves_previous_scan_on_existing_branch(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    previous_frecency = dict(repository.frecency_scores)
+    _patch_command(
+        mocker,
+        lambda cmd: "rev-parse" in cmd and "--verify" in cmd,
+        128,
+    )
+
+    with pytest.raises(RuntimeError, match="could not resolve HEAD"):
+        repository.analyze_files()
+
+    assert dict(repository.file_changes) == previous_changes
+    assert repository.frecency_scores == previous_frecency
+
+
+def test_git_log_header_prefix_in_filename_is_not_a_commit(repo):
+    names = ["!-first.py", "###last.py"]
+    for name in names:
+        Path(repo.working_dir, name).write_text("value = 1\n")
+    repo.index.add(names)
+    repo.index.commit(
+        "Add two paths in the same commit",
+        author=repo.actors["John Doe"],
+        committer=repo.actors["John Doe"],
+        skip_hooks=True,
+    )
+    repository = Repository(repo.working_dir)
+
+    repository.analyze_files()
+
+    assert set(names) <= set(repository.file_changes)
+
+
+def test_first_commit_during_unborn_scan_does_not_publish_empty_state(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    head = "1" * 40
+    mocker.patch.object(
+        repository, "_get_scan_head", side_effect=[None, head, head, head]
+    )
+
+    def completed_scan(revision):
+        assert revision == head
+        assert dict(repository.file_changes) == previous_changes
+        return {"new.py": []}, {"new.py": 1.0}
+
+    mocker.patch.object(repository, "_scan_at_head", side_effect=completed_scan)
+
+    repository.analyze_files()
+
+    assert dict(repository.file_changes) == {"new.py": []}
+    assert repository.frecency_scores == {"new.py": 1.0}

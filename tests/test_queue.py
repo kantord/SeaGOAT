@@ -21,7 +21,7 @@ from seagoat.repository import Repository
 @pytest.fixture(name="create_task_queue")
 def create_task_queue(repo):
     def _create_task_queue():
-        return TaskQueue(repo_path=repo.working_dir, minimum_chunks_to_analyze=0)
+        return TaskQueue(repo_path=repo.working_dir)
 
     return _create_task_queue
 
@@ -84,9 +84,10 @@ def test_important_files_are_analyzed_first(create_task_queue, mocker, repo):
     repository.analyze_files()
     order_of_files_analyzed = []
     for call in enqueue.mock_calls:
-        path = call.args[1].path
-        if not order_of_files_analyzed or order_of_files_analyzed[-1] != path:
-            order_of_files_analyzed.append(path)
+        for chunk in call.args[1]:
+            path = chunk.path
+            if not order_of_files_analyzed or order_of_files_analyzed[-1] != path:
+                order_of_files_analyzed.append(path)
 
     # due to sorting by file priority, chunks of the same file should
     # be grouped together

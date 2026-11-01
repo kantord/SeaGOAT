@@ -196,6 +196,31 @@ logger = logging.getLogger(__name__)
 GLOBAL_CONFIG_DIR = get_config_dir()
 GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.yml"
 
+# server.engine.minChunksToAnalyze is deprecated and ignored. It stays in the
+# schema so existing config files keep validating, and DEFAULT_CONFIG keeps the
+# old defaults for library compatibility until the engine stops reading them,
+# but an explicitly configured value is stripped from the parsed config file
+# before any defaults are merged in. Detection happens on the parsed original
+# config file, so an ordinary default configuration never triggers a warning.
+_DEPRECATED_MIN_CHUNKS_TO_ANALYZE_KEY = ("server", "engine", "minChunksToAnalyze")
+_warned_deprecated_min_chunks_files: set[Path] = set()
+
+
+def _strip_deprecated_min_chunks_to_analyze(parsed_config: dict, config_file) -> None:
+    """Drop the deprecated key from a parsed config file, warning once per file."""
+    if _pop_key_path(parsed_config, _DEPRECATED_MIN_CHUNKS_TO_ANALYZE_KEY) is None:
+        return
+    config_file = Path(config_file)
+    if config_file in _warned_deprecated_min_chunks_files:
+        return
+    _warned_deprecated_min_chunks_files.add(config_file)
+    logger.warning(
+        "Ignoring 'server.engine.minChunksToAnalyze' in %s: "
+        "this setting is deprecated and ignored; it will be removed in a "
+        "future version.",
+        config_file,
+    )
+
 
 def validate_config_file(config_file: str):
     if os.path.exists(config_file):
@@ -208,6 +233,8 @@ def validate_config_file(config_file: str):
 
 def extend_config_with_file(base_config, config_file):
     new_config = validate_config_file(config_file)
+    if new_config:
+        _strip_deprecated_min_chunks_to_analyze(new_config, config_file)
     return always_merger.merge(base_config, new_config) if new_config else base_config
 
 
@@ -233,6 +260,7 @@ def get_config_values(repo_path: Path):
                     ".".join(key_path),
                     repo_config_file,
                 )
+        _strip_deprecated_min_chunks_to_analyze(repo_config, repo_config_file)
         config = always_merger.merge(config, repo_config)
 
     return config
