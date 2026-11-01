@@ -58,6 +58,9 @@ asdf
     results = await seagoat.query(my_regex_query)
 
     assert results[0].gitfile.path == "line_positions.txt"
+    # Blank lines 11 and 17 only matched through their line numbers, which
+    # used to be part of the ripgrep cache line; the cache now contains only
+    # line text, so those false hits are gone.
     assert set(results[0].get_lines()) == {
         1,
         2,
@@ -65,11 +68,9 @@ asdf
         8,
         9,
         10,
-        11,
         12,
         13,
         14,
         15,
         16,
-        17,
     }

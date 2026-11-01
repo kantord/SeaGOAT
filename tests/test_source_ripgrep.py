@@ -2,7 +2,13 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from seagoat.repository import Repository
-from seagoat.sources.ripgrep import STOP_WORDS, initialize, query_terms
+from seagoat.sources.ripgrep import (
+    STOP_WORDS,
+    initialize,
+    map_global_line_to_file,
+    query_terms,
+    run_ripgrep,
+)
 from tests.test_ripgrep import pytest
 
 
@@ -182,3 +188,87 @@ def test_query_terms_properties(query_text):
 
     if any(term.lower() in STOP_WORDS for term in terms):
         assert all(cleaned.lower() in STOP_WORDS for cleaned in cleaned_tokens)
+
+
+def test_path_only_term_does_not_match(repo, initialize_source):
+    """A term that only appears in the file path must not return the file."""
+    repo.add_file_change_commit(
+        file_name="special_code.py",
+        contents="1: nothing relevant here\n",
+        commit_message="Add special code file",
+    )
+
+    fetch = initialize_source(repo)
+    results = fetch("special", limit=10)
+
+    assert "special_code.py" not in [result.gitfile.path for result in results]
+
+
+def test_caret_anchors_at_start_of_line(repo, initialize_source):
+    # Line 2's text starts with "def", so "^def" must anchor at the start of
+    # the line text (not at the path, as the old NUL-separated cache did).
+    repo.add_file_change_commit(
+        file_name="code.py",
+        contents="something\ndef my_function():\n   return 1\n",
+        commit_message="Add code",
+    )
+
+    fetch = initialize_source(repo)
+    results = fetch("^def", limit=10)
+
+    assert len(results) == 1
+    result = next(iter(results))
+    assert result.gitfile.path == "code.py"
+    assert set(result.lines) == {2}
+
+
+@pytest.mark.parametrize(
+    "query,contents",
+    [
+        ("how to change the allowed file types ?", "1: allowed types here\n"),
+        ("foo (", "1: hello foo world\n"),
+        ("*", "1: a * b\n"),
+    ],
+)
+def test_invalid_regex_queries_still_return_matches(
+    repo, initialize_source, query, contents
+):
+    repo.add_file_change_commit(
+        file_name="target.py",
+        contents=contents,
+        commit_message="Add target file",
+    )
+
+    fetch = initialize_source(repo)
+    results = fetch(query, limit=10)
+
+    assert "target.py" in [result.gitfile.path for result in results]
+
+
+@given(st.lists(st.integers(0, 20), min_size=1))
+def test_global_line_mapping_round_trips(line_counts):
+    cumulative = []
+    total = 0
+    for count in line_counts:
+        total += count
+        cumulative.append(total)
+
+    for global_line in range(1, total + 1):
+        file_index, local_line = map_global_line_to_file(cumulative, global_line)
+        assert 0 <= file_index < len(line_counts)
+        assert 1 <= local_line <= line_counts[file_index]
+        assert sum(line_counts[:file_index]) + local_line == global_line
+
+
+@given(
+    term=st.text(
+        alphabet=st.characters(exclude_categories=["Cs"], exclude_characters="\x00"),
+        min_size=1,
+    )
+)
+@settings(deadline=None, max_examples=30)
+def test_ripgrep_term_runner_never_raises(term):
+    cache_text = "alpha line\nbeta line\n"
+    result = run_ripgrep(cache_text, [term], 5)
+    assert isinstance(result, list)
+    assert all(isinstance(line, int) for line, _ in result)
