@@ -8,6 +8,7 @@ and the reported accuracy of the index.
 import logging
 import time
 from queue import PriorityQueue
+from types import SimpleNamespace
 
 import orjson
 import pytest
@@ -37,7 +38,6 @@ class QueueWithQuietWorker(TaskQueue):
 
 
 def _quiet_queue(repo, **kwargs):
-    kwargs.setdefault("minimum_chunks_to_analyze", 0)
     queue = QueueWithQuietWorker(repo_path=repo.working_dir, **kwargs)
     queue.shutdown()
     return queue
@@ -66,14 +66,14 @@ def test_maintenance_is_skipped_when_it_ran_recently(repo, mocker):
     context = _engine_context(repo)
     context["last_maintenance"] = time.time()
     engine = context["seagoat_engine"]
-    spy_analyze = mocker.spy(engine, "analyze_codebase")
+    spy_plan = mocker.spy(engine, "plan_indexing")
     spy_status_hash = mocker.spy(engine.repository, "get_status_hash")
 
     queue.handle_maintenance(context)
 
     # Neither the repo state check nor the analysis runs at all.
     assert spy_status_hash.call_count == 0
-    assert spy_analyze.call_count == 0
+    assert spy_plan.call_count == 0
 
 
 def test_maintenance_is_skipped_when_repository_is_unchanged(repo, mocker):
@@ -82,11 +82,11 @@ def test_maintenance_is_skipped_when_repository_is_unchanged(repo, mocker):
     context["last_repo_state_hash"] = context[
         "seagoat_engine"
     ].repository.get_status_hash()
-    spy_analyze = mocker.spy(context["seagoat_engine"], "analyze_codebase")
+    spy_plan = mocker.spy(context["seagoat_engine"], "plan_indexing")
 
     queue.handle_maintenance(context)
 
-    assert spy_analyze.call_count == 0
+    assert spy_plan.call_count == 0
 
 
 def test_maintenance_is_skipped_while_chunk_tasks_are_queued(repo, mocker):
@@ -95,11 +95,11 @@ def test_maintenance_is_skipped_while_chunk_tasks_are_queued(repo, mocker):
     queue._task_queue.put(
         Task(priority=HIGH_PRIORITY, name="analyze_chunk", args=("fake chunk",))
     )
-    spy_analyze = mocker.spy(context["seagoat_engine"], "analyze_codebase")
+    spy_plan = mocker.spy(context["seagoat_engine"], "plan_indexing")
 
     queue.handle_maintenance(context)
 
-    assert spy_analyze.call_count == 0
+    assert spy_plan.call_count == 0
 
 
 def test_maintenance_logs_when_all_chunks_are_analyzed(repo, caplog):
@@ -124,7 +124,7 @@ def test_real_worker_indexes_all_enqueued_chunks(repo, caplog):
     with mock_sources_context(repo, {}, {}):
         expected_chunk_ids = _chunk_ids_of(repo)
 
-        task_queue = TaskQueue(repo_path=repo.working_dir, minimum_chunks_to_analyze=0)
+        task_queue = TaskQueue(repo_path=repo.working_dir)
         observer = Engine(repo.working_dir)
 
         def all_chunks_analyzed():
@@ -151,7 +151,7 @@ def test_query_task_returns_serialized_results(repo):
         ripgrep_lines={"file1.md": [(1, 0.2)]},
         chroma_lines={},
     ):
-        task_queue = TaskQueue(repo_path=repo.working_dir, minimum_chunks_to_analyze=0)
+        task_queue = TaskQueue(repo_path=repo.working_dir)
         try:
             payload = task_queue.enqueue(
                 "query",
@@ -209,8 +209,13 @@ def test_accuracy_is_100_percent_when_no_chunks_or_all_analyzed():
 def _queue_without_worker(engine):
     """A TaskQueue whose maintenance can be called step by step: no thread runs."""
     queue = TaskQueue.__new__(TaskQueue)
-    queue.kwargs = {"minimum_chunks_to_analyze": 0}
+    queue.kwargs = {}
     queue._task_queue = PriorityQueue()
+    engine.config = {"server": {"chroma": {"batchSize": 100}}}
+    engine.cache.data = {
+        "chunks_not_yet_analyzed": set(),
+        "chunks_already_analyzed": set(),
+    }
     context = {
         "seagoat_engine": engine,
         "last_maintenance": None,
@@ -222,31 +227,31 @@ def _queue_without_worker(engine):
 def test_maintenance_skipped_for_pending_chunks_runs_on_the_next_pass(mocker):
     engine = mocker.Mock()
     engine.repository.get_status_hash.return_value = "edited"
-    engine.analyze_codebase.return_value = []
+    engine.plan_indexing.return_value = []
     queue, context = _queue_without_worker(engine)
 
     queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="analyze_chunk"))
     queue.handle_maintenance(context)
-    engine.analyze_codebase.assert_not_called()
+    engine.plan_indexing.assert_not_called()
 
     # Once the chunks are processed, the same (unchanged) repo state must still
     # be analyzed: the skipped pass must not have recorded it as done
     queue._task_queue.get()
     queue.handle_maintenance(context)
-    engine.analyze_codebase.assert_called_once()
+    engine.plan_indexing.assert_called_once()
 
 
 def test_waiting_requests_do_not_block_maintenance(mocker):
     engine = mocker.Mock()
     engine.repository.get_status_hash.return_value = "edited"
-    engine.analyze_codebase.return_value = []
+    engine.plan_indexing.return_value = []
     queue, context = _queue_without_worker(engine)
 
     for _ in range(3):
         queue._task_queue.put(Task(priority=HIGH_PRIORITY, name="get_stats"))
     queue.handle_maintenance(context)
 
-    engine.analyze_codebase.assert_called_once()
+    engine.plan_indexing.assert_called_once()
 
 
 def test_unchanged_repository_is_not_checked_on_every_pass(mocker):
@@ -261,13 +266,13 @@ def test_unchanged_repository_is_not_checked_on_every_pass(mocker):
     # The worker calls maintenance every 0.1s when idle; the git status check
     # must still only run once per SECONDS_BETWEEN_MAINTENANCE
     engine.repository.get_status_hash.assert_called_once()
-    engine.analyze_codebase.assert_not_called()
+    engine.plan_indexing.assert_not_called()
 
 
 def test_failed_analysis_is_retried_on_same_unchanged_repo(mocker):
     engine = mocker.Mock()
     engine.repository.get_status_hash.return_value = "same-state"
-    engine.analyze_codebase.side_effect = [RuntimeError("analysis failed"), []]
+    engine.plan_indexing.side_effect = [RuntimeError("analysis failed"), []]
     queue, context = _queue_without_worker(engine)
 
     clock = {"now": 100.0}
@@ -283,14 +288,14 @@ def test_failed_analysis_is_retried_on_same_unchanged_repo(mocker):
     clock["now"] += SECONDS_BETWEEN_MAINTENANCE + 1
     queue.handle_maintenance(context)
 
-    assert engine.analyze_codebase.call_count == 2
+    assert engine.plan_indexing.call_count == 2
     assert context["last_repo_state_hash"] == "same-state"
 
 
 def test_successful_unchanged_pass_is_not_analyzed_twice(mocker):
     engine = mocker.Mock()
     engine.repository.get_status_hash.return_value = "same-state"
-    engine.analyze_codebase.return_value = []
+    engine.plan_indexing.return_value = []
     queue, context = _queue_without_worker(engine)
 
     clock = {"now": 100.0}
@@ -302,13 +307,15 @@ def test_successful_unchanged_pass_is_not_analyzed_twice(mocker):
     clock["now"] += SECONDS_BETWEEN_MAINTENANCE + 1
     queue.handle_maintenance(context)
 
-    engine.analyze_codebase.assert_called_once()
+    engine.plan_indexing.assert_called_once()
 
 
 def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
     engine = mocker.Mock()
     engine.repository.get_status_hash.return_value = "same-state"
-    engine.analyze_codebase.return_value = [{"chunk_id": "chunk-1"}]
+    engine.plan_indexing.return_value = [
+        SimpleNamespace(chunk_id="chunk-1"),
+    ]
     queue, context = _queue_without_worker(engine)
 
     real_enqueue = queue.enqueue
@@ -336,4 +343,4 @@ def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
     queue.handle_maintenance(context)
 
     assert context["last_repo_state_hash"] == "same-state"
-    assert engine.analyze_codebase.call_count == 2
+    assert engine.plan_indexing.call_count == 2

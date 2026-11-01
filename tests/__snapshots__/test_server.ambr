@@ -72,7 +72,11 @@
       }),
       'chunks': dict({
         'analyzed': 7,
+        'failed': 0,
         'unanalyzed': 0,
+      }),
+      'indexing': dict({
+        'paused': False,
       }),
       'queue': dict({
         'size': 0,

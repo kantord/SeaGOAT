@@ -152,9 +152,7 @@ def test_status_endpoint_with_some_files_not_analyzed(repo):
     # partially analyzed however fast the machine is.
     Engine(repo.working_dir).analyze_codebase(minimum_chunks_to_analyze=1)
     projects = Projects(
-        lambda path, config: NoMaintenanceTaskQueue(
-            repo_path=path, minimum_chunks_to_analyze=0
-        )
+        lambda path, config: NoMaintenanceTaskQueue(repo_path=path)
     )
     queue = projects.get(repo.working_dir).queue
 

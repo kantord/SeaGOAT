@@ -724,7 +724,7 @@ def test_failed_head_lookup_preserves_previous_scan_on_existing_branch(repo, moc
 
 
 def test_git_log_header_prefix_in_filename_is_not_a_commit(repo):
-    names = ["000-first.py", "###last.py"]
+    names = ["!-first.py", "###last.py"]
     for name in names:
         Path(repo.working_dir, name).write_text("value = 1\n")
     repo.index.add(names)

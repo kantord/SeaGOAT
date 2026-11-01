@@ -237,21 +237,22 @@ async def test_chunks_are_persisted_between_runs(repo):
     )
     seagoat1 = Engine(repo.working_dir)
     with patch.object(
-        seagoat1, "_add_to_collection", wraps=seagoat1._add_to_collection
-    ) as mock_add_to_collection:
+        seagoat1, "_add_batch_to_collection", wraps=seagoat1._add_batch_to_collection
+    ) as mock_add_batch_to_collection:
         seagoat1.analyze_codebase()
         results1 = await seagoat1.query("pomodoro spaghetti")
-        assert mock_add_to_collection.call_count > 2
+        # Fewer chunks than the batch size are stored in a single batch call.
+        assert mock_add_batch_to_collection.call_count == 1
         assert results1[0].gitfile.path == "articles.txt"
         del seagoat1
 
     seagoat2 = Engine(repo.working_dir)
     with patch.object(
-        seagoat2, "_add_to_collection", wraps=seagoat2._add_to_collection
-    ) as mock_add_to_collection:
+        seagoat2, "_add_batch_to_collection", wraps=seagoat2._add_batch_to_collection
+    ) as mock_add_batch_to_collection:
         seagoat2.analyze_codebase()
         results2 = await seagoat2.query("pomodoro spaghetti")
-        assert mock_add_to_collection.call_count == 0
+        assert mock_add_batch_to_collection.call_count == 0
         assert results2[0].gitfile.path == "articles.txt"
 
 
