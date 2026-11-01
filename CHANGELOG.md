@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## [2.0.0](https://github.com/kantord/SeaGOAT/compare/v1.6.1...v2.0.0) - 2026-11-01
+
+### Added
+
+- add SEAGOAT_CACHE_DIR/SEAGOAT_CONFIG_DIR; isolate test processes ([#1087](https://github.com/kantord/SeaGOAT/pull/1087))
+- [**breaking**] support multiple projects in a single server instance ([#1080](https://github.com/kantord/SeaGOAT/pull/1080))
+
+### Fixed
+
+- complete indexing batches and recover failed work ([#1112](https://github.com/kantord/SeaGOAT/pull/1112))
+- harden indexing maintenance, cache writes, and task ordering ([#1111](https://github.com/kantord/SeaGOAT/pull/1111))
+- keep the better-scoring line when two sources find the same line ([#1109](https://github.com/kantord/SeaGOAT/pull/1109))
+- keep ripgrep search working with NUL bytes and rank all matches ([#1108](https://github.com/kantord/SeaGOAT/pull/1108))
+- add CLI request timeouts and stricter security and test checks ([#1105](https://github.com/kantord/SeaGOAT/pull/1105))
+- *(ripgrep)* match line text only and retry invalid regex as literal ([#1102](https://github.com/kantord/SeaGOAT/pull/1102))
+- index edits made during indexing and ignore context line distances ([#1099](https://github.com/kantord/SeaGOAT/pull/1099))
+- *(ripgrep)* sanitize query terms and restore the exact-match bonus ([#1098](https://github.com/kantord/SeaGOAT/pull/1098))
+- rank files by frecency and keep the best-matching lines ([#1096](https://github.com/kantord/SeaGOAT/pull/1096))
+- prefer the closer match when merging same-line results ([#1095](https://github.com/kantord/SeaGOAT/pull/1095))
+- avoid ZeroDivisionError on commits dated ahead of local time ([#1094](https://github.com/kantord/SeaGOAT/pull/1094))
+- keep indexing while the server receives frequent requests ([#1091](https://github.com/kantord/SeaGOAT/pull/1091))
+
+### Other
+
+- run tests in random order with pytest-randomly ([#1107](https://github.com/kantord/SeaGOAT/pull/1107))
+- add the missing embedding to the test embedding cache ([#1106](https://github.com/kantord/SeaGOAT/pull/1106))
+- *(cli)* add a property test for picking blocks under the -l limit ([#1103](https://github.com/kantord/SeaGOAT/pull/1103))
+- *(deps)* lock file maintenance ([#1100](https://github.com/kantord/SeaGOAT/pull/1100))
+- cover cli_display and task_queue, check ranking under float noise ([#1092](https://github.com/kantord/SeaGOAT/pull/1092))
+- pin test repo commit ages and start servers one way ([#1088](https://github.com/kantord/SeaGOAT/pull/1088))
+- load the default embedding model once instead of per batch ([#1086](https://github.com/kantord/SeaGOAT/pull/1086))
+- cache embeddings in a committed file and reuse one test repo ([#1085](https://github.com/kantord/SeaGOAT/pull/1085))
+- a big batch of improvements ion testing practices ([#1083](https://github.com/kantord/SeaGOAT/pull/1083))
+- *(deps)* update non-major dependencies ([#1079](https://github.com/kantord/SeaGOAT/pull/1079))
+- *(deps)* update pre-commit hook astral-sh/ruff-pre-commit to v0.17.2 ([#1078](https://github.com/kantord/SeaGOAT/pull/1078))
+
 ## [1.6.1](https://github.com/kantord/SeaGOAT/compare/v1.6.0...v1.6.1) - 2026-10-25
 
 ### Fixed
