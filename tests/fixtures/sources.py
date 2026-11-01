@@ -9,7 +9,9 @@ from seagoat.sources import chroma, ripgrep
 
 
 @contextmanager
-def mock_sources_context(repo, ripgrep_lines, chroma_lines, embedding=None, storage=None):
+def mock_sources_context(
+    repo, ripgrep_lines, chroma_lines, embedding=None, storage=None
+):
     """Deterministic in-memory stand-in for the real sources.
 
     ``embedding`` is a callable simulating the embedding step: raising
