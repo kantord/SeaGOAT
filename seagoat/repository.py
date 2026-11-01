@@ -310,19 +310,18 @@ class Repository:
         """Scan the repository at a single pinned HEAD revision.
 
         On success, publishes the completed file_changes and frecency_scores
-        dictionaries atomically. On any failure (failed git/rg command,
+        dictionaries after validation. On any failure (failed git/rg command,
         partial git log stream, or a HEAD that moved while scanning) raises
         and leaves the previous complete metadata intact.
         """
         for _ in range(self._MAX_HEAD_VERIFICATION_ATTEMPTS):
             head = self._get_scan_head()
             if head is None:
-                # A genuinely unborn repository is a valid empty scan.
-                self.file_changes = defaultdict(list)
-                self.frecency_scores = {}
-                return
-
-            file_changes, frecency_scores = self._scan_at_head(head)
+                # Verify unborn HEAD too: the first commit may arrive while
+                # this scan is running.
+                file_changes, frecency_scores = defaultdict(list), {}
+            else:
+                file_changes, frecency_scores = self._scan_at_head(head)
 
             if self._get_scan_head() == head:
                 self.file_changes = file_changes

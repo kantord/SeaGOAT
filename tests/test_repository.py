@@ -739,3 +739,25 @@ def test_git_log_header_prefix_in_filename_is_not_a_commit(repo):
     repository.analyze_files()
 
     assert set(names) <= set(repository.file_changes)
+
+
+def test_first_commit_during_unborn_scan_does_not_publish_empty_state(repo, mocker):
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    previous_changes = dict(repository.file_changes)
+    head = "1" * 40
+    mocker.patch.object(
+        repository, "_get_scan_head", side_effect=[None, head, head, head]
+    )
+
+    def completed_scan(revision):
+        assert revision == head
+        assert dict(repository.file_changes) == previous_changes
+        return {"new.py": []}, {"new.py": 1.0}
+
+    mocker.patch.object(repository, "_scan_at_head", side_effect=completed_scan)
+
+    repository.analyze_files()
+
+    assert dict(repository.file_changes) == {"new.py": []}
+    assert repository.frecency_scores == {"new.py": 1.0}
