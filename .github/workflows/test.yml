@@ -63,7 +63,7 @@ jobs:
 
             - name: Run pytest
               run: |
-                  uv run pytest . -vvs --timeout=300 --cov seagoat --cov-report=xml
+                  uv run pytest . -vvs --timeout=300 --cov seagoat --cov-branch --cov-report=xml
 
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1

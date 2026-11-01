@@ -51,9 +51,15 @@ def stop_seagoat_server(server_process: subprocess.Popen) -> None:
 
 
 def served_projects(instance: Instance) -> list[str]:
-    response = requests.get(f"{instance_url(instance)}/status")
+    response = requests.get(
+        f"{instance_url(instance)}/status", timeout=HTTP_TIMEOUT_SECONDS
+    )
     assert response.status_code == 200
     return response.json()["projects"]
+
+
+# Every HTTP call has a timeout: a stuck server must fail a test, not hang it
+HTTP_TIMEOUT_SECONDS = 30
 
 
 def free_port() -> int:
@@ -83,7 +89,9 @@ def normalize_version(data):
 def test_query_codebase(server, snapshot, repo):
     url = f"{server}/lines/query"
     response = requests.post(
-        url, json={"queryText": "Markdown", "repoPath": repo.working_dir}
+        url,
+        json={"queryText": "Markdown", "repoPath": repo.working_dir},
+        timeout=HTTP_TIMEOUT_SECONDS,
     )
 
     assert response.status_code == 200, response.text
@@ -101,7 +109,9 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
     url = f"{server}/status"
 
     def fully_analyzed():
-        stats = requests.post(url, json={"repoPath": repo.working_dir}).json()["stats"]
+        stats = requests.post(
+            url, json={"repoPath": repo.working_dir}, timeout=HTTP_TIMEOUT_SECONDS
+        ).json()["stats"]
         # Before indexing starts nothing is unanalyzed yet either, so also
         # require that something was analyzed
         chunks = stats["chunks"]
@@ -115,7 +125,9 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
     # when the worker is idle and, after a short delay, while the queue is
     # busy, so polling frequently is fine; keep a modest period to stay quick.
     wait_for(fully_analyzed, timeout=10, period=0.5)
-    response = requests.post(url, json={"repoPath": repo.working_dir})
+    response = requests.post(
+        url, json={"repoPath": repo.working_dir}, timeout=HTTP_TIMEOUT_SECONDS
+    )
 
     assert response.status_code == 200, response.text
 
@@ -232,6 +244,7 @@ def test_one_instance_serves_two_repositories(generate_repo, start_seagoat_serve
         project_status_response = requests.post(
             f"{instance_url(instance)}/status",
             json={"repoPath": repo_b.working_dir},
+            timeout=HTTP_TIMEOUT_SECONDS,
         )
         assert project_status_response.status_code == 200
 
@@ -243,6 +256,7 @@ def test_one_instance_serves_two_repositories(generate_repo, start_seagoat_serve
                     "queryText": "zanzibar_marker_only_in_repo_b",
                     "repoPath": repo.working_dir,
                 },
+                timeout=HTTP_TIMEOUT_SECONDS,
             )
             assert response.status_code == 200, response.text
             return [result["path"] for result in response.json()["results"]]
@@ -272,11 +286,15 @@ def test_bad_configured_repository_does_not_take_instance_down(
         assert normalize_repo_path(bad_repo.working_dir) not in projects
 
         # A reload triggered by a later `start` must not take the instance down
-        reload_response = requests.post(f"{instance_url(instance)}/reload")
+        reload_response = requests.post(
+            f"{instance_url(instance)}/reload", timeout=HTTP_TIMEOUT_SECONDS
+        )
         assert reload_response.status_code == 200
         assert reload_response.json()["projects"] == projects
 
-        status_response = requests.get(f"{instance_url(instance)}/status")
+        status_response = requests.get(
+            f"{instance_url(instance)}/status", timeout=HTTP_TIMEOUT_SECONDS
+        )
         assert status_response.status_code == 200
 
         stop_seagoat_server(server_process)
@@ -468,7 +486,9 @@ def test_query_codebase_no_results(server, snapshot, repo):
     query_text = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
     url = f"{server}/lines/query"
     response = requests.post(
-        url, json={"queryText": query_text, "repoPath": repo.working_dir}
+        url,
+        json={"queryText": query_text, "repoPath": repo.working_dir},
+        timeout=HTTP_TIMEOUT_SECONDS,
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -527,7 +547,9 @@ def test_start_server_on_custom_port_using_config_files(
 def test_query_files_endpoint(server, snapshot, repo):
     url = f"{server}/files/query"
     response = requests.post(
-        url, json={"queryText": "Markdown", "repoPath": repo.working_dir}
+        url,
+        json={"queryText": "Markdown", "repoPath": repo.working_dir},
+        timeout=HTTP_TIMEOUT_SECONDS,
     )
 
     assert response.status_code == 200, response.text

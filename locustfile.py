@@ -34,9 +34,13 @@ WORDS = [
 ]
 
 
+# SystemRandom: Ruff's S311 then has nothing to flag, and speed does not matter here
+_random = random.SystemRandom()
+
+
 def random_phrase():
-    phrase_length = random.randint(3, 15)
-    return " ".join(random.choices(WORDS, k=phrase_length))
+    phrase_length = _random.randint(3, 15)
+    return " ".join(_random.choices(WORDS, k=phrase_length))
 
 
 class BaseUser(HttpUser):

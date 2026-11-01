@@ -43,6 +43,19 @@ jobs:
             - name: Install dependencies
               run: uv sync --locked
 
+            - name: Audit dependencies for known vulnerabilities
+              run: |
+                  uv export --locked --no-hashes --no-emit-project --format requirements-txt > /tmp/requirements.txt
+                  # These chromadb advisories (no fixed version yet) only affect
+                  # ChromaDB's HTTP server and its auth provider; SeaGOAT only
+                  # uses the embedded PersistentClient. Drop each ignore once a
+                  # fixed chromadb release is available.
+                  uvx pip-audit --strict -r /tmp/requirements.txt \
+                      --ignore-vuln PYSEC-2026-311 \
+                      --ignore-vuln PYSEC-2026-3813 \
+                      --ignore-vuln PYSEC-2026-3814 \
+                      --ignore-vuln PYSEC-2026-3815
+
             - name: Run pre-commit
               run: |
                   uv run pre-commit run --all-files

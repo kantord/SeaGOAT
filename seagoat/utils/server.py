@@ -69,7 +69,7 @@ def client_host(host: str) -> str:
 
     This never binds: it maps a wildcard bind address to its loopback address.
     """
-    return {"0.0.0.0": "127.0.0.1", "::": "::1"}.get(host, host)  # nosec B104
+    return {"0.0.0.0": "127.0.0.1", "::": "::1"}.get(host, host)  # noqa: S104  (never binds; maps wildcard to loopback)  # nosec B104
 
 
 def write_instance(instance: Instance) -> None:

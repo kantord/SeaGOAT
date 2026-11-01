@@ -33,12 +33,14 @@ class Repository:
 
     def _get_head_hash(self):
         return subprocess.check_output(
-            ["git", "-C", str(self.path), "rev-parse", "HEAD"], text=True
+            ["git", "-C", str(self.path), "rev-parse", "HEAD"],
+            text=True,
         ).strip()
 
     def _get_working_tree_diff(self):
         return subprocess.check_output(
-            ["git", "-C", str(self.path), "diff"], text=True
+            ["git", "-C", str(self.path), "diff"],
+            text=True,
         ).strip()
 
     def _is_file_ignored(self, path: str):
@@ -162,7 +164,9 @@ class Repository:
         files = (
             set(
                 subprocess.check_output(
-                    ["rg", "--files"], cwd=self.path, text=True
+                    ["rg", "--files"],
+                    cwd=self.path,
+                    text=True,
                 ).split()
             )
             & self._get_files_at_head()
@@ -170,7 +174,8 @@ class Repository:
 
         current_commit_info = None
         with subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True) as proc:
-            assert proc.stdout is not None
+            if proc.stdout is None:
+                raise RuntimeError("git log started without an output pipe")
             for line in iter(proc.stdout.readline, ""):
                 line = line.strip()
                 if ":::" in line:

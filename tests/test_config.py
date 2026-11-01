@@ -11,6 +11,7 @@ from seagoat.utils.config import (
     get_config_values,
     get_global_config_values,
 )
+from tests.fixtures.hosts import ALL_INTERFACES
 
 # These tests compare against seagoat's default configuration, so they must
 # not start from the test suite's cached-embeddings global config.
@@ -174,7 +175,7 @@ def test_accepts_fractional_n_results_multiplier(repo, create_config_file):
             },
             ("server", "chroma", "embeddingFunction"),
         ),
-        ({"server": {"host": "0.0.0.0"}}, ("server", "host")),  # nosec B104 - config only
+        ({"server": {"host": ALL_INTERFACES}}, ("server", "host")),
         ({"client": {"host": "https://evil.example/"}}, ("client", "host")),
     ],
 )
@@ -233,11 +234,11 @@ def test_server_listens_on_localhost_by_default(repo):
 
 
 def test_global_config_can_set_server_host(repo, create_config_file):
-    create_config_file({"server": {"host": "0.0.0.0"}}, global_config=True)  # nosec B104
+    create_config_file({"server": {"host": ALL_INTERFACES}}, global_config=True)
 
     config = get_config_values(Path(repo.working_dir))
 
-    assert config["server"]["host"] == "0.0.0.0"  # nosec B104 - config only
+    assert config["server"]["host"] == ALL_INTERFACES
 
 
 def test_config_defaults_have_no_repositories(repo):

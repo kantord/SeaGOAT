@@ -419,7 +419,9 @@ def start_server(repo_path: str, custom_port=None):
             )
         return
 
-    assert server is not None  # claim_start returned None, so bind() ran
+    if server is None:
+        # claim_start returned None, so bind() ran and created the server
+        raise RuntimeError("start_server: bind() did not create a server")
     if found_in_directory:
         click.echo("Added repositories:")
         for root in repo_roots:
