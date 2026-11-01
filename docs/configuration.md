@@ -58,9 +58,10 @@ server:
 
   # Engine processing configuration
   engine:
+    # Deprecated and ignored: accepted for compatibility, but has no effect
     minChunksToAnalyze:
-      minValue: 40          # Minimum chunks to analyze (1-1000)
-      percentage: 0.2       # Percentage of total chunks to analyze (0.01-1.0)
+      minValue: 40
+      percentage: 0.2
     maxWorkers: 1           # Maximum worker threads (1-32)
 
   # Query defaults
@@ -161,10 +162,9 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
 
 * `engine`: Configurations for the search engine processing.
   Has the following attributes:
-  * `minChunksToAnalyze`:
-    * `minValue`: Minimum number of chunks to analyze (default: 40, range: 1-1000)
-    * `percentage`: Percentage of total chunks to analyze
-      (default: 0.2, range: 0.01-1.0)
+  * `minChunksToAnalyze` (deprecated, ignored): This setting no longer has any
+    effect. It is still accepted for compatibility so existing configuration
+    files keep validating, but SeaGOAT logs a warning and ignores it.
   * `maxWorkers`: Maximum worker threads for parallel processing
     (default: 1, range: 1-32)
 
@@ -203,26 +203,11 @@ server:
   # Increase processing capacity
   engine:
     maxWorkers: 4         # Use more CPU cores
-    minChunksToAnalyze:
-      minValue: 100       # Analyze more chunks initially
-      percentage: 0.3     # Analyze 30% of chunks instead of 20%
 
   # Optimize vector search
   chroma:
     maxChunksToFetch: 200 # Fetch more results for better recall
     nResultsMultiplier: 3 # Over-fetch more aggressively
-```
-
-### For Faster Initial Analysis
-
-To speed up the initial codebase analysis:
-
-```yaml
-server:
-  engine:
-    minChunksToAnalyze:
-      minValue: 20        # Lower minimum for faster startup
-      percentage: 0.1     # Analyze fewer chunks initially
 ```
 
 ### For Better Search Quality
@@ -254,9 +239,6 @@ server:
 
   engine:
     maxWorkers: 1         # Single-threaded processing
-    minChunksToAnalyze:
-      minValue: 20        # Analyze fewer chunks
-      percentage: 0.1
 
   chroma:
     maxChunksToFetch: 50  # Fetch fewer results

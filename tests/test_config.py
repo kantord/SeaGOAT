@@ -276,3 +276,104 @@ def test_get_global_config_values_reads_global_config(repo, create_config_file):
     config = get_global_config_values()
 
     assert config["server"]["port"] == 6061
+
+
+# The deprecation warning is logged once per config file. The warned files are
+# tracked in module state, so each test must start from a clean slate (otherwise
+# a later test reusing GLOBAL_CONFIG_FILE could silently lose its warning).
+@pytest.fixture(autouse=True)
+def _isolate_deprecated_warning_state():
+    from seagoat.utils.config import _warned_deprecated_min_chunks_files
+
+    _warned_deprecated_min_chunks_files.clear()
+    yield
+    _warned_deprecated_min_chunks_files.clear()
+
+
+_MIN_CHUNKS_MESSAGE = "Ignoring 'server.engine.minChunksToAnalyze'"
+
+
+@pytest.mark.parametrize("global_config", [True, False])
+def test_explicit_min_chunks_to_analyze_is_accepted_but_ignored(
+    repo, global_config, create_config_file, caplog
+):
+    create_config_file(
+        {
+            "server": {
+                "engine": {"minChunksToAnalyze": {"minValue": 999, "percentage": 0.9}}
+            }
+        },
+        global_config=global_config,
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert (
+        config["server"]["engine"]["minChunksToAnalyze"]
+        == DEFAULT_CONFIG["server"]["engine"]["minChunksToAnalyze"]
+    )
+    assert config["server"]["engine"]["minChunksToAnalyze"]["minValue"] == 40
+    assert caplog.text.count(_MIN_CHUNKS_MESSAGE) == 1
+
+
+def test_min_chunks_to_analyze_warns_once_on_repeated_reads(
+    repo, create_config_file, caplog
+):
+    create_config_file(
+        {"server": {"engine": {"minChunksToAnalyze": {"minValue": 999}}}},
+        global_config=False,
+    )
+
+    get_config_values(Path(repo.working_dir))
+    get_config_values(Path(repo.working_dir))
+
+    assert caplog.text.count(_MIN_CHUNKS_MESSAGE) == 1
+
+
+def test_min_chunks_to_analyze_warns_once_per_config_file(
+    repo, create_config_file, caplog
+):
+    create_config_file(
+        {"server": {"engine": {"minChunksToAnalyze": {"minValue": 999}}}},
+        global_config=True,
+    )
+    create_config_file(
+        {"server": {"engine": {"minChunksToAnalyze": {"minValue": 999}}}},
+        global_config=False,
+    )
+
+    config = get_config_values(Path(repo.working_dir))
+
+    assert (
+        config["server"]["engine"]["minChunksToAnalyze"]
+        == DEFAULT_CONFIG["server"]["engine"]["minChunksToAnalyze"]
+    )
+    assert caplog.text.count(_MIN_CHUNKS_MESSAGE) == 2
+    assert "deprecated and ignored" in caplog.text
+
+
+def test_default_configuration_does_not_warn_about_min_chunks_to_analyze(repo, caplog):
+    config = get_config_values(Path(repo.working_dir))
+
+    assert config == DEFAULT_CONFIG
+    assert _MIN_CHUNKS_MESSAGE not in caplog.text
+
+
+@pytest.mark.parametrize(
+    "invalid_min_chunks",
+    [
+        {"minValue": 1001},
+        {"percentage": 1.5},
+        {"percentage": 0.0},
+    ],
+)
+def test_invalid_deprecated_min_chunks_to_analyze_still_rejected(
+    repo, invalid_min_chunks, create_config_file
+):
+    create_config_file(
+        {"server": {"engine": {"minChunksToAnalyze": invalid_min_chunks}}},
+        global_config=False,
+    )
+
+    with pytest.raises(jsonschema.ValidationError):
+        get_config_values(Path(repo.working_dir))

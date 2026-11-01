@@ -76,34 +76,6 @@ class Repository:
 
         return ls_tree_output[2]
 
-    def _get_files_at_head(self) -> set[str]:
-        """
-        Returns the paths of all the files that are part of HEAD, which
-        are the only files that have a git object id to index them by
-        """
-        result = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(self.path),
-                "ls-tree",
-                "-r",
-                "--name-only",
-                "-z",
-                "HEAD",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        if result.returncode != 0:
-            # There is no HEAD to read from, for example in a
-            # repository that has no commits yet
-            return set()
-
-        return {path for path in result.stdout.split("\0") if path}
-
     def get_blob_data(self, object_id: str) -> str:
         data = subprocess.check_output(
             ["git", "-C", str(self.path), "cat-file", "-p", object_id]
@@ -143,56 +115,227 @@ class Repository:
         combined = self._get_head_hash() + self._get_working_tree_diff()
         return hashlib.sha256(combined.encode()).hexdigest()
 
-    def analyze_files(self):
-        cmd = [
-            "git",
-            "-C",
-            self.path,
-            "log",
-            "--name-only",
-            "--pretty=format:###%h:::%ai:::%an <%ae>:::%s",
-            "--no-merges",
-            *self._git_log_extra_options(),
-        ]
+    _MAX_HEAD_VERIFICATION_ATTEMPTS = 3
 
-        self.file_changes.clear()
+    def _run_git(self, *args, check=True):
+        """Run a read-only git command, returning its CompletedProcess.
 
+        Raises if git reports an error (``check=True``) so that command
+        failures are never mistaken for an empty scan result.
+        """
+        return subprocess.run(
+            ["git", "-C", str(self.path), *args],
+            capture_output=True,
+            text=True,
+            check=check,
+        )
+
+    def _get_scan_head(self) -> str | None:
+        """Return the current HEAD commit hash, or None if the repository is
+        genuinely unborn (a valid git repository with no commits yet).
+
+        Raises if the directory is not a git working tree or if git itself
+        fails, so real git failures never masquerade as an empty scan.
+        """
+        work_tree_check = self._run_git(
+            "rev-parse", "--is-inside-work-tree", check=False
+        )
+        if work_tree_check.returncode != 0 or work_tree_check.stdout.strip() != "true":
+            raise RuntimeError(
+                f"{self.path} is not a valid git working tree: "
+                f"{work_tree_check.stderr.strip() or work_tree_check.stdout.strip()}"
+            )
+
+        head_result = self._run_git("rev-parse", "--verify", "HEAD", check=False)
+        if head_result.returncode == 0:
+            return head_result.stdout.strip()
+
+        # An unresolved symbolic HEAD is unborn only when its target ref is
+        # actually absent. A failed rev-parse for an existing branch is an
+        # error, not permission to replace the previous scan with empty data.
+        symref_check = self._run_git("symbolic-ref", "--quiet", "HEAD", check=False)
+        if symref_check.returncode == 0:
+            target = self._run_git(
+                "show-ref", "--verify", "--quiet", symref_check.stdout.strip(),
+                check=False,
+            )
+            if target.returncode == 1:
+                return None
+
+        raise RuntimeError(
+            f"could not resolve HEAD in {self.path}: "
+            f"{head_result.stderr.strip() or head_result.stdout.strip()}"
+        )
+
+    def _get_files_at_head(self, revision: str = "HEAD") -> set[str]:
+        """
+        Returns the paths of all the files that are part of HEAD, which
+        are the only files that have a git object id to index them by
+
+        Raises instead of returning an empty set when git fails, so real
+        errors are never mistaken for a repository without files.
+        """
+        result = self._run_git(
+            "ls-tree", "-r", "--name-only", "-z", revision, check=False
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"git ls-tree failed on {self.path}: "
+                f"{result.stderr.strip() or result.stdout.strip()}"
+            )
+
+        return {path for path in result.stdout.split("\0") if path}
+
+    def _get_working_tree_files(self) -> set[str]:
+        """Return NUL-delimited ripgrep paths from the working tree.
+
+        ripgrep exit code 1 means "no files found", which is a valid empty
+        result; exit code 2 (or anything else) means ripgrep itself failed.
+        """
+        result = subprocess.run(
+            ["rg", "--files", "-0"],
+            cwd=self.path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        if result.returncode not in (0, 1):
+            raise RuntimeError(
+                f"ripgrep failed to scan {self.path} "
+                f"(exit code {result.returncode}): "
+                f"{result.stderr.strip() or result.stdout.strip()}"
+            )
+
+        return {path for path in result.stdout.split("\0") if path}
+
+    @staticmethod
+    def _parse_git_log_stream(stream: str) -> list[tuple[str, tuple]]:
+        """Parse the NUL-delimited ``git log --name-only -z`` stream.
+
+        Returns a list of ``(filename, commit_info)`` pairs. Raises on
+        malformed/partial output instead of silently producing an empty or
+        truncated result.
+        """
+        fields = stream.split("\0")
+        if fields and fields[0] == "":
+            fields = fields[1:]
+
+        changes: list[tuple[str, tuple]] = []
+        current_commit_info = None
+        saw_header = False
+
+        for field in fields:
+            if field == "":
+                # NUL marker separating commits (or the trailing NUL)
+                current_commit_info = None
+                continue
+            if current_commit_info is None and field.startswith("###"):
+                saw_header = True
+                # git glues a newline and the first path of the commit to the
+                # pretty-format header; the header itself never contains
+                # newlines (%%s is a one-line subject).
+                header, separator, first_path = field.partition("\n")
+                current_commit_info = parse_commit_info(header)
+                if separator:
+                    changes.append((first_path, current_commit_info))
+                continue
+            if current_commit_info is None:
+                raise RuntimeError(
+                    "malformed git log output: path without a commit header"
+                )
+            changes.append((field, current_commit_info))
+
+        if not saw_header:
+            raise RuntimeError("git log produced no commit headers")
+
+        return changes
+
+    @staticmethod
+    def _calculate_frecency_scores(file_changes) -> dict[str, float]:
+        """Compute frecency scores locally from a dictionary of file changes."""
+        return {
+            file: sum(
+                math.exp(-days_passed / FRECENCY_DECAY_DAYS)
+                for _, days_passed, __, ___ in commits
+            )
+            for file, commits in file_changes.items()
+        }
+
+    def _scan_at_head(self, head: str) -> tuple[dict, dict]:
+        """Build file_changes/frecency_scores dictionaries for one HEAD commit.
+
+        Only the pinned ``head`` revision is read. Any git/rg failure or
+        partial git log stream raises here; nothing is published yet.
+        """
         # Only files that exist in the working tree (and are not ignored) and
         # are also part of HEAD are considered. Files that appear in the
         # history but are not part of HEAD any more (e.g. deleted files
         # that were re-created as untracked files) can't be indexed.
-        files = (
-            set(
-                subprocess.check_output(
-                    ["rg", "--files"],
-                    cwd=self.path,
-                    text=True,
-                ).split()
+        files = self._get_working_tree_files() & self._get_files_at_head(head)
+
+        cmd = [
+            "git",
+            "-C",
+            str(self.path),
+            "log",
+            "--name-only",
+            "-z",
+            "--pretty=format:%x00###%h:::%ai:::%an <%ae>:::%s",
+            "--no-merges",
+            *self._git_log_extra_options(),
+            head,
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"git log failed on {self.path}: "
+                f"{result.stderr.strip() or result.stdout.strip()}"
             )
-            & self._get_files_at_head()
+
+        file_changes = defaultdict(list)
+        for filename, commit_info in self._parse_git_log_stream(result.stdout):
+            if (
+                not is_file_type_supported(filename)
+                or self._is_file_ignored(filename)
+                or filename not in files
+            ):
+                continue
+            file_changes[filename].append(commit_info)
+
+        return file_changes, self._calculate_frecency_scores(file_changes)
+
+    def analyze_files(self):
+        """Scan the repository at a single pinned HEAD revision.
+
+        On success, publishes the completed file_changes and frecency_scores
+        dictionaries atomically. On any failure (failed git/rg command,
+        partial git log stream, or a HEAD that moved while scanning) raises
+        and leaves the previous complete metadata intact.
+        """
+        for _ in range(self._MAX_HEAD_VERIFICATION_ATTEMPTS):
+            head = self._get_scan_head()
+            if head is None:
+                # A genuinely unborn repository is a valid empty scan.
+                self.file_changes = defaultdict(list)
+                self.frecency_scores = {}
+                return
+
+            file_changes, frecency_scores = self._scan_at_head(head)
+
+            if self._get_scan_head() == head:
+                self.file_changes = file_changes
+                self.frecency_scores = frecency_scores
+                return
+
+            # HEAD moved while we were reading; retry against the new HEAD.
+
+        raise RuntimeError(
+            "repository HEAD kept changing during analysis; "
+            "refusing to publish possibly inconsistent file metadata"
         )
-
-        current_commit_info = None
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True) as proc:
-            if proc.stdout is None:
-                raise RuntimeError("git log started without an output pipe")
-            for line in iter(proc.stdout.readline, ""):
-                line = line.strip()
-                if ":::" in line:
-                    current_commit_info = parse_commit_info(line)
-                elif line:
-                    filename = line
-
-                    if (
-                        not is_file_type_supported(filename)
-                        or self._is_file_ignored(filename)
-                        or filename not in files
-                    ):
-                        continue
-
-                    self.file_changes[filename].append(current_commit_info)
-
-        self._compute_frecency()
 
     def _git_log_extra_options(self):
         cmd = []

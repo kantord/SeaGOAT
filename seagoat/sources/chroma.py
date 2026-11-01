@@ -6,7 +6,13 @@ from pathlib import Path
 from typing import Any, cast
 
 import chromadb
-from chromadb.api.types import Documents, Embeddable, EmbeddingFunction, Embeddings
+from chromadb.api.types import (
+    Documents,
+    Embeddable,
+    EmbeddingFunction,
+    Embeddings,
+    Metadata,
+)
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
@@ -26,6 +32,22 @@ _EMBEDDING_FUNCTIONS = {}
 # so embedding calls take turns; that also caps how much CPU the projects
 # use together.
 _EMBEDDING_LOCK = threading.Lock()
+
+
+class EmbeddingError(RuntimeError):
+    """Raised when the configured embedding function itself fails.
+
+    Storage/upsert errors are deliberately NOT wrapped in this type, so the
+    indexing worker can recover from them separately.
+    """
+
+
+# The probe embedded by probe_embedding(); its value is discarded, only the
+# fact that embedding works matters.
+_PROBE_TEXT = "probe"
+
+# indexed_ids reads collection.get() in pages of at most this many ids.
+_GET_PAGE_SIZE = 1000
 
 
 class _DefaultEmbeddingFunction(EmbeddingFunction[Documents]):
@@ -177,21 +199,40 @@ def initialize(repository: Repository):
         configuration={"hnsw": {"ef_search": 1000}},
     )
 
-    batch_size = config["server"]["chroma"]["batchSize"]
-    batch_buffer = {"ids": [], "documents": [], "metadatas": []}
+    def _embed(documents):
+        with _EMBEDDING_LOCK:
+            try:
+                return embedding_function(documents)
+            except Exception as exc:
+                raise EmbeddingError(
+                    f"Embedding failed for {len(documents)} documents: {exc}"
+                ) from exc
 
-    def _flush_batch():
-        if not batch_buffer["ids"]:
+    def cache_batch(chunks):
+        chunks = list(chunks)
+        if not chunks:
             return
+        ids = [chunk.chunk_id for chunk in chunks]
+        documents = [chunk.chunk for chunk in chunks]
+        metadatas: list[Metadata] = [
+            {
+                "path": chunk.path,
+                "line": chunk.codeline,
+                "git_object_id": chunk.object_id,
+            }
+            for chunk in chunks
+        ]
+        embeddings = _embed(documents)
+        # Upsert errors are not wrapped in EmbeddingError: the indexing
+        # worker must be able to tell embedding problems from storage
+        # problems to pick the right recovery strategy.
         with _EMBEDDING_LOCK:
             chroma_collection.upsert(
-                ids=batch_buffer["ids"],
-                documents=batch_buffer["documents"],
-                metadatas=batch_buffer["metadatas"],
+                ids=ids,
+                embeddings=embeddings,
+                documents=documents,
+                metadatas=metadatas,
             )
-        batch_buffer["ids"].clear()
-        batch_buffer["documents"].clear()
-        batch_buffer["metadatas"].clear()
 
     def fetch(query_text: str, limit: int):
         # Slightly overfetch results as it will sorted using a different score later
@@ -208,17 +249,23 @@ def initialize(repository: Repository):
         return format_results(query_text, repository, chromadb_results, config)
 
     def cache_chunk(chunk):
-        batch_buffer["ids"].append(chunk.chunk_id)
-        batch_buffer["documents"].append(chunk.chunk)
-        batch_buffer["metadatas"].append(
-            {
-                "path": chunk.path,
-                "line": chunk.codeline,
-                "git_object_id": chunk.object_id,
-            }
-        )
-        if len(batch_buffer["ids"]) >= batch_size:
-            _flush_batch()
+        # Compatibility wrapper: store a single-element batch immediately so
+        # the baseline Engine keeps working until it switches to cache_batch.
+        cache_batch([chunk])
+
+    def probe_embedding():
+        _embed([_PROBE_TEXT])
+
+    def indexed_ids(ids: list[str]) -> set[str]:
+        ids = list(ids)
+        if not ids:
+            return set()
+        indexed: set[str] = set()
+        for start in range(0, len(ids), _GET_PAGE_SIZE):
+            page = ids[start : start + _GET_PAGE_SIZE]
+            result = chroma_collection.get(ids=page, include=[])
+            indexed.update(result["ids"])
+        return indexed
 
     def cache_repo():
         # chromadb does not need any repo cache action
@@ -227,6 +274,8 @@ def initialize(repository: Repository):
     return {
         "fetch": fetch,
         "cache_chunk": cache_chunk,
+        "cache_batch": cache_batch,
+        "probe_embedding": probe_embedding,
+        "indexed_ids": indexed_ids,
         "cache_repo": cache_repo,
-        "flush_batch": _flush_batch,
     }
