@@ -1,5 +1,7 @@
 import hashlib
+import os
 import pickle
+import tempfile
 from pathlib import Path
 from typing import Generic, TypeVar
 
@@ -27,8 +29,30 @@ class Cache(Generic[T]):
             pass
 
     def persist(self):
-        with open(self._get_cache_file(), "wb") as cache_file:
-            pickle.dump(self.data, cache_file)
+        cache_file = self._get_cache_file()
+        temp_path = None
+        try:
+            # Serialize to a uniquely named temporary file in the same directory
+            # and only then atomically replace the real cache file, so a failure
+            # while writing never corrupts the previously persisted data. The
+            # temporary file is closed before being moved for Windows compatibility.
+            fd, temp_path = tempfile.mkstemp(
+                dir=cache_file.parent,
+                prefix=f".{self._cache_name}.",
+                suffix=".tmp",
+            )
+            with os.fdopen(fd, "wb") as temp_file:
+                pickle.dump(self.data, temp_file)
+            # The temporary file is closed and fully written before the swap.
+            os.replace(temp_path, cache_file)
+            temp_path = None
+        except BaseException:
+            if temp_path is not None:
+                try:
+                    os.unlink(temp_path)
+                except FileNotFoundError:
+                    pass
+            raise
 
     def _get_cache_file(self):
         return self.get_cache_folder() / self._cache_name

@@ -10,11 +10,16 @@ import time
 from queue import PriorityQueue
 
 import orjson
+import pytest
 
 from seagoat import __version__
 from seagoat.engine import Engine
 from seagoat.queue.base_queue import HIGH_PRIORITY, MEDIUM_PRIORITY, Task
-from seagoat.queue.task_queue import TaskQueue, calculate_accuracy
+from seagoat.queue.task_queue import (
+    SECONDS_BETWEEN_MAINTENANCE,
+    TaskQueue,
+    calculate_accuracy,
+)
 from seagoat.repository import Repository
 from seagoat.utils.wait import wait_for
 from tests.fixtures.sources import mock_sources_context
@@ -257,3 +262,78 @@ def test_unchanged_repository_is_not_checked_on_every_pass(mocker):
     # must still only run once per SECONDS_BETWEEN_MAINTENANCE
     engine.repository.get_status_hash.assert_called_once()
     engine.analyze_codebase.assert_not_called()
+
+
+def test_failed_analysis_is_retried_on_same_unchanged_repo(mocker):
+    engine = mocker.Mock()
+    engine.repository.get_status_hash.return_value = "same-state"
+    engine.analyze_codebase.side_effect = [RuntimeError("analysis failed"), []]
+    queue, context = _queue_without_worker(engine)
+
+    clock = {"now": 100.0}
+    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
+
+    with pytest.raises(RuntimeError, match="analysis failed"):
+        queue.handle_maintenance(context)
+
+    # A pass that raised must not record the repo state: the unchanged repo is
+    # retried when maintenance is next allowed, instead of being skipped
+    assert context["last_repo_state_hash"] is None
+
+    clock["now"] += SECONDS_BETWEEN_MAINTENANCE + 1
+    queue.handle_maintenance(context)
+
+    assert engine.analyze_codebase.call_count == 2
+    assert context["last_repo_state_hash"] == "same-state"
+
+
+def test_successful_unchanged_pass_is_not_analyzed_twice(mocker):
+    engine = mocker.Mock()
+    engine.repository.get_status_hash.return_value = "same-state"
+    engine.analyze_codebase.return_value = []
+    queue, context = _queue_without_worker(engine)
+
+    clock = {"now": 100.0}
+    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
+
+    queue.handle_maintenance(context)
+    assert context["last_repo_state_hash"] == "same-state"
+
+    clock["now"] += SECONDS_BETWEEN_MAINTENANCE + 1
+    queue.handle_maintenance(context)
+
+    engine.analyze_codebase.assert_called_once()
+
+
+def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
+    engine = mocker.Mock()
+    engine.repository.get_status_hash.return_value = "same-state"
+    engine.analyze_codebase.return_value = [{"chunk_id": "chunk-1"}]
+    queue, context = _queue_without_worker(engine)
+
+    real_enqueue = queue.enqueue
+    calls = {"count": 0}
+
+    def flaky_enqueue(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise RuntimeError("enqueue failed")
+        return real_enqueue(*args, **kwargs)
+
+    queue.enqueue = flaky_enqueue
+
+    clock = {"now": 100.0}
+    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
+
+    with pytest.raises(RuntimeError, match="enqueue failed"):
+        queue.handle_maintenance(context)
+
+    # The state is recorded only after the scheduled work is queued, so a
+    # scheduling failure must leave it retryable on the next maintenance pass
+    assert context["last_repo_state_hash"] is None
+
+    clock["now"] += SECONDS_BETWEEN_MAINTENANCE + 1
+    queue.handle_maintenance(context)
+
+    assert context["last_repo_state_hash"] == "same-state"
+    assert engine.analyze_codebase.call_count == 2

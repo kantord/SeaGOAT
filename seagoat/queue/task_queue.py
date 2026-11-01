@@ -67,10 +67,6 @@ class TaskQueue(BaseQueue):
         if context["last_repo_state_hash"] == current_repo_state_hash:
             return
 
-        # Record the state only now that it is analyzed: a pass that returned
-        # early must not hide changes from the next one
-        context["last_repo_state_hash"] = current_repo_state_hash
-
         logger.info("Checking repository for new changes")
         remaining_chunks_to_analyze = context["seagoat_engine"].analyze_codebase(
             self.kwargs["minimum_chunks_to_analyze"]
@@ -97,6 +93,11 @@ class TaskQueue(BaseQueue):
                 )
         else:
             logger.info("Analyzed all chunks!")
+
+        # Record the state only after the analysis and the scheduling of its
+        # chunks have both succeeded: a pass that raised must not hide the
+        # change from the next maintenance pass, which then retries it
+        context["last_repo_state_hash"] = current_repo_state_hash
 
     def handle_analyze_chunk(self, context, chunk):
         logger.info("Note, %s tasks left in the queue.", self._task_queue.qsize())

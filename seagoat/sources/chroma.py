@@ -1,5 +1,6 @@
 import importlib
 import json
+import os
 import threading
 from pathlib import Path
 from typing import Any, cast
@@ -151,6 +152,13 @@ def format_results(query_text: str, repository, chromadb_results, config):
 
 
 def initialize(repository: Repository):
+    # Chroma's Rust HNSW runtime creates one Tokio worker thread per CPU by
+    # default, which on machines with many cores can push SeaGOAT over the
+    # process's thread limit. Cap it to a small default unless the user
+    # chose their own value (setdefault never overwrites an explicit
+    # override). Must happen before PersistentClient builds that runtime.
+    os.environ.setdefault("TOKIO_WORKER_THREADS", "2")
+
     cache = Cache("chroma", Path(repository.path), {})
     config = get_config_values(Path(repository.path))
 
