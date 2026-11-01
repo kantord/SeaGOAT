@@ -348,3 +348,39 @@ async def test_distance_shrinks_with_more_distinct_query_words(
     assert result.lines[2].vector_distance == pytest.approx(0.6)
     # A three-word match gets a third of the distance
     assert result.lines[3].vector_distance == pytest.approx(0.4)
+
+
+def test_a_nul_byte_in_another_file_does_not_break_search(repo):
+    repo.add_file_change_commit(
+        file_name="a.py", contents="def hello():\n    pass\n", commit_message="a"
+    )
+    repo.add_file_change_commit(
+        file_name="b.txt", contents="x nul\x00here\n", commit_message="b"
+    )
+    engine = Engine(repo.working_dir)
+    engine.analyze_codebase()
+
+    results = engine.query_sync("hello")
+
+    assert "a.py" in [result.gitfile.path for result in results]
+
+
+def test_best_line_in_a_less_important_file_is_found(repo):
+    # old.py has the only line with every query word, but new.py is more
+    # frecent and has hundreds of one-word matches that ripgrep reads first
+    repo.tick_fake_date(days=-50)
+    repo.add_file_change_commit(
+        file_name="old.py", contents="foo bar baz\n", commit_message="o"
+    )
+    repo.tick_fake_date(days=50)
+    for i in range(5):
+        repo.add_file_change_commit(
+            file_name="new.py", contents="foo\n" * 300 + f"#{i}\n", commit_message="n"
+        )
+    engine = Engine(repo.working_dir)
+    # No embeddings: ripgrep is the only source, as early in indexing
+    engine.analyze_codebase(minimum_chunks_to_analyze=0)
+
+    results = engine.query_sync("foo bar baz", limit_clue=3)
+
+    assert "old.py" in [result.gitfile.path for result in results]

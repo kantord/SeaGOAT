@@ -242,3 +242,18 @@ def test_waiting_requests_do_not_block_maintenance(mocker):
     queue.handle_maintenance(context)
 
     engine.analyze_codebase.assert_called_once()
+
+
+def test_unchanged_repository_is_not_checked_on_every_pass(mocker):
+    engine = mocker.Mock()
+    engine.repository.get_status_hash.return_value = "unchanged"
+    queue, context = _queue_without_worker(engine)
+    context["last_repo_state_hash"] = "unchanged"
+
+    queue.handle_maintenance(context)
+    queue.handle_maintenance(context)
+
+    # The worker calls maintenance every 0.1s when idle; the git status check
+    # must still only run once per SECONDS_BETWEEN_MAINTENANCE
+    engine.repository.get_status_hash.assert_called_once()
+    engine.analyze_codebase.assert_not_called()

@@ -60,6 +60,8 @@ class TaskQueue(BaseQueue):
             return
 
         current_repo_state_hash = context["seagoat_engine"].repository.get_status_hash()
+        # Throttle the git status check itself, whatever it finds
+        context["last_maintenance"] = time.time()
 
         # Do not re-analyze repo if nothing changed
         if context["last_repo_state_hash"] == current_repo_state_hash:
@@ -68,7 +70,6 @@ class TaskQueue(BaseQueue):
         # Record the state only now that it is analyzed: a pass that returned
         # early must not hide changes from the next one
         context["last_repo_state_hash"] = current_repo_state_hash
-        context["last_maintenance"] = time.time()
 
         logger.info("Checking repository for new changes")
         remaining_chunks_to_analyze = context["seagoat_engine"].analyze_codebase(
