@@ -55,6 +55,12 @@ class ResultLine:
     line_text: str
     types: set[ResultLineType]
 
+    @property
+    def is_match(self) -> bool:
+        """Whether this line matched the query. A context-only line's
+        distance (0.0) is a placeholder, never a match's distance."""
+        return ResultLineType.RESULT in self.types
+
     def get_score(self) -> float:
         return self.vector_distance / (
             1 + get_number_of_exact_matches(self.line_text, self.parent.query_text)
@@ -117,12 +123,9 @@ class Result:
                 self.lines[line_number] = other_line
                 continue
 
-            # A context line's distance (0.0) is a placeholder, not a match:
-            # only result lines compete, and the closer one wins
+            # Only matches compete (see ResultLine.is_match); the closer wins
             result_lines = [
-                line
-                for line in (existing_line, other_line)
-                if ResultLineType.RESULT in line.types
+                line for line in (existing_line, other_line) if line.is_match
             ]
             winning_line = min(
                 result_lines or [existing_line, other_line],
@@ -140,9 +143,8 @@ class Result:
     def add_line(self, line: int, vector_distance: float) -> None:
         existing_line = self.lines.get(line)
         types = set(existing_line.types) if existing_line is not None else set()
-        # Only an earlier match on this line can lower the distance; a context
-        # line's 0.0 is a placeholder
-        if existing_line is not None and ResultLineType.RESULT in existing_line.types:
+        # Only an earlier match on this line can lower the distance
+        if existing_line is not None and existing_line.is_match:
             vector_distance = min(vector_distance, existing_line.vector_distance)
 
         types.add(ResultLineType.RESULT)

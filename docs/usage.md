@@ -79,9 +79,10 @@ seagoat "myQuery" --max-results=5
     individual lines. It'll always show at least one full block,
     even if your limit is 0.
 
-    If you set a limit, SeaGOAT ensures that complete blocks are shown as long
-    as they fit in your limit. For example, with a 5-line limit,
-    it can show a 3-line and a 2-line block, but not two 3-line blocks.
+    If you set a limit, SeaGOAT keeps adding complete blocks, the
+    best-matching ones first, while the limit is not used up yet. The last
+    block is shown in full, so the output can go over the limit: with a
+    5-line limit, two 3-line blocks show 6 lines.
 
     Also, this limit only counts the actual code, not any extra context lines
     you might request.

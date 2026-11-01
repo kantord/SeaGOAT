@@ -394,6 +394,13 @@ def test_iterate_result_blocks_picks_best_blocks_and_keeps_line_order(
 
     assert printed, "at least one block is always printed"
 
+    # Blocks are only added while the line budget is not used up: everything
+    # but the last chosen block fits within max_results, so even without the
+    # largest printed block the total stays under the budget
+    printed_lines = [block["lineTypeCount"]["result"] for _, block in printed]
+    if len(printed) > 1:
+        assert sum(printed_lines) - max(printed_lines) < max_results
+
     printed_paths = list(dict.fromkeys(result["path"] for result, _ in printed))
     all_paths = [result["path"] for result in results]
     assert printed_paths == all_paths[: len(printed_paths)]

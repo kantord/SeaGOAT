@@ -22,7 +22,10 @@ KILOBYTE = 1024
 BLOB_BATCH_SIZE = 500
 MEGABYTE = KILOBYTE * 1024
 STOP_WORDS = set(get_stop_words("english"))
-RIPGREP_CANDIDATE_MULTIPLIER = 10
+# How many matching lines ripgrep may return before they are ranked. Lines
+# arrive in file-importance order, so a small window would hide a better
+# line in a less important file; the cap only bounds memory on huge repos.
+RIPGREP_MAX_CANDIDATES = 50_000
 
 
 def _count_distinct_matched_words(line_text: str, pattern_words: list[str]) -> int:
@@ -109,7 +112,6 @@ class RipGrepCache(str):
         self.file_paths = []
         self.cumulative_line_counts = []
         total_estimated_cache_size = 0
-        running_total = 0
         line_count = 0
         max_mmap_size = self.config["server"]["ripgrep"]["maxMmapSize"]
         max_mmap_size_bytes = max_mmap_size * MEGABYTE
@@ -118,14 +120,13 @@ class RipGrepCache(str):
             for file, _, line in self._iterate_lines_to_cache():
                 if not self.file_paths or self.file_paths[-1] != file.path:
                     self.file_paths.append(file.path)
-                    self.cumulative_line_counts.append(running_total)
+                    self.cumulative_line_counts.append(line_count)
 
                 cache_line = f"{line}\n"
                 cache_file.write(cache_line)
                 total_estimated_cache_size += len(cache_line)
-                running_total += 1
                 line_count += 1
-                self.cumulative_line_counts[-1] = running_total
+                self.cumulative_line_counts[-1] = line_count
 
                 if total_estimated_cache_size > max_mmap_size_bytes:
                     logger.warning(
@@ -184,9 +185,6 @@ def run_ripgrep(cache_input, terms: list[str], max_count: int) -> list[tuple[int
     # value is "", its data (mmap or bytes) only comes out of encode()
     if isinstance(cache_input, str):
         cache_input = cache_input.encode("utf-8")
-    if isinstance(cache_input, str):
-        # On Windows, RipGrepCache.encode() returns its data as a plain str
-        cache_input = str.encode(cache_input, "utf-8")
     if not cache_input or not terms:
         return []
     terms = [term for term in terms if "\n" not in term]
@@ -197,6 +195,9 @@ def run_ripgrep(cache_input, terms: list[str], max_count: int) -> list[tuple[int
         cmd = [
             "rg",
             "--no-config",
+            # One NUL byte anywhere in the cache would otherwise make ripgrep
+            # treat the whole input as binary and print no matching lines
+            "--text",
             "--line-number",
             "--ignore-case",
             "--max-count",
@@ -240,17 +241,14 @@ def initialize(repository: Repository):
 
     def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
         terms = query_terms(query_text)
-        # The exact literal words that go into the ripgrep pattern
-        pattern_words = terms
         query_text = " ".join(terms)
         files = {}
         max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
-        candidate_limit = limit * RIPGREP_CANDIDATE_MULTIPLIER
 
         # (path, line number, distinct query words) in ripgrep's order
         matches = []
         for global_line, line_text in run_ripgrep(
-            cache.as_input(), terms, candidate_limit
+            cache.as_input(), terms, RIPGREP_MAX_CANDIDATES
         ):
             file_index, raw_line_number = map_global_line_to_file(
                 cache.cumulative_line_counts, global_line
@@ -264,7 +262,7 @@ def initialize(repository: Repository):
                 (
                     relative_path,
                     raw_line_number,
-                    _count_distinct_matched_words(line_text, pattern_words),
+                    _count_distinct_matched_words(line_text, terms),
                 )
             )
 
