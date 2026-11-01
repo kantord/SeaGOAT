@@ -20,6 +20,11 @@ from seagoat.utils.server import (
     running_instance,
 )
 
+# Longer than the server's own task timeout (TASK_TIMEOUT_SECONDS, 120s), so a
+# slow server answers with its own error first; the server may be remote
+# (client.host), and without a timeout an unresponsive one hangs the CLI
+SERVER_REQUEST_TIMEOUT_SECONDS = 150
+
 
 class ExitCode:
     SERVER_NOT_RUNNING = 3
@@ -71,6 +76,7 @@ def display_accuracy_warning(server_address, repo_path):
     response = requests.post(
         f"{server_address}/status",
         json=status_request_body,
+        timeout=SERVER_REQUEST_TIMEOUT_SECONDS,
     )
     response_data = read_server_json(response)
     try:
@@ -105,6 +111,7 @@ def query_server(
         f"{server_address}/lines/query",
         json=query_request_body,
         headers={"Content-Type": "application/json"},
+        timeout=SERVER_REQUEST_TIMEOUT_SECONDS,
     )
 
     response_data = read_server_json(response)

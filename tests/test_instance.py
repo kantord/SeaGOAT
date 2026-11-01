@@ -19,6 +19,7 @@ from seagoat.utils.server import (
     stop_instance,
     write_instance,
 )
+from tests.fixtures.hosts import ALL_INTERFACES
 
 
 @pytest.fixture(autouse=True)
@@ -59,7 +60,7 @@ def test_read_instance_returns_none_for_invalid_json():
 @pytest.mark.parametrize(
     ("host", "expected_loopback"),
     [
-        ("0.0.0.0", "127.0.0.1"),  # nosec B104 - tests the mapping, no bind
+        (ALL_INTERFACES, "127.0.0.1"),
         ("::", "::1"),
     ],
 )

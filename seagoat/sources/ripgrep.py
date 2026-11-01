@@ -67,7 +67,11 @@ class RipGrepCache(str):
         self.repository = repository
         self.file_path = cache.get_cache_folder() / "mmap"
         if platform.system() == "Windows":
-            self.file_path = tempfile.mktemp()
+            # mkstemp creates the file atomically under an unpredictable name;
+            # mktemp only returned a name that another process could take first
+            file_descriptor, temp_path = tempfile.mkstemp()
+            os.close(file_descriptor)
+            self.file_path = Path(temp_path)
         self.is_initialized = False
         self._data = ""
         self.config = get_config_values(Path(repository.path))

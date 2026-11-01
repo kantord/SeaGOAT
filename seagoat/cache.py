@@ -21,7 +21,8 @@ class Cache(Generic[T]):
     def load(self):
         try:
             with open(self._get_cache_file(), "rb") as cache_file:
-                self.data = pickle.load(cache_file)
+                # Only our own persisted cache is ever deserialized, not untrusted input
+                self.data = pickle.load(cache_file)  # noqa: S301  (self-written cache, not untrusted)
         except (FileNotFoundError, pickle.UnpicklingError, EOFError):
             pass
 

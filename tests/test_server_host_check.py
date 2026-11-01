@@ -4,6 +4,7 @@ import pytest
 
 from seagoat.projects import Projects
 from seagoat.server import create_app
+from tests.fixtures.hosts import ALL_INTERFACES
 
 
 @pytest.fixture(name="create_client")
@@ -39,7 +40,7 @@ def test_rejects_requests_for_other_hosts(create_client, host):
 
 
 def test_accepts_any_host_when_hosted_for_other_computers(create_client):
-    response = create_client("0.0.0.0").get(  # nosec B104 - no bind, a Host header check
+    response = create_client(ALL_INTERFACES).get(
         "/status", headers={"Host": "seagoat.example"}
     )
 

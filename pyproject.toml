@@ -123,6 +123,7 @@ strict = []
 executionEnvironments = [ { root = "src" } ]
 
 [tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config"
 timeout = 60
 markers = [
     "real_embeddings: use seagoat's default global config (the real ONNX embedding model) instead of the embedding cache",
@@ -137,11 +138,18 @@ exclude = [
 
 [tool.ruff.lint]
 # T20: no print() calls; use logging, or click.echo for CLI output
-extend-select = ["T20"]
+# S: security checks (flake8-bandit)
+extend-select = ["T20", "S"]
+# S603/S607 flag every subprocess call, including fixed argument lists like
+# ["git", "-C", path, ...]; seagoat never uses shell=True, and Ruff cannot tell
+# a safe call from an unsafe one, so these two would only produce noqa noise
+ignore = ["S603", "S607"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/conftest.py" = ["E402", "T201"]
 "seagoat/utils/debug.py" = ["T201"]
 "tools/worker/*.py" = ["T201"]
-# Blocking setup (writing files, running git) is fine in async tests
-"tests/**" = ["ASYNC"]
+"tools/worker/test_*.py" = ["S101"]  # pytest asserts
+# Blocking setup (writing files, running git) is fine in async tests;
+# S101: pytest asserts
+"tests/**" = ["ASYNC", "S101"]
