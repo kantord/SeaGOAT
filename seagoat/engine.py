@@ -163,6 +163,12 @@ class Engine:
             indexed.update(source["indexed_ids"](list(ids)))
         return indexed
 
+    def probe_embedding(self):
+        """Check embedding availability without writing vectors."""
+        for source in self._fetchers["sync"]:
+            if source.get("probe_embedding") is not None:
+                source["probe_embedding"]()
+
     def process_batch(self, chunks):
         """The only completion path: embed/upsert a batch, then persist once.
 

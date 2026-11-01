@@ -344,13 +344,7 @@ class Repository:
         return cmd
 
     def _compute_frecency(self):
-        self.frecency_scores = {}
-        for file, commits in self.file_changes.items():
-            score = sum(
-                math.exp(-days_passed / FRECENCY_DECAY_DAYS)
-                for _, days_passed, __, ___ in commits
-            )
-            self.frecency_scores[file] = score
+        self.frecency_scores = self._calculate_frecency_scores(self.file_changes)
 
     def top_files(self):
         return [

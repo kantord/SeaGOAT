@@ -165,6 +165,10 @@ you wish to keep in git, but you wish to hide from SeaGOAT.
   * `minChunksToAnalyze` (deprecated, ignored): This setting no longer has any
     effect. It is still accepted for compatibility so existing configuration
     files keep validating, but SeaGOAT logs a warning and ignores it.
+    This applies to configuration files. The explicit library argument
+    `Engine.analyze_codebase(minimum_chunks_to_analyze=...)` remains supported.
+    Its synchronous wrapper retains the historical default quota; the server
+    queues every pending chunk in batches.
   * `maxWorkers`: Maximum worker threads for parallel processing
     (default: 1, range: 1-32)
 

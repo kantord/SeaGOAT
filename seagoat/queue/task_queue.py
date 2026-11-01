@@ -114,19 +114,13 @@ class TaskQueue(BaseQueue):
         context["last_repo_state_hash"] = current_repo_state_hash
         context["replan_pending"] = False
 
-    @staticmethod
-    def _probe_embedding(engine):
-        for source in engine._fetchers["sync"]:
-            if source.get("probe_embedding") is not None:
-                source["probe_embedding"]()
-
     def _run_recovery(self, context):
         if context["paused"]:
             if time.monotonic() < context["retry_after"]:
                 return
             if context["pause_reason"] == "embedding":
                 try:
-                    self._probe_embedding(context["seagoat_engine"])
+                    context["seagoat_engine"].probe_embedding()
                 except EmbeddingError:
                     context["retry_after"] = time.monotonic() + RETRY_DEADLINE_SECONDS
                     return
@@ -172,7 +166,7 @@ class TaskQueue(BaseQueue):
             engine.process_batch(chunks)
         except EmbeddingError:
             try:
-                self._probe_embedding(engine)
+                engine.probe_embedding()
             except EmbeddingError:
                 self._retain_and_pause(
                     context, chunks, batch_priority, parent_name, "embedding"
