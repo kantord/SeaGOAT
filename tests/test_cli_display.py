@@ -4,9 +4,13 @@ These cover how search results are printed to the terminal:
 plain text, colored highlighted source, vimgrep format, and bat.
 """
 
+from hypothesis import given
+from hypothesis import strategies as st
+
 from seagoat.utils.cli_display import (
     display_results,
     get_highlighted_lines,
+    iterate_result_blocks,
     print_result_line,
 )
 
@@ -349,3 +353,59 @@ def test_display_results_always_prints_at_least_one_block(tmp_path, capsys):
     display_results(results, max_results=0, color_enabled=False, vimgrep=False)
 
     assert capsys.readouterr().out == "module.py:1:line one\n"
+
+
+# files -> blocks -> (score, number of result lines)
+FILES_OF_BLOCKS = st.lists(
+    st.lists(
+        st.tuples(st.floats(0, 2, allow_nan=False), st.integers(1, 10)),
+        min_size=1,
+        max_size=6,
+    ),
+    min_size=1,
+    max_size=4,
+)
+
+
+@given(files=FILES_OF_BLOCKS, max_results=st.none() | st.integers(0, 40))
+def test_iterate_result_blocks_picks_best_blocks_and_keeps_line_order(
+    files, max_results
+):
+    results = [
+        _result(
+            f"file{file_index}.py",
+            f"/repo/file{file_index}.py",
+            [
+                # Blocks far apart, in line order
+                _block(["x"] * line_count, start=block_index * 100 + 1, score=score)
+                for block_index, (score, line_count) in enumerate(blocks)
+            ],
+        )
+        for file_index, blocks in enumerate(files)
+    ]
+
+    printed = list(iterate_result_blocks(results, max_results))
+
+    if max_results is None:
+        assert printed == [
+            (result, block) for result in results for block in result["blocks"]
+        ]
+        return
+
+    assert printed, "at least one block is always printed"
+
+    printed_paths = list(dict.fromkeys(result["path"] for result, _ in printed))
+    all_paths = [result["path"] for result in results]
+    assert printed_paths == all_paths[: len(printed_paths)]
+
+    for result in results:
+        printed_blocks = [block for r, block in printed if r is result]
+        if not printed_blocks:
+            continue
+        first_lines = [block["lines"][0]["line"] for block in printed_blocks]
+        assert first_lines == sorted(first_lines)
+        # Weak blocks never push out a strictly better block of the same file
+        worst_printed = max(block["score"] for block in printed_blocks)
+        for block in result["blocks"]:
+            if all(block is not printed_block for printed_block in printed_blocks):
+                assert block["score"] >= worst_printed
