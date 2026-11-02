@@ -3,7 +3,7 @@
 # stays: the cargo target and the virtualenv under /cache, uv's, pre-commit's and pyright's
 # caches under /root/.cache. Rebuild when dependencies or pre-commit hooks change; a stale image
 # still works, the run just downloads and builds what differs.
-FROM docker.io/library/debian:trixie-slim
+FROM docker.io/library/debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4
 ENV DEBIAN_FRONTEND=noninteractive
 # ripgrep: SeaGOAT's tests run it (CI installs it too). python3-dev: the root's cargo checks need
 # a python3 on PATH and `cargo test` links libpython (CI has setup-python); trixie's is 3.13, as
