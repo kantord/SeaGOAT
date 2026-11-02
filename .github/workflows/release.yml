@@ -48,7 +48,7 @@ jobs:
             - uses: release-plz/action@7ef5e4d4b0420630cfcaeb182c01e13651d4c577 # v0.5.145
               with:
                   command: release-pr
-                  version: 0.3.174
+                  version: 0.4.2
               env:
                   # Not GITHUB_TOKEN: PRs it opens would not run CI
                   GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
@@ -73,7 +73,7 @@ jobs:
               id: release-plz
               with:
                   command: release
-                  version: 0.3.174
+                  version: 0.4.2
               env:
                   GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
             - id: tag
