@@ -1,6 +1,6 @@
 import threading
 import time
-from queue import PriorityQueue
+from queue import Empty, PriorityQueue
 from unittest.mock import Mock, patch
 
 import pytest
@@ -56,6 +56,7 @@ def test_handle_get_stats(
         "analyzed": chunks_analyzed,
         "pending": unanalyzed,
         "total": chunks_analyzed + unanalyzed,
+        "failed": 0,
     }
 
     stats = task_queue.handle_get_stats(context)
@@ -305,3 +306,111 @@ def test_worker_runs_equal_priority_tasks_in_fifo_order():
     finally:
         release_gate.set()
         queue.shutdown()
+
+
+def test_worker_blocks_until_deadline_instead_of_polling(mocker):
+    """The worker sleeps until the maintenance deadline, not a fixed 0.1s."""
+    queue = BaseQueue.__new__(BaseQueue)
+    queue.kwargs = {}
+    queue._task_queue = PriorityQueue()
+    queue._next_maintenance = 0.0
+    queue._last_maintenance = 0.0
+    now = {"t": 100.0}
+    mocker.patch(
+        "seagoat.queue.base_queue.time.monotonic", side_effect=lambda: now["t"]
+    )
+    get = mocker.patch.object(queue._task_queue, "get")
+    get.side_effect = [
+        Empty,  # idle at startup: the initial maintenance deadline is now
+        Task(priority=HIGH_PRIORITY, name="shutdown"),
+    ]
+    queue._worker_function()
+    # The idle wait uses the initial (already-due) deadline, then the worker
+    # waits the full 1s maintenance interval instead of 0.1s polling.
+    assert get.call_args_list[0].kwargs["timeout"] == 0.0
+    assert get.call_args_list[1].kwargs["timeout"] == 1.0
+
+
+def test_failed_maintenance_backoff_constrains_the_deadline(mocker):
+    class FailingMaintenanceQueue(BaseQueue):
+        def handle_maintenance(self, context):
+            raise RuntimeError("maintenance exploded")
+
+    queue = FailingMaintenanceQueue.__new__(FailingMaintenanceQueue)
+    queue.kwargs = {}
+    queue._task_queue = PriorityQueue()
+    queue._next_maintenance = 0.0
+    queue._last_maintenance = 0.0
+    now = {"t": 100.0}
+    mocker.patch(
+        "seagoat.queue.base_queue.time.monotonic", side_effect=lambda: now["t"]
+    )
+    get = mocker.patch.object(queue._task_queue, "get")
+    get.side_effect = [
+        Empty,  # triggers maintenance, which raises and starts the backoff
+        Task(priority=HIGH_PRIORITY, name="shutdown"),
+    ]
+    queue._worker_function()
+    # The 10s failure backoff overrides the 1s maintenance interval.
+    assert get.call_args_list[0].kwargs["timeout"] == 0.0
+    assert get.call_args_list[1].kwargs["timeout"] == 10.0
+
+
+def test_worker_blocks_indefinitely_when_context_fails(mocker):
+    """A failed context never runs maintenance: the worker waits for a task."""
+
+    class BrokenContextQueue(BaseQueue):
+        def _get_context(self):
+            raise RuntimeError("context init exploded")
+
+    queue = BrokenContextQueue.__new__(BrokenContextQueue)
+    queue.kwargs = {}
+    queue._task_queue = PriorityQueue()
+    queue._next_maintenance = 0.0
+    queue._last_maintenance = 0.0
+    get = mocker.patch.object(queue._task_queue, "get")
+    get.side_effect = [Empty, Task(priority=HIGH_PRIORITY, name="shutdown")]
+    queue._worker_function()
+    # No polling and no spin: both waits block until a task wakes the worker.
+    assert [call.kwargs["timeout"] for call in get.call_args_list] == [None, None]
+
+
+def test_worker_wakes_promptly_with_blocking_priority_queue():
+    """A real thread must wake from an indefinite wait when work arrives."""
+    handled = []
+
+    class RecordingQueue(BaseQueue):
+        def handle_record(self, _context, value):
+            handled.append(value)
+
+    queue = RecordingQueue()
+    try:
+        # An idle worker waits on its maintenance deadline instead of polling;
+        # enqueueing must still wake it promptly.
+        start = time.monotonic()
+        queue.enqueue("record", "woke-up")
+        assert handled == ["woke-up"]
+        assert time.monotonic() - start < 2
+    finally:
+        queue.shutdown()
+
+
+def test_deferred_maintenance_does_not_run_after_a_task_wakes_worker():
+    maintenance_ran = threading.Event()
+
+    class DeferredQueue(BaseQueue):
+        def get_maintenance_deadline(self, _context):
+            return None
+
+        def handle_echo(self, _context, value):
+            return value
+
+        def handle_maintenance(self, _context):
+            maintenance_ran.set()
+
+    queue = DeferredQueue()
+    try:
+        assert queue.enqueue("echo", "awake") == "awake"
+    finally:
+        queue.shutdown()
+    assert not maintenance_ran.is_set()

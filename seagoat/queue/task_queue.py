@@ -47,12 +47,33 @@ class TaskQueue(BaseQueue):
     # priority-zero queries/stats interleave and cleanup never starves them.
     PRUNE_BATCH_SIZE = 1000
 
-    def _has_pending_indexing_tasks(self):
-        return (
-            self._has_pending_task(self.BATCH_TASK)
-            or self._has_pending_task(self.LEGACY_CHUNK_TASK)
-            or self._has_pending_task(self.PRUNE_TASK)
-        )
+    def _has_pending_indexing_tasks(self) -> bool:
+        """Whether indexing work is still waiting in the queue.
+
+        Covers batch tasks, legacy chunk tasks, and ``prune_index`` tasks so
+        ordinary maintenance is deferred while any of them are queued.
+        """
+        with self._task_queue.mutex:
+            return any(
+                task.name in (self.BATCH_TASK, self.LEGACY_CHUNK_TASK, self.PRUNE_TASK)
+                for task in self._task_queue.queue
+            )
+
+    def get_maintenance_deadline(self, context) -> float | None:
+        """Absolute monotonic deadline for the next maintenance pass.
+
+        ``None`` defers ordinary maintenance until the next task wakes the
+        worker (for example while an indexing backlog is queued). A paused
+        context still runs its own recovery probe at ``retry_after``.
+        """
+        self._ensure_recovery_state(context)
+        if context["paused"]:
+            return context["retry_after"]
+        if self._has_pending_indexing_tasks():
+            return None
+        if context["last_maintenance"] is None:
+            return 0.0
+        return context["last_maintenance"] + SECONDS_BETWEEN_MAINTENANCE
 
     def _get_context(self):
         context = super()._get_context()
@@ -100,7 +121,7 @@ class TaskQueue(BaseQueue):
             return
         if (
             context["last_maintenance"] is not None
-            and time.time() - context["last_maintenance"] < SECONDS_BETWEEN_MAINTENANCE
+            and time.monotonic() - context["last_maintenance"] < SECONDS_BETWEEN_MAINTENANCE
         ):
             return
         # Do not replan while any indexing backlog (batches, legacy chunks or
@@ -110,7 +131,7 @@ class TaskQueue(BaseQueue):
 
         engine = context["seagoat_engine"]
         current_repo_state_hash = engine.repository.get_status_hash()
-        context["last_maintenance"] = time.time()
+        context["last_maintenance"] = time.monotonic()
         if (
             not context["replan_pending"]
             and context["last_repo_state_hash"] == current_repo_state_hash

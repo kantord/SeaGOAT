@@ -99,10 +99,38 @@ class BaseQueue:
     def handle_maintenance(self, context):
         pass
 
+    def get_maintenance_deadline(self, context) -> float | None:
+        """Absolute monotonic time when the next maintenance pass may run.
+
+        ``None`` means no maintenance is due until the next task wakes the
+        worker. Subclasses may override this to defer maintenance (for example
+        while an indexing backlog is queued). The failure backoff in
+        ``self._next_maintenance`` still constrains the returned deadline.
+        """
+        if self._last_maintenance == 0.0:
+            # Maintenance has never run: run it promptly, even when idle.
+            return 0.0
+        return self._last_maintenance + MAINTENANCE_MAX_DELAY_SECONDS
+
     def _has_pending_task(self, task_name: str) -> bool:
         """Whether a task with this name is waiting in the queue."""
         with self._task_queue.mutex:
             return any(task.name == task_name for task in self._task_queue.queue)
+
+    def _maintenance_deadline(self, context, context_error) -> float | None:
+        """Absolute monotonic deadline the worker may block until.
+
+        ``None`` blocks until the next task wakes the worker. The failure
+        backoff in ``self._next_maintenance`` always constrains the deadline.
+        """
+        if context_error is not None:
+            # A failed context can never run maintenance: only a task can
+            # wake the worker again.
+            return None
+        deadline = self.get_maintenance_deadline(context)
+        if deadline is None:
+            return None
+        return max(deadline, self._next_maintenance)
 
     def shutdown(self):
         self._task_queue.put(
@@ -133,13 +161,16 @@ class BaseQueue:
             result_queue.put(result)
 
     def _run_maintenance_if_allowed(self, context, context_error):
-        """Run maintenance unless the context failed or a retry delay is active."""
+        """Run maintenance unless the context failed or a deadline is active."""
         if context_error is not None:
             return
-        now = time.monotonic()
-        if now < self._next_maintenance:
+        deadline = self._maintenance_deadline(context, None)
+        # Compare against the deadline with the same clock that computed it:
+        # capturing `now` before computing the deadline would always lag by a
+        # clock tick and turn an overdue maintenance wait into a busy loop.
+        if deadline is None or time.monotonic() < deadline:
             return
-        self._last_maintenance = now
+        self._last_maintenance = time.monotonic()
         try:
             self.handle_maintenance(context)
         except Exception:  # pylint: disable=broad-except
@@ -156,18 +187,20 @@ class BaseQueue:
             context = None
             context_error = exception
         while True:
+            timeout = self._worker_block_timeout(context, context_error)
             try:
-                task = self._task_queue.get(timeout=0.1)
-                if task.name == "shutdown":
-                    break
-                self._handle_task(context, task, context_error=context_error)
-                # Under a steady stream of tasks the queue is never empty, so
-                # also run maintenance (indexing) when it is overdue
-                overdue = (
-                    time.monotonic() - self._last_maintenance
-                    >= MAINTENANCE_MAX_DELAY_SECONDS
-                )
-                if overdue:
-                    self._run_maintenance_if_allowed(context, context_error)
+                task = self._task_queue.get(timeout=timeout)
             except Empty:
                 self._run_maintenance_if_allowed(context, context_error)
+                continue
+            if task.name == "shutdown":
+                break
+            self._handle_task(context, task, context_error=context_error)
+            self._run_maintenance_if_allowed(context, context_error)
+
+    def _worker_block_timeout(self, context, context_error) -> float | None:
+        """Seconds the worker may wait for a task, or None to wait forever."""
+        deadline = self._maintenance_deadline(context, context_error)
+        if deadline is None:
+            return None
+        return max(0.0, deadline - time.monotonic())
