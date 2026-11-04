@@ -209,7 +209,7 @@ class Engine:
         already-indexed tasks are filtered safely. Failed/retained/queued
         work stays pending. Chroma is the only durable indexing record.
         """
-        chunks = [chunk for chunk in chunks if chunk.chunk_id not in self._indexed_ids]
+        chunks = self.filter_pending(chunks)
         if not chunks:
             return
 
@@ -221,7 +221,11 @@ class Engine:
         self._pending_ids.difference_update(ids)
 
     def get_indexing_stats(self, failed_ids=frozenset()):
-        """Cheap in-memory indexed/pending/current counters for the UI."""
+        """Counters for the last complete plan, updated after successful upserts.
+
+        Call plan_indexing first to discover the repository's current IDs.
+        Direct writes outside that snapshot do not inflate its progress.
+        """
         return {
             "analyzed": len(self._indexed_ids),
             "pending": len(self._pending_ids),
