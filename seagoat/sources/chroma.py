@@ -276,7 +276,9 @@ def initialize(repository: Repository):
         stored: set[str] = set()
         offset = 0
         while True:
-            result = chroma_collection.get(include=[], limit=_GET_PAGE_SIZE, offset=offset)
+            result = chroma_collection.get(
+                include=[], limit=_GET_PAGE_SIZE, offset=offset
+            )
             page = result["ids"]
             if not page:
                 return stored

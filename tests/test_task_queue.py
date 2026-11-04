@@ -122,15 +122,17 @@ def test_maintenance_logs_when_all_chunks_are_analyzed(repo, caplog):
 
 
 def test_real_worker_indexes_all_enqueued_chunks(repo, caplog):
-    with mock_sources_context(repo, {}, {}):
+    with mock_sources_context(repo, {}, {}) as (chroma_source, _):
         expected_chunk_ids = _chunk_ids_of(repo)
 
         task_queue = TaskQueue(repo_path=repo.working_dir)
-        observer = Engine(repo.working_dir)
 
+        # Chroma (here the in-memory mock store) is the durable authority;
+        # readiness means every expected chunk actually has a stored row.
         def all_chunks_analyzed():
-            observer.cache.load()
-            return expected_chunk_ids <= observer.cache.data["chunks_already_analyzed"]
+            return expected_chunk_ids <= chroma_source["indexed_ids"](
+                list(expected_chunk_ids)
+            )
 
         try:
             with caplog.at_level(logging.INFO):
@@ -138,10 +140,9 @@ def test_real_worker_indexes_all_enqueued_chunks(repo, caplog):
         finally:
             task_queue.shutdown()
 
-        final_state = Engine(repo.working_dir)
-        assert final_state.cache.data["chunks_not_yet_analyzed"] == set()
+        final_ids = chroma_source["indexed_ids"](list(expected_chunk_ids))
 
-    assert not expected_chunk_ids - final_state.cache.data["chunks_already_analyzed"]
+    assert final_ids == expected_chunk_ids
     assert any("Processing chunk" in record.message for record in caplog.records)
     assert any("Analyzed all chunks!" in record.message for record in caplog.records)
 
@@ -172,19 +173,25 @@ def test_query_task_returns_serialized_results(repo):
 
 
 def test_stats_task_counts_analyzed_and_unanalyzed_chunks(repo):
-    with mock_sources_context(repo, {}, {}):
+    with mock_sources_context(repo, {}, {}) as (chroma_source, _):
         engine = Engine(repo.working_dir)
         chunks = engine.analyze_codebase(minimum_chunks_to_analyze=10_000)
         assert chunks == []
+        total = engine.get_indexing_stats()["analyzed"]
+        assert total > 0
 
-        # A chunk that was never processed is reported as unanalyzed.
+        # Simulate a chunk that was never processed: delete its durable row,
+        # then replan so the cheap in-memory pending counter sees it again.
         pending_chunk = next(
             chunk
             for file, _ in engine.repository.top_files()
             for chunk in file.get_chunks()
         )
-        engine.cache.data["chunks_already_analyzed"].discard(pending_chunk.chunk_id)
-        engine.cache.data["chunks_not_yet_analyzed"].add(pending_chunk.chunk_id)
+        chroma_source["delete_ids"]([pending_chunk.chunk_id])
+        engine.plan_indexing()
+        stats = engine.get_indexing_stats()
+        assert stats["pending"] == 1
+        assert stats["analyzed"] == total - 1
 
         queue = _quiet_queue(repo)
         context = _engine_context(repo)
@@ -192,7 +199,6 @@ def test_stats_task_counts_analyzed_and_unanalyzed_chunks(repo):
 
         stats = queue.handle_get_stats(context)
 
-    total = stats["chunks"]["analyzed"] + stats["chunks"]["unanalyzed"]
     assert stats["chunks"]["unanalyzed"] == 1
     assert stats["chunks"]["analyzed"] == total - 1
     assert stats["queue"]["size"] == 0
@@ -213,10 +219,10 @@ def _queue_without_worker(engine):
     queue.kwargs = {}
     queue._task_queue = PriorityQueue()
     engine.config = {"server": {"chroma": {"batchSize": 100}}}
-    engine.cache.data = {
-        "chunks_not_yet_analyzed": set(),
-        "chunks_already_analyzed": set(),
-    }
+    # Mock engines must report no pending prune work by default, otherwise
+    # maintenance would schedule low-priority prune tasks that starve the
+    # analyze tasks these tests expect to pick up.
+    engine.pending_prune_count.return_value = 0
     context = {
         "seagoat_engine": engine,
         "last_maintenance": None,
@@ -277,7 +283,6 @@ def test_failed_analysis_is_retried_on_same_unchanged_repo(mocker):
     queue, context = _queue_without_worker(engine)
 
     clock = {"now": 100.0}
-    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
     mocker.patch(
         "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
     )
@@ -303,7 +308,6 @@ def test_successful_unchanged_pass_is_not_analyzed_twice(mocker):
     queue, context = _queue_without_worker(engine)
 
     clock = {"now": 100.0}
-    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
     mocker.patch(
         "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
     )
@@ -337,7 +341,6 @@ def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
     queue.enqueue = flaky_enqueue
 
     clock = {"now": 100.0}
-    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
     mocker.patch(
         "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
     )

@@ -121,7 +121,8 @@ class TaskQueue(BaseQueue):
             return
         if (
             context["last_maintenance"] is not None
-            and time.monotonic() - context["last_maintenance"] < SECONDS_BETWEEN_MAINTENANCE
+            and time.monotonic() - context["last_maintenance"]
+            < SECONDS_BETWEEN_MAINTENANCE
         ):
             return
         # Do not replan while any indexing backlog (batches, legacy chunks or
