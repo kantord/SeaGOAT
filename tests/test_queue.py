@@ -52,9 +52,10 @@ def test_handle_get_stats(
         "seagoat_engine": Mock(),
     }
 
-    context["seagoat_engine"].cache.data = {
-        "chunks_already_analyzed": set(range(chunks_analyzed)),
-        "chunks_not_yet_analyzed": set(range(unanalyzed)),
+    context["seagoat_engine"].get_indexing_stats.return_value = {
+        "analyzed": chunks_analyzed,
+        "pending": unanalyzed,
+        "total": chunks_analyzed + unanalyzed,
     }
 
     stats = task_queue.handle_get_stats(context)

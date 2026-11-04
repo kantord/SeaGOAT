@@ -112,7 +112,9 @@ class Repository:
         return self.get_file_object_id(file_path) == git_object_id
 
     def get_status_hash(self):
-        combined = self._get_head_hash() + self._get_working_tree_diff()
+        # A valid unborn repository has no HEAD yet; it still has a stable
+        # status for maintenance. A failed HEAD read must continue to raise.
+        combined = (self._get_scan_head() or "") + self._get_working_tree_diff()
         return hashlib.sha256(combined.encode()).hexdigest()
 
     _MAX_HEAD_VERIFICATION_ATTEMPTS = 3

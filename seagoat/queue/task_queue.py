@@ -42,6 +42,17 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
 class TaskQueue(BaseQueue):
     BATCH_TASK = "analyze_batch"
     LEGACY_CHUNK_TASK = "analyze_chunk"
+    PRUNE_TASK = "prune_index"
+    # Stale-row deletions are scheduled as bounded low-priority tasks so
+    # priority-zero queries/stats interleave and cleanup never starves them.
+    PRUNE_BATCH_SIZE = 1000
+
+    def _has_pending_indexing_tasks(self):
+        return (
+            self._has_pending_task(self.BATCH_TASK)
+            or self._has_pending_task(self.LEGACY_CHUNK_TASK)
+            or self._has_pending_task(self.PRUNE_TASK)
+        )
 
     def _get_context(self):
         context = super()._get_context()
@@ -92,9 +103,9 @@ class TaskQueue(BaseQueue):
             and time.time() - context["last_maintenance"] < SECONDS_BETWEEN_MAINTENANCE
         ):
             return
-        if self._has_pending_task(self.BATCH_TASK) or self._has_pending_task(
-            self.LEGACY_CHUNK_TASK
-        ):
+        # Do not replan while any indexing backlog (batches, legacy chunks or
+        # prune tasks) remains; that also guards cleanup from maintenance spin.
+        if self._has_pending_indexing_tasks():
             return
 
         engine = context["seagoat_engine"]
@@ -110,9 +121,24 @@ class TaskQueue(BaseQueue):
         self._enqueue_batches(context, chunks)
         if not chunks:
             logger.info("Analyzed all chunks!")
+        # Schedule stale-row cleanup as bounded low-priority tasks; all cleanup
+        # and upserts stay serialized on this project queue.
+        self._enqueue_prune_if_needed(context)
         # Preserve retry eligibility until planning and all enqueue calls succeed.
         context["last_repo_state_hash"] = current_repo_state_hash
         context["replan_pending"] = False
+
+    def _enqueue_prune_if_needed(self, context):
+        if (
+            not context["paused"]
+            and context["seagoat_engine"].pending_prune_count()
+            and not self._has_pending_task(self.PRUNE_TASK)
+        ):
+            self.enqueue(
+                self.PRUNE_TASK,
+                priority=LOW_PRIORITY,
+                wait_for_result=False,
+            )
 
     def _run_recovery(self, context):
         if context["paused"]:
@@ -136,10 +162,15 @@ class TaskQueue(BaseQueue):
             self._enqueue_batch(chunks, priority, name)
             # An enqueue failure must leave this batch retained for the next pass.
             retained.pop(0)
+        self._enqueue_prune_if_needed(context)
 
     @staticmethod
     def _retain_and_pause(context, chunks, priority, name, reason):
         context["retained_batches"].append((chunks, priority, name))
+        TaskQueue._pause_indexing(context, reason)
+
+    @staticmethod
+    def _pause_indexing(context, reason):
         context["paused"] = True
         context["pause_reason"] = reason
         context["retry_after"] = time.monotonic() + RETRY_DEADLINE_SECONDS
@@ -151,9 +182,8 @@ class TaskQueue(BaseQueue):
         engine = context["seagoat_engine"]
         chunks = [
             chunk
-            for chunk in chunks
-            if chunk.chunk_id not in engine.cache.data["chunks_already_analyzed"]
-            and chunk.chunk_id not in context["failed_chunks"]
+            for chunk in engine.filter_pending(chunks)
+            if chunk.chunk_id not in context["failed_chunks"]
         ]
         if not chunks:
             return
@@ -175,7 +205,7 @@ class TaskQueue(BaseQueue):
             if len(chunks) == 1:
                 failed_id = chunks[0].chunk_id
                 context["failed_chunks"].add(failed_id)
-                engine.cache.data["chunks_not_yet_analyzed"].discard(failed_id)
+                engine.discard_pending({failed_id})
                 logger.warning("Quarantining failing chunk %s", failed_id)
                 return
             midpoint = len(chunks) // 2
@@ -187,8 +217,28 @@ class TaskQueue(BaseQueue):
                 context, chunks, batch_priority, parent_name, "storage"
             )
         else:
-            if not engine.cache.data["chunks_not_yet_analyzed"]:
+            if not engine.get_indexing_stats()["pending"]:
                 logger.info("Analyzed all chunks!")
+
+    def handle_prune_index(self, context):
+        """Delete a bounded batch of stale Chroma rows from the current plan.
+
+        Storage/repository errors abort without poisoning quarantine and
+        without publishing a premature maintenance hash; the next maintenance
+        replans and re-enqueues the remaining candidates.
+        """
+        self._ensure_recovery_state(context)
+        if context["paused"]:
+            return
+        engine = context["seagoat_engine"]
+        try:
+            engine.prune_stale(self.PRUNE_BATCH_SIZE)
+        except Exception:  # pylint: disable=broad-except
+            logger.exception("Prune failed; will replan and retry")
+            context["replan_pending"] = True
+            self._pause_indexing(context, "storage")
+        else:
+            self._enqueue_prune_if_needed(context)
 
     def handle_analyze_chunk(self, context, chunk):
         """Legacy task names use the same completion and recovery path."""
@@ -215,8 +265,10 @@ class TaskQueue(BaseQueue):
     def handle_get_stats(self, context):
         engine = context["seagoat_engine"]
         self._ensure_recovery_state(context)
-        analyzed_count = len(engine.cache.data["chunks_already_analyzed"])
-        unanalyzed_count = len(engine.cache.data["chunks_not_yet_analyzed"])
+        # Cheap engine counters: no whole-collection reads per stats request.
+        indexing_stats = engine.get_indexing_stats(context["failed_chunks"])
+        analyzed_count = indexing_stats["analyzed"]
+        unanalyzed_count = indexing_stats["pending"]
         total_chunks = analyzed_count + unanalyzed_count
 
         return {
@@ -226,7 +278,7 @@ class TaskQueue(BaseQueue):
             "chunks": {
                 "analyzed": analyzed_count,
                 "unanalyzed": unanalyzed_count,
-                "failed": len(context["failed_chunks"]),
+                "failed": indexing_stats["failed"],
             },
             "indexing": {
                 "paused": context["paused"],

@@ -267,6 +267,34 @@ def initialize(repository: Repository):
             indexed.update(result["ids"])
         return indexed
 
+    def all_ids() -> set[str]:
+        """Enumerate every stored row ID in bounded pages.
+
+        Uses a stable offset walk; offsets are only safe here because the
+        engine snapshots candidates before any deletion happens elsewhere.
+        """
+        stored: set[str] = set()
+        offset = 0
+        while True:
+            result = chroma_collection.get(include=[], limit=_GET_PAGE_SIZE, offset=offset)
+            page = result["ids"]
+            if not page:
+                return stored
+            stored.update(page)
+            offset += len(page)
+            if len(page) < _GET_PAGE_SIZE:
+                return stored
+
+    def delete_ids(ids: list[str]) -> None:
+        """Delete rows in bounded pages; storage errors propagate for retry."""
+        ids = list(ids)
+        if not ids:
+            return
+        for start in range(0, len(ids), _GET_PAGE_SIZE):
+            page = ids[start : start + _GET_PAGE_SIZE]
+            with _EMBEDDING_LOCK:
+                chroma_collection.delete(ids=page)
+
     def cache_repo():
         # chromadb does not need any repo cache action
         pass
@@ -277,5 +305,7 @@ def initialize(repository: Repository):
         "cache_batch": cache_batch,
         "probe_embedding": probe_embedding,
         "indexed_ids": indexed_ids,
+        "all_ids": all_ids,
+        "delete_ids": delete_ids,
         "cache_repo": cache_repo,
     }
