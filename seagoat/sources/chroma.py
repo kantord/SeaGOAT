@@ -3,6 +3,7 @@ import json
 import os
 import threading
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, cast
 
 import chromadb
@@ -144,7 +145,10 @@ def get_metadata_and_distance_from_chromadb_result(chromadb_results):
     ) or []
 
 
-def format_results(query_text: str, repository, chromadb_results, config):
+def format_results(query_text: str, snapshot, chromadb_results, config):
+    """Turn raw Chroma rows into results, using only the given repository
+    snapshot: a row is current only if its file is, in the snapshot's HEAD,
+    exactly the object it was indexed from."""
     files = {}
     max_vector_distance = config["server"]["chroma"]["maxVectorDistance"]
 
@@ -156,21 +160,20 @@ def format_results(query_text: str, repository, chromadb_results, config):
         path = str(metadata["path"])
         line = int(metadata["line"])
         git_object_id = str(metadata["git_object_id"])
-        full_path = Path(repository.path) / path
 
-        if not full_path.exists():
+        # Files that are not part of the snapshot (deleted from the working
+        # tree, ignored, unsupported) and stale vectors are skipped
+        if not snapshot.has_file(path):
             continue
 
-        if not repository.is_up_to_date_git_object(path, git_object_id):
+        if not snapshot.is_up_to_date_git_object(path, git_object_id):
             continue
-
-        gitfile = repository.get_file(path)
 
         if path not in files:
-            files[path] = Result(query_text, gitfile)
+            files[path] = Result(query_text, snapshot.get_file(path))
         files[path].add_line(line, distance)
 
-    return files.values()
+    return list(files.values())
 
 
 def initialize(repository: Repository):
@@ -234,7 +237,7 @@ def initialize(repository: Repository):
                 metadatas=metadatas,
             )
 
-    def fetch(query_text: str, limit: int):
+    def fetch_in_snapshot(query_text: str, limit: int, query_snapshot):
         # Slightly overfetch results as it will sorted using a different score later
         max_chunks_to_fetch = config["server"]["chroma"]["maxChunksToFetch"]
         n_results_multiplier = config["server"]["chroma"]["nResultsMultiplier"]
@@ -246,7 +249,15 @@ def initialize(repository: Repository):
                 n_results=n_results,
             )
 
-        return format_results(query_text, repository, chromadb_results, config)
+        return format_results(
+            query_text, query_snapshot.repository, chromadb_results, config
+        )
+
+    def fetch(query_text: str, limit: int):
+        # Standalone use: read the repository's currently published snapshot
+        return fetch_in_snapshot(
+            query_text, limit, SimpleNamespace(repository=repository.snapshot)
+        )
 
     def cache_chunk(chunk):
         # Compatibility wrapper: store a single-element batch immediately so
@@ -303,6 +314,7 @@ def initialize(repository: Repository):
 
     return {
         "fetch": fetch,
+        "fetch_in_snapshot": fetch_in_snapshot,
         "cache_chunk": cache_chunk,
         "cache_batch": cache_batch,
         "probe_embedding": probe_embedding,

@@ -3,9 +3,11 @@ This module allows you to use seagoat as a library
 """
 
 import asyncio
+import threading
 from collections import deque
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from itertools import chain, islice
 from pathlib import Path
 from typing import TypedDict
@@ -16,6 +18,7 @@ from seagoat.cache import Cache
 from seagoat.gitfile import GitFile
 from seagoat.repository import Repository
 from seagoat.result import get_best_score
+from seagoat.snapshot import QuerySnapshot
 from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import get_config_values
 
@@ -38,7 +41,6 @@ class Engine:
         Initializes the library
         """
         self.path = path
-        self._results = []
         self.cache = Cache[RepositoryData](
             "cache",
             Path(path),
@@ -79,6 +81,85 @@ class Engine:
                 chroma.initialize(self.repository),
             ],
         }
+
+        # The published query snapshot: replaced as a whole, never mutated.
+        # ``_snapshot_lock`` guards only reading/swapping the reference (and
+        # taking a reader's reference); ``_build_lock`` serializes rebuilds so
+        # slow builds never block queries.
+        self._snapshot: QuerySnapshot | None = None
+        self._snapshot_lock = threading.Lock()
+        self._build_lock = threading.Lock()
+
+    def _all_sources(self):
+        return list(chain(*self._fetchers.values()))
+
+    def _build_snapshot(self) -> QuerySnapshot:
+        """Build a complete replacement without publishing anything.
+
+        Any failure (discovery or a source's cache construction) releases what
+        was built so far and raises, leaving the published snapshot untouched.
+        """
+        repository_snapshot = self.repository.scan()
+        states = {}
+        try:
+            for source in self._all_sources():
+                build_state = source.get("build_state")
+                if build_state is not None:
+                    states[id(source)] = build_state(repository_snapshot)
+        except BaseException:
+            for state in states.values():
+                state.close()
+            raise
+        return QuerySnapshot(repository_snapshot, states)
+
+    def _publish_snapshot(self, replacement: QuerySnapshot) -> None:
+        """Atomically make a fully built snapshot the current one.
+
+        The previous snapshot is retired: it stays usable for queries that
+        already hold it and is closed when the last of them releases it.
+        """
+        with self._snapshot_lock:
+            retired, self._snapshot = self._snapshot, replacement
+            self.repository.publish(replacement.repository)
+        if retired is not None:
+            retired.release()
+
+    def refresh_snapshot(self) -> QuerySnapshot:
+        """Rebuild the searchable state and publish it once it is complete.
+
+        Returns the published snapshot without retaining it: readers must go
+        through ``_acquire_snapshot``.
+        """
+        with self._build_lock:
+            replacement = self._build_snapshot()
+            self._publish_snapshot(replacement)
+        return replacement
+
+    @contextmanager
+    def _acquire_snapshot(self):
+        """Hold the current snapshot, building the first one if needed, for the
+        duration of the ``with`` block."""
+        while True:
+            with self._snapshot_lock:
+                current = self._snapshot
+                if current is not None:
+                    current.acquire()
+            if current is not None:
+                break
+            with self._build_lock:
+                if self._snapshot is None:
+                    self._publish_snapshot(self._build_snapshot())
+        try:
+            yield current
+        finally:
+            current.release()
+
+    def close(self) -> None:
+        """Release the published snapshot's resources (once readers finish)"""
+        with self._snapshot_lock:
+            retired, self._snapshot = self._snapshot, None
+        if retired is not None:
+            retired.release()
 
     def analyze_codebase(self, minimum_chunks_to_analyze=None):
         """Synchronous compatibility wrapper around the batch pipeline.
@@ -137,18 +218,16 @@ class Engine:
         self._plan_repo_hash = None
         self._stale_candidates.clear()
         plan_hash = self.repository.get_status_hash()
-        self.repository.analyze_files()
-
-        for fetcher in self._fetchers["async"] + self._fetchers["sync"]:
-            fetcher["cache_repo"]()
+        # Scan and build every source's state first; queries only ever see the
+        # replacement once it is complete, and a failure here leaves the
+        # previous snapshot published.
+        snapshot = self.refresh_snapshot().repository
 
         # GitFile materialization reads HEAD again, so pin the full repository
         # status before materializing and re-validate it afterwards; a HEAD
         # move in this gap must not authorize pruning from a mixed plan.
         current_chunks = [
-            chunk
-            for file, _ in self.repository.top_files()
-            for chunk in file.get_chunks()
+            chunk for file, _ in snapshot.top_files() for chunk in file.get_chunks()
         ]
         if self.repository.get_status_hash() != plan_hash:
             raise RuntimeError(
@@ -309,30 +388,42 @@ class Engine:
         a rule of thumb.
         """
 
-        self._results = []
         max_workers = self.config["server"]["engine"]["maxWorkers"]
+        # Owned by this call alone: concurrent queries never share result state
+        results = []
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with (
+            self._acquire_snapshot() as snapshot,
+            ThreadPoolExecutor(max_workers=max_workers) as executor,
+        ):
             futures = [
-                executor.submit(source["fetch"], query, limit_clue)
+                executor.submit(self._fetch_from, source, query, limit_clue, snapshot)
                 for source in self._fetchers["async"]
             ]
 
             for source in self._fetchers["sync"]:
-                self._results.extend(source["fetch"](query, limit_clue))
+                results.extend(self._fetch_from(source, query, limit_clue, snapshot))
 
             for future in futures:
-                self._results.extend(future.result())
+                results.extend(future.result())
 
-        self._include_context_lines(context_above, context_below)
+            self._include_context_lines(results, context_above, context_below)
 
-        return self._format_results(query, limit_clue)
+            return self._format_results(results, snapshot, limit_clue)
+
+    @staticmethod
+    def _fetch_from(source, query, limit_clue, snapshot):
+        fetch_in_snapshot = source.get("fetch_in_snapshot")
+        if fetch_in_snapshot is not None:
+            return fetch_in_snapshot(query, limit_clue, snapshot)
+        return source["fetch"](query, limit_clue)
 
     async def query(self, *args, **kwargs):
         return await asyncio.to_thread(self.query_sync, *args, **kwargs)
 
-    def _include_context_lines(self, context_above: int, context_below: int):
-        for result in self._results:
+    @staticmethod
+    def _include_context_lines(results, context_above: int, context_below: int):
+        for result in results:
             result.add_context_lines(-context_above)
             result.add_context_lines(context_below)
 
@@ -353,10 +444,12 @@ class Engine:
 
         return normalize
 
-    def _format_results(self, query: str, hard_count_limit: int = 1000):
+    def _format_results(
+        self, results, snapshot: QuerySnapshot, hard_count_limit: int = 1000
+    ):
         merged_results = {}
 
-        for result_item in self._results:
+        for result_item in results:
             if result_item.gitfile.path not in merged_results:
                 merged_results[result_item.gitfile.path] = result_item
                 continue
@@ -371,8 +464,8 @@ class Engine:
             return []
 
         top_files = {
-            file.path: 0.0 - position_score
-            for file, position_score in self.repository.top_files()
+            path: 0.0 - position_score
+            for path, position_score in snapshot.repository.frecency_scores.items()
         }
 
         normalize_score = self._get_normalization_function(scores, min_=0.0)

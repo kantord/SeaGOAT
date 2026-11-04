@@ -5,13 +5,15 @@ import os
 import platform
 import subprocess
 import tempfile
+import threading
 from pathlib import Path
 
 from stop_words import get_stop_words
 
 from seagoat.cache import Cache
-from seagoat.repository import Repository
+from seagoat.repository import Repository, RepositorySnapshot
 from seagoat.result import Result
+from seagoat.snapshot import QuerySnapshot
 from seagoat.utils.config import get_config_values
 from seagoat.utils.file_types import is_file_type_supported
 
@@ -64,31 +66,30 @@ def query_terms(query_text: str) -> list[str]:
     return terms
 
 
-class RipGrepCache(str):
-    def __init__(self, repository: Repository):
-        cache = Cache("ripgrep", Path(repository.path), {})
+class RipGrepCache:
+    """Immutable ripgrep input built from one repository snapshot.
+
+    The contents are written to a uniquely named file, mapped, and (where the
+    platform allows) the file is unlinked right away: the mapping keeps the data
+    alive for as long as it is open and no file can leak. Nothing is ever
+    rewritten in place, so a mapping other readers hold stays valid; a rebuild
+    makes a new instance instead of reusing this one.
+    """
+
+    def __init__(self, repository: Repository, snapshot: RepositorySnapshot):
         self.repository = repository
-        self.file_path = cache.get_cache_folder() / "mmap"
-        if platform.system() == "Windows":
-            # mkstemp creates the file atomically under an unpredictable name;
-            # mktemp only returned a name that another process could take first
-            file_descriptor, temp_path = tempfile.mkstemp()
-            os.close(file_descriptor)
-            self.file_path = Path(temp_path)
-        self.is_initialized = False
-        self._data = ""
+        self.snapshot = snapshot
         self.config = get_config_values(Path(repository.path))
         self.file_paths: list[str] = []
         self.cumulative_line_counts: list[int] = []
-
-    def _iterate_files_to_cache(self):
-        for file, _ in self.repository.top_files():
-            yield file
+        self._data: mmap.mmap | str | bytes = b""
+        self._closed = False
+        self._build()
 
     def _iterate_lines_to_cache(self):
         max_file_size_kb = self.config["server"]["ripgrep"]["maxFileSize"]
         max_file_size_bytes = max_file_size_kb * KILOBYTE
-        files = list(self._iterate_files_to_cache())
+        files = [file for file, _ in self.snapshot.top_files()]
         # The version in HEAD, which results are displayed from, not the
         # working tree: uncommitted lines would point past its end
         blobs = {}
@@ -108,33 +109,30 @@ class RipGrepCache(str):
             for line_number, line in enumerate(file_contents.splitlines(), start=1):
                 yield file, line_number, line
 
-    def _build_cache_file(self):
-        self.file_paths = []
-        self.cumulative_line_counts = []
+    def _write_cache_file(self, cache_file):
         total_estimated_cache_size = 0
         line_count = 0
         max_mmap_size = self.config["server"]["ripgrep"]["maxMmapSize"]
         max_mmap_size_bytes = max_mmap_size * MEGABYTE
 
-        with open(self.file_path, "w", encoding="utf-8") as cache_file:
-            for file, _, line in self._iterate_lines_to_cache():
-                if not self.file_paths or self.file_paths[-1] != file.path:
-                    self.file_paths.append(file.path)
-                    self.cumulative_line_counts.append(line_count)
+        for file, _, line in self._iterate_lines_to_cache():
+            if not self.file_paths or self.file_paths[-1] != file.path:
+                self.file_paths.append(file.path)
+                self.cumulative_line_counts.append(line_count)
 
-                cache_line = f"{line}\n"
-                cache_file.write(cache_line)
-                total_estimated_cache_size += len(cache_line)
-                line_count += 1
-                self.cumulative_line_counts[-1] = line_count
+            cache_line = f"{line}\n"
+            cache_file.write(cache_line)
+            total_estimated_cache_size += len(cache_line)
+            line_count += 1
+            self.cumulative_line_counts[-1] = line_count
 
-                if total_estimated_cache_size > max_mmap_size_bytes:
-                    logger.warning(
-                        "Warning: maximum estimated ripgrep cache size of %s megabytes exceeded",
-                        max_mmap_size,
-                    )
+            if total_estimated_cache_size > max_mmap_size_bytes:
+                logger.warning(
+                    "Warning: maximum estimated ripgrep cache size of %s megabytes exceeded",
+                    max_mmap_size,
+                )
 
-                    break
+                break
 
         logger.info(
             "Estimated ripgrep cache size: %.2f megabytes (%s bytes). Line count %s",
@@ -142,36 +140,59 @@ class RipGrepCache(str):
             int(total_estimated_cache_size),
             line_count,
         )
-        self.is_initialized = True
 
-    def rebuild(self):
-        self._build_cache_file()
-        if platform.system() == "Windows":
-            # Memory map does not work on Windows for some reason
-            # Use a simple string as a fallback
-            with open(self.file_path, encoding="utf-8") as cache_file:
-                self._data = cache_file.read()
-        else:
-            with open(self.file_path, "r+b") as cache_file:
-                if os.fstat(cache_file.fileno()).st_size == 0:
-                    # mmap() cannot map a zero-length file
-                    self._data = b""
-                else:
-                    self._data = mmap.mmap(cache_file.fileno(), 0)
+    def _build(self):
+        cache_folder = Cache(
+            "ripgrep", Path(self.repository.path), {}
+        ).get_cache_folder()
+        file_descriptor, temp_name = tempfile.mkstemp(dir=cache_folder, prefix="mmap.")
+        temp_path = Path(temp_name)
+        try:
+            with os.fdopen(file_descriptor, "w", encoding="utf-8") as cache_file:
+                self._write_cache_file(cache_file)
 
-    def encode(self, *args, **kwargs):  # type: ignore
-        return self._data
+            if platform.system() == "Windows":
+                # Memory map does not work on Windows for some reason
+                # Use a simple string as a fallback
+                self._data = temp_path.read_text(encoding="utf-8")
+            else:
+                with open(temp_path, "r+b") as cache_file:
+                    if os.fstat(cache_file.fileno()).st_size > 0:
+                        # mmap() cannot map a zero-length file
+                        self._data = mmap.mmap(cache_file.fileno(), 0)
+        except BaseException:
+            self.close()
+            raise
+        finally:
+            # The data lives in the mapping (or in memory) from here on
+            temp_path.unlink(missing_ok=True)
+
+    @property
+    def is_closed(self) -> bool:
+        return self._closed
+
+    def close(self):
+        """Release the mapping. Only call once no reader can use it any more."""
+        if self._closed:
+            return
+        self._closed = True
+        data, self._data = self._data, b""
+        if isinstance(data, mmap.mmap):
+            try:
+                data.close()
+            except BufferError:
+                # A reader still exports the buffer; the mapping is freed when
+                # that last reference goes away
+                logger.debug("ripgrep mapping still exported; deferring release")
 
     def as_input(self):
         # subprocess only closes stdin for falsy input, so an empty cache
-        # must be passed as "" instead of self, otherwise rg waits forever
+        # must be passed as "" instead of the empty buffer, otherwise rg
+        # waits forever
         if not self._data:
             return ""
 
-        if platform.system() == "Windows":
-            return self.encode()
-
-        return self
+        return self._data
 
 
 def map_global_line_to_file(cumulative: list[int], global_line: int) -> tuple[int, int]:
@@ -229,21 +250,23 @@ def run_ripgrep(cache_input, terms: list[str], max_count: int) -> list[tuple[int
 
 
 def initialize(repository: Repository):
-    path = repository.path
-    memory_cache = RipGrepCache(repository)
+    config = get_config_values(Path(repository.path))
+    max_vector_distance = config["server"]["chroma"]["maxVectorDistance"]
 
     def cache_chunk(_):
         # Ripgrep does not use chunks
         pass
 
-    def cache_repo():
-        memory_cache.rebuild()
+    def build_state(snapshot: RepositorySnapshot) -> RipGrepCache:
+        """Build a complete replacement index; the caller publishes it."""
+        return RipGrepCache(repository, snapshot)
 
-    def _fetch(query_text: str, path: str, limit: int, cache: RipGrepCache):
+    def _fetch(
+        query_text: str, limit: int, cache: RipGrepCache, snapshot: RepositorySnapshot
+    ):
         terms = query_terms(query_text)
         query_text = " ".join(terms)
         files = {}
-        max_vector_distance = cache.config["server"]["chroma"]["maxVectorDistance"]
 
         # (path, line number, distinct query words) in ripgrep's order
         matches = []
@@ -273,7 +296,7 @@ def initialize(repository: Repository):
         for relative_path, line_number, distinct_words in matches[:limit]:
             if relative_path not in files:
                 files[relative_path] = Result(
-                    query_text, repository.get_file(relative_path)
+                    query_text, snapshot.get_file(relative_path)
                 )
             # A regex word (e.g. "[0-9]{2,10}") never appears literally; count
             # it as one word. This keeps ripgrep results on comparable levels
@@ -282,17 +305,45 @@ def initialize(repository: Repository):
                 line_number, max_vector_distance * 0.8 / max(distinct_words, 1)
             )
 
-        return files.values()
+        return list(files.values())
+
+    def fetch_in_snapshot(query_text: str, limit: int, query_snapshot):
+        """Fetch using the index that belongs to the query's snapshot"""
+        cache = query_snapshot.state_for(source)
+        return _fetch(query_text, limit, cache, query_snapshot.repository)
+
+    # Standalone use (no Engine): the source publishes its own index. Readers
+    # lease it so a rebuild only closes it after the last reader is done.
+    standalone_lock = threading.Lock()
+    standalone: list[QuerySnapshot] = []
+
+    def cache_repo():
+        # Index the repository's currently published snapshot
+        snapshot = repository.snapshot
+        replacement = QuerySnapshot(snapshot, {id(source): build_state(snapshot)})
+        with standalone_lock:
+            previous = standalone[:]
+            standalone[:] = [replacement]
+        for retired in previous:
+            retired.release()
+
+    def lease_current() -> QuerySnapshot | None:
+        with standalone_lock:
+            return standalone[0].acquire() if standalone else None
 
     def fetch(query_text: str, limit: int):
-        if not memory_cache.is_initialized:
+        while (leased := lease_current()) is None:
             repository.analyze_files()
             cache_repo()
 
-        return _fetch(query_text, str(path), limit, memory_cache)
+        with leased:
+            return fetch_in_snapshot(query_text, limit, leased)
 
-    return {
+    source = {
         "fetch": fetch,
+        "fetch_in_snapshot": fetch_in_snapshot,
+        "build_state": build_state,
         "cache_chunk": cache_chunk,
         "cache_repo": cache_repo,
     }
+    return source

@@ -660,9 +660,8 @@ def test_analyze_files_retries_and_publishes_when_head_changes(repo, mocker):
 
     def fake_scan(head):
         scanned_heads.append(head)
-        return {f"scanned_{head[:1]}.py": [("###abc", 0, "A <a@b>", "s")]}, {
-            f"scanned_{head[:1]}.py": 1.0
-        }
+        name = f"scanned_{head[:1]}.py"
+        return {name: [("###abc", 0, "A <a@b>", "s")]}, {name: 1.0}, {name: head}
 
     mocker.patch.object(repository, "_scan_at_head", side_effect=fake_scan)
 
@@ -688,7 +687,7 @@ def test_analyze_files_raises_and_keeps_state_when_head_keeps_changing(repo, moc
     mocker.patch.object(
         repository,
         "_scan_at_head",
-        side_effect=lambda head: ({"moved.py": []}, {"moved.py": 1.0}),
+        side_effect=lambda head: ({"moved.py": []}, {"moved.py": 1.0}, {}),
     )
 
     with pytest.raises(RuntimeError, match="HEAD kept changing"):
@@ -753,7 +752,7 @@ def test_first_commit_during_unborn_scan_does_not_publish_empty_state(repo, mock
     def completed_scan(revision):
         assert revision == head
         assert dict(repository.file_changes) == previous_changes
-        return {"new.py": []}, {"new.py": 1.0}
+        return {"new.py": []}, {"new.py": 1.0}, {"new.py": "0" * 40}
 
     mocker.patch.object(repository, "_scan_at_head", side_effect=completed_scan)
 
