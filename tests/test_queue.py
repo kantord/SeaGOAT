@@ -399,13 +399,13 @@ def test_deferred_maintenance_does_not_run_after_a_task_wakes_worker():
     maintenance_ran = threading.Event()
 
     class DeferredQueue(BaseQueue):
-        def get_maintenance_deadline(self, _context):
+        def get_maintenance_deadline(self, context):
             return None
 
         def handle_echo(self, _context, value):
             return value
 
-        def handle_maintenance(self, _context):
+        def handle_maintenance(self, context):
             maintenance_ran.set()
 
     queue = DeferredQueue()
