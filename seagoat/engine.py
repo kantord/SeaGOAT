@@ -3,9 +3,10 @@ This module allows you to use seagoat as a library
 """
 
 import asyncio
+from collections import deque
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
-from itertools import chain
+from itertools import chain, islice
 from pathlib import Path
 from typing import TypedDict
 
@@ -25,8 +26,6 @@ class RepositoryData(TypedDict):
     commits_already_analyzed: set[str]
     file_data: dict[str, GitFile]
     sorted_files: list[str]
-    chunks_already_analyzed: set[str]
-    chunks_not_yet_analyzed: set[str]
 
 
 class Engine:
@@ -49,16 +48,28 @@ class Engine:
                 "commits_already_analyzed": set(),
                 "file_data": {},
                 "sorted_files": [],
-                "chunks_already_analyzed": set(),
-                "chunks_not_yet_analyzed": set(),
             },
         )
         self.cache.load()
+        # Old cache files carried per-batch chunk ID sets; those are ignored
+        # (Chroma is the durable record now) and stripped so they are never
+        # persisted again, without bumping the cache format.
+        self.cache.data.pop("chunks_already_analyzed", None)
+        self.cache.data.pop("chunks_not_yet_analyzed", None)
         self.repository = Repository(path)
         self.config = get_config_values(Path(path))
-        # Startup reconciliation of durable analyzed marks against the real
-        # vector store happens at most once per Engine instance.
-        self._repair_done = False
+        # In-memory (never persisted) snapshot of the last plan: which chunks
+        # are current, which are pending and which are known indexed. Stats
+        # stay cheap; Chroma remains the only durable indexing record.
+        self._current_ids: set[str] = set()
+        self._pending_ids: set[str] = set()
+        self._indexed_ids: set[str] = set()
+        # Stale Chroma row IDs to prune, snapshot at plan time so deletions
+        # never skip rows while earlier pages are removed.
+        self._stale_candidates: deque[str] = deque()
+        # Repository status pinned when the current plan was built; pruning
+        # re-validates against it so a HEAD move cannot authorize deletion.
+        self._plan_repo_hash: str | None = None
 
         self._fetchers = {
             "async": [
@@ -104,57 +115,78 @@ class Engine:
             batch = chunks_to_analyze[start : start + batch_size]
             self.process_batch(batch)
 
+        # Direct synchronous callers get the same safe cleanup as the queue:
+        # prune stale Chroma rows against the still-valid completed plan.
+        while self.pending_prune_count():
+            self.prune_stale()
+
         return chunks_to_process[minimum_chunks_to_analyze:]
 
     def plan_indexing(self, excluded_ids=frozenset()):
         """Plan pending indexing work without embedding anything.
 
-        Analyzes repository metadata, refreshes source caches, reconciles
-        legacy "analyzed" marks against the real vector store and returns the
-        pending FileChunks in ranking order. In-memory failed chunk IDs are
-        excluded from both the returned chunks and the pending-ID set.
+        Chroma is the authoritative durable record: after a complete
+        successful repository scan, current chunks are planned from the real
+        vector store. Legacy "analyzed" pickle marks have no effect anymore;
+        existing vector presence makes marked-but-missing repair automatic.
+        In-memory failed chunk IDs are excluded from the pending plan.
         """
         excluded = frozenset(excluded_ids)
+        # A failed later scan must revoke the previous plan's permission to
+        # delete, even if its repository hash still happens to match.
+        self._plan_repo_hash = None
+        self._stale_candidates.clear()
+        plan_hash = self.repository.get_status_hash()
         self.repository.analyze_files()
 
         for fetcher in self._fetchers["async"] + self._fetchers["sync"]:
             fetcher["cache_repo"]()
 
+        # GitFile materialization reads HEAD again, so pin the full repository
+        # status before materializing and re-validate it afterwards; a HEAD
+        # move in this gap must not authorize pruning from a mixed plan.
         current_chunks = [
             chunk
             for file, _ in self.repository.top_files()
             for chunk in file.get_chunks()
         ]
-        self._reconcile_legacy_marks({chunk.chunk_id for chunk in current_chunks})
-        chunks_to_process = [
-            chunk
-            for chunk in current_chunks
-            if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]
-            and chunk.chunk_id not in excluded
-        ]
-        self.cache.data["chunks_not_yet_analyzed"].difference_update(excluded)
-        self.cache.data["chunks_not_yet_analyzed"].update(
-            chunk.chunk_id for chunk in chunks_to_process
+        if self.repository.get_status_hash() != plan_hash:
+            raise RuntimeError(
+                "repository changed while materializing chunks; "
+                "refusing to plan from a mixed snapshot"
+            )
+
+        current_ids = {chunk.chunk_id for chunk in current_chunks}
+        indexed_ids = self._query_indexed_ids(current_ids)
+
+        # Enumerate every stored row (bounded pages), then snapshot the stale
+        # candidates in a stable list so deletions never skip rows.
+        # An empty current plan never authorizes deletion, including a valid
+        # empty/unborn repository. Read failures propagate rather than becoming
+        # a successful empty collection.
+        stale_candidates = (
+            self._all_indexed_ids() - current_ids if current_ids else set()
         )
-        return chunks_to_process
+        if self.repository.get_status_hash() != plan_hash:
+            raise RuntimeError("repository changed while reading the vector index")
 
-    def _reconcile_legacy_marks(self, current_ids):
-        """Re-queue IDs the old cache marked analyzed but Chroma never stored.
+        # Persist metadata before publishing the completed indexing snapshot.
+        # Chunk completion never writes this cache.
+        self.cache.persist()
 
-        Runs once per Engine, after a successful repository read. A failed
-        Chroma read propagates and leaves repair pending for the next pass.
-        """
-        if self._repair_done:
-            return
-        marked_ids = set(self.cache.data["chunks_already_analyzed"])
-        if marked_ids:
-            indexed_ids = self._query_indexed_ids(marked_ids)
-            missing = marked_ids - indexed_ids
-            if missing:
-                self.cache.data["chunks_already_analyzed"].difference_update(missing)
-                self.cache.data["chunks_not_yet_analyzed"].update(missing & current_ids)
-                self.cache.persist()
-        self._repair_done = True
+        self._current_ids = current_ids
+        self._indexed_ids = indexed_ids & current_ids
+        self._pending_ids = (current_ids - self._indexed_ids) - excluded
+        self._stale_candidates = deque(sorted(stale_candidates))
+        self._plan_repo_hash = plan_hash if current_ids else None
+
+        ordered = []
+        seen = set()
+        for chunk in current_chunks:
+            if chunk.chunk_id in self._pending_ids and chunk.chunk_id not in seen:
+                ordered.append(chunk)
+                seen.add(chunk.chunk_id)
+        return ordered
 
     def _query_indexed_ids(self, ids: set[str]) -> set[str]:
         """Ask the real (sync) sources which of the given IDs are indexed."""
@@ -170,34 +202,90 @@ class Engine:
                 source["probe_embedding"]()
 
     def process_batch(self, chunks):
-        """The only completion path: embed/upsert a batch, then persist once.
+        """The only completion path: embed/upsert a batch into Chroma.
 
-        Only after the whole batch reaches storage do IDs move from pending
-        to analyzed. Duplicate already-indexed tasks are filtered safely.
+        Completion/statistics only change after a successful upsert; nothing
+        (and no per-batch pickle write) happens before storage. Duplicate
+        already-indexed tasks are filtered safely. Failed/retained/queued
+        work stays pending. Chroma is the only durable indexing record.
         """
-        chunks = [
-            chunk
-            for chunk in chunks
-            if chunk.chunk_id not in self.cache.data["chunks_already_analyzed"]
-        ]
+        chunks = self.filter_pending(chunks)
         if not chunks:
             return
 
         self._add_batch_to_collection(chunks)
 
         ids = {chunk.chunk_id for chunk in chunks}
-        pending = self.cache.data["chunks_not_yet_analyzed"]
-        previously_pending = pending & ids
-        self.cache.data["chunks_already_analyzed"].update(ids)
-        pending.difference_update(ids)
-        try:
-            self.cache.persist()
-        except Exception:
-            # Upsert is idempotent: preserve retryable in-memory bookkeeping
-            # when persisting the completion record fails after storage succeeds.
-            self.cache.data["chunks_already_analyzed"].difference_update(ids)
-            pending.update(previously_pending)
-            raise
+        # Bookkeeping is in-memory only, and only after storage succeeded.
+        self._indexed_ids.update(ids & self._current_ids)
+        self._pending_ids.difference_update(ids)
+
+    def get_indexing_stats(self, failed_ids=frozenset()):
+        """Counters for the last complete plan, updated after successful upserts.
+
+        Call plan_indexing first to discover the repository's current IDs.
+        Direct writes outside that snapshot do not inflate its progress.
+        """
+        return {
+            "analyzed": len(self._indexed_ids),
+            "pending": len(self._pending_ids),
+            "total": len(self._current_ids),
+            "failed": len(self._current_ids & failed_ids),
+        }
+
+    def filter_pending(self, chunks):
+        """Return only chunks not yet known to be present in Chroma."""
+        return [chunk for chunk in chunks if chunk.chunk_id not in self._indexed_ids]
+
+    def discard_pending(self, ids):
+        """Remove failed IDs from pending stats (quarantine is process-local)."""
+        self._pending_ids.difference_update(ids)
+
+    def pending_prune_count(self):
+        """How many stale Chroma rows the current plan wants to delete."""
+        return len(self._stale_candidates)
+
+    def prune_stale(self, limit=1000):
+        """Delete up to ``limit`` stale Chroma rows, in bounded pages.
+
+        Safe cleanup for direct synchronous callers too. Deletion only runs
+        against a still-valid completed plan; any repository change or
+        storage error aborts and keeps the candidates for retry.
+        """
+        if limit <= 0:
+            raise ValueError("prune limit must be positive")
+        if (
+            not self._current_ids
+            or not self._stale_candidates
+            or self._plan_repo_hash is None
+        ):
+            return 0
+        if self.repository.get_status_hash() != self._plan_repo_hash:
+            self._stale_candidates.clear()
+            self._plan_repo_hash = None
+            raise RuntimeError(
+                "repository changed since planning; refusing to prune stale rows"
+            )
+        to_delete = list(islice(self._stale_candidates, min(limit, 1000)))
+        # Keep candidates until storage succeeds. Retrying a partly successful
+        # deletion is safe because Chroma deletes by ID idempotently.
+        self._delete_indexed_ids(to_delete)
+        for _ in to_delete:
+            self._stale_candidates.popleft()
+        return len(to_delete)
+
+    def _delete_indexed_ids(self, ids):
+        for source in self._fetchers["sync"]:
+            delete_ids = source.get("delete_ids")
+            if delete_ids is not None:
+                delete_ids(list(ids))
+
+    def _all_indexed_ids(self) -> set[str]:
+        """Enumerate every stored row ID across sync sources (bounded pages)."""
+        all_ids: set[str] = set()
+        for source in self._fetchers["sync"]:
+            all_ids.update(source["all_ids"]())
+        return all_ids
 
     def process_chunk(self, chunk):
         """Single-element compatibility wrapper around process_batch."""

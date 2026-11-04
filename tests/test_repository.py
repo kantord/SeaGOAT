@@ -358,7 +358,7 @@ async def test_allows_limiting_how_many_files_are_automatically_analized(
     )
     seagoat.analyze_codebase(minimum_chunks_to_analyze=chunks_to_analyze)
 
-    assert len(seagoat.cache.data["chunks_already_analyzed"]) == chunks_to_analyze
+    assert len(seagoat._indexed_ids) == chunks_to_analyze
 
 
 @pytest.mark.parametrize(

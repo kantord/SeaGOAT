@@ -22,6 +22,7 @@ from seagoat.queue.task_queue import (
     calculate_accuracy,
 )
 from seagoat.repository import Repository
+from seagoat.sources.chroma import EmbeddingError
 from seagoat.utils.wait import wait_for
 from tests.fixtures.sources import mock_sources_context
 
@@ -64,7 +65,7 @@ def _chunk_ids_of(repo):
 def test_maintenance_is_skipped_when_it_ran_recently(repo, mocker):
     queue = _quiet_queue(repo)
     context = _engine_context(repo)
-    context["last_maintenance"] = time.time()
+    context["last_maintenance"] = time.monotonic()
     engine = context["seagoat_engine"]
     spy_plan = mocker.spy(engine, "plan_indexing")
     spy_status_hash = mocker.spy(engine.repository, "get_status_hash")
@@ -121,15 +122,17 @@ def test_maintenance_logs_when_all_chunks_are_analyzed(repo, caplog):
 
 
 def test_real_worker_indexes_all_enqueued_chunks(repo, caplog):
-    with mock_sources_context(repo, {}, {}):
+    with mock_sources_context(repo, {}, {}) as (chroma_source, _):
         expected_chunk_ids = _chunk_ids_of(repo)
 
         task_queue = TaskQueue(repo_path=repo.working_dir)
-        observer = Engine(repo.working_dir)
 
+        # Chroma (here the in-memory mock store) is the durable authority;
+        # readiness means every expected chunk actually has a stored row.
         def all_chunks_analyzed():
-            observer.cache.load()
-            return expected_chunk_ids <= observer.cache.data["chunks_already_analyzed"]
+            return expected_chunk_ids <= chroma_source["indexed_ids"](
+                list(expected_chunk_ids)
+            )
 
         try:
             with caplog.at_level(logging.INFO):
@@ -137,10 +140,9 @@ def test_real_worker_indexes_all_enqueued_chunks(repo, caplog):
         finally:
             task_queue.shutdown()
 
-        final_state = Engine(repo.working_dir)
-        assert final_state.cache.data["chunks_not_yet_analyzed"] == set()
+        final_ids = chroma_source["indexed_ids"](list(expected_chunk_ids))
 
-    assert not expected_chunk_ids - final_state.cache.data["chunks_already_analyzed"]
+    assert final_ids == expected_chunk_ids
     assert any("Processing chunk" in record.message for record in caplog.records)
     assert any("Analyzed all chunks!" in record.message for record in caplog.records)
 
@@ -171,19 +173,25 @@ def test_query_task_returns_serialized_results(repo):
 
 
 def test_stats_task_counts_analyzed_and_unanalyzed_chunks(repo):
-    with mock_sources_context(repo, {}, {}):
+    with mock_sources_context(repo, {}, {}) as (chroma_source, _):
         engine = Engine(repo.working_dir)
         chunks = engine.analyze_codebase(minimum_chunks_to_analyze=10_000)
         assert chunks == []
+        total = engine.get_indexing_stats()["analyzed"]
+        assert total > 0
 
-        # A chunk that was never processed is reported as unanalyzed.
+        # Simulate a chunk that was never processed: delete its durable row,
+        # then replan so the cheap in-memory pending counter sees it again.
         pending_chunk = next(
             chunk
             for file, _ in engine.repository.top_files()
             for chunk in file.get_chunks()
         )
-        engine.cache.data["chunks_already_analyzed"].discard(pending_chunk.chunk_id)
-        engine.cache.data["chunks_not_yet_analyzed"].add(pending_chunk.chunk_id)
+        chroma_source["delete_ids"]([pending_chunk.chunk_id])
+        engine.plan_indexing()
+        stats = engine.get_indexing_stats()
+        assert stats["pending"] == 1
+        assert stats["analyzed"] == total - 1
 
         queue = _quiet_queue(repo)
         context = _engine_context(repo)
@@ -191,7 +199,6 @@ def test_stats_task_counts_analyzed_and_unanalyzed_chunks(repo):
 
         stats = queue.handle_get_stats(context)
 
-    total = stats["chunks"]["analyzed"] + stats["chunks"]["unanalyzed"]
     assert stats["chunks"]["unanalyzed"] == 1
     assert stats["chunks"]["analyzed"] == total - 1
     assert stats["queue"]["size"] == 0
@@ -212,10 +219,10 @@ def _queue_without_worker(engine):
     queue.kwargs = {}
     queue._task_queue = PriorityQueue()
     engine.config = {"server": {"chroma": {"batchSize": 100}}}
-    engine.cache.data = {
-        "chunks_not_yet_analyzed": set(),
-        "chunks_already_analyzed": set(),
-    }
+    # Mock engines must report no pending prune work by default, otherwise
+    # maintenance would schedule low-priority prune tasks that starve the
+    # analyze tasks these tests expect to pick up.
+    engine.pending_prune_count.return_value = 0
     context = {
         "seagoat_engine": engine,
         "last_maintenance": None,
@@ -263,7 +270,7 @@ def test_unchanged_repository_is_not_checked_on_every_pass(mocker):
     queue.handle_maintenance(context)
     queue.handle_maintenance(context)
 
-    # The worker calls maintenance every 0.1s when idle; the git status check
+    # The worker idles until the maintenance deadline; the git status check
     # must still only run once per SECONDS_BETWEEN_MAINTENANCE
     engine.repository.get_status_hash.assert_called_once()
     engine.plan_indexing.assert_not_called()
@@ -276,7 +283,9 @@ def test_failed_analysis_is_retried_on_same_unchanged_repo(mocker):
     queue, context = _queue_without_worker(engine)
 
     clock = {"now": 100.0}
-    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
+    mocker.patch(
+        "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
+    )
 
     with pytest.raises(RuntimeError, match="analysis failed"):
         queue.handle_maintenance(context)
@@ -299,7 +308,9 @@ def test_successful_unchanged_pass_is_not_analyzed_twice(mocker):
     queue, context = _queue_without_worker(engine)
 
     clock = {"now": 100.0}
-    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
+    mocker.patch(
+        "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
+    )
 
     queue.handle_maintenance(context)
     assert context["last_repo_state_hash"] == "same-state"
@@ -330,7 +341,9 @@ def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
     queue.enqueue = flaky_enqueue
 
     clock = {"now": 100.0}
-    mocker.patch("seagoat.queue.task_queue.time.time", side_effect=lambda: clock["now"])
+    mocker.patch(
+        "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
+    )
 
     with pytest.raises(RuntimeError, match="enqueue failed"):
         queue.handle_maintenance(context)
@@ -344,3 +357,113 @@ def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
 
     assert context["last_repo_state_hash"] == "same-state"
     assert engine.plan_indexing.call_count == 2
+
+
+def test_pending_indexing_tasks_defer_the_maintenance_deadline(mocker):
+    """Batch, legacy chunk and prune_index queues defer ordinary maintenance."""
+    engine = mocker.Mock()
+    queue, context = _queue_without_worker(engine)
+    context["last_maintenance"] = time.monotonic() - SECONDS_BETWEEN_MAINTENANCE - 1
+
+    for task_name in ("analyze_batch", "analyze_chunk", "prune_index"):
+        queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name=task_name))
+        assert queue._has_pending_indexing_tasks()
+        assert queue.get_maintenance_deadline(context) is None
+        queue._task_queue.get()
+
+    assert not queue._has_pending_indexing_tasks()
+    assert queue.get_maintenance_deadline(context) is not None
+
+
+def test_paused_context_exposes_its_own_retry_deadline(mocker):
+    """A paused recovery probe runs at retry_after, never deferred to infinity."""
+    engine = mocker.Mock()
+    queue, context = _queue_without_worker(engine)
+    context["last_maintenance"] = time.monotonic() - SECONDS_BETWEEN_MAINTENANCE - 1
+    context["paused"] = True
+    context["pause_reason"] = "storage"
+    context["retry_after"] = time.monotonic() + 7
+    # Even a queued indexing backlog must not defer the recovery probe.
+    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="analyze_batch"))
+    assert queue._has_pending_indexing_tasks()
+    assert queue.get_maintenance_deadline(context) == pytest.approx(
+        context["retry_after"]
+    )
+
+
+def test_worker_probes_recovery_on_retry_deadline_and_resumes(repo, mocker):
+    """An outage pauses with a bounded monotonic retry deadline; recovery
+    probes run at that deadline without ordinary repo checks and without
+    polling, then retained work resumes."""
+    mocker.patch("seagoat.queue.task_queue.RETRY_DEADLINE_SECONDS", 0.5)
+    state = {"ok": False}
+
+    def flaky_embedding():
+        if not state["ok"]:
+            raise EmbeddingError("embedding service down")
+
+    with mock_sources_context(repo, {}, {}, embedding=flaky_embedding) as (
+        chroma_source,
+        _,
+    ):
+        probes = {"n": 0}
+        real_probe = chroma_source["probe_embedding"]
+
+        def counting_probe():
+            probes["n"] += 1
+            real_probe()
+
+        chroma_source["probe_embedding"] = counting_probe
+
+        task_queue = TaskQueue(repo_path=repo.working_dir)
+        try:
+
+            def stats():
+                result = task_queue.enqueue("get_stats")
+                assert result is not None
+                return result
+
+            wait_for(lambda: stats()["indexing"]["paused"], 30)
+            probes_before = probes["n"]
+            time.sleep(1.2)
+            # No 0.1s polling and no busy loop while the retry deadline is in
+            # the future: the probe runs at most a handful of times in 1.2s.
+            assert probes["n"] - probes_before <= 4
+
+            state["ok"] = True
+            wait_for(lambda: stats()["chunks"]["unanalyzed"] == 0, 10)
+            assert stats()["indexing"]["paused"] is False
+            assert probes["n"] > probes_before
+        finally:
+            task_queue.shutdown()
+
+
+def test_task_queue_maintenance_runs_under_continuous_task_load(repo, mocker):
+    """Genuinely due maintenance must still run under a never-idle queue."""
+    with mock_sources_context(repo, {}, {}):
+        real_get_status_hash = Repository.get_status_hash
+        calls = {"n": 0}
+
+        def counting_get_status_hash(self, *args, **kwargs):
+            calls["n"] += 1
+            return real_get_status_hash(self, *args, **kwargs)
+
+        mocker.patch.object(Repository, "get_status_hash", counting_get_status_hash)
+        # Keep the test fast: the real 10s cadence is covered by the clocked
+        # unit tests below.
+        mocker.patch("seagoat.queue.task_queue.SECONDS_BETWEEN_MAINTENANCE", 0.5)
+        task_queue = TaskQueue(repo_path=repo.working_dir)
+        try:
+            wait_for(lambda: calls["n"] >= 1, 30)  # initial maintenance
+            runs_before_load = calls["n"]
+
+            # Never let the queue go idle: maintenance may no longer run via
+            # an Empty wakeup, only because it is genuinely due.
+            deadline = time.monotonic() + 2
+            while time.monotonic() < deadline:
+                task_queue.enqueue("get_stats", wait_for_result=False)
+                time.sleep(0.01)
+
+            assert calls["n"] > runs_before_load
+        finally:
+            task_queue.shutdown()

@@ -144,6 +144,16 @@ def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
 @pytest.mark.usefixtures("repo_with_more_files")
 def test_status_endpoint_with_some_files_not_analyzed(repo):
     class NoMaintenanceTaskQueue(TaskQueue):
+        def _get_context(self):
+            context = super()._get_context()
+            # Discover current IDs and read existing vectors once at startup;
+            # this does not embed the remaining chunks.
+            context["seagoat_engine"].plan_indexing()
+            return context
+
+        def get_maintenance_deadline(self, context):
+            return None
+
         def handle_maintenance(self, context):
             # Indexing happens only during maintenance; the test controls it
             pass
@@ -162,6 +172,7 @@ def test_status_endpoint_with_some_files_not_analyzed(repo):
     data = response.get_json()
     assert data["version"] == __version__
     data = normalize_version(data)
+    assert data["stats"]["chunks"]["analyzed"] == 1
     assert data["stats"]["chunks"]["unanalyzed"] > 0
     assert data["stats"]["accuracy"]["percentage"] == int(
         data["stats"]["accuracy"]["percentage"]

@@ -39,7 +39,9 @@ def test_search_result_order_is_robust_to_embedding_noise(
 
     engine = Engine(repo_path)
     engine.analyze_codebase(minimum_chunks_to_analyze=351)
-    assert engine.cache.data["chunks_not_yet_analyzed"] == set()
+    stats = engine.get_indexing_stats()
+    assert stats["pending"] == 0
+    assert stats["analyzed"] > 0
 
     for query in SAMPLE_QUERIES:
         expected = [

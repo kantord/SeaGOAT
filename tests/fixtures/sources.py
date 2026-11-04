@@ -70,6 +70,13 @@ def mock_sources_context(
     def indexed_ids(ids):
         return {chunk_id for chunk_id in ids if chunk_id in store}
 
+    def all_ids():
+        return set(store.keys())
+
+    def delete_ids(ids):
+        for chunk_id in list(ids):
+            store.pop(chunk_id, None)
+
     def cache_chunk(chunk):
         cache_batch([chunk])
 
@@ -90,6 +97,8 @@ def mock_sources_context(
             "cache_repo": reset_store,
             "probe_embedding": probe_embedding,
             "indexed_ids": indexed_ids,
+            "all_ids": all_ids,
+            "delete_ids": delete_ids,
         }
         mock_chroma.return_value = chroma_source
         yield chroma_source, batch_calls

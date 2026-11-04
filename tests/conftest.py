@@ -637,7 +637,9 @@ def realistic_engine():
     my_engine = Engine(realrepo)
     keep_cache_folder(my_engine.cache.get_cache_folder())
     my_engine.analyze_codebase(minimum_chunks_to_analyze=351)
-    assert my_engine.cache.data["chunks_not_yet_analyzed"] == set()
+    stats = my_engine.get_indexing_stats()
+    assert stats["pending"] == 0
+    assert stats["analyzed"] > 0
 
     yield my_engine
     del my_engine
