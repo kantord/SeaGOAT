@@ -197,6 +197,14 @@ class BaseQueue:
                 break
             self._handle_task(context, task, context_error=context_error)
             self._run_maintenance_if_allowed(context, context_error)
+        if context_error is None:
+            try:
+                self.handle_worker_exit(context)
+            except Exception:  # pylint: disable=broad-except
+                logger.exception("Worker exit handler failed")
+
+    def handle_worker_exit(self, context):
+        """Called on the worker thread after it stopped taking tasks."""
 
     def _worker_block_timeout(self, context, context_error) -> float | None:
         """Seconds the worker may wait for a task, or None to wait forever."""

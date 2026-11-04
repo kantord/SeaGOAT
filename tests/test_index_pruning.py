@@ -24,6 +24,7 @@ from seagoat.queue.base_queue import HIGH_PRIORITY, Task, TaskFailed
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.repository import Repository
 from seagoat.sources import chroma
+from tests.fixtures.scheduling import attach_lane
 from tests.test_chroma_batches import (
     _chunk,
     _DeterministicEmbeddingFunction,
@@ -103,6 +104,7 @@ def _make_task_queue(engine):
         "last_repo_state_hash": None,
     }
     queue._ensure_recovery_state(context)
+    attach_lane(queue, context)
     return queue, context
 
 

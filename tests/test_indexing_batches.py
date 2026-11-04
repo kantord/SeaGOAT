@@ -13,7 +13,7 @@ stored Chroma rows, with old cache fixtures only appearing where a legacy
 
 import math
 from pathlib import Path
-from queue import Empty, PriorityQueue
+from queue import PriorityQueue
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -22,10 +22,12 @@ import pytest
 from seagoat.cache import Cache
 from seagoat.engine import Engine
 from seagoat.queue import task_queue as task_queue_module
-from seagoat.queue.base_queue import HIGH_PRIORITY, MEDIUM_PRIORITY
+from seagoat.queue.base_queue import HIGH_PRIORITY
+from seagoat.queue.indexing_scheduler import make_batches
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.sources import chroma
 from seagoat.sources.chroma import EmbeddingError
+from tests.fixtures.scheduling import attach_lane, drive, manual_scheduler
 from tests.test_chroma_batches import (
     _chunk,
     _DeterministicEmbeddingFunction,
@@ -51,7 +53,7 @@ def _make_engine(repo_path, embedding_function):
         return Engine(repo_path)
 
 
-def _make_queue(engine):
+def _make_queue(engine, clock=None):
     queue = TaskQueue.__new__(TaskQueue)
     queue.kwargs = {}
     queue._task_queue = PriorityQueue()
@@ -61,23 +63,13 @@ def _make_queue(engine):
         "last_repo_state_hash": None,
     }
     queue._ensure_recovery_state(context)
+    scheduler = manual_scheduler(clock=(lambda: clock[0]) if clock else None)
+    attach_lane(queue, context, scheduler)
     return queue, context
 
 
 def _drive(queue, context, handled=None):
-    handled = handled if handled is not None else []
-    while True:
-        try:
-            task = queue._task_queue.get_nowait()
-        except Empty:
-            break
-        priority = task.priority
-        name = task.name
-        handler = getattr(queue, "handle_" + name)
-        kwargs = dict(task.kwargs or {})
-        kwargs.pop("__result_queue", None)
-        handler(context, *task.args, **kwargs)
-        handled.append((name, priority))
+    return drive(queue, context, handled)
 
 
 def _seed_legacy_marks(engine, chunk_ids):
@@ -358,8 +350,8 @@ def test_plan_time_metadata_persist_failure_is_retryable(repo, create_config_fil
 def test_poison_chunk_is_quarantined_others_reach_chroma(repo, create_config_file):
     create_config_file({"server": {"chroma": {"batchSize": 4}}})
     engine = _make_engine(repo.working_dir, _PoisonEmbeddingFunction())
-    queue, context = _make_queue(engine)
     clock = [0.0]
+    queue, context = _make_queue(engine, clock)
 
     chunks = [
         _chunk("good-a", "apple pie"),
@@ -373,12 +365,25 @@ def test_poison_chunk_is_quarantined_others_reach_chroma(repo, create_config_fil
     handled = []
     with _clock_patch(clock):
         queue.enqueue("get_stats", priority=HIGH_PRIORITY, wait_for_result=False)
-        queue._enqueue_batch(chunks, MEDIUM_PRIORITY)
+        lane = context["lane"]
+        lane.submit(
+            make_batches(
+                lane.project_id,
+                lane.registration_id,
+                lane.resource_key,
+                chunks,
+                4,
+                chroma.chunk_metadata,
+            )
+        )
         _drive(queue, context, handled)
 
     assert handled[0][0] == "get_stats"
-    assert all(name == "analyze_batch" for name, _ in handled[1:])
-    assert all(priority == MEDIUM_PRIORITY for _, priority in handled[1:])
+    # Only the scheduler's completion events follow, at high priority
+    assert all(name == "index_event" for name, _ in handled[1:])
+    assert all(priority == HIGH_PRIORITY for _, priority in handled[1:])
+    # Everything submitted was published and acked
+    assert lane.outstanding() == 0
 
     assert context["failed_chunks"] == {"poison-1"}
     assert not context["paused"]
@@ -405,8 +410,9 @@ def test_model_outage_pauses_retains_and_recovers_without_commit(
     embedding_function = _SwitchableEmbeddingFunction()
     embedding_function.fail = True
     engine = _make_engine(repo.working_dir, embedding_function)
-    queue, context = _make_queue(engine)
     clock = [0.0]
+    queue, context = _make_queue(engine, clock)
+    lane = context["lane"]
     context["failed_chunks"].add("seed-failed")  # must survive until recovery
 
     with _clock_patch(clock):
@@ -416,44 +422,43 @@ def test_model_outage_pauses_retains_and_recovers_without_commit(
         assert current_pending > 0
         total_batches = math.ceil(current_pending / 4)
 
-        # First batch embed fails, probe fails: pause, retain everything.
+        # First batch embed fails, probe fails: the shared resource is down
+        # and every batch is retained by the scheduler.
         _drive(queue, context)
-        assert context["paused"] and context["pause_reason"] == "embedding"
-        assert len(context["retained_batches"]) == total_batches
-        assert sum(len(c) for c, _, _ in context["retained_batches"]) == current_pending
+        status = lane.status()
+        assert status["paused"] and status["pause_reason"] == "embedding"
+        assert status["queued"] == total_batches
+        assert lane.outstanding() == total_batches
         # No quarantine: nothing was marked failed or dropped from pending.
         assert context["failed_chunks"] == {"seed-failed"}
         stats = engine.get_indexing_stats()
         assert stats["pending"] == current_pending
         assert stats["analyzed"] == 0
         assert len(embedding_function.calls) == 2  # one embed + one failing probe
-        # Retained/queued indices made no further model attempts while paused.
+        # Retained batches made no further model attempts while paused.
         _drive(queue, context)
         assert len(embedding_function.calls) == 2
+        assert queue.handle_get_stats(context)["indexing"]["paused"] is True
 
         # Still down: the retry probe fails again, work stays retained.
         clock[0] = 10.0
-        queue.handle_maintenance(context)
-        assert context["paused"] and context["pause_reason"] == "embedding"
+        _drive(queue, context)
+        assert lane.status()["pause_reason"] == "embedding"
         assert len(embedding_function.calls) == 3
-        assert sum(len(c) for c, _, _ in context["retained_batches"]) == current_pending
-        stats = engine.get_indexing_stats()
-        assert stats["pending"] == current_pending
-        assert stats["analyzed"] == 0
+        assert lane.status()["queued"] == total_batches
 
-        # Model recovers: probe succeeds, failed ids reset, retained re-enqueued.
+        # Model recovers: one probe succeeds, failed ids reset, work resumes.
         embedding_function.fail = False
         clock[0] = 30.0
-        queue.handle_maintenance(context)
-        assert not context["paused"]
+        _drive(queue, context)
+        assert not lane.status()["paused"]
         assert context["failed_chunks"] == set()
         assert context["replan_pending"] is True
-        assert len(embedding_function.calls) == 4  # the successful probe only
-
-        _drive(queue, context)
+        assert len(embedding_function.calls) == 4 + total_batches  # probe + batches
         stats = engine.get_indexing_stats()
         assert stats["analyzed"] == current_pending
         assert stats["pending"] == 0
+        assert lane.outstanding() == 0
 
         # A failed planning attempt must preserve the replan flag.
         clock[0] = 50.0
@@ -491,40 +496,42 @@ def test_storage_outage_retains_batches_and_recovers_with_matching_rows(
 ):
     create_config_file({"server": {"chroma": {"batchSize": 4}}})
     engine = _make_engine(repo.working_dir, _DeterministicEmbeddingFunction())
-    queue, context = _make_queue(engine)
     clock = [0.0]
+    queue, context = _make_queue(engine, clock)
+    lane = context["lane"]
     source = engine._fetchers["sync"][0]
-    real_cache_batch = source["cache_batch"]
+    real_write_batch = source["write_batch"]
     calls = {"n": 0}
 
-    def flaky_cache_batch(batch):
+    def flaky_write_batch(ids, documents, metadatas):
         calls["n"] += 1
         if calls["n"] == 1:
             raise OSError("storage down")
-        real_cache_batch(batch)
+        real_write_batch(ids, documents, metadatas)
 
-    source["cache_batch"] = flaky_cache_batch
+    source["write_batch"] = flaky_write_batch
 
     with _clock_patch(clock):
         queue.handle_maintenance(context)
         stats = engine.get_indexing_stats()
         current_pending = stats["pending"]
         assert current_pending > 0
+        total_batches = math.ceil(current_pending / 4)
 
-        # Pending counts must include queued AND retained work...
+        # Pending counts must include queued work...
         before = queue.handle_get_stats(context)
         assert before["chunks"]["unanalyzed"] == current_pending
         assert before["chunks"]["analyzed"] == 0
-        # ...and must not report 100 percent immediately after enqueue.
+        assert before["indexing"]["queued"] == total_batches
+        # ...and must not report 100 percent immediately after submission.
         assert before["accuracy"]["percentage"] != 100
 
         # Whole batches retained: no quarantine, no immediate retry storm.
         _drive(queue, context)
-        assert context["paused"] and context["pause_reason"] == "storage"
+        status = lane.status()
+        assert status["paused"] and status["pause_reason"] == "storage"
         assert context["failed_chunks"] == set()
-        retained_count = sum(len(batch) for batch, _, _ in context["retained_batches"])
-        assert retained_count == current_pending
-        assert len(context["retained_batches"]) == math.ceil(current_pending / 4)
+        assert status["queued"] == total_batches
         stats = engine.get_indexing_stats()
         assert stats["pending"] == current_pending
         assert _open_collection(repo.working_dir).get(include=[])["ids"] == []
@@ -532,30 +539,22 @@ def test_storage_outage_retains_batches_and_recovers_with_matching_rows(
         # Everything still counted as pending while paused.
         paused = queue.handle_get_stats(context)
         assert paused["indexing"]["paused"] is True
+        assert paused["indexing"]["pause_reason"] == "storage"
         assert paused["chunks"]["unanalyzed"] == current_pending
         assert paused["accuracy"]["percentage"] != 100
 
-        # Before the retry deadline nothing is re-attempted: still paused,
-        # work still retained, storage untouched.
+        # Before the retry deadline nothing is re-attempted.
         clock[0] = 5.0
-        queue.handle_maintenance(context)
-        assert context["paused"] and context["pause_reason"] == "storage"
-        assert len(context["retained_batches"]) == math.ceil(current_pending / 4)
+        _drive(queue, context)
+        assert lane.status()["queued"] == total_batches
         assert _open_collection(repo.working_dir).get(include=[])["ids"] == []
-        stats = engine.get_indexing_stats()
-        assert stats["pending"] == current_pending
         assert calls["n"] == 1  # exactly one storage attempt so far
 
-        # Past the deadline with storage restored, recovery re-enqueues the
-        # retained batches; drive completes them with no quarantine.
+        # Past the deadline with storage restored, the retained batches run.
         clock[0] = 30.0
-        queue.handle_maintenance(context)
-        assert not context["paused"]
-        assert context["replan_pending"] is True
-        assert context["retained_batches"] == []
-        assert context["failed_chunks"] == set()
         _drive(queue, context)
-
+        assert not lane.status()["paused"]
+        assert context["failed_chunks"] == set()
         stats = engine.get_indexing_stats()
         assert stats["analyzed"] == current_pending
         assert stats["pending"] == 0
@@ -565,8 +564,8 @@ def test_storage_outage_retains_batches_and_recovers_with_matching_rows(
         # Maintenance after success: paused stays clear and stats reflect 100%.
         clock[0] = 50.0
         queue.handle_maintenance(context)
-        assert not context["paused"]
         done = queue.handle_get_stats(context)
+        assert done["indexing"]["paused"] is False
         assert done["chunks"]["unanalyzed"] == 0
         assert done["chunks"]["analyzed"] == current_pending
         assert done["accuracy"]["percentage"] == 100

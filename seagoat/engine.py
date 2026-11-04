@@ -226,9 +226,11 @@ class Engine:
         # GitFile materialization reads HEAD again, so pin the full repository
         # status before materializing and re-validate it afterwards; a HEAD
         # move in this gap must not authorize pruning from a mixed plan.
-        current_chunks = [
-            chunk for file, _ in snapshot.top_files() for chunk in file.get_chunks()
-        ]
+        current_chunks = []
+        for file_rank, (file, _) in enumerate(snapshot.top_files()):
+            for chunk in file.get_chunks():
+                chunk.file_rank = file_rank
+                current_chunks.append(chunk)
         if self.repository.get_status_hash() != plan_hash:
             raise RuntimeError(
                 "repository changed while materializing chunks; "
@@ -294,10 +296,34 @@ class Engine:
 
         self._add_batch_to_collection(chunks)
 
-        ids = {chunk.chunk_id for chunk in chunks}
         # Bookkeeping is in-memory only, and only after storage succeeded.
+        self.complete_batch({chunk.chunk_id for chunk in chunks})
+
+    def complete_batch(self, ids):
+        """Publish ids as indexed. Call only after their upsert succeeded.
+
+        Project-owned: the global indexing scheduler never calls this; it
+        reports completion to the project, whose worker thread does.
+        """
+        ids = set(ids)
         self._indexed_ids.update(ids & self._current_ids)
         self._pending_ids.difference_update(ids)
+
+    def embedding_resource_key(self):
+        """Key of the shared embedding resource this project embeds with."""
+        return chroma.embedding_resource_key(self.config)
+
+    def write_batch(self, batch):
+        """Embed and upsert a self-contained batch; touches no project state.
+
+        Safe to run on the scheduler thread: it only reads the immutable
+        source table and calls the thread-safe Chroma write path. It must not
+        update the indexing counters (see :meth:`complete_batch`).
+        """
+        for source in self._fetchers["sync"]:
+            write = source.get("write_batch")
+            if write is not None:
+                write(batch.ids, batch.documents, batch.metadatas)
 
     def get_indexing_stats(self, failed_ids=frozenset()):
         """Counters for the last complete plan, updated after successful upserts.

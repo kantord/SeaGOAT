@@ -75,6 +75,9 @@ class FileChunk:
         self.codeline = codeline
         self.chunk = chunk
         self.chunk_id = chunk_id
+        # Absolute rank of the parent file within its project (0 is the top
+        # file); set by Engine.plan_indexing and used for global scheduling.
+        self.file_rank = 0
 
     def __repr__(self) -> str:
         return f"<FileChunk {self.path} {self.codeline}>"
