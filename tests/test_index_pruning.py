@@ -81,7 +81,12 @@ def _collection_ids(repo_path):
 def _current_row_paths(repo_path):
     rows = _open_collection(repo_path).get(include=["metadatas"])["metadatas"]
     assert rows is not None
-    return {row["path"] for row in rows}
+    paths: set[str] = set()
+    for row in rows:
+        path = row["path"]
+        assert isinstance(path, str)
+        paths.add(path)
+    return paths
 
 
 def _commit_change(repo, path, content, message):
