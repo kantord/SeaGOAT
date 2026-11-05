@@ -475,10 +475,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-6-optional-set-up-pre-commit-hooks" class="md-nav__link">
+  <a href="#step-6-optional-set-up-commit-hooks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 6: (Optional) Set up pre-commit hooks
+        Step 6: (Optional) Set up commit hooks
       
     </span>
   </a>
@@ -753,10 +753,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-6-optional-set-up-pre-commit-hooks" class="md-nav__link">
+  <a href="#step-6-optional-set-up-commit-hooks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 6: (Optional) Set up pre-commit hooks
+        Step 6: (Optional) Set up commit hooks
       
     </span>
   </a>
@@ -990,18 +990,19 @@ tests:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
 </span></code></pre></div>
 <p>If all tests pass, you have set up your development environment correctly.</p>
-<h3 id="step-6-optional-set-up-pre-commit-hooks">Step 6: (Optional) Set up pre-commit hooks</h3>
+<h3 id="step-6-optional-set-up-commit-hooks">Step 6: (Optional) Set up commit hooks</h3>
 <p>There are several tools in use in SeaGOAT to make sure that code is ready to
 merge. Some of these tools will automatically fix issues with the code, such
 as reformatting the code to enforce code style. Other tools will merely point
 out issues before you commit your code.</p>
-<p>It is recommended to set up pre-commit hooks so that these checks are
-executed automatically. You can do so by running this command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
+<p>It is recommended to set up commit hooks with
+<a href="https://prek.j178.dev/">prek</a> so that these checks are executed
+automatically. You can do so by running this command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>prek<span class="w"> </span>install
 </span></code></pre></div>
-<p>If you do <em>not</em> wish to use pre-commit hooks, you can still execute all
+<p>If you do <em>not</em> wish to use commit hooks, you can still execute all
 checks manually by running:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>prek<span class="w"> </span>run<span class="w"> </span>--all-files
 </span></code></pre></div>
 <h2 id="developing-seagoat">Developing SeaGOAT</h2>
 <h3 id="automated-testing">Automated testing</h3>
@@ -1054,15 +1055,15 @@ with <code>uv run</code>:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ipython
 </span></code></pre></div>
 <h3 id="automatic-checks-linting-and-automatic-formatting">Automatic checks (linting) and automatic formatting</h3>
-<p>This repository uses <code>pre-commit</code> to run automatic checks and fixes on the
-codebase in addition to automatic and manual testing.</p>
+<p>This repository uses <a href="https://prek.j178.dev/">prek</a> to run automatic checks
+and fixes on the codebase in addition to automatic and manual testing.</p>
 <p>If you have
-<a href="http://localhost:8000/developer/#step-6-optional-set-up-pre-commit-hooks">set up commit hooks</a>
+<a href="http://localhost:8000/developer/#step-6-optional-set-up-commit-hooks">set up commit hooks</a>
 (recommended), then these checks and fixes are automatically executed
 each time you attempt to make a commit.</p>
 <p>If you don't like commit hooks, or <em>if you want to run the checks for all
 files, not just changed files</em> then you can run the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>uv<span class="w"> </span>run<span class="w"> </span>prek<span class="w"> </span>run<span class="w"> </span>--all-files
 </span></code></pre></div>
 <!-- markdownlint-disable MD041 -->
 <h2 id="contributing-to-seagoat">Contributing to SeaGOAT</h2>
