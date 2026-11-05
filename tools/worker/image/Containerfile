@@ -1,7 +1,7 @@
 # The worker's environment, one layer per tool, built by build.sh from the repo at one commit.
 # A run copies its own repo over /repo (guest.rs `put_repo`); what the build warmed outside it
-# stays: the cargo target and the virtualenv under /cache, uv's, pre-commit's and pyright's
-# caches under /root/.cache. Rebuild when dependencies or pre-commit hooks change; a stale image
+# stays: the cargo target and the virtualenv under /cache, uv's, prek's and pyright's
+# caches under /root/.cache. Rebuild when dependencies or prek hooks change; a stale image
 # still works, the run just downloads and builds what differs.
 FROM docker.io/library/debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5c4576e82c1a84fa1debe0c24a7e0c3ec4
 ENV DEBIAN_FRONTEND=noninteractive
@@ -19,7 +19,7 @@ ENV CARGO_TARGET_DIR=/cache/target UV_PROJECT_ENVIRONMENT=/cache/venv
 COPY repo/ /repo/
 COPY verify.sh /build/
 WORKDIR /repo
-# pre-commit needs a git repository, which the archive lacks; committed, so check-added-large-files
+# prek needs a git repository, which the archive lacks; committed, so check-added-large-files
 # does not see uv.lock as new. The identity is for this commit and for tests and models that commit.
 # pyright looks for the virtualenv at .venv only (pyproject.toml), so it links to the real one.
 RUN git config --global user.name seagoat-worker \

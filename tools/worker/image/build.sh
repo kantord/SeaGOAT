@@ -18,7 +18,8 @@ git -C "$repo" archive "$full" | tar -x -C "$tmp/repo"
 cp "$here/Containerfile" "$here/../verify.sh" "$tmp/"
 podman build --label commit="$full" -t localhost/seagoat-worker:latest "$tmp"
 podman save --format oci-archive -o "$tmp/image.tar" localhost/seagoat-worker:latest
-msb load -i "$tmp/image.tar" -t seagoat-worker:latest
+# Never the bare msb: one newer than the worker's SDK upgrades the database past it
+"$here/../msb.sh" load -i "$tmp/image.tar" -t seagoat-worker:latest
 # Drop only this script's earlier builds that the new one untagged (they carry the commit
 # label), not the host's other dangling images; the tagged image stays as the layer cache.
 podman image prune -f --filter label=commit >/dev/null

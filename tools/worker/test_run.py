@@ -116,3 +116,68 @@ def test_unique_dir_suffixes_same_second_collisions(tmp_path: Path):
     assert second == tmp_path / f"{stem}-2"
     assert third == tmp_path / f"{stem}-3"
     assert first.is_dir() and second.is_dir() and third.is_dir()
+
+
+MSB_SH = Path(__file__).resolve().parent / "msb.sh"
+
+
+def _fake_msb(directory: Path, version: str) -> Path:
+    directory.mkdir(parents=True, exist_ok=True)
+    fake = directory / "msb"
+    fake.write_text(
+        "#!/bin/sh\n"
+        f'if [ "$1" = --version ]; then echo "msb {version}"; '
+        f'else echo "{directory.name} ran: $*"; fi\n'
+    )
+    fake.chmod(0o755)
+    return fake
+
+
+def _run_msb_sh(tmp_path, path_msb_version):
+    home = tmp_path / "home"
+    path_dir = tmp_path / "path"
+    _fake_msb(path_dir, path_msb_version)
+    env = {"MSB_HOME": str(home), "PATH": f"{path_dir}:/usr/bin:/bin"}
+    return home, env
+
+
+def _pinned_version():
+    cargo = (Path(__file__).resolve().parent / "Cargo.toml").read_text()
+    return cargo.split('microsandbox = { version = "=')[1].split('"')[0]
+
+
+def test_msb_wrapper_prefers_the_sdk_installed_copy(tmp_path):
+    home, env = _run_msb_sh(tmp_path, "99.0.0")
+    _fake_msb(home / "bin", _pinned_version())
+    done = subprocess.run(
+        [MSB_SH, "image", "ls"], env=env, capture_output=True, text=True, check=True
+    )
+    assert done.stdout.strip() == "bin ran: image ls"
+
+
+def test_msb_wrapper_refuses_a_path_msb_of_another_version(tmp_path):
+    _, env = _run_msb_sh(tmp_path, "99.0.0")
+    done = subprocess.run(
+        [MSB_SH, "image", "ls"], env=env, capture_output=True, text=True, check=False
+    )
+    assert done.returncode == 1
+    assert "path ran" not in done.stdout
+    assert f"Install msb {_pinned_version()}" in done.stderr
+
+
+def test_msb_wrapper_uses_a_path_msb_of_the_pinned_version(tmp_path):
+    _, env = _run_msb_sh(tmp_path, _pinned_version())
+    done = subprocess.run(
+        [MSB_SH, "image", "ls"], env=env, capture_output=True, text=True, check=True
+    )
+    assert done.stdout.strip() == "path ran: image ls"
+
+
+def test_worker_scripts_never_call_a_bare_msb():
+    worker = Path(__file__).resolve().parent
+    for script in (worker / "run.py", worker / "image/build.sh"):
+        for line in script.read_text().splitlines():
+            code = line.split("#", 1)[0]
+            assert '"msb"' not in code and not code.lstrip().startswith("msb "), (
+                f"{script.name} calls msb directly: {line.strip()}"
+            )
