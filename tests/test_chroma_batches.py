@@ -261,3 +261,169 @@ def test_indexed_ids_propagates_read_errors(tmp_path):
 
     with pytest.raises(RuntimeError, match="chroma is down"):
         sources["indexed_ids"](["id-1"])
+
+
+def _initialize_with_roles(
+    tmp_path, index_embedding_function, query_embedding_function, collection=None
+):
+    """Like _initialize_mocked, but with a different embedding function per role."""
+    collection = collection or MagicMock()
+    client = MagicMock()
+    client.get_or_create_collection.return_value = collection
+    with (
+        patch.object(chroma.chromadb, "PersistentClient", return_value=client),
+        patch.object(
+            chroma,
+            "_get_embedding_function",
+            side_effect=lambda config, role: {
+                chroma._INDEX_ROLE: index_embedding_function,
+                chroma._QUERY_ROLE: query_embedding_function,
+            }[role],
+        ),
+    ):
+        sources = chroma.initialize(_repository(tmp_path))
+    return sources, collection
+
+
+class _BlockingEmbeddingFunction(_DeterministicEmbeddingFunction):
+    """Deterministic embedding function that blocks until released."""
+
+    def __init__(self, started, release):
+        super().__init__()
+        self.started = started
+        self.release = release
+
+    def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
+        self.calls.append(list(input))
+        self.started.set()
+        if not self.release.wait(30):
+            raise TimeoutError("indexing embedding was never released")
+        return super().__call__(input)
+
+
+def test_query_completes_while_indexing_embed_is_blocked(tmp_path):
+    # A query must not wait for the indexing lane: the two roles embed with
+    # different instances, so the blocked indexing embed cannot stall the
+    # query even though it holds the indexing instance's lock.
+    import threading
+
+    release_indexing = threading.Event()
+    indexing_started = threading.Event()
+    index_fn = _BlockingEmbeddingFunction(indexing_started, release_indexing)
+    query_fn = _DeterministicEmbeddingFunction()
+    collection = MagicMock()
+    collection.query.return_value = {"metadatas": None, "distances": None}
+    sources, collection = _initialize_with_roles(
+        tmp_path, index_fn, query_fn, collection
+    )
+
+    batch_thread = threading.Thread(
+        target=sources["write_batch"],
+        args=(
+            ["id-1"],
+            ["blocked chunk"],
+            [{"path": "recipes.txt", "line": 3, "git_object_id": "deadbeef"}],
+        ),
+        daemon=True,
+    )
+    batch_thread.start()
+    assert indexing_started.wait(5), "indexing batch never started embedding"
+
+    try:
+        results = sources["fetch_in_snapshot"](
+            "query text", 10, SimpleNamespace(repository=MagicMock())
+        )
+        # The query ran to completion while the indexing embed was still blocked.
+        assert results == []
+    finally:
+        release_indexing.set()
+        batch_thread.join(5)
+    assert not batch_thread.is_alive()
+
+
+def test_two_roles_give_two_instances_for_the_same_config(tmp_path):
+    import copy
+
+    from seagoat.utils.config import DEFAULT_CONFIG
+
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    index_instance1 = chroma._get_embedding_function(config, chroma._INDEX_ROLE)
+    index_instance2 = chroma._get_embedding_function(config, chroma._INDEX_ROLE)
+    query_instance1 = chroma._get_embedding_function(config, chroma._QUERY_ROLE)
+    query_instance2 = chroma._get_embedding_function(config, chroma._QUERY_ROLE)
+
+    assert index_instance1 is index_instance2
+    assert query_instance1 is query_instance2
+    assert index_instance1 is not query_instance1
+
+
+class _RecordingSessionOptions:
+    """SessionOptions stand-in that records which attributes were assigned."""
+
+    intra_op_num_threads: int | None = None
+
+    def __init__(self):
+        self._assigned = set()
+
+    def __setattr__(self, name, value):
+        if not name.startswith("_"):
+            self._assigned.add(name)
+        super().__setattr__(name, value)
+
+
+def test_indexing_instance_limits_onnx_threads_but_query_instance_does_not(tmp_path):
+    import copy
+
+    from seagoat.utils.config import DEFAULT_CONFIG
+
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    index_fn = chroma._get_embedding_function(config, chroma._INDEX_ROLE)
+    query_fn = chroma._get_embedding_function(config, chroma._QUERY_ROLE)
+    assert index_fn._model_class is chroma._ThreadLimitedONNXMiniLM
+    assert query_fn._model_class is None
+
+    with (
+        patch("onnxruntime.InferenceSession") as session_class,
+        patch(
+            "onnxruntime.SessionOptions",
+            return_value=(index_so := _RecordingSessionOptions()),
+        ),
+    ):
+        index_model = index_fn._model_class()
+        _session = index_model.model
+    assert session_class.call_args.kwargs["sess_options"] is index_so
+    assert index_so.intra_op_num_threads == chroma._INDEXING_ONNX_INTRA_OP_THREADS
+    assert "intra_op_num_threads" in index_so._assigned
+
+    from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
+        ONNXMiniLM_L6_V2,
+    )
+
+    with (
+        patch("onnxruntime.InferenceSession") as session_class,
+        patch(
+            "onnxruntime.SessionOptions",
+            return_value=(query_so := _RecordingSessionOptions()),
+        ),
+    ):
+        query_model = ONNXMiniLM_L6_V2()
+        _session = query_model.model
+    assert session_class.call_args.kwargs["sess_options"] is query_so
+    assert "intra_op_num_threads" not in query_so._assigned
+
+
+def test_query_passes_query_embeddings_not_query_texts(tmp_path):
+    embedding_function = _DeterministicEmbeddingFunction()
+    collection = MagicMock()
+    collection.query.return_value = {"metadatas": None, "distances": None}
+    sources, collection = _initialize_mocked(tmp_path, embedding_function, collection)
+
+    results = sources["fetch_in_snapshot"](
+        "cherry pie", 5, SimpleNamespace(repository=MagicMock())
+    )
+    assert results == []
+    call_kwargs = collection.query.call_args.kwargs
+    query_embeddings = call_kwargs["query_embeddings"]
+    assert len(query_embeddings) == 1
+    assert list(query_embeddings[0]) == [10.0, 0.5, -1.0]
+    assert "query_texts" not in call_kwargs

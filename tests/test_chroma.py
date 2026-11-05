@@ -453,13 +453,20 @@ def _initialize_and_get_embedding_function(repo, embedding_function=None):
 
 
 def test_projects_share_one_embedding_function(generate_repo):
+    # One embedding function instance per (config, role): the indexing
+    # instance is shared by all projects and so is the query instance, but
+    # the two roles get separate instances.
     repo1 = generate_repo()
     repo2 = generate_repo()
 
-    embedding_function1 = _initialize_and_get_embedding_function(repo1)
-    embedding_function2 = _initialize_and_get_embedding_function(repo2)
+    index_function1 = _initialize_and_get_embedding_function(repo1)
+    index_function2 = _initialize_and_get_embedding_function(repo2)
+    query_function1 = chroma._get_embedding_function(DEFAULT_CONFIG, chroma._QUERY_ROLE)
+    query_function2 = chroma._get_embedding_function(DEFAULT_CONFIG, chroma._QUERY_ROLE)
 
-    assert embedding_function1 is embedding_function2
+    assert index_function1 is index_function2
+    assert query_function1 is query_function2
+    assert index_function1 is not query_function1
 
 
 def test_different_embedding_function_arguments_are_not_shared(generate_repo):

@@ -2,6 +2,7 @@ import importlib
 import json
 import os
 import threading
+from functools import cached_property
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -16,23 +17,34 @@ from chromadb.api.types import (
 )
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
+from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_V2
 
 from seagoat.cache import Cache
 from seagoat.repository import Repository
 from seagoat.result import Result
 from seagoat.utils.config import get_config_values
 
-# One embedding function is built per process, lazily the first time it is
-# needed, and shared by all projects. The name and arguments are a
-# global-only config key, so one instance has one, but tests set different
-# ones. The lock makes sure two projects starting at once build it once.
-_EMBEDDING_FUNCTION_LOCK = threading.Lock()
-_EMBEDDING_FUNCTIONS = {}
+# One embedding function instance is built per process and embedding key and
+# shared by all projects. Each key gets one instance per role: "index" for
+# batch writes and probes, "query" for search text embedding. Indexing and
+# queries use different instances, so one lane never waits for the other.
+_INDEX_ROLE = "index"
+_QUERY_ROLE = "query"
 
-# The shared embedding function's tokenizer changes state on every call,
-# so embedding calls take turns; that also caps how much CPU the projects
-# use together.
-_EMBEDDING_LOCK = threading.Lock()
+_EMBEDDING_FUNCTION_LOCK = threading.Lock()
+_EMBEDDING_FUNCTIONS = {}  # (embedding_key, role) -> embedding function
+_EMBEDDING_LOCKS = {}  # (embedding_key, role) -> lock serializing its calls
+
+# The built-in ONNX model uses every CPU core while embedding. The indexing
+# instance is capped to half the cores so queries keep the rest for
+# themselves instead of competing with the indexing lane for CPU.
+_INDEXING_ONNX_INTRA_OP_THREADS = max(1, (os.cpu_count() or 2) // 2)
+
+# ONNXMiniLM_L6_V2._download_model_if_not_exists has no lock of its own:
+# the first model load of the two instances must not run at the same time,
+# or both may download and unpack into the same folder and corrupt
+# model.onnx.
+_MODEL_LOAD_LOCK = threading.Lock()
 
 
 class EmbeddingError(RuntimeError):
@@ -51,6 +63,48 @@ _PROBE_TEXT = "probe"
 _GET_PAGE_SIZE = 1000
 
 
+class _ThreadLimitedONNXMiniLM(ONNXMiniLM_L6_V2):
+    """ONNXMiniLM_L6_V2 with a capped intra-op thread count.
+
+    chromadb's class has no option for the thread count: its ``model`` is a
+    cached_property that builds the onnxruntime InferenceSession itself. This
+    subclass rebuilds that property with the same providers logic and one
+    extra SessionOptions setting (same logic as chromadb 1.5.9).
+    """
+
+    @cached_property
+    def model(self):
+        if self._preferred_providers is None or len(self._preferred_providers) == 0:
+            self._preferred_providers = self.ort.get_available_providers()
+        elif not set(self._preferred_providers).issubset(
+            set(self.ort.get_available_providers())
+        ):
+            raise ValueError(
+                "Preferred providers must be subset of available providers: "
+                f"{self.ort.get_available_providers()}"
+            )
+
+        # Suppress onnxruntime warnings
+        so = self.ort.SessionOptions()
+        so.log_severity_level = 3
+        so.graph_optimization_level = self.ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        so.intra_op_num_threads = _INDEXING_ONNX_INTRA_OP_THREADS
+
+        providers = self._preferred_providers
+        if providers and "CoreMLExecutionProvider" in providers:
+            # remove CoreMLExecutionProvider from the list, it is not as
+            # well optimized as CPU.
+            providers = [p for p in providers if p != "CoreMLExecutionProvider"]
+
+        return self.ort.InferenceSession(
+            os.path.join(self.DOWNLOAD_PATH, self.EXTRACTED_FOLDER_NAME, "model.onnx"),
+            # Since 1.9 onnx runtime requires providers to be specified when
+            # there are multiple available
+            providers=providers,
+            sess_options=so,
+        )
+
+
 class _DefaultEmbeddingFunction(EmbeddingFunction[Documents]):
     """chromadb's DefaultEmbeddingFunction, but with one loaded model.
 
@@ -63,17 +117,23 @@ class _DefaultEmbeddingFunction(EmbeddingFunction[Documents]):
     name and config, so collections created with the original still open.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, model_class=None) -> None:
         self._model = None
+        self._model_class = model_class
 
     # chromadb requires this exact parameter name
     def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
         if self._model is None:
-            from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
-                ONNXMiniLM_L6_V2,
-            )
+            # The first load (which downloads and unpacks the model) of the
+            # indexing and the query instance must not run at the same time:
+            # ONNXMiniLM_L6_V2's download has no lock of its own.
+            with _MODEL_LOAD_LOCK:
+                if self._model is None:
+                    from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
+                        ONNXMiniLM_L6_V2,
+                    )
 
-            self._model = ONNXMiniLM_L6_V2()
+                    self._model = (self._model_class or ONNXMiniLM_L6_V2)()
         return self._model(input)
 
     @staticmethod
@@ -104,10 +164,6 @@ def for_collection(function: Any) -> EmbeddingFunction[Embeddable]:
     return cast(EmbeddingFunction[Embeddable], function)
 
 
-# Built-in names that seagoat replaces with its own implementation
-_EMBEDDING_FUNCTION_OVERRIDES = {"DefaultEmbeddingFunction": _DefaultEmbeddingFunction}
-
-
 def embedding_resource_key(config) -> tuple[str, str]:
     """Identity of the shared embedding resource a project's config selects.
 
@@ -131,25 +187,55 @@ def chunk_metadata(chunk) -> Metadata:
     }
 
 
-def _get_embedding_function(config):
+def _get_embedding_function(config, role=_INDEX_ROLE):
+    """One embedding function instance per (config embedding key, role).
+
+    The indexing instance (role "index") embeds batches and probes; the
+    query instance (role "query") embeds search texts. Each instance is
+    built lazily the first time it is needed and shared by all projects
+    whose configs produce the same key.
+    """
     embedding_function = config["server"]["chroma"]["embeddingFunction"]
     name = embedding_function["name"]
     arguments = embedding_function["arguments"]
-    key = embedding_resource_key(config)
+    key = (embedding_resource_key(config), role)
     with _EMBEDDING_FUNCTION_LOCK:
         function = _EMBEDDING_FUNCTIONS.get(key)
         if function is None:
-            if ":" in name:
+            if name == "DefaultEmbeddingFunction":
+                if role == _INDEX_ROLE:
+                    # The indexing instance shares the CPU with queries: cap
+                    # its ONNX threads so queries keep cores free.
+                    function = _DefaultEmbeddingFunction(
+                        model_class=_ThreadLimitedONNXMiniLM
+                    )
+                else:
+                    function = _DefaultEmbeddingFunction()
+            elif ":" in name:
                 module_path, class_name = name.split(":", 1)
                 module = importlib.import_module(module_path)
                 function = getattr(module, class_name)(**arguments)
             else:
-                function_class = _EMBEDDING_FUNCTION_OVERRIDES.get(name) or getattr(
-                    embedding_functions, name
-                )
+                function_class = getattr(embedding_functions, name)
                 function = function_class(**arguments)
             _EMBEDDING_FUNCTIONS[key] = function
         return function
+
+
+def _get_embedding_lock(config, role=_INDEX_ROLE):
+    """The lock serializing calls to one embedding function instance.
+
+    User-configured embedding functions are not known to be thread-safe, so
+    calls to the same instance take turns. Indexing and queries use
+    different instances, so they never wait for each other.
+    """
+    key = (embedding_resource_key(config), role)
+    with _EMBEDDING_FUNCTION_LOCK:
+        lock = _EMBEDDING_LOCKS.get(key)
+        if lock is None:
+            lock = threading.Lock()
+            _EMBEDDING_LOCKS[key] = lock
+        return lock
 
 
 def get_metadata_and_distance_from_chromadb_result(chromadb_results):
@@ -213,7 +299,10 @@ def initialize(repository: Repository):
             anonymized_telemetry=False,
         ),
     )
-    embedding_function = _get_embedding_function(config)
+    embedding_function = _get_embedding_function(config, _INDEX_ROLE)
+    embedding_lock = _get_embedding_lock(config, _INDEX_ROLE)
+    query_embedding_function = _get_embedding_function(config, _QUERY_ROLE)
+    query_embedding_lock = _get_embedding_lock(config, _QUERY_ROLE)
     chroma_collection = chroma_client.get_or_create_collection(
         name="code_data",
         embedding_function=for_collection(embedding_function),
@@ -222,14 +311,17 @@ def initialize(repository: Repository):
         configuration={"hnsw": {"ef_search": 1000}},
     )
 
-    def _embed(documents):
-        with _EMBEDDING_LOCK:
+    def _embed_with(embedding_function, lock, documents):
+        with lock:
             try:
                 return embedding_function(documents)
             except Exception as exc:
                 raise EmbeddingError(
                     f"Embedding failed for {len(documents)} documents: {exc}"
                 ) from exc
+
+    def _embed(documents):
+        return _embed_with(embedding_function, embedding_lock, documents)
 
     def write_batch(ids, documents, metadatas):
         """Embed and upsert a self-contained batch.
@@ -246,13 +338,12 @@ def initialize(repository: Repository):
         # Upsert errors are not wrapped in EmbeddingError: the indexing
         # worker must be able to tell embedding problems from storage
         # problems to pick the right recovery strategy.
-        with _EMBEDDING_LOCK:
-            chroma_collection.upsert(
-                ids=ids,
-                embeddings=embeddings,
-                documents=documents,
-                metadatas=metadatas,
-            )
+        chroma_collection.upsert(
+            ids=ids,
+            embeddings=embeddings,
+            documents=documents,
+            metadatas=metadatas,
+        )
 
     def cache_batch(chunks):
         chunks = list(chunks)
@@ -268,11 +359,17 @@ def initialize(repository: Repository):
         n_results_multiplier = config["server"]["chroma"]["nResultsMultiplier"]
         n_results = min(int((limit + 1) * n_results_multiplier), max_chunks_to_fetch)
 
-        with _EMBEDDING_LOCK:
-            chromadb_results = chroma_collection.query(
-                query_texts=[query_text],
-                n_results=n_results,
-            )
+        # Embed with the query lane's instance, then search with the
+        # precomputed embedding: passing query_texts would make chromadb
+        # embed with the collection's (indexing) function instead.
+        query_embedding = _embed_with(
+            query_embedding_function, query_embedding_lock, [query_text]
+        )
+
+        chromadb_results = chroma_collection.query(
+            query_embeddings=[query_embedding[0]],
+            n_results=n_results,
+        )
 
         return format_results(
             query_text, query_snapshot.repository, chromadb_results, config
@@ -330,8 +427,7 @@ def initialize(repository: Repository):
             return
         for start in range(0, len(ids), _GET_PAGE_SIZE):
             page = ids[start : start + _GET_PAGE_SIZE]
-            with _EMBEDDING_LOCK:
-                chroma_collection.delete(ids=page)
+            chroma_collection.delete(ids=page)
 
     def cache_repo():
         # chromadb does not need any repo cache action
