@@ -87,7 +87,7 @@ def image_loaded(image: str) -> bool:
     env = {**os.environ, "MSB_HOME": str(MSB_HOME)}
     return (
         subprocess.run(
-            ["msb", "image", "inspect", image],
+            [str(WORKER / "msb.sh"), "image", "inspect", image],
             env=env,
             capture_output=True,
             check=False,
