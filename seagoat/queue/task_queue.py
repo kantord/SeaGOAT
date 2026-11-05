@@ -79,7 +79,7 @@ class TaskQueue(BaseQueue):
         self._ensure_recovery_state(context)
         if context["paused"]:
             return context["retry_after"]
-        if self._has_pending_indexing_tasks() or self._outstanding(context):
+        if self._has_pending_indexing_tasks():
             return None
         if context["last_maintenance"] is None:
             return 0.0
@@ -128,10 +128,11 @@ class TaskQueue(BaseQueue):
         context.setdefault("pause_reason", None)
         context.setdefault("retry_after", 0.0)
         context.setdefault("replan_pending", False)
+        context.setdefault("replan_after_drain", False)
 
     def _submit_batches(self, context, chunks):
-        if not chunks:
-            return
+        # Always replace, also with an empty plan: queued batches of an older
+        # plan must not keep running when nothing of them is current any more.
         engine = context["seagoat_engine"]
         lane = context["lane"]
         batches = make_batches(
@@ -142,7 +143,7 @@ class TaskQueue(BaseQueue):
             engine.config["server"]["chroma"]["batchSize"],
             chroma.chunk_metadata,
         )
-        lane.submit(batches)
+        lane.replace(batches)
 
     def handle_maintenance(self, context):
         self._ensure_recovery_state(context)
@@ -155,20 +156,21 @@ class TaskQueue(BaseQueue):
             < SECONDS_BETWEEN_MAINTENANCE
         ):
             return
-        # Never replan while global jobs or cleanup are outstanding: replanning
-        # rewrites the pending/stale snapshots those jobs were cut from.
-        if self._has_pending_indexing_tasks() or self._outstanding(context):
-            return
-
         engine = context["seagoat_engine"]
         current_repo_state_hash = engine.repository.get_status_hash()
         context["last_maintenance"] = time.monotonic()
+        drained = not self._outstanding(context)
         if (
             not context["replan_pending"]
+            and not (context["replan_after_drain"] and drained)
             and context["last_repo_state_hash"] == current_repo_state_hash
         ):
             return
 
+        # The batch that is running while this replans may be planned again.
+        # Its rows are idempotent upserts, so a second write is harmless; not
+        # planning them would lose them if that batch fails and its split
+        # halves are dropped by the replace below.
         chunks = engine.plan_indexing(excluded_ids=context["failed_chunks"])
         self._submit_batches(context, chunks)
         if not chunks:
@@ -179,6 +181,8 @@ class TaskQueue(BaseQueue):
         # Preserve retry eligibility until planning and submission succeed.
         context["last_repo_state_hash"] = current_repo_state_hash
         context["replan_pending"] = False
+        if drained:
+            context["replan_after_drain"] = False
 
     def _enqueue_prune_if_needed(self, context):
         if (
@@ -226,6 +230,13 @@ class TaskQueue(BaseQueue):
         if isinstance(event, BatchCompleted):
             engine.complete_batch(event.batch.ids)
             lane.ack(event.batch)
+            if event.batch.generation < lane.plan_generation():
+                # Rows this batch wrote may be stale in the newer plan, whose
+                # stale list could not see them. Plan once more after the
+                # backlog drains (pruning cannot run before that anyway).
+                # Replanning right away would make the batch running then
+                # old as well, and replan again on every completion.
+                context["replan_after_drain"] = True
             if not engine.get_indexing_stats()["pending"]:
                 logger.info("Analyzed all chunks!")
         elif isinstance(event, DocumentFailed):

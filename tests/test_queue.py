@@ -79,14 +79,15 @@ def test_handle_get_stats(
 def test_important_files_are_analyzed_first(repo, mocker):
     submitted = []
     first_submit_done = threading.Event()
-    original_submit = ProjectLane.submit
+    original_replace = ProjectLane.replace
 
-    def recording_submit(self, batches):
+    def recording_replace(self, batches):
         submitted.extend(batches)
-        original_submit(self, batches)
+        original_replace(self, batches)
         first_submit_done.set()
 
-    mocker.patch.object(ProjectLane, "submit", recording_submit)
+    # Maintenance hands each plan to the lane with replace()
+    mocker.patch.object(ProjectLane, "replace", recording_replace)
     # No scheduler thread: the batches stay queued so their order is visible
     scheduler = manual_scheduler()
     task_queue = TaskQueue(repo_path=repo.working_dir, scheduler=scheduler)
