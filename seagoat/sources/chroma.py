@@ -124,16 +124,21 @@ class _DefaultEmbeddingFunction(EmbeddingFunction[Documents]):
     # chromadb requires this exact parameter name
     def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
         if self._model is None:
-            # The first load (which downloads and unpacks the model) of the
-            # indexing and the query instance must not run at the same time:
-            # ONNXMiniLM_L6_V2's download has no lock of its own.
+            # The first call of the indexing and the query instance must not run
+            # at the same time: ONNXMiniLM_L6_V2 downloads and unpacks the model
+            # on its first call (not in its constructor), into a shared folder,
+            # with no lock of its own. Overlapping downloads can leave a
+            # truncated model.onnx that is never downloaded again.
             with _MODEL_LOAD_LOCK:
                 if self._model is None:
                     from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
                         ONNXMiniLM_L6_V2,
                     )
 
-                    self._model = (self._model_class or ONNXMiniLM_L6_V2)()
+                    model = (self._model_class or ONNXMiniLM_L6_V2)()
+                    embeddings = model(input)
+                    self._model = model
+                    return embeddings
         return self._model(input)
 
     @staticmethod

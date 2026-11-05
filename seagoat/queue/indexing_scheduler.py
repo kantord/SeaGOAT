@@ -19,10 +19,10 @@ Scheduling policy
     Among eligible work the batch with the lowest ``(rank, seq)`` runs next:
     ``rank`` is the absolute position of the batch's best file in its project
     (0 is the top file), ``seq`` is a process-wide FIFO counter. Fairness: a
-    project that was just served ``FAIRNESS_BURST`` times in a row yields to
-    the best eligible batch of another project, if there is one. A project
-    with eligible work therefore waits for at most ``FAIRNESS_BURST`` batches
-    of each other busy project.
+    project that has run ``FAIRNESS_BURST`` batches since another eligible
+    project last ran yields to the eligible project that has waited longest. A project with eligible
+    work therefore waits for at most ``FAIRNESS_BURST`` batches of each other
+    busy project.
 
 Completion protocol
     The scheduler never touches project state. After a successful upsert it
@@ -47,6 +47,7 @@ import heapq
 import logging
 import threading
 import time
+from collections import deque
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from itertools import count
@@ -192,6 +193,10 @@ class ProjectLane:
         self.closed = False
         self.cancelled = 0
         self.generation = 0
+        # Fairness bookkeeping, in the scheduler's service ticks: when this
+        # lane last ran a batch (0 = never), and its last FAIRNESS_BURST runs
+        self.last_served = 0
+        self.recent: deque[int] = deque()
 
     @property
     def resource_key(self):
@@ -255,7 +260,7 @@ class IndexingScheduler:
         self._registrations = count(1)
         self._stopped = False
         self._last_lane: ProjectLane | None = None
-        self._streak = 0
+        self._ticks = count(1)
         self._fairness_burst = (
             FAIRNESS_BURST if fairness_burst is None else fairness_burst
         )
@@ -418,15 +423,24 @@ class IndexingScheduler:
             if lane.resource.down:
                 return ("probe", lane)
         chosen = min(ready, key=lambda lane: lane.heap[0][0])
-        if chosen is self._last_lane and self._streak >= self._fairness_burst:
-            others = [lane for lane in ready if lane is not self._last_lane]
-            if others:
-                chosen = min(others, key=lambda lane: lane.heap[0][0])
-        if chosen is self._last_lane:
-            self._streak += 1
-        else:
-            self._last_lane = chosen
-            self._streak = 1
+        # A lane that ran FAIRNESS_BURST batches since some other ready lane
+        # last ran yields to the ready lane that has waited longest. Yielding
+        # to the best-ranked other lane instead let two busy projects take
+        # turns while a third waited (2026-11-06 review: batch 28 of 60).
+        others = [lane for lane in ready if lane is not chosen]
+        if (
+            others
+            and chosen.recent
+            and len(chosen.recent) >= self._fairness_burst
+            and chosen.recent[0] > min(lane.last_served for lane in others)
+        ):
+            chosen = min(others, key=lambda lane: (lane.last_served, lane.heap[0][0]))
+        tick = next(self._ticks)
+        chosen.last_served = tick
+        chosen.recent.append(tick)
+        while len(chosen.recent) > self._fairness_burst:
+            chosen.recent.popleft()
+        self._last_lane = chosen
         batch = heapq.heappop(chosen.heap)[2]
         chosen.in_flight = batch
         return ("batch", chosen, batch)

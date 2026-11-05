@@ -760,3 +760,69 @@ def test_first_commit_during_unborn_scan_does_not_publish_empty_state(repo, mock
 
     assert dict(repository.file_changes) == {"new.py": []}
     assert repository.frecency_scores == {"new.py": 1.0}
+
+
+def test_status_hash_ignores_uncommitted_content_edits(repo):
+    # Plans are built from HEAD blobs only: an uncommitted edit changes no
+    # chunk, so it must not trigger a replan (2026-11-06 review, A4)
+    repository = Repository(repo.working_dir)
+    before = repository.get_status_hash()
+
+    (Path(repo.working_dir) / "file1.md").write_text("an uncommitted edit\n")
+
+    assert repository.get_status_hash() == before
+
+
+def test_status_hash_survives_a_non_utf8_uncommitted_edit(repo):
+    # A Latin-1 byte in an uncommitted edit used to raise UnicodeDecodeError
+    # from `git diff` and stop all planning (2026-11-06 review, A1)
+    repository = Repository(repo.working_dir)
+    before = repository.get_status_hash()
+
+    (Path(repo.working_dir) / "file1.md").write_bytes(b"# caf\xe9\n")
+
+    assert repository.get_status_hash() == before
+
+
+def test_status_hash_changes_on_commit_and_on_deleting_a_tracked_file(repo):
+    repository = Repository(repo.working_dir)
+    initial = repository.get_status_hash()
+
+    repo.add_file_change_commit("file1.md", "committed edit\n", "Edit file1")
+    committed = repository.get_status_hash()
+    assert committed != initial
+
+    # A deleted tracked file leaves the plan, so the plan changes
+    (Path(repo.working_dir) / "file1.md").unlink()
+    assert repository.get_status_hash() != committed
+
+
+def test_a_non_utf8_filename_is_skipped_and_the_rest_still_indexed(repo, caplog):
+    # A committed file whose name is not valid UTF-8 cannot be passed to the
+    # native chunker (a Rust &str); it used to stop chunking of every file
+    # (2026-11-06 review, A1)
+    root = Path(repo.working_dir)
+    (root / "ok.py").write_text("def fine():\n    return 1\n")
+    import os
+
+    with open(os.path.join(os.fsencode(root), b"caf\xe9.py"), "wb") as handle:
+        handle.write(b"def bad():\n    return 2\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], check=True)
+    subprocess.run(
+        ["git", "-C", str(root), "commit", "-qm", "Add files"],
+        check=True,
+        env={
+            **os.environ,
+            "GIT_AUTHOR_DATE": "2026-01-01T00:00:00",
+            "GIT_COMMITTER_DATE": "2026-01-01T00:00:00",
+        },
+    )
+
+    snapshot = Repository(repo.working_dir).scan()
+    paths = [file.path for file, _ in snapshot.top_files()]
+
+    assert "ok.py" in paths
+    assert not any("caf" in path for path in paths)
+    for file, _ in snapshot.top_files():
+        file.get_chunks()
+    assert "not valid UTF-8" in caplog.text

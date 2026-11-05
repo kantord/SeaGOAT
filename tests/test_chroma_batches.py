@@ -1,5 +1,8 @@
+import threading
+import time
 from pathlib import Path
 from types import SimpleNamespace
+from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
 import chromadb
@@ -427,3 +430,49 @@ def test_query_passes_query_embeddings_not_query_texts(tmp_path):
     assert len(query_embeddings) == 1
     assert list(query_embeddings[0]) == [10.0, 0.5, -1.0]
     assert "query_texts" not in call_kwargs
+
+
+class _DownloadingModel:
+    """Stands in for ONNXMiniLM_L6_V2: its first call downloads and unpacks the model.
+
+    Records how many first calls overlap, because chromadb's download writes the
+    shared model folder without a lock of its own.
+    """
+
+    state: ClassVar[dict[str, int]] = {"downloading": 0, "peak": 0}
+    lock = threading.Lock()
+
+    def __init__(self):
+        self.downloaded = False
+
+    def __call__(self, input):  # pylint: disable=redefined-builtin
+        if not self.downloaded:
+            with self.lock:
+                self.state["downloading"] += 1
+                self.state["peak"] = max(self.state["peak"], self.state["downloading"])
+            time.sleep(0.05)
+            with self.lock:
+                self.state["downloading"] -= 1
+            self.downloaded = True
+        return [[0.0, 1.0, 0.0] for _ in input]
+
+
+def test_first_model_downloads_of_index_and_query_instances_do_not_overlap():
+    _DownloadingModel.state.update(downloading=0, peak=0)
+    instances = [
+        chroma._DefaultEmbeddingFunction(model_class=_DownloadingModel)
+        for _ in range(2)
+    ]
+    start = threading.Barrier(2)
+
+    def first_call(function):
+        start.wait()
+        function(["hello"])
+
+    threads = [threading.Thread(target=first_call, args=(f,)) for f in instances]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(10)
+
+    assert _DownloadingModel.state["peak"] == 1

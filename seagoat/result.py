@@ -221,7 +221,14 @@ class Result:
 
             blocks[-1].lines.append(line)
 
-        return self._merge_almost_touching_blocks(blocks)
+        # A block made only of context lines is the context of a result line
+        # that get_lines() dropped for its score: it has nothing to show, and
+        # no score of its own
+        return [
+            block
+            for block in self._merge_almost_touching_blocks(blocks)
+            if any(ResultLineType.RESULT in line.types for line in block.lines)
+        ]
 
     def to_json(self):
         return {
