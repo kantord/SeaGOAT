@@ -56,9 +56,9 @@ jobs:
                       --ignore-vuln PYSEC-2026-3814 \
                       --ignore-vuln PYSEC-2026-3815
 
-            - name: Run pre-commit
+            - name: Run prek
               run: |
-                  uv run pre-commit run --all-files
+                  uv run prek run --all-files
 
             - name: Check Rust code
               run: |

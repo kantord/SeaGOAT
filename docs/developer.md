@@ -56,25 +56,26 @@ uv run pytest
 
 If all tests pass, you have set up your development environment correctly.
 
-### Step 6: (Optional) Set up pre-commit hooks
+### Step 6: (Optional) Set up commit hooks
 
 There are several tools in use in SeaGOAT to make sure that code is ready to
 merge. Some of these tools will automatically fix issues with the code, such
 as reformatting the code to enforce code style. Other tools will merely point
 out issues before you commit your code.
 
-It is recommended to set up pre-commit hooks so that these checks are
-executed automatically. You can do so by running this command:
+It is recommended to set up commit hooks with
+[prek](https://prek.j178.dev/) so that these checks are executed
+automatically. You can do so by running this command:
 
 ```bash
-uv run pre-commit install
+uv run prek install
 ```
 
-If you do *not* wish to use pre-commit hooks, you can still execute all
+If you do *not* wish to use commit hooks, you can still execute all
 checks manually by running:
 
 ```bash
-uv run pre-commit run --all-files
+uv run prek run --all-files
 ```
 
 ## Developing SeaGOAT
@@ -157,11 +158,11 @@ uv run ipython
 
 ### Automatic checks (linting) and automatic formatting
 
-This repository uses `pre-commit` to run automatic checks and fixes on the
-codebase in addition to automatic and manual testing.
+This repository uses [prek](https://prek.j178.dev/) to run automatic checks
+and fixes on the codebase in addition to automatic and manual testing.
 
 If you have
-[set up commit hooks](http://localhost:8000/developer/#step-6-optional-set-up-pre-commit-hooks)
+[set up commit hooks](http://localhost:8000/developer/#step-6-optional-set-up-commit-hooks)
 (recommended), then these checks and fixes are automatically executed
 each time you attempt to make a commit.
 
@@ -169,7 +170,7 @@ If you don't like commit hooks, or *if you want to run the checks for all
 files, not just changed files* then you can run the following command:
 
 ```bash
-pre-commit run --all-files
+uv run prek run --all-files
 ```
 
 --8<-- "CONTRIBUTING.md"
