@@ -61,6 +61,7 @@ class _Query(threading.Thread):
         assert not self.is_alive(), "query did not finish"
         if self.error is not None:
             raise self.error
+        assert self.results is not None, "query returned no result list"
         return self.results
 
 
@@ -230,8 +231,23 @@ def test_failure_while_building_the_ripgrep_file_leaves_no_file(repo, mocker):
     assert engine._snapshot is published
 
 
-def _open_file_descriptors() -> int:
-    return len(os.listdir("/proc/self/fd"))
+def _open_files_in(folder: Path) -> int:
+    """Count this process's descriptors and memory mappings of files in folder.
+
+    Only files in the cache folder count: a process-wide descriptor count
+    changes whenever objects left by earlier tests are garbage collected.
+    """
+    prefix = str(folder)
+    descriptors = 0
+    for name in os.listdir("/proc/self/fd"):
+        try:
+            target = os.readlink(f"/proc/self/fd/{name}")
+        except OSError:  # closed between listing and reading
+            continue
+        descriptors += target.startswith(prefix)
+    with open("/proc/self/maps", encoding="utf-8") as maps:
+        mappings = sum(prefix in line for line in maps)
+    return descriptors + mappings
 
 
 def test_repeated_replacement_does_not_leak_mappings_or_files(repo):
@@ -244,7 +260,7 @@ def test_repeated_replacement_does_not_leak_mappings_or_files(repo):
         repo.add_file_change_commit("churn.txt", f"warmup {warmup}\n", "Warm up")
     engine.refresh_snapshot()
     on_linux = platform.system() == "Linux"
-    descriptors = _open_file_descriptors() if on_linux else 0
+    open_files = _open_files_in(cache_folder) if on_linux else 0
 
     for round_number in range(8):
         repo.add_file_change_commit(
@@ -257,7 +273,7 @@ def test_repeated_replacement_does_not_leak_mappings_or_files(repo):
     assert [index.is_closed for index in indexes] == [True] * 8 + [False]
     assert not list(cache_folder.glob("mmap.*")), "no cache file may be left behind"
     if on_linux:
-        assert _open_file_descriptors() == descriptors
+        assert _open_files_in(cache_folder) == open_files
 
     engine.close()
     assert all(index.is_closed for index in indexes)
