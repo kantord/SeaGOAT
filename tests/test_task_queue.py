@@ -95,14 +95,20 @@ def test_maintenance_is_skipped_when_repository_is_unchanged(repo, mocker):
 
 
 def test_maintenance_is_skipped_while_chunk_tasks_are_queued(repo, mocker):
+    """A queued prune task defers maintenance only for an unchanged repo."""
     queue = _quiet_queue(repo)
     context = _engine_context(repo, queue)
+    context["last_repo_state_hash"] = context[
+        "seagoat_engine"
+    ].repository.get_status_hash()
     queue._task_queue.put(Task(priority=HIGH_PRIORITY, name="prune_index"))
     spy_plan = mocker.spy(context["seagoat_engine"], "plan_indexing")
 
     queue.handle_maintenance(context)
 
+    # Unchanged repository: no replan, no replace, no scheduler queue changes
     assert spy_plan.call_count == 0
+    assert context["lane"].status()["queued"] == 0
 
 
 def test_maintenance_logs_when_all_chunks_are_analyzed(repo, caplog):
@@ -237,19 +243,26 @@ def _queue_without_worker(engine):
 
 def test_maintenance_skipped_for_pending_chunks_runs_on_the_next_pass(mocker):
     engine = mocker.Mock()
-    engine.repository.get_status_hash.return_value = "edited"
+    engine.repository.get_status_hash.side_effect = ["edited", "edited-2"]
     engine.plan_indexing.return_value = []
     queue, context = _queue_without_worker(engine)
+    context["last_repo_state_hash"] = "edited"
+    clock = {"now": 100.0}
+    mocker.patch(
+        "seagoat.queue.task_queue.time.monotonic", side_effect=lambda: clock["now"]
+    )
 
+    # An unchanged repository is not replanned even while a prune task is queued
     queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="prune_index"))
     queue.handle_maintenance(context)
     engine.plan_indexing.assert_not_called()
 
-    # Once the chunks are processed, the same (unchanged) repo state must still
-    # be analyzed: the skipped pass must not have recorded it as done
-    queue._task_queue.get()
+    # A changed repository replans immediately, prune task or not: the change
+    # must never wait for cleanup work that runs only after the backlog drains
+    clock["now"] += SECONDS_BETWEEN_MAINTENANCE + 1
     queue.handle_maintenance(context)
     engine.plan_indexing.assert_called_once()
+    assert context["last_repo_state_hash"] == "edited-2"
 
 
 def test_waiting_requests_do_not_block_maintenance(mocker):
@@ -335,16 +348,16 @@ def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
     ]
     queue, context = _queue_without_worker(engine)
 
-    real_submit = context["lane"].submit
+    real_replace = context["lane"].replace
     calls = {"count": 0}
 
-    def flaky_submit(*args, **kwargs):
+    def flaky_replace(*args, **kwargs):
         calls["count"] += 1
         if calls["count"] == 1:
             raise RuntimeError("enqueue failed")
-        return real_submit(*args, **kwargs)
+        return real_replace(*args, **kwargs)
 
-    context["lane"].submit = flaky_submit
+    context["lane"].replace = flaky_replace
 
     clock = {"now": 100.0}
     mocker.patch(
@@ -380,9 +393,13 @@ def test_pending_indexing_tasks_defer_the_maintenance_deadline(mocker):
     assert not queue._has_pending_indexing_tasks()
     assert queue.get_maintenance_deadline(context) is not None
 
-    # Outstanding global jobs defer maintenance too, until they are acked
+    # Outstanding global jobs no longer defer ordinary maintenance: edits are
+    # replanned against the running backlog instead of waiting for it to drain
     batch = IndexBatch("p", 1, "r", ("id",), ("text",), ({},), rank=0)
     context["lane"].submit([batch])
+    assert queue.get_maintenance_deadline(context) is not None
+    # ... but a prune task still defers it until cleanup has been consumed
+    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="prune_index"))
     assert queue.get_maintenance_deadline(context) is None
 
 

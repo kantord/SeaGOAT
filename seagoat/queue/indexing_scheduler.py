@@ -82,6 +82,7 @@ class IndexBatch:
     rank: int
     seq: int = -1
     split: tuple[int, ...] = ()
+    generation: int = 0
 
     @property
     def key(self) -> tuple[int, tuple[int, ...]]:
@@ -190,6 +191,7 @@ class ProjectLane:
         self.pause_reason: str | None = None
         self.closed = False
         self.cancelled = 0
+        self.generation = 0
 
     @property
     def resource_key(self):
@@ -197,6 +199,16 @@ class ProjectLane:
 
     def submit(self, batches: Sequence[IndexBatch]) -> None:
         self._scheduler._submit(self, batches)
+
+    def replace(self, batches: Sequence[IndexBatch]) -> None:
+        """Atomically drop this lane's queued (not-yet-started) batches and
+        queue ``batches`` as the current plan."""
+        self._scheduler._replace(self, batches)
+
+    def plan_generation(self) -> int:
+        """The current plan generation; completed batches of an older
+        generation are stale in the newer plan."""
+        return self.generation
 
     def ack(self, batch: IndexBatch) -> None:
         self._scheduler._ack(self, batch)
@@ -300,20 +312,44 @@ class IndexingScheduler:
         if self._thread is not None and self._thread is not threading.current_thread():
             self._thread.join()
 
+    def _queue_batches_locked(
+        self, lane: ProjectLane, batches: Sequence[IndexBatch]
+    ) -> None:
+        for batch in batches:
+            batch = replace(
+                batch,
+                registration_id=lane.registration_id,
+                resource_key=lane.resource_key,
+                seq=next(self._seq),
+                split=(),
+                generation=lane.generation,
+            )
+            lane.outstanding_keys.add(batch.key)
+            heapq.heappush(lane.heap, (batch.sort_key, 0, batch))
+
     def _submit(self, lane: ProjectLane, batches: Sequence[IndexBatch]) -> None:
         with self._cond:
             if lane.closed:
                 return
-            for batch in batches:
-                batch = replace(
-                    batch,
-                    registration_id=lane.registration_id,
-                    resource_key=lane.resource_key,
-                    seq=next(self._seq),
-                    split=(),
-                )
-                lane.outstanding_keys.add(batch.key)
-                heapq.heappush(lane.heap, (batch.sort_key, 0, batch))
+            self._queue_batches_locked(lane, batches)
+            self._cond.notify_all()
+
+    def _replace(self, lane: ProjectLane, batches: Sequence[IndexBatch]) -> None:
+        """Drop all queued, not-yet-started batches and queue the new plan.
+
+        The running batch is untouched: it keeps its generation and its event
+        is still delivered and acked. Queued batches of the old generation are
+        discarded (never acked) and stop counting as outstanding. A removed
+        lane is a no-op: it must not be revived by a late replace.
+        """
+        with self._cond:
+            if lane.closed:
+                return
+            lane.generation += 1
+            for _, _, batch in lane.heap:
+                lane.outstanding_keys.discard(batch.key)
+            lane.heap.clear()
+            self._queue_batches_locked(lane, batches)
             self._cond.notify_all()
 
     def _ack(self, lane: ProjectLane, batch: IndexBatch) -> None:

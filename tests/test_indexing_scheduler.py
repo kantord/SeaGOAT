@@ -768,3 +768,113 @@ def test_default_priority_of_completion_events_is_high(repo):
     queue._deliver_index_event(ResourceRecovered())
     task = queue._task_queue.get_nowait()
     assert (task.name, task.priority) == ("index_event", HIGH_PRIORITY)
+
+
+# -- replanning (Plan.replace) ----------------------------------------------
+
+
+def test_replace_drops_queued_batches_keeps_running_batch_and_stays_exact():
+    scheduler = manual_scheduler()
+    entered, release = threading.Event(), threading.Event()
+    writes = []
+
+    def make_batch(rank):
+        return IndexBatch(
+            "p",
+            0,
+            None,
+            (f"p-{rank}",),
+            (f"text {rank}",),
+            ({},),
+            rank=rank,
+        )
+
+    def blocking_write(batch):
+        writes.append(batch.ids)
+        entered.set()
+        assert release.wait(30)
+
+    project = Project(scheduler, "p")
+    project.lane.write = blocking_write
+    project.lane.submit([make_batch(0), make_batch(1)])
+    # The scheduler has no thread of its own: run the first batch on one so
+    # it can block mid-write while the plan is replaced
+    runner = threading.Thread(target=scheduler.run_once, daemon=True)
+    runner.start()
+    try:
+        assert entered.wait(30)
+        assert project.lane.in_flight.ids == ("p-0",)
+        assert project.lane.outstanding() == 2
+        assert project.lane.status() == {
+            "queued": 1,
+            "in_flight": 1,
+            "awaiting_completion": 0,
+            "paused": False,
+            "pause_reason": None,
+            "retry_after": None,
+        }
+        old_generation = project.lane.plan_generation()
+
+        project.lane.replace([make_batch(5), make_batch(6)])
+
+        # The queued old batch is gone (never acked, no longer outstanding),
+        # the running batch is untouched, and the new batches carry the next
+        # generation.
+        assert project.lane.plan_generation() == old_generation + 1
+        assert project.lane.in_flight is not None
+        assert project.lane.in_flight.ids == ("p-0",)
+        assert project.lane.in_flight.generation == old_generation
+        assert [batch.ids for _, _, batch in project.lane.heap] == [
+            ("p-5",),
+            ("p-6",),
+        ]
+        assert {batch.generation for _, _, batch in project.lane.heap} == {
+            old_generation + 1
+        }
+        assert project.lane.outstanding() == 3
+        assert project.lane.status() == {
+            "queued": 2,
+            "in_flight": 1,
+            "awaiting_completion": 0,
+            "paused": False,
+            "pause_reason": None,
+            "retry_after": None,
+        }
+    finally:
+        release.set()
+        runner.join(30)
+        scheduler.shutdown()
+
+    # The running batch completed normally even though the plan was replaced
+    assert not runner.is_alive()
+    assert writes == [("p-0",)]
+    assert [event.batch.ids for event in project.completed()] == [("p-0",)]
+
+
+def test_replace_on_a_removed_lane_is_a_noop_and_does_not_revive_it():
+    scheduler = manual_scheduler()
+    project = Project(scheduler, "p")
+    project.submit(0)
+    assert project.lane.unregister() is True
+    assert project.lane.is_closed()
+
+    project.lane.replace(
+        [
+            IndexBatch(
+                "p",
+                0,
+                None,
+                ("p-late",),
+                ("text",),
+                ({},),
+                rank=0,
+            )
+        ]
+    )
+
+    assert project.lane.is_closed()
+    assert project.lane.outstanding() == 0
+    assert project.lane.status()["queued"] == 0
+    assert scheduler.run_until_idle() == 0
+    assert project.completed() == []
+    assert project.writes == []
