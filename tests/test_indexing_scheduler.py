@@ -158,6 +158,28 @@ def test_fairness_prevents_a_busy_project_from_starving_another():
     assert order.count("busy") == 20 and order.count("quiet") == 2
 
 
+def test_fairness_rotates_through_every_waiting_project():
+    # 2026-11-06 review: on a forced yield the best-ranked other project ran,
+    # and the top project came straight back, so a third project first ran at
+    # batch 28 of 60
+    burst = 4
+    scheduler = manual_scheduler(fairness_burst=burst)
+    projects = [Project(scheduler, name) for name in "abc"]
+    for offset, project in zip((0, 1000, 2000), projects):
+        project.submit(*range(offset, offset + 20))
+
+    order = "".join(project for project, _ in _run_order(scheduler, projects))
+
+    assert order.startswith("aaaabcaaaabc"), order
+    # The documented bound: while a project has work, it waits for at most
+    # `burst` batches of each other project in a row
+    for waiting in "abc":
+        for other in "abc".replace(waiting, ""):
+            while_waiting = order[: order.rfind(waiting)]
+            for run in while_waiting.split(waiting):
+                assert run.count(other) <= burst, (waiting, other, order)
+
+
 def _last_served(scheduler):
     lane = scheduler._last_lane
     assert lane is not None, "the scheduler has not served any lane yet"

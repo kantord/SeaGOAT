@@ -1,5 +1,6 @@
 import datetime
 import hashlib
+import logging
 import math
 import subprocess
 from collections import defaultdict
@@ -9,6 +10,8 @@ from seagoat.gitfile import GitFile
 from seagoat.utils.config import get_config_values
 from seagoat.utils.file_reader import autodecode_bytes
 from seagoat.utils.file_types import is_file_type_supported
+
+logger = logging.getLogger(__name__)
 
 # A recent change counts more than many changes long ago
 FRECENCY_DECAY_DAYS = 90
@@ -86,6 +89,14 @@ class RepositorySnapshot:
         ]
 
 
+def _is_utf8(path: str) -> bool:
+    try:
+        path.encode("utf-8")
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
 class Repository:
     def __init__(self, repo_path: str):
         self.path = Path(repo_path)
@@ -96,16 +107,12 @@ class Repository:
         # The last successfully published scan. Replaced as a whole, never
         # mutated, so readers may keep using an older one safely.
         self.snapshot = RepositorySnapshot(self, None, {}, {}, {})
+        # HEAD's file list for get_status_hash, cached per HEAD commit
+        self._status_head_files: tuple[str | None, frozenset[str]] = (None, frozenset())
 
     def _get_head_hash(self):
         return subprocess.check_output(
             ["git", "-C", str(self.path), "rev-parse", "HEAD"],
-            text=True,
-        ).strip()
-
-    def _get_working_tree_diff(self):
-        return subprocess.check_output(
-            ["git", "-C", str(self.path), "diff"],
             text=True,
         ).strip()
 
@@ -178,10 +185,26 @@ class Repository:
         return self.get_file_object_id(file_path) == git_object_id
 
     def get_status_hash(self):
+        """A hash of exactly what a plan is built from: HEAD, and which of
+        HEAD's files are present in the working tree (see _scan_at_head).
+
+        Uncommitted content edits are left out on purpose: chunks come from
+        HEAD blobs, so they change no plan, and hashing them made every
+        autosave trigger a full replan (2026-11-06 review, A4). Hashing the
+        `git diff` text also failed on a non-UTF-8 edit (A1).
+        """
         # A valid unborn repository has no HEAD yet; it still has a stable
         # status for maintenance. A failed HEAD read must continue to raise.
-        combined = (self._get_scan_head() or "") + self._get_working_tree_diff()
-        return hashlib.sha256(combined.encode()).hexdigest()
+        head = self._get_scan_head()
+        cached_head, head_files = self._status_head_files
+        if head is None:
+            head_files = frozenset()
+        elif cached_head != head:
+            head_files = frozenset(self._get_files_at_head(head))
+            self._status_head_files = (head, head_files)
+        present = sorted(self._get_working_tree_files() & head_files)
+        combined = "\0".join([head or "", *present])
+        return hashlib.sha256(combined.encode("utf-8", "surrogateescape")).hexdigest()
 
     _MAX_HEAD_VERIFICATION_ATTEMPTS = 3
 
@@ -349,6 +372,16 @@ class Repository:
         # that were re-created as untracked files) can't be indexed.
         head_object_ids = self._get_files_at_head(head)
         files = self._get_working_tree_files() & head_object_ids.keys()
+        # A path that is not valid UTF-8 arrives with surrogate escapes: the
+        # native chunker (a Rust &str), Chroma metadata and JSON output cannot
+        # take it, and one such file used to stop chunking of every file
+        # (2026-11-06 review, A1). Skip it, say so, index the rest.
+        for path in sorted(path for path in files if not _is_utf8(path)):
+            logger.warning(
+                "Skipping %r: its file name is not valid UTF-8",
+                path.encode("utf-8", "surrogateescape"),
+            )
+            files.discard(path)
 
         cmd = [
             "git",

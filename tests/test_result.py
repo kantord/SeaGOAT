@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -354,3 +355,33 @@ def test_merges_almost_continuous_code_lines(
         ],
         "path": "test.txt",
     }
+
+
+class _SixtyLineFile:
+    path = "a.py"
+    absolute_path = Path("/repo/a.py")
+    lines: ClassVar[dict[int, str]] = {n: f"line {n}" for n in range(1, 61)}
+
+
+def test_context_of_a_dropped_result_line_does_not_form_its_own_block():
+    # Line 50's score is more than 10x the best line's, so get_lines() drops
+    # it, but the context lines added above it stay
+    result = Result("query", _SixtyLineFile())  # type: ignore[arg-type]
+    result.add_line(1, 0.1)
+    result.add_line(50, 5.0)
+    result.add_context_lines(-3)
+
+    blocks = result.to_json()["blocks"]
+
+    assert [[line["line"] for line in block["lines"]] for block in blocks] == [[1]]
+
+
+def test_every_block_has_a_result_line_with_context_on_both_sides():
+    result = Result("query", _SixtyLineFile())  # type: ignore[arg-type]
+    result.add_line(1, 0.1)
+    result.add_line(50, 5.0)
+    result.add_context_lines(-3)
+    result.add_context_lines(3)
+
+    for block in result.to_json()["blocks"]:
+        assert block["lineTypeCount"].get("result", 0) > 0, block
