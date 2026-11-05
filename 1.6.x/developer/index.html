@@ -564,6 +564,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#indexing-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indexing scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#manual-testing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -831,6 +842,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#indexing-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indexing scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#manual-testing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -999,6 +1021,25 @@ checks manually by running:</p>
 You can update snapshots by running</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">  </span>--snapshot-update
 </span></code></pre></div>
+<h3 id="indexing-scheduler">Indexing scheduler</h3>
+<p>Embedding and storing chunks is done by one process-wide scheduler
+(<code>seagoat/queue/indexing_scheduler.py</code>); each project's <code>TaskQueue</code> only plans,
+submits, publishes completion and prunes. The module docstring is the
+reference for the contracts below.</p>
+<ul>
+<li><strong>Batches</strong> are self-contained (ids, text, metadata, project identity, rank).
+  The scheduler never reads a project's repository or counters.</li>
+<li><strong>Order</strong>: lowest absolute file rank first, FIFO for ties. A project served
+  <code>FAIRNESS_BURST</code> times in a row yields to another project with eligible work.</li>
+<li><strong>Resources</strong>: embedding outage, probe and retry state is kept per embedding
+  function (<code>embedding_resource_key</code>), so projects sharing a model back off and
+  probe together. Storage failures pause only the affected project.</li>
+<li><strong>Completion</strong>: after a successful upsert the scheduler sends the project a
+  <code>BatchCompleted</code> event; the project publishes progress and then acks the
+  batch. Replanning and pruning wait until nothing is outstanding.</li>
+<li><strong>Removal</strong>: <code>Projects.remove</code> cancels queued batches and waits for a running
+  one; its late result is dropped.</li>
+</ul>
 <h3 id="manual-testing">Manual testing</h3>
 <p>In order to test your local changes to SeaGOAT manually, you can prefix
 the command by <code>uv run</code>. For example to run your local
