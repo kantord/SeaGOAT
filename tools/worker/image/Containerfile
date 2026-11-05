@@ -7,9 +7,12 @@ FROM docker.io/library/debian:trixie-slim@sha256:f6b08b09a05725f9431502d3b5714f5
 ENV DEBIAN_FRONTEND=noninteractive
 # ripgrep: SeaGOAT's tests run it (CI installs it too). python3-dev: the root's cargo checks need
 # a python3 on PATH and `cargo test` links libpython (CI has setup-python); trixie's is 3.13, as
-# in .python-version.
+# in .python-version. python-is-python3 and procps: an audit of 72 runs (2026-11-06) found models
+# running `python ...` and getting "not found" 37-62 times, and a check that needed pgrep made a
+# run RED.
 RUN apt-get update -q && apt-get install -yq --no-install-recommends \
       build-essential pkg-config git curl ca-certificates ripgrep python3-dev \
+      python-is-python3 procps \
     && rm -rf /var/lib/apt/lists/*
 ENV PATH=/root/.cargo/bin:$PATH
 RUN curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable -c clippy -c rustfmt

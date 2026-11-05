@@ -12,7 +12,10 @@ copy it and change the checks. A run ends by counts (turns, retries), not by a t
 Steps: check that the image is loaded (tools/worker/image/build.sh builds and loads it), run
 tools/worker against a copy of the repo at --base, and if the run is GREEN apply its patch in
 `.claude/worktrees/worker-<slug>` (branch `worker/<slug>`), unstaged, for the calling session
-to review and commit. Inside the sandbox the worker has already run the program's checks.
+to review and commit. A RED run's non-empty patch goes, also unstaged, in
+`.claude/worktrees/worker-<slug>-red` (branch `worker/<slug>-red`): unverified work in progress,
+e.g. a model that ran out of turns, to pick up rather than dig out of the run folder. Inside the
+sandbox the worker has already run the program's checks.
 Everything a run writes is under `target/agent-tmp/worker/<slug>-<time>/` (`run.log` is the
 live table: `tail -f` it). `run/events.jsonl` times every step with the machine's load
 (tools/worker/timings.py summarizes it; run.py prints that at the end).
@@ -220,6 +223,20 @@ def risky(paths: list[str]) -> tuple[list[str], list[str]]:
     return hits(RUN_ON_OPEN), hits(RUN_ON_USE)
 
 
+def outcome(status: str | None, patch_size: int | None) -> str:
+    """What run.py does with a finished run: "apply" (GREEN with a patch), "apply_red" (RED with
+    a patch), "nothing" (GREEN with an empty patch), "blocked", or "none" (no patch to keep).
+
+    patch_size is None when the run wrote no patch file.
+    """
+    if status == "BLOCKED":
+        return "blocked"
+    if not patch_size:
+        return "nothing" if status == "GREEN" and patch_size == 0 else "none"
+    # A RED run that ran out of turns is often nearly done; its patch is worth a worktree.
+    return {"GREEN": "apply", "RED": "apply_red"}.get(status or "", "none")
+
+
 def apply_in_worktree(slug: str, base: str, patch: Path) -> Path:
     refused, read_first = risky(patch_paths(patch))
     refused += [f"{p} (a symlink)" for p in patch_symlinks(patch)]
@@ -274,16 +291,18 @@ def main(argv) -> int:
     if not a.brief.is_file():
         sys.exit(f"worker: no brief at {a.brief}")
     base = git("rev-parse", a.base).strip()
-    if git("branch", "--list", f"worker/{a.slug}").strip():
-        sys.exit(
-            f"worker: branch worker/{a.slug} exists; pick another slug or delete it"
-        )
-    tree = ROOT / ".claude/worktrees" / f"worker-{a.slug}"
-    if tree.exists():
-        sys.exit(
-            f"worker: {tree} already exists; pick another slug or delete it "
-            f"(git worktree remove --force {tree}; git branch -D worker/{a.slug})"
-        )
+    # Either name may be needed after the run: the GREEN one or the RED one.
+    for name in (a.slug, f"{a.slug}-red"):
+        if git("branch", "--list", f"worker/{name}").strip():
+            sys.exit(
+                f"worker: branch worker/{name} exists; pick another slug or delete it"
+            )
+        tree = ROOT / ".claude/worktrees" / f"worker-{name}"
+        if tree.exists():
+            sys.exit(
+                f"worker: {tree} already exists; pick another slug or delete it "
+                f"(git worktree remove --force {tree}; git branch -D worker/{name})"
+            )
     if not image_loaded(IMAGE):
         sys.exit(
             f"worker: no image {IMAGE} in {MSB_HOME}; run tools/worker/image/build.sh first"
@@ -345,32 +364,34 @@ def main(argv) -> int:
         flush=True,
     )
     patch = out / "run/patch"
-    if (
-        report.get("status") == "GREEN"
-        and patch.is_file()
-        and patch.stat().st_size == 0
-    ):
+    then = outcome(
+        report.get("status"), patch.stat().st_size if patch.is_file() else None
+    )
+    if then == "nothing":
         # A program with checks only (programs/gate.json) changes nothing by design.
         print("worker: GREEN, nothing to apply", flush=True)
         print_timings(out)
         return 0
-    if report.get("status") == "BLOCKED":
+    if then == "blocked":
         # The model stopped as its brief told it to: its reply is the answer, and the patch is
         # whatever it had changed, for reading, not applying.
         print(f"worker: blocked: {report.get('error')}", flush=True)
         print(f"worker: see {out}; its patch is {patch}", flush=True)
         print_timings(out)
         return 5
-    if (
-        report.get("status") != "GREEN"
-        or not patch.is_file()
-        or patch.stat().st_size == 0
-    ):
+    if then == "none":
         print(f"worker: no green patch; see {out}", flush=True)
         print_timings(out)
         return 1
+    red = then == "apply_red"
     with step(events, "host", "apply"):
-        tree = apply_in_worktree(a.slug, base, patch)
+        tree = apply_in_worktree(f"{a.slug}-red" if red else a.slug, base, patch)
+    if red:
+        print(
+            f"worker: RED: the run failed its checks or ran out of turns. {tree} holds its "
+            f"UNVERIFIED work in progress; see {out} for why",
+            flush=True,
+        )
     print(
         f"worker: changes uncommitted in {tree}; read the diff before running anything there",
         flush=True,
@@ -381,7 +402,8 @@ def main(argv) -> int:
         f"worker: every step is in {events}; tools/worker/timings.py {out} shows this again",
         flush=True,
     )
-    return 0
+    # A RED run still exits as RED, whatever was kept of it.
+    return 1 if red else 0
 
 
 if __name__ == "__main__":

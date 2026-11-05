@@ -76,7 +76,9 @@ struct Args {
     /// Where `once` blocks save and find their fragments; without it they always run.
     #[arg(long)]
     once_dir: Option<PathBuf>,
-    #[arg(long, default_value_t = 8192)]
+    /// Covers the reasoning tokens too. 2026-11-05: at 8192 every cut-off reply in a run was the
+    /// model still reasoning (8.4-8.6K tokens) with no reply written.
+    #[arg(long, default_value_t = 32768)]
     max_tokens: u32,
     #[arg(long, default_value_t = 4)]
     cpus: u8,
