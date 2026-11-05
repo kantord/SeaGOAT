@@ -14,8 +14,10 @@ from seagoat.queue.base_queue import (
     TaskFailed,
     TaskTimedOut,
 )
+from seagoat.queue.indexing_scheduler import ProjectLane
 from seagoat.queue.task_queue import TaskQueue
 from seagoat.repository import Repository
+from tests.fixtures.scheduling import manual_scheduler
 
 
 @pytest.fixture(name="create_task_queue")
@@ -50,6 +52,15 @@ def test_handle_get_stats(
     task_queue = create_task_queue()
     context = {
         "seagoat_engine": Mock(),
+        "lane": Mock(
+            status=lambda: {
+                "queued": 0,
+                "in_flight": 0,
+                "awaiting_completion": 0,
+                "paused": False,
+                "pause_reason": None,
+            }
+        ),
     }
 
     context["seagoat_engine"].get_indexing_stats.return_value = {
@@ -65,29 +76,30 @@ def test_handle_get_stats(
     assert stats["accuracy"]["percentage"] == expected_accuracy
 
 
-def test_important_files_are_analyzed_first(create_task_queue, mocker, repo):
-    enqueue = mocker.patch("seagoat.queue.task_queue.TaskQueue.enqueue")
-    first_maintenance_done = threading.Event()
-    original_maintenance = TaskQueue.handle_maintenance
+def test_important_files_are_analyzed_first(repo, mocker):
+    submitted = []
+    first_submit_done = threading.Event()
+    original_submit = ProjectLane.submit
 
-    def tracked_maintenance(self, context):
-        try:
-            original_maintenance(self, context)
-        finally:
-            first_maintenance_done.set()
+    def recording_submit(self, batches):
+        submitted.extend(batches)
+        original_submit(self, batches)
+        first_submit_done.set()
 
-    mocker.patch.object(TaskQueue, "handle_maintenance", tracked_maintenance)
-    task_queue = create_task_queue()
-    # Maintenance enqueues every chunk in one pass, so waiting for its
-    # first run is waiting for the whole enqueue order to exist
-    assert first_maintenance_done.wait(timeout=30)
+    mocker.patch.object(ProjectLane, "submit", recording_submit)
+    # No scheduler thread: the batches stay queued so their order is visible
+    scheduler = manual_scheduler()
+    task_queue = TaskQueue(repo_path=repo.working_dir, scheduler=scheduler)
+    # Maintenance submits every batch in one pass, so waiting for the first
+    # submission is waiting for the whole order to exist
+    assert first_submit_done.wait(timeout=30)
     task_queue.shutdown()
     repository = Repository(repo.working_dir)
     repository.analyze_files()
     order_of_files_analyzed = []
-    for call in enqueue.mock_calls:
-        for chunk in call.args[1]:
-            path = chunk.path
+    for batch in sorted(submitted, key=lambda batch: batch.sort_key):
+        for metadata in batch.metadatas:
+            path = metadata["path"]
             if not order_of_files_analyzed or order_of_files_analyzed[-1] != path:
                 order_of_files_analyzed.append(path)
 

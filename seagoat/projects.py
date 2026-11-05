@@ -96,6 +96,23 @@ class Projects:
         except KeyError:
             raise UnknownProject(repo_path) from None
 
+    def remove(self, repo_path) -> bool:
+        """Stop serving a project: cancel its indexing and stop its queue.
+
+        Queued indexing batches are dropped; a batch already running is
+        waited for (its result is discarded), so nothing writes for the
+        project after this returns. Returns whether the project existed.
+        """
+        key = normalize_repo_path(repo_path)
+        with self._lock:
+            project = self._projects.pop(key, None)
+        if project is None:
+            return False
+        shutdown = getattr(project.queue, "shutdown", None)
+        if shutdown is not None:
+            shutdown()
+        return True
+
     def repo_paths(self) -> list[str]:
         with self._lock:
             return list(self._projects.keys())

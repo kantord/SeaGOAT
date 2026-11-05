@@ -63,6 +63,18 @@ def mock_sources_context(
                 storage()
             store[chunk.chunk_id] = chunk
 
+    def write_batch(ids, documents, metadatas):
+        ids = list(ids)
+        if not ids:
+            return
+        if embedding is not None:
+            embedding()
+        batch_calls.append(ids)
+        for chunk_id, document in zip(ids, documents):
+            if storage is not None:
+                storage()
+            store[chunk_id] = document
+
     def probe_embedding():
         if embedding is not None:
             embedding()
@@ -93,6 +105,7 @@ def mock_sources_context(
         chroma_source = {
             "fetch": create_mock_query(repo, chroma_lines),
             "cache_batch": cache_batch,
+            "write_batch": write_batch,
             "cache_chunk": cache_chunk,
             "cache_repo": reset_store,
             "probe_embedding": probe_embedding,

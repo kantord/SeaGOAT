@@ -16,6 +16,7 @@ import pytest
 from seagoat import __version__
 from seagoat.engine import Engine
 from seagoat.queue.base_queue import HIGH_PRIORITY, MEDIUM_PRIORITY, Task
+from seagoat.queue.indexing_scheduler import IndexBatch, IndexingScheduler
 from seagoat.queue.task_queue import (
     SECONDS_BETWEEN_MAINTENANCE,
     TaskQueue,
@@ -24,6 +25,7 @@ from seagoat.queue.task_queue import (
 from seagoat.repository import Repository
 from seagoat.sources.chroma import EmbeddingError
 from seagoat.utils.wait import wait_for
+from tests.fixtures.scheduling import attach_lane
 from tests.fixtures.sources import mock_sources_context
 
 
@@ -44,12 +46,14 @@ def _quiet_queue(repo, **kwargs):
     return queue
 
 
-def _engine_context(repo):
-    return {
+def _engine_context(repo, queue):
+    context = {
         "seagoat_engine": Engine(repo.working_dir),
         "last_maintenance": None,
         "last_repo_state_hash": None,
     }
+    attach_lane(queue, context)
+    return context
 
 
 def _chunk_ids_of(repo):
@@ -64,7 +68,7 @@ def _chunk_ids_of(repo):
 
 def test_maintenance_is_skipped_when_it_ran_recently(repo, mocker):
     queue = _quiet_queue(repo)
-    context = _engine_context(repo)
+    context = _engine_context(repo, queue)
     context["last_maintenance"] = time.monotonic()
     engine = context["seagoat_engine"]
     spy_plan = mocker.spy(engine, "plan_indexing")
@@ -79,7 +83,7 @@ def test_maintenance_is_skipped_when_it_ran_recently(repo, mocker):
 
 def test_maintenance_is_skipped_when_repository_is_unchanged(repo, mocker):
     queue = _quiet_queue(repo)
-    context = _engine_context(repo)
+    context = _engine_context(repo, queue)
     context["last_repo_state_hash"] = context[
         "seagoat_engine"
     ].repository.get_status_hash()
@@ -92,10 +96,8 @@ def test_maintenance_is_skipped_when_repository_is_unchanged(repo, mocker):
 
 def test_maintenance_is_skipped_while_chunk_tasks_are_queued(repo, mocker):
     queue = _quiet_queue(repo)
-    context = _engine_context(repo)
-    queue._task_queue.put(
-        Task(priority=HIGH_PRIORITY, name="analyze_chunk", args=("fake chunk",))
-    )
+    context = _engine_context(repo, queue)
+    queue._task_queue.put(Task(priority=HIGH_PRIORITY, name="prune_index"))
     spy_plan = mocker.spy(context["seagoat_engine"], "plan_indexing")
 
     queue.handle_maintenance(context)
@@ -114,6 +116,7 @@ def test_maintenance_logs_when_all_chunks_are_analyzed(repo, caplog):
             "last_maintenance": None,
             "last_repo_state_hash": None,
         }
+        attach_lane(queue, context)
 
         with caplog.at_level(logging.INFO):
             queue.handle_maintenance(context)
@@ -194,7 +197,7 @@ def test_stats_task_counts_analyzed_and_unanalyzed_chunks(repo):
         assert stats["analyzed"] == total - 1
 
         queue = _quiet_queue(repo)
-        context = _engine_context(repo)
+        context = _engine_context(repo, queue)
         context["seagoat_engine"] = engine
 
         stats = queue.handle_get_stats(context)
@@ -228,6 +231,7 @@ def _queue_without_worker(engine):
         "last_maintenance": None,
         "last_repo_state_hash": None,
     }
+    attach_lane(queue, context)
     return queue, context
 
 
@@ -237,7 +241,7 @@ def test_maintenance_skipped_for_pending_chunks_runs_on_the_next_pass(mocker):
     engine.plan_indexing.return_value = []
     queue, context = _queue_without_worker(engine)
 
-    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="analyze_chunk"))
+    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="prune_index"))
     queue.handle_maintenance(context)
     engine.plan_indexing.assert_not_called()
 
@@ -325,20 +329,22 @@ def test_scheduling_failure_leaves_repo_hash_unrecorded(mocker):
     engine = mocker.Mock()
     engine.repository.get_status_hash.return_value = "same-state"
     engine.plan_indexing.return_value = [
-        SimpleNamespace(chunk_id="chunk-1"),
+        SimpleNamespace(
+            chunk_id="chunk-1", chunk="text", path="a.py", codeline=1, object_id="o"
+        ),
     ]
     queue, context = _queue_without_worker(engine)
 
-    real_enqueue = queue.enqueue
+    real_submit = context["lane"].submit
     calls = {"count": 0}
 
-    def flaky_enqueue(*args, **kwargs):
+    def flaky_submit(*args, **kwargs):
         calls["count"] += 1
         if calls["count"] == 1:
             raise RuntimeError("enqueue failed")
-        return real_enqueue(*args, **kwargs)
+        return real_submit(*args, **kwargs)
 
-    queue.enqueue = flaky_enqueue
+    context["lane"].submit = flaky_submit
 
     clock = {"now": 100.0}
     mocker.patch(
@@ -365,7 +371,7 @@ def test_pending_indexing_tasks_defer_the_maintenance_deadline(mocker):
     queue, context = _queue_without_worker(engine)
     context["last_maintenance"] = time.monotonic() - SECONDS_BETWEEN_MAINTENANCE - 1
 
-    for task_name in ("analyze_batch", "analyze_chunk", "prune_index"):
+    for task_name in ("prune_index",):
         queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name=task_name))
         assert queue._has_pending_indexing_tasks()
         assert queue.get_maintenance_deadline(context) is None
@@ -373,6 +379,11 @@ def test_pending_indexing_tasks_defer_the_maintenance_deadline(mocker):
 
     assert not queue._has_pending_indexing_tasks()
     assert queue.get_maintenance_deadline(context) is not None
+
+    # Outstanding global jobs defer maintenance too, until they are acked
+    batch = IndexBatch("p", 1, "r", ("id",), ("text",), ({},), rank=0)
+    context["lane"].submit([batch])
+    assert queue.get_maintenance_deadline(context) is None
 
 
 def test_paused_context_exposes_its_own_retry_deadline(mocker):
@@ -384,7 +395,7 @@ def test_paused_context_exposes_its_own_retry_deadline(mocker):
     context["pause_reason"] = "storage"
     context["retry_after"] = time.monotonic() + 7
     # Even a queued indexing backlog must not defer the recovery probe.
-    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="analyze_batch"))
+    queue._task_queue.put(Task(priority=MEDIUM_PRIORITY, name="prune_index"))
     assert queue._has_pending_indexing_tasks()
     assert queue.get_maintenance_deadline(context) == pytest.approx(
         context["retry_after"]
@@ -395,7 +406,7 @@ def test_worker_probes_recovery_on_retry_deadline_and_resumes(repo, mocker):
     """An outage pauses with a bounded monotonic retry deadline; recovery
     probes run at that deadline without ordinary repo checks and without
     polling, then retained work resumes."""
-    mocker.patch("seagoat.queue.task_queue.RETRY_DEADLINE_SECONDS", 0.5)
+    scheduler = IndexingScheduler(retry_seconds=0.5)
     state = {"ok": False}
 
     def flaky_embedding():
@@ -415,7 +426,7 @@ def test_worker_probes_recovery_on_retry_deadline_and_resumes(repo, mocker):
 
         chroma_source["probe_embedding"] = counting_probe
 
-        task_queue = TaskQueue(repo_path=repo.working_dir)
+        task_queue = TaskQueue(repo_path=repo.working_dir, scheduler=scheduler)
         try:
 
             def stats():
@@ -436,6 +447,7 @@ def test_worker_probes_recovery_on_retry_deadline_and_resumes(repo, mocker):
             assert probes["n"] > probes_before
         finally:
             task_queue.shutdown()
+            scheduler.shutdown()
 
 
 def test_task_queue_maintenance_runs_under_continuous_task_load(repo, mocker):

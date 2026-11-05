@@ -112,6 +112,26 @@ You can update snapshots by running
 uv run pytest  --snapshot-update
 ```
 
+### Indexing scheduler
+
+Embedding and storing chunks is done by one process-wide scheduler
+(`seagoat/queue/indexing_scheduler.py`); each project's `TaskQueue` only plans,
+submits, publishes completion and prunes. The module docstring is the
+reference for the contracts below.
+
+* **Batches** are self-contained (ids, text, metadata, project identity, rank).
+  The scheduler never reads a project's repository or counters.
+* **Order**: lowest absolute file rank first, FIFO for ties. A project served
+  `FAIRNESS_BURST` times in a row yields to another project with eligible work.
+* **Resources**: embedding outage, probe and retry state is kept per embedding
+  function (`embedding_resource_key`), so projects sharing a model back off and
+  probe together. Storage failures pause only the affected project.
+* **Completion**: after a successful upsert the scheduler sends the project a
+  `BatchCompleted` event; the project publishes progress and then acks the
+  batch. Replanning and pruning wait until nothing is outstanding.
+* **Removal**: `Projects.remove` cancels queued batches and waits for a running
+  one; its late result is dropped.
+
 ### Manual testing
 
 In order to test your local changes to SeaGOAT manually, you can prefix

@@ -108,14 +108,34 @@ def for_collection(function: Any) -> EmbeddingFunction[Embeddable]:
 _EMBEDDING_FUNCTION_OVERRIDES = {"DefaultEmbeddingFunction": _DefaultEmbeddingFunction}
 
 
+def embedding_resource_key(config) -> tuple[str, str]:
+    """Identity of the shared embedding resource a project's config selects.
+
+    Projects whose configs produce the same key share one embedding function
+    instance, so they also share its outage/probe/retry state in the global
+    indexing scheduler. The name and arguments are global-only config.
+    """
+    embedding_function = config["server"]["chroma"]["embeddingFunction"]
+    return (
+        embedding_function["name"],
+        json.dumps(embedding_function["arguments"], sort_keys=True, default=str),
+    )
+
+
+def chunk_metadata(chunk) -> Metadata:
+    """The Chroma metadata stored for one chunk."""
+    return {
+        "path": chunk.path,
+        "line": chunk.codeline,
+        "git_object_id": chunk.object_id,
+    }
+
+
 def _get_embedding_function(config):
     embedding_function = config["server"]["chroma"]["embeddingFunction"]
     name = embedding_function["name"]
     arguments = embedding_function["arguments"]
-    key = (
-        name,
-        json.dumps(arguments, sort_keys=True, default=str),
-    )
+    key = embedding_resource_key(config)
     with _EMBEDDING_FUNCTION_LOCK:
         function = _EMBEDDING_FUNCTIONS.get(key)
         if function is None:
@@ -211,20 +231,17 @@ def initialize(repository: Repository):
                     f"Embedding failed for {len(documents)} documents: {exc}"
                 ) from exc
 
-    def cache_batch(chunks):
-        chunks = list(chunks)
-        if not chunks:
+    def write_batch(ids, documents, metadatas):
+        """Embed and upsert a self-contained batch.
+
+        Takes plain values only (no chunk objects, no repository), so the
+        global indexing scheduler can run it from its own thread.
+        """
+        ids = list(ids)
+        if not ids:
             return
-        ids = [chunk.chunk_id for chunk in chunks]
-        documents = [chunk.chunk for chunk in chunks]
-        metadatas: list[Metadata] = [
-            {
-                "path": chunk.path,
-                "line": chunk.codeline,
-                "git_object_id": chunk.object_id,
-            }
-            for chunk in chunks
-        ]
+        documents = list(documents)
+        metadatas = cast(list[Metadata], list(metadatas))
         embeddings = _embed(documents)
         # Upsert errors are not wrapped in EmbeddingError: the indexing
         # worker must be able to tell embedding problems from storage
@@ -236,6 +253,14 @@ def initialize(repository: Repository):
                 documents=documents,
                 metadatas=metadatas,
             )
+
+    def cache_batch(chunks):
+        chunks = list(chunks)
+        write_batch(
+            [chunk.chunk_id for chunk in chunks],
+            [chunk.chunk for chunk in chunks],
+            [chunk_metadata(chunk) for chunk in chunks],
+        )
 
     def fetch_in_snapshot(query_text: str, limit: int, query_snapshot):
         # Slightly overfetch results as it will sorted using a different score later
@@ -317,6 +342,7 @@ def initialize(repository: Repository):
         "fetch_in_snapshot": fetch_in_snapshot,
         "cache_chunk": cache_chunk,
         "cache_batch": cache_batch,
+        "write_batch": write_batch,
         "probe_embedding": probe_embedding,
         "indexed_ids": indexed_ids,
         "all_ids": all_ids,

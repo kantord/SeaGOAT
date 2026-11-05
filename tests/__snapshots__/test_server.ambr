@@ -76,7 +76,11 @@
         'unanalyzed': 0,
       }),
       'indexing': dict({
+        'awaiting_completion': 0,
+        'in_flight': 0,
+        'pause_reason': None,
         'paused': False,
+        'queued': 0,
       }),
       'queue': dict({
         'size': 0,

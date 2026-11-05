@@ -656,6 +656,20 @@ def pytest_addoption(parser):
     )
 
 
+def pytest_sessionstart(session):
+    # Download, unpack and load the ONNX model once, in this process, before
+    # any test starts a server subprocess. Otherwise the first download can
+    # happen in a subprocess (on an embedding cache miss), which a test may
+    # kill while it unpacks the model. chromadb only checks that the model
+    # files exist, so the truncated model.onnx then breaks every later load
+    # with INVALID_PROTOBUF.
+    from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
+        ONNXMiniLM_L6_V2,
+    )
+
+    ONNXMiniLM_L6_V2()(["warm up the embedding model"])
+
+
 def _collect_embedding_misses() -> dict:
     misses = {}
     if not EMBEDDING_MISSES_LOG_DIR.is_dir():

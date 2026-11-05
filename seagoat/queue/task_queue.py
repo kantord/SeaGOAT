@@ -5,15 +5,20 @@ import time
 import orjson
 
 from seagoat import __version__
-from seagoat.queue.base_queue import LOW_PRIORITY, MEDIUM_PRIORITY, BaseQueue
-from seagoat.sources.chroma import EmbeddingError
+from seagoat.queue.base_queue import HIGH_PRIORITY, LOW_PRIORITY, BaseQueue
+from seagoat.queue.indexing_scheduler import (
+    RETRY_DEADLINE_SECONDS,
+    BatchCompleted,
+    DocumentFailed,
+    IndexingScheduler,
+    ResourceRecovered,
+    make_batches,
+)
+from seagoat.sources import chroma
 
 logger = logging.getLogger(__name__)
 
 SECONDS_BETWEEN_MAINTENANCE = 10
-
-# How long a paused/backed-off indexer waits before probing/retrying again
-RETRY_DEADLINE_SECONDS = 10
 
 
 def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
@@ -40,36 +45,41 @@ def calculate_accuracy(chunks_analyzed: int, total_chunks: int) -> int:
 
 
 class TaskQueue(BaseQueue):
-    BATCH_TASK = "analyze_batch"
-    LEGACY_CHUNK_TASK = "analyze_chunk"
+    """One project's queue: queries, stats, planning and cleanup.
+
+    Embedding and upserting happens in the process-wide
+    :class:`~seagoat.queue.indexing_scheduler.IndexingScheduler`. This queue
+    plans work, submits self-contained batches, and is the only place that
+    publishes their completion and prunes stale rows.
+    """
+
     PRUNE_TASK = "prune_index"
+    EVENT_TASK = "index_event"
     # Stale-row deletions are scheduled as bounded low-priority tasks so
     # priority-zero queries/stats interleave and cleanup never starves them.
     PRUNE_BATCH_SIZE = 1000
 
     def _has_pending_indexing_tasks(self) -> bool:
-        """Whether indexing work is still waiting in the queue.
+        """Whether cleanup work is still waiting in this queue."""
+        return self._has_pending_task(self.PRUNE_TASK)
 
-        Covers batch tasks, legacy chunk tasks, and ``prune_index`` tasks so
-        ordinary maintenance is deferred while any of them are queued.
-        """
-        with self._task_queue.mutex:
-            return any(
-                task.name in (self.BATCH_TASK, self.LEGACY_CHUNK_TASK, self.PRUNE_TASK)
-                for task in self._task_queue.queue
-            )
+    @staticmethod
+    def _outstanding(context) -> int:
+        """Batches submitted to the global scheduler and not yet acked."""
+        return context["lane"].outstanding()
 
     def get_maintenance_deadline(self, context) -> float | None:
         """Absolute monotonic deadline for the next maintenance pass.
 
         ``None`` defers ordinary maintenance until the next task wakes the
-        worker (for example while an indexing backlog is queued). A paused
-        context still runs its own recovery probe at ``retry_after``.
+        worker: while global jobs are outstanding (their completion events
+        wake it) or cleanup is queued. A paused context still runs its own
+        recovery at ``retry_after``.
         """
         self._ensure_recovery_state(context)
         if context["paused"]:
             return context["retry_after"]
-        if self._has_pending_indexing_tasks():
+        if self._has_pending_indexing_tasks() or self._outstanding(context):
             return None
         if context["last_maintenance"] is None:
             return 0.0
@@ -84,35 +94,55 @@ class TaskQueue(BaseQueue):
         context["seagoat_engine"] = seagoat_engine
         context["last_maintenance"] = None
         context["last_repo_state_hash"] = None
+        scheduler = self.kwargs.get("scheduler") or IndexingScheduler.shared()
+        context["lane"] = scheduler.register(
+            self.kwargs["repo_path"],
+            seagoat_engine.embedding_resource_key(),
+            write=seagoat_engine.write_batch,
+            probe=seagoat_engine.probe_embedding,
+            deliver=self._deliver_index_event,
+        )
+        self._lane = context["lane"]
         return context
+
+    def _deliver_index_event(self, event):
+        # Called on the scheduler thread: must never wait for this queue
+        self.enqueue(
+            self.EVENT_TASK, event, priority=HIGH_PRIORITY, wait_for_result=False
+        )
+
+    def shutdown(self):
+        """Cancel pending indexing, wait out a running batch, stop the worker."""
+        lane = getattr(self, "_lane", None)
+        if lane is not None:
+            lane.unregister(wait=False)
+        super().shutdown()
+
+    def handle_worker_exit(self, context):
+        # After this returns no write of this project can still be running
+        context["lane"].unregister(wait=True)
 
     def _ensure_recovery_state(self, context):
         context.setdefault("failed_chunks", set())
         context.setdefault("paused", False)
         context.setdefault("pause_reason", None)
         context.setdefault("retry_after", 0.0)
-        context.setdefault("retained_batches", [])
         context.setdefault("replan_pending", False)
 
-    def _enqueue_batch(self, chunks, priority, parent_name=BATCH_TASK):
-        self.enqueue(
-            parent_name,
-            chunks,
-            priority=priority,
-            batch_priority=priority,
-            parent_name=parent_name,
-            wait_for_result=False,
-        )
-
-    def _enqueue_batches(self, context, chunks):
+    def _submit_batches(self, context, chunks):
         if not chunks:
             return
-        batch_size = context["seagoat_engine"].config["server"]["chroma"]["batchSize"]
-        for start in range(0, len(chunks), batch_size):
-            priority = MEDIUM_PRIORITY + (
-                (LOW_PRIORITY - MEDIUM_PRIORITY) * start / len(chunks)
-            )
-            self._enqueue_batch(chunks[start : start + batch_size], priority)
+        engine = context["seagoat_engine"]
+        lane = context["lane"]
+        batches = make_batches(
+            lane.project_id,
+            lane.registration_id,
+            lane.resource_key,
+            chunks,
+            engine.config["server"]["chroma"]["batchSize"],
+            chroma.chunk_metadata,
+        )
+        lane.submit(batches)
 
     def handle_maintenance(self, context):
         self._ensure_recovery_state(context)
@@ -125,9 +155,9 @@ class TaskQueue(BaseQueue):
             < SECONDS_BETWEEN_MAINTENANCE
         ):
             return
-        # Do not replan while any indexing backlog (batches, legacy chunks or
-        # prune tasks) remains; that also guards cleanup from maintenance spin.
-        if self._has_pending_indexing_tasks():
+        # Never replan while global jobs or cleanup are outstanding: replanning
+        # rewrites the pending/stale snapshots those jobs were cut from.
+        if self._has_pending_indexing_tasks() or self._outstanding(context):
             return
 
         engine = context["seagoat_engine"]
@@ -140,19 +170,20 @@ class TaskQueue(BaseQueue):
             return
 
         chunks = engine.plan_indexing(excluded_ids=context["failed_chunks"])
-        self._enqueue_batches(context, chunks)
+        self._submit_batches(context, chunks)
         if not chunks:
             logger.info("Analyzed all chunks!")
-        # Schedule stale-row cleanup as bounded low-priority tasks; all cleanup
-        # and upserts stay serialized on this project queue.
+        # Cleanup starts only once no global job can still write: right away
+        # when nothing was submitted, otherwise after the last completion.
         self._enqueue_prune_if_needed(context)
-        # Preserve retry eligibility until planning and all enqueue calls succeed.
+        # Preserve retry eligibility until planning and submission succeed.
         context["last_repo_state_hash"] = current_repo_state_hash
         context["replan_pending"] = False
 
     def _enqueue_prune_if_needed(self, context):
         if (
             not context["paused"]
+            and not self._outstanding(context)
             and context["seagoat_engine"].pending_prune_count()
             and not self._has_pending_task(self.PRUNE_TASK)
         ):
@@ -163,33 +194,15 @@ class TaskQueue(BaseQueue):
             )
 
     def _run_recovery(self, context):
+        """Recover from a project-local cleanup (storage) failure."""
         if context["paused"]:
             if time.monotonic() < context["retry_after"]:
                 return
-            if context["pause_reason"] == "embedding":
-                try:
-                    context["seagoat_engine"].probe_embedding()
-                except EmbeddingError:
-                    context["retry_after"] = time.monotonic() + RETRY_DEADLINE_SECONDS
-                    return
-                context["failed_chunks"].clear()
             context["paused"] = False
             context["pause_reason"] = None
             context["retry_after"] = 0.0
             context["replan_pending"] = True
-
-        retained = context["retained_batches"]
-        while retained:
-            chunks, priority, name = retained[0]
-            self._enqueue_batch(chunks, priority, name)
-            # An enqueue failure must leave this batch retained for the next pass.
-            retained.pop(0)
         self._enqueue_prune_if_needed(context)
-
-    @staticmethod
-    def _retain_and_pause(context, chunks, priority, name, reason):
-        context["retained_batches"].append((chunks, priority, name))
-        TaskQueue._pause_indexing(context, reason)
 
     @staticmethod
     def _pause_indexing(context, reason):
@@ -197,60 +210,46 @@ class TaskQueue(BaseQueue):
         context["pause_reason"] = reason
         context["retry_after"] = time.monotonic() + RETRY_DEADLINE_SECONDS
 
-    def handle_analyze_batch(
-        self, context, chunks, batch_priority=MEDIUM_PRIORITY, parent_name=BATCH_TASK
-    ):
-        self._ensure_recovery_state(context)
-        engine = context["seagoat_engine"]
-        chunks = [
-            chunk
-            for chunk in engine.filter_pending(chunks)
-            if chunk.chunk_id not in context["failed_chunks"]
-        ]
-        if not chunks:
-            return
-        if context["paused"]:
-            context["retained_batches"].append((chunks, batch_priority, parent_name))
-            return
+    def handle_index_event(self, context, event):
+        """Project-owned completion path for events from the scheduler.
 
-        logger.info("Processing chunk batch of %s chunks", len(chunks))
-        try:
-            engine.process_batch(chunks)
-        except EmbeddingError:
-            try:
-                engine.probe_embedding()
-            except EmbeddingError:
-                self._retain_and_pause(
-                    context, chunks, batch_priority, parent_name, "embedding"
-                )
-                return
-            if len(chunks) == 1:
-                failed_id = chunks[0].chunk_id
-                context["failed_chunks"].add(failed_id)
-                engine.discard_pending({failed_id})
-                logger.warning("Quarantining failing chunk %s", failed_id)
-                return
-            midpoint = len(chunks) // 2
-            self._enqueue_batch(chunks[:midpoint], batch_priority, parent_name)
-            self._enqueue_batch(chunks[midpoint:], batch_priority, parent_name)
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("Batch storage failed; retaining work for retry")
-            self._retain_and_pause(
-                context, chunks, batch_priority, parent_name, "storage"
-            )
-        else:
+        Progress is published here, on this queue's worker, and only after the
+        scheduler reported a successful upsert; the batch is acked last so
+        that ``outstanding() == 0`` implies every result has been published.
+        """
+        self._ensure_recovery_state(context)
+        lane = context["lane"]
+        engine = context["seagoat_engine"]
+        if lane.is_closed():
+            # Removed project: a late event must not revive anything
+            return
+        if isinstance(event, BatchCompleted):
+            engine.complete_batch(event.batch.ids)
+            lane.ack(event.batch)
             if not engine.get_indexing_stats()["pending"]:
                 logger.info("Analyzed all chunks!")
+        elif isinstance(event, DocumentFailed):
+            failed_ids = set(event.batch.ids)
+            context["failed_chunks"].update(failed_ids)
+            engine.discard_pending(failed_ids)
+            logger.warning("Quarantining failing chunk(s) %s", sorted(failed_ids))
+            lane.ack(event.batch)
+        elif isinstance(event, ResourceRecovered):
+            # Chunks quarantined around an outage get another chance
+            context["failed_chunks"].clear()
+            context["replan_pending"] = True
+        self._enqueue_prune_if_needed(context)
 
     def handle_prune_index(self, context):
         """Delete a bounded batch of stale Chroma rows from the current plan.
 
-        Storage/repository errors abort without poisoning quarantine and
-        without publishing a premature maintenance hash; the next maintenance
-        replans and re-enqueues the remaining candidates.
+        Runs only while no global job is outstanding, so deletion never
+        overlaps an in-flight write. Storage/repository errors abort without
+        poisoning quarantine and without publishing a premature maintenance
+        hash; the next maintenance replans and re-enqueues the candidates.
         """
         self._ensure_recovery_state(context)
-        if context["paused"]:
+        if context["paused"] or self._outstanding(context):
             return
         engine = context["seagoat_engine"]
         try:
@@ -261,10 +260,6 @@ class TaskQueue(BaseQueue):
             self._pause_indexing(context, "storage")
         else:
             self._enqueue_prune_if_needed(context)
-
-    def handle_analyze_chunk(self, context, chunk):
-        """Legacy task names use the same completion and recovery path."""
-        self.handle_analyze_batch(context, [chunk])
 
     def handle_query(self, context, **kwargs):
         results = context["seagoat_engine"].query_sync(
@@ -289,6 +284,7 @@ class TaskQueue(BaseQueue):
         self._ensure_recovery_state(context)
         # Cheap engine counters: no whole-collection reads per stats request.
         indexing_stats = engine.get_indexing_stats(context["failed_chunks"])
+        scheduled = context["lane"].status()
         analyzed_count = indexing_stats["analyzed"]
         unanalyzed_count = indexing_stats["pending"]
         total_chunks = analyzed_count + unanalyzed_count
@@ -303,7 +299,12 @@ class TaskQueue(BaseQueue):
                 "failed": indexing_stats["failed"],
             },
             "indexing": {
-                "paused": context["paused"],
+                "paused": context["paused"] or scheduled["paused"],
+                "pause_reason": (context["pause_reason"] if context["paused"] else None)
+                or scheduled["pause_reason"],
+                "queued": scheduled["queued"],
+                "in_flight": scheduled["in_flight"],
+                "awaiting_completion": scheduled["awaiting_completion"],
             },
             "accuracy": {
                 "percentage": calculate_accuracy(analyzed_count, total_chunks),
