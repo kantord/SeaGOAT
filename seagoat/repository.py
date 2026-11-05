@@ -24,12 +24,78 @@ def parse_commit_info(raw_line: str):
     return (commit_hash, days_passed, author, commit_subject)
 
 
+class RepositorySnapshot:
+    """One complete, immutable scan of a repository at a single HEAD commit.
+
+    Rankings, file/object metadata and commit history all come from the same
+    scan, so a reader holding a snapshot sees one internally consistent view no
+    matter what is published afterwards. Nothing mutates a snapshot after it is
+    built; "updating" the repository means building and publishing a new one.
+    File contents are addressed by git object id, which is immutable, so
+    reading them through a snapshot is always consistent with it.
+    """
+
+    def __init__(
+        self,
+        repository: "Repository",
+        head: str | None,
+        file_changes: dict[str, list],
+        frecency_scores: dict[str, float],
+        object_ids: dict[str, str],
+    ):
+        self._repository = repository
+        self.head = head
+        self.file_changes = file_changes
+        self.frecency_scores = frecency_scores
+        # Object id (at ``head``) of every scanned file
+        self.object_ids = object_ids
+        self._ranked_paths = tuple(
+            filename
+            for filename, _ in sorted(
+                frecency_scores.items(), key=lambda item: (-item[1], item[0])
+            )
+        )
+
+    def has_file(self, filename: str) -> bool:
+        return filename in self.frecency_scores
+
+    def is_up_to_date_git_object(self, file_path: str, git_object_id: str) -> bool:
+        """Whether the file is, in this snapshot's HEAD, that exact object"""
+        return self.object_ids.get(file_path) == git_object_id
+
+    def get_file(self, filename: str) -> GitFile:
+        """A GitFile for the version of the file in this snapshot's HEAD"""
+        object_id = self.object_ids.get(filename)
+
+        if object_id is None or filename not in self.frecency_scores:
+            raise FileNotFoundError(f"{filename} is not part of HEAD")
+
+        return GitFile(
+            self._repository,
+            filename,
+            str(self._repository.path / filename),
+            object_id,
+            self.frecency_scores[filename],
+            [commit[3] for commit in self.file_changes[filename]],
+        )
+
+    def top_files(self) -> list[tuple[GitFile, float]]:
+        return [
+            (self.get_file(filename), self.frecency_scores[filename])
+            for filename in self._ranked_paths
+        ]
+
+
 class Repository:
     def __init__(self, repo_path: str):
         self.path = Path(repo_path)
         self.config = get_config_values(self.path)
+        # Legacy mirrors of the published snapshot, for existing callers
         self.file_changes = defaultdict(list)
         self.frecency_scores = {}
+        # The last successfully published scan. Replaced as a whole, never
+        # mutated, so readers may keep using an older one safely.
+        self.snapshot = RepositorySnapshot(self, None, {}, {}, {})
 
     def _get_head_hash(self):
         return subprocess.check_output(
@@ -174,17 +240,16 @@ class Repository:
             f"{head_result.stderr.strip() or head_result.stdout.strip()}"
         )
 
-    def _get_files_at_head(self, revision: str = "HEAD") -> set[str]:
+    def _get_files_at_head(self, revision: str = "HEAD") -> dict[str, str]:
         """
-        Returns the paths of all the files that are part of HEAD, which
-        are the only files that have a git object id to index them by
+        Returns ``{path: git object id}`` for all the files that are part of
+        the revision, which are the only files that have a git object id to
+        index them by
 
-        Raises instead of returning an empty set when git fails, so real
+        Raises instead of returning an empty mapping when git fails, so real
         errors are never mistaken for a repository without files.
         """
-        result = self._run_git(
-            "ls-tree", "-r", "--name-only", "-z", revision, check=False
-        )
+        result = self._run_git("ls-tree", "-r", "-z", revision, check=False)
 
         if result.returncode != 0:
             raise RuntimeError(
@@ -192,7 +257,15 @@ class Repository:
                 f"{result.stderr.strip() or result.stdout.strip()}"
             )
 
-        return {path for path in result.stdout.split("\0") if path}
+        object_ids = {}
+        for entry in result.stdout.split("\0"):
+            if not entry:
+                continue
+            # "<mode> <type> <object id>\t<path>"; the path may contain spaces
+            metadata, _, path = entry.partition("\t")
+            object_ids[path] = metadata.split()[2]
+
+        return object_ids
 
     def _get_working_tree_files(self) -> set[str]:
         """Return NUL-delimited ripgrep paths from the working tree.
@@ -264,8 +337,8 @@ class Repository:
             for file, commits in file_changes.items()
         }
 
-    def _scan_at_head(self, head: str) -> tuple[dict, dict]:
-        """Build file_changes/frecency_scores dictionaries for one HEAD commit.
+    def _scan_at_head(self, head: str) -> tuple[dict, dict, dict]:
+        """Build file_changes, frecency_scores and object ids for one HEAD commit.
 
         Only the pinned ``head`` revision is read. Any git/rg failure or
         partial git log stream raises here; nothing is published yet.
@@ -274,7 +347,8 @@ class Repository:
         # are also part of HEAD are considered. Files that appear in the
         # history but are not part of HEAD any more (e.g. deleted files
         # that were re-created as untracked files) can't be indexed.
-        files = self._get_working_tree_files() & self._get_files_at_head(head)
+        head_object_ids = self._get_files_at_head(head)
+        files = self._get_working_tree_files() & head_object_ids.keys()
 
         cmd = [
             "git",
@@ -306,29 +380,33 @@ class Repository:
                 continue
             file_changes[filename].append(commit_info)
 
-        return file_changes, self._calculate_frecency_scores(file_changes)
+        return (
+            file_changes,
+            self._calculate_frecency_scores(file_changes),
+            {path: head_object_ids[path] for path in file_changes},
+        )
 
-    def analyze_files(self):
-        """Scan the repository at a single pinned HEAD revision.
+    def scan(self) -> RepositorySnapshot:
+        """Scan the repository at a single pinned HEAD revision, without
+        publishing anything.
 
-        On success, publishes the completed file_changes and frecency_scores
-        dictionaries after validation. On any failure (failed git/rg command,
-        partial git log stream, or a HEAD that moved while scanning) raises
-        and leaves the previous complete metadata intact.
+        Returns a complete, immutable snapshot. On any failure (failed git/rg
+        command, partial git log stream, or a HEAD that moved while scanning)
+        raises; the previously published snapshot is not touched.
         """
         for _ in range(self._MAX_HEAD_VERIFICATION_ATTEMPTS):
             head = self._get_scan_head()
             if head is None:
                 # Verify unborn HEAD too: the first commit may arrive while
                 # this scan is running.
-                file_changes, frecency_scores = defaultdict(list), {}
+                file_changes, frecency_scores, object_ids = defaultdict(list), {}, {}
             else:
-                file_changes, frecency_scores = self._scan_at_head(head)
+                file_changes, frecency_scores, object_ids = self._scan_at_head(head)
 
             if self._get_scan_head() == head:
-                self.file_changes = file_changes
-                self.frecency_scores = frecency_scores
-                return
+                return RepositorySnapshot(
+                    self, head, file_changes, frecency_scores, object_ids
+                )
 
             # HEAD moved while we were reading; retry against the new HEAD.
 
@@ -336,6 +414,19 @@ class Repository:
             "repository HEAD kept changing during analysis; "
             "refusing to publish possibly inconsistent file metadata"
         )
+
+    def publish(self, snapshot: RepositorySnapshot) -> None:
+        """Make a completed snapshot the repository's current one."""
+        self.snapshot = snapshot
+        self.file_changes = snapshot.file_changes  # type: ignore[assignment]
+        self.frecency_scores = snapshot.frecency_scores
+
+    def analyze_files(self):
+        """Scan the repository and publish the result as the current snapshot.
+
+        On any failure raises and leaves the previous complete snapshot intact.
+        """
+        self.publish(self.scan())
 
     def _git_log_extra_options(self):
         cmd = []
@@ -349,28 +440,12 @@ class Repository:
         self.frecency_scores = self._calculate_frecency_scores(self.file_changes)
 
     def top_files(self):
-        return [
-            (self.get_file(filename), score)
-            for filename, score in sorted(
-                self.frecency_scores.items(),
-                key=lambda item: (-item[1], item[0]),
-            )
-        ]
+        """Ranked files of the currently published snapshot"""
+        return self.snapshot.top_files()
 
     def get_file(self, filename: str):
         """
-        Returns a GitFile object with the current version of the file
+        Returns a GitFile object with the version of the file in the HEAD of
+        the currently published snapshot
         """
-        object_id = self.get_file_object_id(filename)
-
-        if object_id is None:
-            raise FileNotFoundError(f"{filename} is not part of HEAD")
-
-        return GitFile(
-            self,
-            filename,
-            str(self.path / filename),
-            object_id,
-            self.frecency_scores[filename],
-            [commit[3] for commit in self.file_changes[filename]],
-        )
+        return self.snapshot.get_file(filename)
