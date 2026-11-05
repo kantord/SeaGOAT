@@ -5,6 +5,20 @@ import pytest
 import run
 
 
+def test_outcome_keeps_a_red_patch_apart_and_leaves_the_rest_as_it_was():
+    assert run.outcome("GREEN", 120) == "apply"
+    assert run.outcome("GREEN", 0) == "nothing"
+    assert run.outcome("RED", 120) == "apply_red"
+    # a RED run with nothing to keep, or no patch file, keeps nothing
+    assert run.outcome("RED", 0) == "none"
+    assert run.outcome("RED", None) == "none"
+    assert run.outcome("GREEN", None) == "none"
+    # BLOCKED never applies, even with a patch; other failures keep nothing
+    assert run.outcome("BLOCKED", 120) == "blocked"
+    assert run.outcome("FATAL", 120) == "none"
+    assert run.outcome(None, None) == "none"
+
+
 def test_risky_paths_are_split_by_when_they_run():
     refused, read_first = run.risky(
         [

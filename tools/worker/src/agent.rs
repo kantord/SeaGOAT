@@ -25,7 +25,9 @@ use crate::program::{Show, Step};
 const MAX_TOOL_OUTPUT: usize = 8000;
 /// What a passing `show: always` command hands the model: room for the few files a part needs.
 const SHOWN_OUTPUT: usize = 40_000;
-const MAX_CONVERSATION_CHARS: usize = 200_000;
+/// 2026-11-05: at 200_000 (about 39K tokens) a run's prompt hit the limit every ~15 turns, and
+/// each cut dropped the files the model had read, so it read them again; most turns went there.
+const MAX_CONVERSATION_CHARS: usize = 600_000;
 /// Where a trim cuts the conversation down to, well below the limit: each cut changes the
 /// prompt right after the preamble, which the provider's cache then misses, so cutting rarely
 /// and deeply keeps the prefix the same for many turns. 2026-10-31: cutting one turn per
@@ -43,9 +45,10 @@ const COMMAND_TIMEOUT: Duration = Duration::from_secs(1800);
 /// (2026-10-22); the rules now tell it not to run the gate.
 const MODEL_COMMAND_TIMEOUT: Duration = Duration::from_secs(300);
 /// Tells the model why a reply did nothing, instead of taking it for "done".
-const CUT_OFF: &str = "Your last reply was cut off at the reply token limit, so nothing in it \
-     ran. Make smaller changes per command, e.g. edit a file in several steps instead of \
-     writing it whole.";
+/// 2026-11-05: every cut-off reply in a run was the model still reasoning (8.4-8.6K reasoning
+/// tokens) with no reply written yet, not a large edit.
+const CUT_OFF: &str = "Your last reply hit the reply token limit before it was finished, so \
+     nothing in it ran. Think less per step: decide on one small next step and run it.";
 /// A reply with neither text nor a tool call is not "done" either: 2026-10-30, three replies that
 /// spent exactly 4096 reasoning tokens came back empty with finish_reason "stop", and each one
 /// ended a pass with nothing written.
@@ -551,7 +554,7 @@ async fn turns(
             *cfg.pinned.lock().unwrap() = None;
         }
         record(cfg, std::slice::from_ref(&msg));
-        conv.messages.push(msg);
+        conv.messages.push(without_reasoning_details(msg));
         if cut_off {
             say(cfg, conv, "user", CUT_OFF.into());
             finish_turn(g, cfg, r, row, 0, turn_start).await;
@@ -594,7 +597,7 @@ async fn turns(
             if let Some(e) = dead(g, &out).await {
                 return Err(Stop::GuestDead(e));
             }
-            let m = json!({"role": "tool", "tool_call_id": c["id"], "content": tail_cut(&out)});
+            let m = json!({"role": "tool", "tool_call_id": c["id"], "content": cut_output(&out)});
             record(cfg, std::slice::from_ref(&m));
             conv.messages.push(m);
         }
@@ -831,28 +834,56 @@ fn tools() -> Value {
 /// with every tool reply answering it) until it is down to TRIMMED_CONVERSATION_CHARS; never
 /// the program's preamble or the newest turn, so no tool reply is left without its call and
 /// the model always sees the results of what it just ran.
+/// Only turns go: the program's and the harness's own messages (user and system: a later
+/// part's instructions, a failed check's output, the notes) stay, in order, however old.
+/// *Because* an audit of 72 runs (2026-11-06) found 493-602 turns of multi-part runs that ran
+/// without their part's instructions, and 160 requests that had lost the check failure the
+/// model was fixing: trimming whole stretches from the front had dropped them with the turns.
 fn trim(conv: &mut Conversation) {
     let keep = conv.pinned.unwrap_or(0);
     let m = &mut conv.messages;
-    let size = |m: &[Value]| m.iter().map(|v| v.to_string().len()).sum::<usize>();
-    if size(m) <= MAX_CONVERSATION_CHARS {
+    let mut size = m.iter().map(|v| v.to_string().len()).sum::<usize>();
+    if size <= MAX_CONVERSATION_CHARS {
         return;
     }
-    while size(m) > TRIMMED_CONVERSATION_CHARS && m.len() > keep + 1 {
+    while size > TRIMMED_CONVERSATION_CHARS {
+        let is_turn = |v: &Value| v["role"] == "assistant";
         // Never the newest turn: the model must see what it just ran, even when
-        // that one turn alone (many parallel tool calls) is over the target size
-        let newest = m.iter().rposition(|v| v["role"] == "assistant");
-        if newest.is_some_and(|newest| newest <= keep) {
+        // that one turn alone (many parallel tool calls) is over the target size.
+        // When only it and the program's own messages are left, the cut stops there.
+        let (Some(oldest), Some(newest)) = (
+            m[keep..].iter().position(is_turn).map(|i| keep + i),
+            m.iter().rposition(is_turn),
+        ) else {
+            break;
+        };
+        if oldest >= newest {
             break;
         }
-        let end = keep
+        let end = oldest
             + 1
-            + m[keep + 1..]
+            + m[oldest + 1..]
                 .iter()
                 .take_while(|v| v["role"] == "tool")
                 .count();
-        m.drain(keep..end);
+        size -= m[oldest..end]
+            .iter()
+            .map(|v| v.to_string().len())
+            .sum::<usize>();
+        m.drain(oldest..end);
     }
+}
+
+/// The reply as the conversation keeps it: without `reasoning_details`, which repeats the
+/// `reasoning` text (the transcript keeps both). *Because* an audit of 72 runs (2026-11-06)
+/// found the two fields holding the same text in 2,328 of 3,195 replies, together ~51% of all
+/// conversation characters, so they filled the conversation limit; the provider's token counts
+/// suggest it does not even bill the echoed reasoning.
+fn without_reasoning_details(mut msg: Value) -> Value {
+    if let Some(m) = msg.as_object_mut() {
+        m.remove("reasoning_details");
+    }
+    msg
 }
 
 fn record(cfg: &Config, msgs: &[Value]) {
@@ -868,8 +899,6 @@ fn record(cfg: &Config, msgs: &[Value]) {
     }
 }
 
-/// The last `MAX_TOOL_OUTPUT` bytes of a long output -- test failures are at the end -- with a
-/// short head for context and a note in between.
 /// Drops the tool_calls of a cut-off or empty reply and, when the content is null, sets it to
 /// "": a message with neither calls nor text is invalid for some APIs. A reply that only has
 /// tool calls (no text) is not empty, so its calls stay.
@@ -904,6 +933,44 @@ fn empty_streak(empty: bool, has_calls: bool, so_far: usize) -> usize {
     if empty && !has_calls { so_far + 1 } else { 0 }
 }
 
+/// A long output cut to `MAX_TOOL_OUTPUT`. A command that passed keeps its start, with a note
+/// naming the lines left out: 2026-11-05, 35 of 39 cut outputs were successful `cat <file>`
+/// reads, and with only the imports and the end the model re-read the file in pieces. Anything
+/// else (a failure, a timeout) keeps its end, where test failures are.
+fn cut_output(s: &str) -> String {
+    if s.len() <= MAX_TOOL_OUTPUT {
+        return s.to_string();
+    }
+    if exit_of(s) == 0
+        && let Some(cut) = head_cut(s)
+    {
+        return cut;
+    }
+    tail_cut(s)
+}
+
+/// The start of a passing command's output, cut at a line break, and a note saying which lines
+/// of the command's output (not counting run_tool's two header lines, so for `cat FILE` they
+/// are the file's) were left out and how to read them. The whole is at most `MAX_TOOL_OUTPUT`.
+/// None when not even one line fits.
+fn head_cut(s: &str) -> Option<String> {
+    // Room for the note, so a cut output is never longer than the cap.
+    const NOTE: usize = 160;
+    let body_at = s.find("\n(exit 0)\n")? + "\n(exit 0)\n".len();
+    let (header, body) = s.split_at(body_at);
+    let room = MAX_TOOL_OUTPUT.checked_sub(header.len() + NOTE)?;
+    let kept = &body[..body[..body.floor_char_boundary(room)].rfind('\n')? + 1];
+    let shown = kept.matches('\n').count();
+    let total = body.lines().count();
+    Some(format!(
+        "{header}{kept}... [output cut: lines {}-{total} of {total} not shown; read a range \
+         with sed -n 'START,ENDp' FILE]",
+        shown + 1
+    ))
+}
+
+/// The last `MAX_TOOL_OUTPUT` bytes of a long output -- test failures are at the end -- with a
+/// short head for context and a note in between.
 fn tail_cut(s: &str) -> String {
     if s.len() <= MAX_TOOL_OUTPUT {
         return s.to_string();
@@ -1001,13 +1068,13 @@ mod tests {
             messages: vec![json!({"role": "system", "content": "preamble"})],
             pinned: Some(1),
         };
-        conv.messages.extend(turn(0, 150_000));
+        conv.messages.extend(turn(0, 450_000));
         // One turn with 12 parallel tool calls, together over the trim target
         conv.messages
             .push(json!({"role": "assistant", "tool_calls": [{"id": 1}]}));
         for _ in 0..12 {
             conv.messages
-                .push(json!({"role": "tool", "content": "x".repeat(10_000)}));
+                .push(json!({"role": "tool", "content": "x".repeat(30_000)}));
         }
 
         trim(&mut conv);
@@ -1037,7 +1104,7 @@ mod tests {
                 .sum::<usize>()
         };
         let mut cuts = 0;
-        for id in 0..60 {
+        for id in 0..180 {
             let before = conv.messages[..2.min(conv.messages.len())].to_vec();
             conv.messages.extend(turn(id, 10_000));
             trim(&mut conv);
@@ -1051,9 +1118,97 @@ mod tests {
                 cuts += 1;
             }
         }
-        // 60 turns of about 10k chars: one cut per request would change the prefix about 40
+        // 180 turns of about 10k chars: one cut per request would change the prefix about 120
         // times; cutting down to half the limit changes it a handful of times.
         assert!((1..=6).contains(&cuts), "{cuts} cuts");
+    }
+
+    #[test]
+    fn trim_keeps_the_programs_messages_and_drops_the_turns_around_them() {
+        let mut conv = Conversation {
+            messages: vec![json!({"role": "system", "content": "preamble"})],
+            pinned: Some(1),
+        };
+        conv.messages.extend(turn(0, 200_000));
+        conv.messages
+            .push(json!({"role": "user", "content": "part 2 instructions"}));
+        conv.messages.extend(turn(1, 200_000));
+        conv.messages.extend(turn(2, 200_000));
+        conv.messages.extend(turn(3, 10));
+
+        trim(&mut conv);
+
+        let roles: Vec<&str> = conv
+            .messages
+            .iter()
+            .map(|v| v["role"].as_str().unwrap())
+            .collect();
+        // turns 0 and 1, on both sides of the instructions, go; down to the target, 2 stays
+        assert_eq!(
+            roles,
+            ["system", "user", "assistant", "tool", "assistant", "tool"]
+        );
+        assert_eq!(conv.messages[1]["content"], "part 2 instructions");
+        assert_eq!(conv.messages[2]["tool_calls"][0]["id"], 2);
+        assert_eq!(conv.messages[4]["tool_calls"][0]["id"], 3);
+    }
+
+    #[test]
+    fn trim_stops_when_only_the_programs_messages_and_the_newest_turn_are_left() {
+        let mut conv = Conversation {
+            messages: vec![json!({"role": "system", "content": "preamble"})],
+            pinned: Some(1),
+        };
+        for _ in 0..3 {
+            conv.messages
+                .push(json!({"role": "user", "content": "x".repeat(300_000)}));
+        }
+        conv.messages.extend(turn(0, 10));
+
+        trim(&mut conv);
+
+        assert_eq!(conv.messages.len(), 1 + 3 + 2, "nothing it may cut");
+    }
+
+    #[test]
+    fn trim_never_leaves_a_tool_reply_without_its_call() {
+        let mut conv = Conversation {
+            messages: vec![json!({"role": "system", "content": "preamble"})],
+            pinned: Some(1),
+        };
+        for id in 0..40 {
+            conv.messages
+                .push(json!({"role": "assistant", "tool_calls": [{"id": id}, {"id": id}]}));
+            conv.messages
+                .push(json!({"role": "tool", "content": "x".repeat(10_000)}));
+            conv.messages
+                .push(json!({"role": "tool", "content": "x".repeat(10_000)}));
+            if id % 7 == 0 {
+                conv.messages
+                    .push(json!({"role": "user", "content": format!("note {id}")}));
+            }
+            trim(&mut conv);
+            for (i, v) in conv.messages.iter().enumerate() {
+                if v["role"] == "tool" {
+                    let prev = &conv.messages[i - 1]["role"];
+                    assert!(prev == "assistant" || prev == "tool", "orphan at {i}");
+                }
+            }
+        }
+        let notes = conv.messages.iter().filter(|v| v["role"] == "user").count();
+        assert_eq!(notes, 6, "every note stays");
+    }
+
+    #[test]
+    fn the_conversation_keeps_reasoning_once() {
+        let msg = json!({"role": "assistant", "content": "", "reasoning": "think",
+                         "reasoning_details": [{"type": "reasoning.text", "text": "think"}],
+                         "tool_calls": [{"id": 1}]});
+        assert_eq!(
+            without_reasoning_details(msg),
+            json!({"role": "assistant", "content": "", "reasoning": "think",
+                   "tool_calls": [{"id": 1}]})
+        );
     }
 
     #[test]
@@ -1127,6 +1282,54 @@ mod tests {
         let wide = format!("{}{}", "\u{e9}".repeat(20_000), "tail-\u{e9}");
         let cut = tail_cut(&wide);
         assert!(cut.ends_with("tail-\u{e9}"), "...{cut}");
+    }
+
+    #[test]
+    fn cut_output_keeps_the_start_of_a_passing_command() {
+        let file: String = (1..=2000).map(|n| format!("line {n}\n")).collect();
+        let out = format!("$ cat big.py\n(exit 0)\n{file}");
+        let cut = cut_output(&out);
+        assert!(cut.len() <= MAX_TOOL_OUTPUT, "{}", cut.len());
+        assert!(
+            cut.starts_with("$ cat big.py\n(exit 0)\nline 1\nline 2\n"),
+            "{cut}"
+        );
+        // cut at a line break, and the note names the first line left out, counted in the
+        // command's own output, so it is the file's line number
+        let (kept, note) = cut.rsplit_once('\n').unwrap();
+        let last = kept.lines().last().unwrap();
+        let next: usize = last
+            .strip_prefix("line ")
+            .unwrap()
+            .parse::<usize>()
+            .unwrap()
+            + 1;
+        assert_eq!(
+            note,
+            format!(
+                "... [output cut: lines {next}-2000 of 2000 not shown; read a range with \
+                 sed -n 'START,ENDp' FILE]"
+            )
+        );
+        // short output is untouched
+        assert_eq!(
+            cut_output("$ true\n(exit 0)\nok\n"),
+            "$ true\n(exit 0)\nok\n"
+        );
+    }
+
+    #[test]
+    fn cut_output_keeps_the_end_of_a_failing_or_timed_out_command() {
+        let long = "line of filler\n".repeat(20_000);
+        for rc in ["1", "timeout"] {
+            let out = format!("$ cargo test\n(exit {rc})\n{long}FAILED: the failing test");
+            let cut = cut_output(&out);
+            assert!(cut.ends_with("FAILED: the failing test"), "...{cut}");
+            assert!(cut.contains("[truncated,"), "{cut}");
+        }
+        // a passing command whose output is one huge line has no line to cut at: its end
+        let out = format!("$ cat min.js\n(exit 0)\n{}END", "x".repeat(20_000));
+        assert!(cut_output(&out).ends_with("END"));
     }
 
     /// A once block runs and saves the first time, replays without running after, runs again
