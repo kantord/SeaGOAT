@@ -13,6 +13,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from seagoat.engine import RepositoryChanged
 from seagoat.projects import Projects
 from seagoat.queue.base_queue import HIGH_PRIORITY
 from seagoat.queue.indexing_scheduler import (
@@ -900,3 +901,278 @@ def test_replace_on_a_removed_lane_is_a_noop_and_does_not_revive_it():
     assert scheduler.run_until_idle() == 0
     assert project.completed() == []
     assert project.writes == []
+
+
+def _prune_queue_and_context():
+    """Scripted queue/context for direct handle_prune_index tests."""
+    engine = Mock()
+    engine.path = "p"
+    engine.embedding_resource_key.return_value = "model"
+    engine.config = {"server": {"chroma": {"batchSize": 2}}}
+    engine.repository.get_status_hash.return_value = "h"
+
+    queue = TaskQueue.__new__(TaskQueue)
+    queue.kwargs = {}
+    queue._task_queue = PriorityQueue()
+    scheduler = manual_scheduler()
+    lane = scheduler.register(
+        "p",
+        "model",
+        write=engine.write_batch,
+        probe=engine.probe_embedding,
+        deliver=queue._deliver_index_event,
+    )
+    context = {
+        "seagoat_engine": engine,
+        "lane": lane,
+        "scheduler": scheduler,
+        "last_maintenance": None,
+        "last_repo_state_hash": None,
+    }
+    queue._ensure_recovery_state(context)
+    return queue, context, engine
+
+
+def test_prune_repository_changed_does_not_pause_indexing():
+    queue, context, engine = _prune_queue_and_context()
+    engine.prune_stale.side_effect = RepositoryChanged(
+        "repository changed since planning; refusing to prune stale rows"
+    )
+
+    queue.handle_prune_index(context)
+
+    assert context["paused"] is False
+    assert context["pause_reason"] is None
+    assert context["replan_pending"] is True
+
+
+def test_prune_storage_error_still_pauses_indexing():
+    queue, context, engine = _prune_queue_and_context()
+    engine.prune_stale.side_effect = OSError("storage down")
+
+    queue.handle_prune_index(context)
+
+    assert context["paused"] is True
+    assert context["pause_reason"] == "storage"
+    assert context["replan_pending"] is True
+
+
+# -- stale batches of a replaced plan ---------------------------------------
+
+
+def _make_new_batch(project, rank, size=1):
+    """A batch that belongs to a fresh plan (its ids never collide with the
+    batches the ``Project`` helper builds, whose ids look like ``p-0-0-...``)."""
+    ids = tuple(f"{project.name}-new-{rank}-{n}" for n in range(size))
+    return IndexBatch(
+        project.name,
+        0,
+        None,
+        ids,
+        tuple(f"text {i}" for i in ids),
+        tuple({} for _ in ids),
+        rank=rank,
+    )
+
+
+def _fail_running_batch_after_replace(scheduler, project, fail, new_batches, size=1):
+    """Step the scheduler on a thread so a batch is in flight, replace the
+    plan while it runs, let the batch fail, and return the failed batch.
+
+    The custom write fails only the in-flight batch; batches of the new plan
+    go through the project's own ``_write`` (honoring its flags)."""
+    entered, release = threading.Event(), threading.Event()
+    original_write = project._write
+
+    def write(batch):
+        if entered.is_set():
+            return original_write(batch)  # a batch of the new plan
+        entered.set()
+        assert release.wait(30)
+        fail(batch)
+
+    project.lane.write = write
+    project.submit(0, size=size)
+    runner = threading.Thread(target=scheduler.run_once, daemon=True)
+    runner.start()
+    try:
+        assert entered.wait(30)
+        project.lane.replace(new_batches)
+        return project.lane.in_flight
+    finally:
+        release.set()
+        runner.join(30)
+
+
+def test_stale_storage_failure_pauses_lane_but_does_not_retry_old_plan():
+    clock = FakeClock()
+    scheduler = manual_scheduler(clock)
+    project = Project(scheduler, "p")
+
+    def fail(_batch):
+        raise OSError("storage down")
+
+    failed = _fail_running_batch_after_replace(
+        scheduler, project, fail, [_make_new_batch(project, 5)]
+    )
+    assert failed.generation < project.lane.plan_generation()
+
+    status = project.lane.status()
+    assert status["paused"] and status["pause_reason"] == "storage"
+    assert status["queued"] == 1  # only the new plan, not the failed batch
+    assert project.lane.outstanding() == 1  # counts only the new plan
+    assert project.writes == []  # old batch never ran again
+
+    # The new plan is retried after the storage deadline, exactly once
+    clock.advance(10)
+    scheduler.run_until_idle()
+    assert project.writes == [("p-new-5-0",)]
+    project.ack_all()
+    assert project.lane.outstanding() == 0
+
+
+def test_stale_embedding_failure_with_many_ids_does_not_bisect_old_plan():
+    scheduler = manual_scheduler()
+    project = Project(scheduler, "p")
+
+    def fail(_batch):
+        raise EmbeddingError("poison document")
+
+    failed = _fail_running_batch_after_replace(
+        scheduler, project, fail, [_make_new_batch(project, 5)], size=8
+    )
+    assert failed.ids == tuple(f"p-0-0-{n}" for n in range(8))
+    assert failed.generation < project.lane.plan_generation()
+
+    # No halves of the stale batch were put back on the heap
+    assert project.completed(DocumentFailed) == []
+    assert project.lane.outstanding() == 1  # only the new plan
+    assert [batch.ids for _, _, batch in project.lane.heap] == [("p-new-5-0",)]
+
+    scheduler.run_until_idle()
+    assert project.writes == [("p-new-5-0",)]
+
+
+def test_stale_single_id_embedding_failure_quarantines_nothing():
+    scheduler = manual_scheduler()
+    project = Project(scheduler, "p")
+
+    def fail(_batch):
+        raise EmbeddingError("poison document")
+
+    failed = _fail_running_batch_after_replace(
+        scheduler, project, fail, [_make_new_batch(project, 5)]
+    )
+    assert failed.generation < project.lane.plan_generation()
+
+    assert project.completed(DocumentFailed) == []
+    assert project.lane.outstanding() == 1  # only the new plan
+    scheduler.run_until_idle()
+    assert project.writes == [("p-new-5-0",)]
+
+
+def test_stale_model_down_does_not_retry_old_plan_after_recovery():
+    clock = FakeClock()
+    scheduler = manual_scheduler(clock)
+    project = Project(scheduler, "p")
+    project.embedding_down = True  # the probe after the write fails too
+
+    def fail(_batch):
+        raise EmbeddingError("model down")
+
+    failed = _fail_running_batch_after_replace(
+        scheduler, project, fail, [_make_new_batch(project, 5)]
+    )
+    assert failed.generation < project.lane.plan_generation()
+
+    # The shared resource is still marked down and the lane still waits on it
+    assert scheduler.resource_status("model")["down"] is True
+    assert project.lane.status()["pause_reason"] == "embedding"
+    # ...but the stale batch is gone; only the new plan is queued behind it
+    assert project.lane.outstanding() == 1
+    assert [batch.ids for _, _, batch in project.lane.heap] == [("p-new-5-0",)]
+
+    # After recovery the new plan runs and the old batch never does
+    project.embedding_down = False
+    clock.advance(10)
+    scheduler.run_until_idle()
+    assert scheduler.resource_status("model")["down"] is False
+    assert project.writes == [("p-new-5-0",)]
+
+
+def test_replace_with_empty_plan_then_failure_leaves_nothing_outstanding():
+    scheduler = manual_scheduler()
+    project = Project(scheduler, "p")
+
+    def fail(_batch):
+        raise EmbeddingError("poison document")
+
+    _fail_running_batch_after_replace(scheduler, project, fail, [])
+    assert project.lane.outstanding() == 0
+    assert project.lane.status()["queued"] == 0
+    assert project.completed(DocumentFailed) == []
+    assert scheduler.run_until_idle() == 0
+    assert project.writes == []
+
+
+def test_current_generation_batch_still_bisects_and_retries():
+    clock = FakeClock()
+    scheduler = manual_scheduler(clock)
+    project = Project(scheduler, "p")
+
+    # A batch of the current generation is still bisected around a poison id
+    project.poison = {"p-new-0-3"}
+    project.lane.replace([_make_new_batch(project, 0, size=8)])
+    scheduler.run_until_idle()
+    failed = project.completed(DocumentFailed)
+    assert [event.batch.ids for event in failed] == [("p-new-0-3",)]
+    done = {i for event in project.completed() for i in event.batch.ids}
+    assert done == {f"p-new-0-{n}" for n in range(8)} - {"p-new-0-3"}
+    assert scheduler.resource_status("model")["down"] is False
+    project.ack_all()
+
+    # A batch of the current generation is still retried after a storage hit
+    project.storage_down = True
+    project.lane.replace([_make_new_batch(project, 1)])
+    scheduler.run_once()
+    status = project.lane.status()
+    assert status["paused"] and status["pause_reason"] == "storage"
+    assert status["queued"] == 1 and project.lane.outstanding() == 1
+    project.storage_down = False
+    clock.advance(10)
+    scheduler.run_until_idle()
+    assert project.writes.count(("p-new-1-0",)) == 1  # written on the retry
+    project.ack_all()
+    assert project.lane.outstanding() == 0
+
+
+def test_stale_storage_failure_with_no_work_left_does_not_stay_paused():
+    # Only a successful batch clears a storage pause, and none is coming
+    clock = FakeClock()
+    scheduler = manual_scheduler(clock)
+    project = Project(scheduler, "p")
+
+    def fail(_batch):
+        raise OSError("storage down")
+
+    _fail_running_batch_after_replace(scheduler, project, fail, [])
+
+    clock.advance(10)
+    assert scheduler.run_until_idle() == 0
+    status = project.lane.status()
+    assert not status["paused"] and status["pause_reason"] is None
+
+
+def test_stale_model_down_with_no_work_left_does_not_stay_down():
+    # Probes only run for lanes with queued work, and none is coming
+    scheduler = manual_scheduler()
+    project = Project(scheduler, "p")
+    project.embedding_down = True
+
+    def fail(_batch):
+        raise EmbeddingError("model down")
+
+    _fail_running_batch_after_replace(scheduler, project, fail, [])
+
+    assert scheduler.resource_status("model")["down"] is False
+    assert not project.lane.status()["paused"]

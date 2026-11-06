@@ -280,7 +280,14 @@ def seagoat(
 
         display_results(results, max_results, color_enabled, vimgrep)
 
-        display_accuracy_warning(server_address, repo_path_for_server)
+        try:
+            display_accuracy_warning(server_address, repo_path_for_server)
+        except requests.exceptions.RequestException:
+            click.echo(
+                "The accuracy of the results could not be checked because "
+                "the server did not answer.",
+                err=True,
+            )
     except IncompatibleServer:
         spinner.fail("✖")
         click.echo(
@@ -294,11 +301,15 @@ def seagoat(
         # thread or the interpreter would wait for it forever on shutdown
         spinner.stop()
         raise
-    except (
-        requests.exceptions.ConnectionError,
-        requests.exceptions.RequestException,
-        NoInstanceRunning,
-    ):
+    except requests.exceptions.ReadTimeout:
+        spinner.fail("✖")
+        click.echo(
+            f"The SeaGOAT server at {server_address} did not answer within "
+            f"{SERVER_REQUEST_TIMEOUT_SECONDS} seconds and may be busy.",
+            err=True,
+        )
+        sys.exit(ExitCode.SERVER_ERROR)
+    except (requests.exceptions.RequestException, NoInstanceRunning):
         spinner.fail("✖")
         click.echo(
             f"The SeaGOAT server is not running. "

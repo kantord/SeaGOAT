@@ -658,6 +658,58 @@ def test_server_does_not_exist_error(runner_with_error, mocker, repo):
     assert "The SeaGOAT server is not running" in result.stderr
 
 
+def test_query_read_timeout_reports_server_error_not_not_running(
+    runner_with_error, mocker, repo
+):
+    mock_running_instance(mocker)
+    mocker.patch(
+        "seagoat.cli.requests.post",
+        side_effect=requests.exceptions.ReadTimeout,
+    )
+    query = "JavaScript"
+    result = runner_with_error.invoke(seagoat, [query, repo.working_dir])
+
+    assert result.exit_code == ExitCode.SERVER_ERROR
+    assert "not running" not in result.output + result.stderr
+    assert "did not answer within" in result.stderr
+    assert "seagoat-server start" not in result.output + result.stderr
+
+
+@pytest.mark.parametrize(
+    "connection_error",
+    [requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError],
+)
+def test_query_connection_error_reports_server_not_running(
+    runner_with_error, mocker, repo, connection_error
+):
+    mock_running_instance(mocker)
+    mocker.patch(
+        "seagoat.cli.requests.post",
+        side_effect=connection_error,
+    )
+    query = "JavaScript"
+    result = runner_with_error.invoke(seagoat, [query, repo.working_dir])
+
+    assert result.exit_code == ExitCode.SERVER_NOT_RUNNING
+    assert "The SeaGOAT server is not running" in result.stderr
+
+
+def test_status_read_timeout_keeps_results_and_exits_zero(
+    repo, mock_server_factory, runner, mocker
+):
+    mock_server_factory([["hello.txt", ["JavaScript is a programming language"]]])
+    mocker.patch(
+        "seagoat.cli.requests.post",
+        side_effect=requests.exceptions.ReadTimeout,
+    )
+    query = "JavaScript"
+    result = runner.invoke(seagoat, [query, repo.working_dir, "--no-color"])
+
+    assert result.exit_code == 0
+    assert "JavaScript" in result.output
+    assert "could not be checked" in result.stderr
+
+
 @pytest.mark.usefixtures("mock_query_server")
 @pytest.mark.parametrize(
     "network_error",
