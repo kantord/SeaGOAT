@@ -31,6 +31,10 @@ class RepositoryData(TypedDict):
     sorted_files: list[str]
 
 
+class RepositoryChanged(RuntimeError):
+    """Raised when the repository changed since the plan was made."""
+
+
 class Engine:
     """
     A search engine for a code repository
@@ -368,7 +372,7 @@ class Engine:
         if self.repository.get_status_hash() != self._plan_repo_hash:
             self._stale_candidates.clear()
             self._plan_repo_hash = None
-            raise RuntimeError(
+            raise RepositoryChanged(
                 "repository changed since planning; refusing to prune stale rows"
             )
         to_delete = list(islice(self._stale_candidates, min(limit, 1000)))

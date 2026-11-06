@@ -630,6 +630,11 @@ def temporary_cd():
 
 @pytest.fixture(scope="session")
 def realistic_engine():
+    # Write the baseline global config (cached embeddings) before building the
+    # Engine: session fixtures are created before the autouse run_around_tests
+    # fixture, so without this the engine would keep the real ONNX embedding
+    # function for the whole session when this is the first test to run.
+    _write_baseline_global_config(BASELINE_GLOBAL_CONFIG)
     # A made-up repository the suite builds itself, so no test needs the network
     realrepo = tempfile.mkdtemp()
     build(realrepo)

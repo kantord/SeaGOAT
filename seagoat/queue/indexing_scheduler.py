@@ -556,19 +556,38 @@ class IndexingScheduler:
                 self._apply_embedding_failure(lane, batch, probe_ok, events)
             else:
                 logger.error("Batch storage failed; retaining work", exc_info=failure)
-                heapq.heappush(lane.heap, (batch.sort_key, 0, batch))
-                lane.paused_until = self._clock() + self._retry_seconds
-                lane.pause_reason = "storage"
+                self._retain_failed_batch(lane, batch)
+                # Only a successful batch clears this pause: with nothing
+                # queued, it would be reported until the next plan's work ran
+                if lane.heap:
+                    lane.paused_until = self._clock() + self._retry_seconds
+                    lane.pause_reason = "storage"
             self._cond.notify_all()
         self._deliver(events)
+
+    @staticmethod
+    def _retain_failed_batch(lane, batch):
+        """Queue a failed batch to run again, unless a newer plan replaced it:
+        that plan already holds any of its ids that are still current."""
+        if batch.generation < lane.generation:
+            lane.outstanding_keys.discard(batch.key)
+        else:
+            heapq.heappush(lane.heap, (batch.sort_key, 0, batch))
 
     def _apply_embedding_failure(self, lane, batch, probe_ok, events):
         resource = lane.resource
         if not probe_ok:
-            resource.down = True
-            resource.retry_after = self._clock() + self._retry_seconds
-            resource.held.add(lane)
-            heapq.heappush(lane.heap, (batch.sort_key, 0, batch))
+            self._retain_failed_batch(lane, batch)
+            # Probes only run for lanes with queued work: with none, nothing
+            # would ever mark the resource up again
+            if lane.heap:
+                resource.down = True
+                resource.retry_after = self._clock() + self._retry_seconds
+                resource.held.add(lane)
+        elif batch.generation < lane.generation:
+            # Neither bisect an older plan's batch nor quarantine its ids,
+            # which may no longer matter (see _retain_failed_batch)
+            lane.outstanding_keys.discard(batch.key)
         elif len(batch.ids) == 1:
             events.append((lane, DocumentFailed(batch)))
         else:

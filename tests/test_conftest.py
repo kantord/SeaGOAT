@@ -115,3 +115,26 @@ def test_fake_repo_commit_ages_are_constant(repo_template, realistic_engine):
         text=True,
     )
     assert parse_commit_info(youngest_real)[1] == YOUNGEST_COMMIT_AGE_DAYS
+
+
+def test_realistic_engine_uses_cached_embedding_function(realistic_engine):
+    """The session engine must use the cached, not the real ONNX, embeddings.
+
+    realistic_engine is session-scoped, so it is created before the autouse
+    run_around_tests fixture writes the baseline global config. If the
+    fixture does not write the baseline itself before building its Engine,
+    the engine (when it is the first test of the session) keeps the real
+    ONNX DefaultEmbeddingFunction for the whole session, and snapshot tests
+    and ranking-noise tests see different embeddings depending on test order.
+    """
+    from seagoat.sources import chroma
+    from tests.fixtures.embedding_cache import CachedEmbeddingFunction
+
+    index_key = (
+        chroma.embedding_resource_key(realistic_engine.config),
+        chroma._INDEX_ROLE,
+    )
+    embedding_function = chroma._EMBEDDING_FUNCTIONS[index_key]
+
+    assert not isinstance(embedding_function, chroma._DefaultEmbeddingFunction)
+    assert isinstance(embedding_function, CachedEmbeddingFunction)

@@ -5,6 +5,7 @@ import time
 import orjson
 
 from seagoat import __version__
+from seagoat.engine import RepositoryChanged
 from seagoat.queue.base_queue import HIGH_PRIORITY, LOW_PRIORITY, BaseQueue
 from seagoat.queue.indexing_scheduler import (
     RETRY_DEADLINE_SECONDS,
@@ -255,9 +256,11 @@ class TaskQueue(BaseQueue):
         """Delete a bounded batch of stale Chroma rows from the current plan.
 
         Runs only while no global job is outstanding, so deletion never
-        overlaps an in-flight write. Storage/repository errors abort without
-        poisoning quarantine and without publishing a premature maintenance
-        hash; the next maintenance replans and re-enqueues the candidates.
+        overlaps an in-flight write. A repository change during pruning is
+        normal and merely defers the candidates: it logs without pausing and
+        sets replan_pending. Real storage errors abort instead, pausing with
+        "storage"; both keep quarantine and the maintenance hash untouched, so
+        the next maintenance replans and re-enqueues the candidates.
         """
         self._ensure_recovery_state(context)
         if context["paused"] or self._outstanding(context):
@@ -265,6 +268,9 @@ class TaskQueue(BaseQueue):
         engine = context["seagoat_engine"]
         try:
             engine.prune_stale(self.PRUNE_BATCH_SIZE)
+        except RepositoryChanged:
+            logger.info("Prune skipped: repository changed since planning; will replan")
+            context["replan_pending"] = True
         except Exception:  # pylint: disable=broad-except
             logger.exception("Prune failed; will replan and retry")
             context["replan_pending"] = True
