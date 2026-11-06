@@ -813,6 +813,11 @@ def test_a_non_utf8_filename_is_skipped_and_the_rest_still_indexed(repo, caplog)
         check=True,
         env={
             **os.environ,
+            # CI machines have no git identity configured
+            "GIT_AUTHOR_NAME": "Test",
+            "GIT_AUTHOR_EMAIL": "test@example.com",
+            "GIT_COMMITTER_NAME": "Test",
+            "GIT_COMMITTER_EMAIL": "test@example.com",
             "GIT_AUTHOR_DATE": "2026-01-01T00:00:00",
             "GIT_COMMITTER_DATE": "2026-01-01T00:00:00",
         },
