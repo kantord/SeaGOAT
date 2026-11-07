@@ -86,7 +86,26 @@ def normalize_version(data):
     return deep_copy_of_data
 
 
+def fully_analyzed(server, repo) -> bool:
+    stats = requests.post(
+        f"{server}/status",
+        json={"repoPath": repo.working_dir},
+        timeout=HTTP_TIMEOUT_SECONDS,
+    ).json()["stats"]
+    # Before indexing starts nothing is unanalyzed yet either, so also
+    # require that something was analyzed
+    chunks = stats["chunks"]
+    return (
+        chunks["analyzed"] > 0
+        and chunks["unanalyzed"] == 0
+        and stats["queue"]["size"] == 0
+    )
+
+
 def test_query_codebase(server, snapshot, repo):
+    # Vector matches change the scores, so the query must not race indexing
+    wait_for(lambda: fully_analyzed(server, repo), timeout=10, period=0.1)
+
     url = f"{server}/lines/query"
     response = requests.post(
         url,
@@ -108,23 +127,10 @@ def test_query_codebase(server, snapshot, repo):
 def test_status_endpoint_with_all_files_analyzed(server, snapshot, repo):
     url = f"{server}/status"
 
-    def fully_analyzed():
-        stats = requests.post(
-            url, json={"repoPath": repo.working_dir}, timeout=HTTP_TIMEOUT_SECONDS
-        ).json()["stats"]
-        # Before indexing starts nothing is unanalyzed yet either, so also
-        # require that something was analyzed
-        chunks = stats["chunks"]
-        return (
-            chunks["analyzed"] > 0
-            and chunks["unanalyzed"] == 0
-            and stats["queue"]["size"] == 0
-        )
-
     # Each status request is a task for the single worker. Indexing runs both
     # when the worker is idle and, after a short delay, while the queue is
     # busy, so polling frequently is fine; keep a modest period to stay quick.
-    wait_for(fully_analyzed, timeout=10, period=0.5)
+    wait_for(lambda: fully_analyzed(server, repo), timeout=10, period=0.5)
     response = requests.post(
         url, json={"repoPath": repo.working_dir}, timeout=HTTP_TIMEOUT_SECONDS
     )
