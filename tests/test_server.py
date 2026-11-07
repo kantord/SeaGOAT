@@ -495,14 +495,25 @@ def test_start_server_on_specific_port(repo, start_seagoat_server):
         assert str(custom_port) in server_address
 
 
-def test_query_codebase_no_results(server, snapshot, repo):
-    query_text = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
-    url = f"{server}/lines/query"
-    response = requests.post(
-        url,
-        json={"queryText": query_text, "repoPath": repo.working_dir},
-        timeout=HTTP_TIMEOUT_SECONDS,
+def test_query_codebase_no_results(
+    repo, start_seagoat_server, create_config_file, snapshot
+):
+    # The closest line in the mock repo is about 1.46 away from this query,
+    # under the default cutoff of 1.5, so use a stricter cutoff
+    create_config_file(
+        {"server": {"chroma": {"maxVectorDistance": 1.0}}}, global_config=True
     )
+    query_text = "a_string_we_are_sure_does_not_exist_in_any_file_12345"
+
+    with start_seagoat_server(repo.working_dir) as (_, instance):
+        server = instance_url(instance)
+        # Query an indexed repo, so the result does not depend on timing
+        wait_for(lambda: fully_analyzed(server, repo), timeout=10, period=0.1)
+        response = requests.post(
+            f"{server}/lines/query",
+            json={"queryText": query_text, "repoPath": repo.working_dir},
+            timeout=HTTP_TIMEOUT_SECONDS,
+        )
     assert response.status_code == 200, response.text
     data = response.json()
     assert not data["results"]
