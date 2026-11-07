@@ -29,5 +29,5 @@ RUN git config --global user.name seagoat-worker \
     && git config --global user.email seagoat-worker@localhost \
     && git init -q && git add -A && git commit -qm image \
     && ln -s /cache/venv .venv
-# One full gate run fills every cache. A red commit still leaves them filled, so it only warns.
-RUN bash /build/verify.sh || echo "WARNING: verify failed at this commit; the caches are still warm"
+# The gate without pytest fills every cache. A red commit still leaves them filled, so it only warns.
+RUN bash /build/verify.sh --warm || echo "WARNING: verify failed at this commit; the caches are still warm"

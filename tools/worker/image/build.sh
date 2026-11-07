@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the worker's image from the repo at a commit (default HEAD) and loads it into the
 # worker's microsandbox home as seagoat-worker:latest: `tools/worker/image/build.sh [<commit>]`.
-# About 15 minutes, most of it the warming verify run inside the build.
+# A few minutes, most of it the warming verify run and writing its caches into the image.
 set -euo pipefail
 commit=${1:-HEAD}
 here=$(cd "$(dirname "$0")" && pwd)
