@@ -353,3 +353,30 @@ def test_ripgrep_standalone_fetch_releases_replaced_indexes(repo):
     source["fetch"]("example", 10)
     source["cache_repo"]()
     assert source["fetch"]("example", 10)
+
+
+def test_close_waits_for_a_running_rebuild_and_leaves_nothing_published(repo):
+    engine = _ripgrep_only_engine(repo)
+    engine.refresh_snapshot()
+    building, release = threading.Event(), threading.Event()
+    build = engine._build_snapshot
+
+    def slow_build():
+        building.set()
+        assert release.wait(30)
+        return build()
+
+    engine._build_snapshot = slow_build
+    rebuild = threading.Thread(target=engine.refresh_snapshot, daemon=True)
+    rebuild.start()
+    assert building.wait(30)
+
+    closer = threading.Thread(target=engine.close, daemon=True)
+    closer.start()
+    closer.join(0.2)
+    release.set()
+    rebuild.join(30)
+    closer.join(30)
+
+    assert not closer.is_alive() and not rebuild.is_alive()
+    assert engine._snapshot is None

@@ -296,7 +296,9 @@ class Repository:
         ripgrep exit code 1 means "no files found", which is a valid empty
         result; exit code 2 (or anything else) means ripgrep itself failed.
         """
-        result = self._run_scan_command(["rg", "--files", "-0"], cwd=self.path)
+        result = self._run_scan_command(
+            ["rg", "--no-config", "--files", "-0"], cwd=self.path
+        )
 
         if result.returncode not in (0, 1):
             raise RuntimeError(

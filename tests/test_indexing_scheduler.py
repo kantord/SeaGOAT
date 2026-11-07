@@ -1176,3 +1176,48 @@ def test_stale_model_down_with_no_work_left_does_not_stay_down():
 
     assert scheduler.resource_status("model")["down"] is False
     assert not project.lane.status()["paused"]
+
+
+def test_an_empty_plan_after_a_storage_failure_does_not_stay_paused():
+    # The failed batch was current, so the lane paused. The next plan has
+    # nothing to write, and only a successful batch clears a storage pause
+    clock = FakeClock()
+    scheduler = manual_scheduler(clock)
+    project = Project(scheduler, "p")
+    project.storage_down = True
+    project.submit(0)
+    scheduler.run_until_idle()
+    assert project.lane.status()["pause_reason"] == "storage"
+
+    project.lane.replace([])
+
+    status = project.lane.status()
+    assert not status["paused"] and status["pause_reason"] is None
+    assert project.lane.outstanding() == 0
+
+
+def test_an_empty_plan_after_a_model_outage_does_not_stay_held():
+    # Probes only run for lanes with queued work, so after an empty plan no
+    # probe would ever clear the hold
+    clock = FakeClock()
+    scheduler = manual_scheduler(clock)
+    project = Project(scheduler, "p")
+    project.embedding_down = True
+    project.submit(0)
+    scheduler.run_until_idle()
+    assert project.lane.status()["pause_reason"] == "embedding"
+
+    project.lane.replace([])
+
+    status = project.lane.status()
+    assert not status["paused"] and status["pause_reason"] is None
+    assert project.lane.outstanding() == 0
+
+    # The next plan probes the model before it writes anything
+    probes_before = project.probes
+    project.embedding_down = False
+    project.submit(1)
+    clock.advance(10)
+    scheduler.run_until_idle()
+    assert project.probes == probes_before + 1
+    assert project.writes == [("p-1-0-0",)]

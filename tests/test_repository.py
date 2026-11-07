@@ -831,3 +831,21 @@ def test_a_non_utf8_filename_is_skipped_and_the_rest_still_indexed(repo, caplog)
     for file, _ in snapshot.top_files():
         file.get_chunks()
     assert "not valid UTF-8" in caplog.text
+
+
+def test_a_user_ripgrep_config_does_not_change_the_indexed_files(
+    repo, tmp_path, monkeypatch
+):
+    config = tmp_path / "ripgreprc"
+    config.write_text("--glob=!*.py\n", encoding="utf-8")
+    monkeypatch.setenv("RIPGREP_CONFIG_PATH", str(config))
+
+    snapshot = Repository(repo.working_dir).scan()
+
+    assert {file.path for file, _ in snapshot.top_files()} == {
+        "file1.md",
+        "file2.py",
+        "file3.py",
+        "file4.js",
+        "file4.md",
+    }

@@ -3,6 +3,17 @@ import functools
 from seagoat import _native
 
 
+# Keyed by git object, not by GitFile: each query builds new GitFile objects,
+# but an object id always has the same contents. Bounded on purpose, so it
+# does not keep the text of every file in memory while the server runs.
+@functools.lru_cache(5000)
+def _read_lines(repository, object_id: str) -> dict[int, str]:
+    return {
+        (i + 1): line
+        for i, line in enumerate(repository.get_blob_data(object_id).splitlines())
+    }
+
+
 class GitFile:
     """
     Represents a specific version of a file in a Git repository.
@@ -42,18 +53,8 @@ class GitFile:
 {commit_messages}"""
 
     @property
-    # Bounded on purpose: caching on the instance instead would keep the
-    # text of every file in memory for as long as the server runs
-    @functools.lru_cache(5000)  # noqa: B019
     def lines(self) -> dict[int, str]:
-        lines = {
-            (i + 1): line
-            for i, line in enumerate(
-                self.repository.get_blob_data(self.object_id).splitlines()
-            )
-        }
-
-        return lines
+        return _read_lines(self.repository, self.object_id)
 
     def get_chunks(self):
         # TODO: should be turned into a class method on FileChunk
