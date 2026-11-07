@@ -59,6 +59,8 @@ MSB_HOME = Path.home() / ".cache/seagoat-worker/msb"
 CONFIG_FILE = Path.home() / ".config/seagoat-worker/config.toml"
 KEY_FILE = Path.home() / ".config/seagoat-worker/api-key"
 IMAGE = "seagoat-worker:latest"
+# The exit code of a BLOCKED run, as in src/main.rs (EXIT_BLOCKED)
+EXIT_BLOCKED = 5
 
 
 def git(*args, cwd=ROOT) -> str:
@@ -378,7 +380,7 @@ def main(argv) -> int:
         print(f"worker: blocked: {report.get('error')}", flush=True)
         print(f"worker: see {out}; its patch is {patch}", flush=True)
         print_timings(out)
-        return 5
+        return EXIT_BLOCKED
     if then == "none":
         print(f"worker: no green patch; see {out}", flush=True)
         print_timings(out)

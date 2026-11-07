@@ -1,6 +1,5 @@
 import datetime
 import subprocess
-from collections import defaultdict
 from pathlib import Path
 from typing import Any, cast
 
@@ -328,11 +327,11 @@ def test_does_not_crash_because_of_untracked_files_that_used_to_be_tracked(
 
 def test_file_that_is_not_part_of_head_has_no_object_id(repo: MockRepo):
     (Path(repo.working_dir) / "untracked.py").write_text("untracked = 1")
-    repository = Repository(repo.working_dir)
+    snapshot = Repository(repo.working_dir).scan()
 
-    assert repository.get_file_object_id("file2.py") is not None
-    assert repository.get_file_object_id("untracked.py") is None
-    assert not repository.is_up_to_date_git_object("untracked.py", "0" * 40)
+    assert "file2.py" in snapshot.object_ids
+    assert "untracked.py" not in snapshot.object_ids
+    assert not snapshot.is_up_to_date_git_object("untracked.py", "0" * 40)
 
 
 def test_does_not_crash_in_a_repository_without_commits(tmp_path: Path):
@@ -398,11 +397,8 @@ def test_get_blobs_data_matches_get_blob_data(repo: MockRepo):
         commit_message="Add empty b.md",
     )
     repository = Repository(repo.working_dir)
-    object_ids = []
-    for path in ["a.py", "b.md", "file1.md"]:
-        object_id = repository.get_file_object_id(path)
-        assert object_id is not None
-        object_ids.append(object_id)
+    head_object_ids = repository.scan().object_ids
+    object_ids = [head_object_ids[path] for path in ["a.py", "b.md", "file1.md"]]
     missing_object_id = "0" * 40
 
     blobs = repository.get_blobs_data([*object_ids, missing_object_id])
@@ -444,13 +440,9 @@ def test_compute_frecency_does_not_crash_on_future_commit():
         )
 
     repository = Repository.__new__(Repository)
-    repository.file_changes = defaultdict(list)
-    repository.file_changes["file1.py"] = [commit_info]
-    repository.frecency_scores = {}
+    scores = repository._calculate_frecency_scores({"file1.py": [commit_info]})
 
-    repository._compute_frecency()
-
-    assert repository.frecency_scores["file1.py"] > 0
+    assert scores["file1.py"] > 0
 
 
 @settings(deadline=None, max_examples=50)
@@ -537,9 +529,9 @@ def test_analyze_files_preserves_whitespace_and_quoted_filenames(repo: MockRepo)
 
     # The newline-named file is the only file in its commit, so it goes
     # through the header-attached path of the git log parser.
-    assert set(weird_names) <= set(repository.file_changes)
+    assert set(weird_names) <= set(repository.snapshot.file_changes)
     for name in weird_names:
-        assert repository.file_changes[name], name
+        assert repository.snapshot.file_changes[name], name
 
 
 def test_analyze_files_supports_valid_committed_empty_repository(tmp_path: Path):
@@ -555,8 +547,8 @@ def test_analyze_files_supports_valid_committed_empty_repository(tmp_path: Path)
 
     repository.analyze_files()
 
-    assert repository.file_changes == {}
-    assert repository.frecency_scores == {}
+    assert repository.snapshot.file_changes == {}
+    assert repository.snapshot.frecency_scores == {}
     assert repository.top_files() == []
 
 
@@ -576,38 +568,38 @@ def _patch_command(mocker, matcher, returncode, stdout="", stderr="failure"):
 def test_analyze_files_keeps_previous_state_when_ripgrep_fails(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
-    previous_frecency = dict(repository.frecency_scores)
+    previous_changes = dict(repository.snapshot.file_changes)
+    previous_frecency = dict(repository.snapshot.frecency_scores)
     assert previous_changes
 
     _patch_command(mocker, lambda cmd: bool(cmd) and cmd[0] == "rg", 2)
     with pytest.raises(RuntimeError, match="ripgrep"):
         repository.analyze_files()
 
-    assert dict(repository.file_changes) == previous_changes
-    assert repository.frecency_scores == previous_frecency
+    assert dict(repository.snapshot.file_changes) == previous_changes
+    assert repository.snapshot.frecency_scores == previous_frecency
 
 
 def test_analyze_files_keeps_previous_state_when_ls_tree_fails(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
-    previous_frecency = dict(repository.frecency_scores)
+    previous_changes = dict(repository.snapshot.file_changes)
+    previous_frecency = dict(repository.snapshot.frecency_scores)
     assert previous_changes
 
     _patch_command(mocker, lambda cmd: bool(cmd) and "ls-tree" in cmd, 128)
     with pytest.raises(RuntimeError, match="ls-tree"):
         repository.analyze_files()
 
-    assert dict(repository.file_changes) == previous_changes
-    assert repository.frecency_scores == previous_frecency
+    assert dict(repository.snapshot.file_changes) == previous_changes
+    assert repository.snapshot.frecency_scores == previous_frecency
 
 
 def test_analyze_files_keeps_previous_state_when_git_log_fails(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
-    previous_frecency = dict(repository.frecency_scores)
+    previous_changes = dict(repository.snapshot.file_changes)
+    previous_frecency = dict(repository.snapshot.frecency_scores)
     assert previous_changes
 
     _patch_command(
@@ -618,15 +610,15 @@ def test_analyze_files_keeps_previous_state_when_git_log_fails(repo, mocker):
     with pytest.raises(RuntimeError, match="git log"):
         repository.analyze_files()
 
-    assert dict(repository.file_changes) == previous_changes
-    assert repository.frecency_scores == previous_frecency
+    assert dict(repository.snapshot.file_changes) == previous_changes
+    assert repository.snapshot.frecency_scores == previous_frecency
 
 
 def test_analyze_files_keeps_previous_state_on_partial_git_log_stream(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
-    previous_frecency = dict(repository.frecency_scores)
+    previous_changes = dict(repository.snapshot.file_changes)
+    previous_frecency = dict(repository.snapshot.frecency_scores)
     assert previous_changes
 
     # Successful exit code but the NUL-delimited stream is cut off in the
@@ -644,14 +636,14 @@ def test_analyze_files_keeps_previous_state_on_partial_git_log_stream(repo, mock
     with pytest.raises(RuntimeError, match="malformed git log output"):
         repository.analyze_files()
 
-    assert dict(repository.file_changes) == previous_changes
-    assert repository.frecency_scores == previous_frecency
+    assert dict(repository.snapshot.file_changes) == previous_changes
+    assert repository.snapshot.frecency_scores == previous_frecency
 
 
 def test_analyze_files_retries_and_publishes_when_head_changes(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
+    previous_changes = dict(repository.snapshot.file_changes)
     assert previous_changes
 
     heads = iter(["1" * 40, "2" * 40, "2" * 40, "2" * 40])
@@ -669,17 +661,17 @@ def test_analyze_files_retries_and_publishes_when_head_changes(repo, mocker):
 
     # First scan observed a moved HEAD and was retried at the new revision.
     assert scanned_heads == ["1" * 40, "2" * 40]
-    assert dict(repository.file_changes) == {
+    assert dict(repository.snapshot.file_changes) == {
         "scanned_2.py": [("###abc", 0, "A <a@b>", "s")]
     }
-    assert repository.frecency_scores == {"scanned_2.py": 1.0}
+    assert repository.snapshot.frecency_scores == {"scanned_2.py": 1.0}
 
 
 def test_analyze_files_raises_and_keeps_state_when_head_keeps_changing(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
-    previous_frecency = dict(repository.frecency_scores)
+    previous_changes = dict(repository.snapshot.file_changes)
+    previous_frecency = dict(repository.snapshot.frecency_scores)
     assert previous_changes
 
     heads = ["1" * 40, "2" * 40] * 4
@@ -693,8 +685,8 @@ def test_analyze_files_raises_and_keeps_state_when_head_keeps_changing(repo, moc
     with pytest.raises(RuntimeError, match="HEAD kept changing"):
         repository.analyze_files()
 
-    assert dict(repository.file_changes) == previous_changes
-    assert repository.frecency_scores == previous_frecency
+    assert dict(repository.snapshot.file_changes) == previous_changes
+    assert repository.snapshot.frecency_scores == previous_frecency
 
 
 def test_analyze_files_raises_outside_a_git_repository(tmp_path: Path):
@@ -707,8 +699,8 @@ def test_analyze_files_raises_outside_a_git_repository(tmp_path: Path):
 def test_failed_head_lookup_preserves_previous_scan_on_existing_branch(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
-    previous_frecency = dict(repository.frecency_scores)
+    previous_changes = dict(repository.snapshot.file_changes)
+    previous_frecency = dict(repository.snapshot.frecency_scores)
     _patch_command(
         mocker,
         lambda cmd: "rev-parse" in cmd and "--verify" in cmd,
@@ -718,8 +710,8 @@ def test_failed_head_lookup_preserves_previous_scan_on_existing_branch(repo, moc
     with pytest.raises(RuntimeError, match="could not resolve HEAD"):
         repository.analyze_files()
 
-    assert dict(repository.file_changes) == previous_changes
-    assert repository.frecency_scores == previous_frecency
+    assert dict(repository.snapshot.file_changes) == previous_changes
+    assert repository.snapshot.frecency_scores == previous_frecency
 
 
 def test_git_log_header_prefix_in_filename_is_not_a_commit(repo):
@@ -737,13 +729,13 @@ def test_git_log_header_prefix_in_filename_is_not_a_commit(repo):
 
     repository.analyze_files()
 
-    assert set(names) <= set(repository.file_changes)
+    assert set(names) <= set(repository.snapshot.file_changes)
 
 
 def test_first_commit_during_unborn_scan_does_not_publish_empty_state(repo, mocker):
     repository = Repository(repo.working_dir)
     repository.analyze_files()
-    previous_changes = dict(repository.file_changes)
+    previous_changes = dict(repository.snapshot.file_changes)
     head = "1" * 40
     mocker.patch.object(
         repository, "_get_scan_head", side_effect=[None, head, head, head]
@@ -751,15 +743,15 @@ def test_first_commit_during_unborn_scan_does_not_publish_empty_state(repo, mock
 
     def completed_scan(revision):
         assert revision == head
-        assert dict(repository.file_changes) == previous_changes
+        assert dict(repository.snapshot.file_changes) == previous_changes
         return {"new.py": []}, {"new.py": 1.0}, {"new.py": "0" * 40}
 
     mocker.patch.object(repository, "_scan_at_head", side_effect=completed_scan)
 
     repository.analyze_files()
 
-    assert dict(repository.file_changes) == {"new.py": []}
-    assert repository.frecency_scores == {"new.py": 1.0}
+    assert dict(repository.snapshot.file_changes) == {"new.py": []}
+    assert repository.snapshot.frecency_scores == {"new.py": 1.0}
 
 
 def test_status_hash_ignores_uncommitted_content_edits(repo):

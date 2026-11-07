@@ -191,7 +191,6 @@ class ProjectLane:
         self.paused_until: float | None = None
         self.pause_reason: str | None = None
         self.closed = False
-        self.cancelled = 0
         self.generation = 0
         # Fairness bookkeeping, in the scheduler's service ticks: when this
         # lane last ran a batch (0 = never), and its last FAIRNESS_BURST runs
@@ -259,7 +258,6 @@ class IndexingScheduler:
         self._seq = count()
         self._registrations = count(1)
         self._stopped = False
-        self._last_lane: ProjectLane | None = None
         self._ticks = count(1)
         self._fairness_burst = (
             FAIRNESS_BURST if fairness_burst is None else fairness_burst
@@ -394,9 +392,12 @@ class IndexingScheduler:
         with self._cond:
             if not lane.closed:
                 lane.closed = True
-                lane.cancelled += len(lane.heap)
                 lane.heap.clear()
-                lane.outstanding_keys.clear()
+                # A running batch still counts until it ends: its write cannot
+                # be cancelled, and nothing may prune while it runs
+                lane.outstanding_keys = (
+                    {lane.in_flight.key} if lane.in_flight is not None else set()
+                )
                 lane.resource.held.discard(lane)
                 if lane in self._lanes:
                     self._lanes.remove(lane)
@@ -447,7 +448,6 @@ class IndexingScheduler:
         chosen.recent.append(tick)
         while len(chosen.recent) > self._fairness_burst:
             chosen.recent.popleft()
-        self._last_lane = chosen
         batch = heapq.heappop(chosen.heap)[2]
         chosen.in_flight = batch
         return ("batch", chosen, batch)
@@ -554,7 +554,7 @@ class IndexingScheduler:
             if lane.closed:
                 # Removed while running: the upsert (if any) already happened
                 # and is harmless; its result must not revive the project.
-                pass
+                lane.outstanding_keys.discard(batch.key)
             elif failure is None:
                 lane.paused_until = None
                 lane.pause_reason = None

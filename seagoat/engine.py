@@ -375,7 +375,7 @@ class Engine:
             raise RepositoryChanged(
                 "repository changed since planning; refusing to prune stale rows"
             )
-        to_delete = list(islice(self._stale_candidates, min(limit, 1000)))
+        to_delete = list(islice(self._stale_candidates, limit))
         # Keep candidates until storage succeeds. Retrying a partly successful
         # deletion is safe because Chroma deletes by ID idempotently.
         self._delete_indexed_ids(to_delete)
@@ -396,18 +396,11 @@ class Engine:
             all_ids.update(source["all_ids"]())
         return all_ids
 
-    def process_chunk(self, chunk):
-        """Single-element compatibility wrapper around process_batch."""
-        self.process_batch([chunk])
-
     def _add_batch_to_collection(self, chunks):
         for source in chain(*self._fetchers.values()):
             cache_batch = source.get("cache_batch")
             if cache_batch is not None:
                 cache_batch(chunks)
-            elif source.get("cache_chunk") is not None:
-                for chunk in chunks:
-                    source["cache_chunk"](chunk)
 
     def query_sync(self, query: str, limit_clue=50, context_above=0, context_below=0):
         """

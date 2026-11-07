@@ -182,8 +182,8 @@ def test_fairness_rotates_through_every_waiting_project():
 
 
 def _last_served(scheduler):
-    lane = scheduler._last_lane
-    assert lane is not None, "the scheduler has not served any lane yet"
+    lane = max(scheduler._lanes, key=lambda lane: lane.last_served)
+    assert lane.recent, "the scheduler has not served any lane yet"
     return lane.project_id
 
 
@@ -418,7 +418,6 @@ def test_unregister_cancels_queued_work_and_stops_delivery():
 
     scheduler.run_until_idle()
     assert gone.writes == [] and gone.events == []
-    assert gone.lane.cancelled == 3
     assert gone.lane.outstanding() == 0
     assert len(stays.completed()) == 1
     # a removed project cannot be revived by submitting again
@@ -453,9 +452,14 @@ def test_unregister_waits_for_a_running_batch_and_drops_its_late_completion():
         # The running upsert cannot be cancelled: removal reports it
         assert lane.unregister(wait=True, timeout=0.05) is False
         assert lane.is_closed()
+        # ...and it still counts, so no prune runs while it writes
+        assert lane.outstanding() == 1
+        assert lane.status()["awaiting_completion"] == 0
 
         release.set()
         assert lane.unregister(wait=True, timeout=5) is True
+        assert lane.outstanding() == 0
+        assert lane.status()["awaiting_completion"] == 0
         # only the running batch ever wrote; the queued one was cancelled
         assert writes == [("a",)]
         # ...and its late completion never reached the removed project

@@ -402,11 +402,6 @@ def initialize(repository: Repository):
             query_text, limit, SimpleNamespace(repository=repository.snapshot)
         )
 
-    def cache_chunk(chunk):
-        # Compatibility wrapper: store a single-element batch immediately so
-        # the baseline Engine keeps working until it switches to cache_batch.
-        cache_batch([chunk])
-
     def probe_embedding():
         _embed([_PROBE_TEXT])
 
@@ -457,7 +452,6 @@ def initialize(repository: Repository):
     return {
         "fetch": fetch,
         "fetch_in_snapshot": fetch_in_snapshot,
-        "cache_chunk": cache_chunk,
         "cache_batch": cache_batch,
         "write_batch": write_batch,
         "probe_embedding": probe_embedding,

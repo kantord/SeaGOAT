@@ -101,20 +101,11 @@ class Repository:
     def __init__(self, repo_path: str):
         self.path = Path(repo_path)
         self.config = get_config_values(self.path)
-        # Legacy mirrors of the published snapshot, for existing callers
-        self.file_changes = defaultdict(list)
-        self.frecency_scores = {}
         # The last successfully published scan. Replaced as a whole, never
         # mutated, so readers may keep using an older one safely.
         self.snapshot = RepositorySnapshot(self, None, {}, {}, {})
         # HEAD's file list for get_status_hash, cached per HEAD commit
         self._status_head_files: tuple[str | None, frozenset[str]] = (None, frozenset())
-
-    def _get_head_hash(self):
-        return subprocess.check_output(
-            ["git", "-C", str(self.path), "rev-parse", "HEAD"],
-            text=True,
-        ).strip()
 
     def _is_file_ignored(self, path: str):
         for pattern in self.config["server"]["ignorePatterns"]:
@@ -122,32 +113,6 @@ class Repository:
                 return True
 
         return False
-
-    def get_file_object_id(self, file_path: str) -> str | None:
-        """
-        Returns the git object id for the current version
-        of a file, or None if the file is not part of HEAD
-        (for example a file that was deleted from the repository,
-        but exists in the working tree as an untracked file)
-        """
-        ls_tree_output = subprocess.check_output(
-            [
-                "git",
-                "-C",
-                str(self.path),
-                "ls-tree",
-                "HEAD",
-                # --: a path starting with "-" is a path, not an option
-                "--",
-                str(file_path),
-            ],
-            text=True,
-        ).split()
-
-        if len(ls_tree_output) < 3:
-            return None
-
-        return ls_tree_output[2]
 
     def get_blob_data(self, object_id: str) -> str:
         data = subprocess.check_output(
@@ -180,9 +145,6 @@ class Repository:
             position += size + 1
 
         return blobs
-
-    def is_up_to_date_git_object(self, file_path: str, git_object_id: str):
-        return self.get_file_object_id(file_path) == git_object_id
 
     def get_status_hash(self):
         """A hash of exactly what a plan is built from: HEAD, and which of
@@ -453,8 +415,6 @@ class Repository:
     def publish(self, snapshot: RepositorySnapshot) -> None:
         """Make a completed snapshot the repository's current one."""
         self.snapshot = snapshot
-        self.file_changes = snapshot.file_changes  # type: ignore[assignment]
-        self.frecency_scores = snapshot.frecency_scores
 
     def analyze_files(self):
         """Scan the repository and publish the result as the current snapshot.
@@ -470,9 +430,6 @@ class Repository:
             cmd.append(f"--max-count={max_commits}")
 
         return cmd
-
-    def _compute_frecency(self):
-        self.frecency_scores = self._calculate_frecency_scores(self.file_changes)
 
     def top_files(self):
         """Ranked files of the currently published snapshot"""
