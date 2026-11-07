@@ -202,8 +202,7 @@ def map_global_line_to_file(cumulative: list[int], global_line: int) -> tuple[in
 
 
 def run_ripgrep(cache_input, terms: list[str], max_count: int) -> list[tuple[int, str]]:
-    # Before the emptiness check: a RipGrepCache is a str subclass whose own
-    # value is "", its data (mmap or bytes) only comes out of encode()
+    # Before the emptiness check, so text input is compared as bytes
     if isinstance(cache_input, str):
         cache_input = cache_input.encode("utf-8")
     if not cache_input or not terms:
@@ -252,10 +251,6 @@ def run_ripgrep(cache_input, terms: list[str], max_count: int) -> list[tuple[int
 def initialize(repository: Repository):
     config = get_config_values(Path(repository.path))
     max_vector_distance = config["server"]["chroma"]["maxVectorDistance"]
-
-    def cache_chunk(_):
-        # Ripgrep does not use chunks
-        pass
 
     def build_state(snapshot: RepositorySnapshot) -> RipGrepCache:
         """Build a complete replacement index; the caller publishes it."""
@@ -343,7 +338,6 @@ def initialize(repository: Repository):
         "fetch": fetch,
         "fetch_in_snapshot": fetch_in_snapshot,
         "build_state": build_state,
-        "cache_chunk": cache_chunk,
         "cache_repo": cache_repo,
     }
     return source

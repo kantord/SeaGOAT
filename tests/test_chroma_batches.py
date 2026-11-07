@@ -148,16 +148,6 @@ def test_cache_batch_empty_is_noop(tmp_path):
     assert sources["indexed_ids"](["id-1"]) == set()
 
 
-def test_cache_chunk_stores_single_chunk_immediately(tmp_path):
-    embedding_function = _DeterministicEmbeddingFunction()
-    sources = _initialize(tmp_path, embedding_function)
-
-    sources["cache_chunk"](_chunk("solo", "only chunk"))
-
-    assert len(embedding_function.calls) == 1
-    assert sources["indexed_ids"](["solo"]) == {"solo"}
-
-
 def test_cache_batch_embedding_failure_is_typed_as_embedding_error(tmp_path):
     embedding_function = _SwitchableEmbeddingFunction()
     sources = _initialize(tmp_path, embedding_function)

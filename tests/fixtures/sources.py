@@ -99,7 +99,6 @@ def mock_sources_context(
         mock_ripgrep.return_value = {
             "fetch": create_mock_query(repo, ripgrep_lines),
             "cache_batch": reset_store,
-            "cache_chunk": reset_store,
             "cache_repo": reset_store,
         }
         chroma_source = {
