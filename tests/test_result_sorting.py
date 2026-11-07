@@ -75,47 +75,71 @@ def test_no_lines(create_prepared_seagoat):
     assert results == []
 
 
-def test_file_edits_influence_order(create_prepared_seagoat, repo):
-    repo.add_file_change_commit(
-        file_name="file_few_edits.md",
-        contents="Some content",
-        commit_message="Edit file_few_edits.md",
-    )
-
-    for i in range(10):
-        for j in range(3):
-            repo.add_file_change_commit(
-                file_name=f"file_with_some_edits_{i}.md",
-                contents=f"Some content {i} {j}",
-                commit_message="Edit file_many_edits.md",
-            )
-            repo.tick_fake_date(days=1)
-
-    for i in range(20):
+def _add_edits(repo, file_name, count):
+    for i in range(count):
         repo.add_file_change_commit(
-            file_name="file_many_edits.md",
+            file_name=file_name,
             contents=f"Some content {i}",
-            commit_message="Edit file_many_edits.md",
+            commit_message=f"Edit {file_name}",
         )
         repo.tick_fake_date(days=1)
 
-    ripgrep_lines = {
-        "file_few_edits.md": [(1, 5.0)],
-        "file_many_edits.md": [(1, 6.0)],
-    }
-    chroma_lines = {
-        "file_few_edits.md": [(2, 5.0)],
-        "file_many_edits.md": [(1, 6.0)],
-        "random.py": [(1, 60.01)],
-        "things.js": [(1, 160.01)],
-    }
-    my_query = "asdfadsfdfdffdafafdsfadsf"
 
+def _sorted_paths(create_prepared_seagoat, ripgrep_lines, chroma_lines):
+    my_query = "asdfadsfdfdffdafafdsfadsf"
     seagoat = create_prepared_seagoat(my_query, ripgrep_lines, chroma_lines)
     seagoat.analyze_codebase()
-    results = seagoat.query_sync(my_query)
+    return [result.gitfile.path for result in seagoat.query_sync(my_query)]
 
-    assert [result.gitfile.path for result in results][0:2] == [
-        "file_many_edits.md",
-        "file_few_edits.md",
-    ]
+
+def test_a_better_score_beats_more_edits(create_prepared_seagoat, repo):
+    _add_edits(repo, "file_many_edits.md", 20)
+    _add_edits(repo, "file_few_edits.md", 1)
+
+    paths = _sorted_paths(
+        create_prepared_seagoat,
+        {"file_few_edits.md": [(1, 5.0)], "file_many_edits.md": [(1, 6.0)]},
+        # A poor match elsewhere in the results must not make that gap count less
+        {"random.py": [(1, 60.0)]},
+    )
+
+    assert paths[:2] == ["file_few_edits.md", "file_many_edits.md"]
+
+
+def test_vector_distance_breaks_a_tie_before_edits(create_prepared_seagoat, repo):
+    _add_edits(repo, "file_many_edits.md", 20)
+    _add_edits(repo, "file_few_edits.md", 1)
+
+    paths = _sorted_paths(
+        create_prepared_seagoat,
+        {"file_few_edits.md": [(1, 5.0)], "file_many_edits.md": [(1, 5.0)]},
+        {"file_few_edits.md": [(2, 7.0)], "file_many_edits.md": [(2, 8.0)]},
+    )
+
+    assert paths == ["file_few_edits.md", "file_many_edits.md"]
+
+
+def test_a_file_with_a_vector_match_wins_a_tie(create_prepared_seagoat, repo):
+    _add_edits(repo, "file_many_edits.md", 20)
+    _add_edits(repo, "file_few_edits.md", 1)
+
+    paths = _sorted_paths(
+        create_prepared_seagoat,
+        {"file_few_edits.md": [(1, 5.0)], "file_many_edits.md": [(1, 5.0)]},
+        {"file_few_edits.md": [(2, 7.0)]},
+    )
+
+    assert paths == ["file_few_edits.md", "file_many_edits.md"]
+
+
+def test_edits_break_a_tie_when_nothing_else_differs(create_prepared_seagoat, repo):
+    _add_edits(repo, "file_many_edits.md", 20)
+    _add_edits(repo, "file_few_edits.md", 1)
+
+    paths = _sorted_paths(
+        create_prepared_seagoat,
+        {"file_few_edits.md": [(1, 5.0)], "file_many_edits.md": [(1, 5.0)]},
+        {"file_few_edits.md": [(2, 7.0)], "file_many_edits.md": [(2, 7.0)]},
+    )
+
+    assert paths == ["file_many_edits.md", "file_few_edits.md"]

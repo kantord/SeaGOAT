@@ -5,7 +5,6 @@ This module allows you to use seagoat as a library
 import asyncio
 import threading
 from collections import deque
-from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from itertools import chain, islice
@@ -17,7 +16,7 @@ from tqdm import tqdm
 from seagoat.cache import Cache
 from seagoat.gitfile import GitFile
 from seagoat.repository import Repository
-from seagoat.result import get_best_score
+from seagoat.result import get_best_score, get_best_vector_score
 from seagoat.snapshot import QuerySnapshot
 from seagoat.sources import chroma, ripgrep
 from seagoat.utils.config import get_config_values
@@ -457,23 +456,6 @@ class Engine:
             result.add_context_lines(-context_above)
             result.add_context_lines(context_below)
 
-    def _get_normalization_function(
-        self, values: Iterable[float], min_=None, max_=None
-    ) -> Callable[[float], float]:
-        if not values:
-            return lambda x: 0
-
-        max_value = max_ or max(values)
-        min_value = min_ or min(values)
-
-        def normalize(value: float) -> float:
-            if max_value != min_value:
-                return (value - min_value) / (max_value - min_value)
-
-            return 1
-
-        return normalize
-
     def _format_results(
         self, results, snapshot: QuerySnapshot, hard_count_limit: int = 1000
     ):
@@ -488,31 +470,15 @@ class Engine:
 
         results_to_sort = list(merged_results.values())
 
-        scores = [get_best_score(x) for x in results_to_sort]
+        frecency_scores = snapshot.repository.frecency_scores
 
-        if not scores:
-            return []
-
-        top_files = {
-            path: 0.0 - position_score
-            for path, position_score in snapshot.repository.frecency_scores.items()
-        }
-
-        normalize_score = self._get_normalization_function(scores, min_=0.0)
-        normalize_file_position = self._get_normalization_function(top_files.values())
-
-        def get_file_position(path: str):
-            normalized_path = Path(path).as_posix()
-
-            if normalized_path not in top_files:
-                return 0
-
-            return top_files[normalized_path]
-
+        # Ripgrep scores take only a few values, so many files tie. Frecency
+        # alone would then favor the most edited files whatever the query was.
         return sorted(
             results_to_sort,
             key=lambda x: (
-                0.7 * normalize_score(get_best_score(x))
-                + 0.3 * normalize_file_position(get_file_position(x.gitfile.path))
+                get_best_score(x),
+                get_best_vector_score(x),
+                -frecency_scores.get(Path(x.gitfile.path).as_posix(), 0.0),
             ),
         )[:hard_count_limit]

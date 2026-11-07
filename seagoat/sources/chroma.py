@@ -282,7 +282,7 @@ def format_results(query_text: str, snapshot, chromadb_results, config):
 
         if path not in files:
             files[path] = Result(query_text, snapshot.get_file(path))
-        files[path].add_line(line, distance)
+        files[path].add_vector_line(line, distance)
 
     return list(files.values())
 
