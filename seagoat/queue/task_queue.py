@@ -72,10 +72,9 @@ class TaskQueue(BaseQueue):
     def get_maintenance_deadline(self, context) -> float | None:
         """Absolute monotonic deadline for the next maintenance pass.
 
-        ``None`` defers ordinary maintenance until the next task wakes the
-        worker: while global jobs are outstanding (their completion events
-        wake it) or cleanup is queued. A paused context still runs its own
-        recovery at ``retry_after``.
+        ``None`` defers ordinary maintenance while a prune task is queued;
+        that task wakes the worker. Outstanding global jobs do not defer it.
+        A paused context still runs its own recovery at ``retry_after``.
         """
         self._ensure_recovery_state(context)
         if context["paused"]:

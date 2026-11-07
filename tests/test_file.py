@@ -76,3 +76,35 @@ def __init__(self):
         "",
         "def __init__(self):",
     ]
+
+
+def test_file_lines_are_read_once_per_git_object(repo, mocker):
+    # Every query builds new GitFile objects for the same files
+    repo.add_file_change_commit(
+        file_name="cached.py", contents="a = 1\nb = 2\n", commit_message="."
+    )
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    read_blob = mocker.spy(repository, "get_blob_data")
+
+    first = repository.get_file("cached.py").lines
+    second = repository.get_file("cached.py").lines
+
+    assert first == second == {1: "a = 1", 2: "b = 2"}
+    assert read_blob.call_count == 1
+
+
+def test_a_new_version_of_a_file_has_its_new_lines(repo):
+    repo.add_file_change_commit(
+        file_name="changed.py", contents="old = 1\n", commit_message="."
+    )
+    repository = Repository(repo.working_dir)
+    repository.analyze_files()
+    assert repository.get_file("changed.py").lines == {1: "old = 1"}
+
+    repo.add_file_change_commit(
+        file_name="changed.py", contents="new = 2\n", commit_message="."
+    )
+    repository.analyze_files()
+
+    assert repository.get_file("changed.py").lines == {1: "new = 2"}

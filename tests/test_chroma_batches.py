@@ -457,22 +457,78 @@ class _DownloadingModel:
         return [[0.0, 1.0, 0.0] for _ in input]
 
 
-def test_first_model_downloads_of_index_and_query_instances_do_not_overlap():
+def _onnx_config(**arguments):
+    import copy
+
+    from seagoat.utils.config import DEFAULT_CONFIG
+
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    config["server"]["chroma"]["embeddingFunction"] = {
+        "name": "ONNXMiniLM_L6_V2",
+        "arguments": arguments,
+    }
+    return config
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        pytest.param(None, id="default"),
+        pytest.param(
+            _onnx_config(preferred_providers=["CPUExecutionProvider"]),
+            id="ONNXMiniLM_L6_V2 by name",
+        ),
+    ],
+)
+def test_first_model_downloads_of_index_and_query_instances_do_not_overlap(config):
+    import copy
+
+    from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
+        ONNXMiniLM_L6_V2,
+    )
+
+    from seagoat.utils.config import DEFAULT_CONFIG
+
+    config = config or copy.deepcopy(DEFAULT_CONFIG)
     _DownloadingModel.state.update(downloading=0, peak=0)
-    instances = [
-        chroma._DefaultEmbeddingFunction(model_class=_DownloadingModel)
-        for _ in range(2)
-    ]
+    # Fresh instances: shared ones may have loaded the model in another test
+    with patch.dict(chroma._EMBEDDING_FUNCTIONS, clear=True):
+        instances = [
+            chroma._get_embedding_function(config, role)
+            for role in (chroma._INDEX_ROLE, chroma._QUERY_ROLE)
+        ]
     start = threading.Barrier(2)
+    downloads = []
+
+    def download(model):
+        _DownloadingModel()(["hello"])
+        downloads.append(model)
 
     def first_call(function):
         start.wait()
         function(["hello"])
 
-    threads = [threading.Thread(target=first_call, args=(f,)) for f in instances]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join(10)
+    with (
+        patch.object(ONNXMiniLM_L6_V2, "_download_model_if_not_exists", download),
+        patch.object(ONNXMiniLM_L6_V2, "_forward", lambda self, texts: [[0.0]]),
+    ):
+        threads = [threading.Thread(target=first_call, args=(f,)) for f in instances]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(10)
 
+    assert len(downloads) == 2
     assert _DownloadingModel.state["peak"] == 1
+
+
+def test_onnx_model_chosen_by_name_limits_threads_only_for_indexing():
+    config = _onnx_config(preferred_providers=["CPUExecutionProvider"])
+    with patch.dict(chroma._EMBEDDING_FUNCTIONS, clear=True):
+        index_fn = chroma._get_embedding_function(config, chroma._INDEX_ROLE)
+        query_fn = chroma._get_embedding_function(config, chroma._QUERY_ROLE)
+
+    assert isinstance(index_fn, chroma._ThreadLimitedONNXMiniLM)
+    assert not isinstance(query_fn, chroma._ThreadLimitedONNXMiniLM)
+    assert index_fn._preferred_providers == ["CPUExecutionProvider"]
+    assert query_fn._preferred_providers == ["CPUExecutionProvider"]

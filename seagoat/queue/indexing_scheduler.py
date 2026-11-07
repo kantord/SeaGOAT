@@ -355,6 +355,13 @@ class IndexingScheduler:
                 lane.outstanding_keys.discard(batch.key)
             lane.heap.clear()
             self._queue_batches_locked(lane, batches)
+            if not lane.heap:
+                # With nothing queued, no batch or probe would run to clear a
+                # pause or a hold left by a failure. The resource stays down,
+                # so the next plan still probes it before writing.
+                lane.paused_until = None
+                lane.pause_reason = None
+                lane.resource.held.discard(lane)
             self._cond.notify_all()
 
     def _ack(self, lane: ProjectLane, batch: IndexBatch) -> None:

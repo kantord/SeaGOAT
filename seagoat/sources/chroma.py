@@ -63,7 +63,26 @@ _PROBE_TEXT = "probe"
 _GET_PAGE_SIZE = 1000
 
 
-class _ThreadLimitedONNXMiniLM(ONNXMiniLM_L6_V2):
+class _LockedDownloadONNXMiniLM(ONNXMiniLM_L6_V2):
+    """ONNXMiniLM_L6_V2 whose model download never overlaps another one.
+
+    The original downloads and unpacks the model on its first call (not in
+    its constructor), into a folder shared by all instances, with no lock of
+    its own. Overlapping downloads can leave a truncated model.onnx that is
+    never downloaded again.
+    """
+
+    _model_files_ready = False
+
+    def _download_model_if_not_exists(self) -> None:
+        if self._model_files_ready:
+            return
+        with _MODEL_LOAD_LOCK:
+            super()._download_model_if_not_exists()
+        self._model_files_ready = True
+
+
+class _ThreadLimitedONNXMiniLM(_LockedDownloadONNXMiniLM):
     """ONNXMiniLM_L6_V2 with a capped intra-op thread count.
 
     chromadb's class has no option for the thread count: its ``model`` is a
@@ -124,21 +143,7 @@ class _DefaultEmbeddingFunction(EmbeddingFunction[Documents]):
     # chromadb requires this exact parameter name
     def __call__(self, input: Documents) -> Embeddings:  # pylint: disable=redefined-builtin
         if self._model is None:
-            # The first call of the indexing and the query instance must not run
-            # at the same time: ONNXMiniLM_L6_V2 downloads and unpacks the model
-            # on its first call (not in its constructor), into a shared folder,
-            # with no lock of its own. Overlapping downloads can leave a
-            # truncated model.onnx that is never downloaded again.
-            with _MODEL_LOAD_LOCK:
-                if self._model is None:
-                    from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import (
-                        ONNXMiniLM_L6_V2,
-                    )
-
-                    model = (self._model_class or ONNXMiniLM_L6_V2)()
-                    embeddings = model(input)
-                    self._model = model
-                    return embeddings
+            self._model = (self._model_class or _LockedDownloadONNXMiniLM)()
         return self._model(input)
 
     @staticmethod
@@ -192,7 +197,7 @@ def chunk_metadata(chunk) -> Metadata:
     }
 
 
-def _get_embedding_function(config, role=_INDEX_ROLE):
+def _get_embedding_function(config, role=_INDEX_ROLE) -> Any:
     """One embedding function instance per (config embedding key, role).
 
     The indexing instance (role "index") embeds batches and probes; the
@@ -222,6 +227,14 @@ def _get_embedding_function(config, role=_INDEX_ROLE):
                 function = getattr(module, class_name)(**arguments)
             else:
                 function_class = getattr(embedding_functions, name)
+                if function_class is ONNXMiniLM_L6_V2:
+                    # The same model as the default: same download lock, and
+                    # the same thread cap for indexing
+                    function_class = (
+                        _ThreadLimitedONNXMiniLM
+                        if role == _INDEX_ROLE
+                        else _LockedDownloadONNXMiniLM
+                    )
                 function = function_class(**arguments)
             _EMBEDDING_FUNCTIONS[key] = function
         return function
@@ -232,7 +245,10 @@ def _get_embedding_lock(config, role=_INDEX_ROLE):
 
     User-configured embedding functions are not known to be thread-safe, so
     calls to the same instance take turns. Indexing and queries use
-    different instances, so they never wait for each other.
+    different instances, so they never wait for each other. Some functions
+    share one model between instances (SentenceTransformerEmbeddingFunction
+    keeps one per model name), so that model can still run on both threads
+    at once.
     """
     key = (embedding_resource_key(config), role)
     with _EMBEDDING_FUNCTION_LOCK:

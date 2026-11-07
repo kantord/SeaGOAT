@@ -502,9 +502,7 @@ def test_default_embedding_function_loads_the_model_once_while_indexing(
 ):
     # Goes through a real collection: chromadb replaces some embedding
     # functions with its own, so calling ours directly proves nothing
-    model_class = mocker.patch(
-        "chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2.ONNXMiniLM_L6_V2"
-    )
+    model_class = mocker.patch.object(chroma, "_LockedDownloadONNXMiniLM")
     model_class.return_value.side_effect = lambda texts: [
         np.zeros(384, dtype=np.float32) for _ in texts
     ]

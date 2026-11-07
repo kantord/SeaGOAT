@@ -159,7 +159,8 @@ class Engine:
 
     def close(self) -> None:
         """Release the published snapshot's resources (once readers finish)"""
-        with self._snapshot_lock:
+        # A rebuild that is still running would publish after this
+        with self._build_lock, self._snapshot_lock:
             retired, self._snapshot = self._snapshot, None
         if retired is not None:
             retired.release()
