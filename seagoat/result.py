@@ -1,4 +1,5 @@
 import functools
+import math
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -36,6 +37,13 @@ def get_best_score(result) -> float:
     best_score *= get_file_penalty_factor(result.gitfile.absolute_path)
 
     return best_score
+
+
+def get_best_vector_score(result) -> float:
+    """The file's closest vector search match, or infinity if it has none."""
+    return result.best_vector_distance * get_file_penalty_factor(
+        result.gitfile.absolute_path
+    )
 
 
 class ResultLineType(Enum):
@@ -111,11 +119,16 @@ class Result:
         self.gitfile: GitFile = gitfile
         self.query_text: str = query_text
         self.lines: dict[int, ResultLine] = {}
+        self.best_vector_distance: float = math.inf
 
     def __repr__(self) -> str:
         return f"Result(path={self.gitfile.path})"
 
     def extend(self, other) -> None:
+        self.best_vector_distance = min(
+            self.best_vector_distance, other.best_vector_distance
+        )
+
         for line_number, other_line in other.lines.items():
             existing_line = self.lines.get(line_number)
 
@@ -158,6 +171,10 @@ class Result:
             self.gitfile.lines[line],
             types,
         )
+
+    def add_vector_line(self, line: int, vector_distance: float) -> None:
+        self.add_line(line, vector_distance)
+        self.best_vector_distance = min(self.best_vector_distance, vector_distance)
 
     def get_lines(self):
         best_score = get_best_score(self)

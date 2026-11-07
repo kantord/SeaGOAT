@@ -23,7 +23,7 @@ def mock_sources_context(
     def reset_store(*args, **kwargs):
         pass
 
-    def create_mock_query(repo, file_lines):
+    def create_mock_query(repo, file_lines, add_line=Result.add_line):
         def mock_query(_, __):
             results = []
             repository = Repository(repo.working_dir)
@@ -32,7 +32,7 @@ def mock_sources_context(
                 gitfile = repository.get_file(file_path)
                 result = Result("", gitfile)
                 for line, vector_distance in lines:
-                    result.add_line(line=line, vector_distance=vector_distance)
+                    add_line(result, line, vector_distance)
                 results.append(result)
 
             del repository
@@ -103,7 +103,7 @@ def mock_sources_context(
             "cache_repo": reset_store,
         }
         chroma_source = {
-            "fetch": create_mock_query(repo, chroma_lines),
+            "fetch": create_mock_query(repo, chroma_lines, Result.add_vector_line),
             "cache_batch": cache_batch,
             "write_batch": write_batch,
             "cache_chunk": cache_chunk,
