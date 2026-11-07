@@ -235,6 +235,12 @@ async fn run_steps(
                 }
                 ok
             }
+            Step::Try { name, steps, catch } => {
+                let passed = Box::pin(run_steps(g, cfg, steps, conv, r)).await?;
+                let ok = passed || Box::pin(run_steps(g, cfg, catch, conv, r)).await?;
+                outcome(cfg, r, name, ok, json!({"caught": !passed}));
+                ok
+            }
             Step::Once {
                 name,
                 max_age_s,
@@ -1568,6 +1574,104 @@ mod tests {
                 .map(|(_, ok)| *ok)
                 .eq([false, false, true]),
             "{outcomes:?}"
+        );
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
+    /// A try passes when its steps pass (its catch does not run), or when its catch passes
+    /// after a failure; an empty catch ignores the failure; a failing catch fails the try.
+    #[tokio::test]
+    #[ignore]
+    async fn try_blocks_against_a_real_guest() {
+        let image = std::env::var("WORKER_TEST_IMAGE").expect("WORKER_TEST_IMAGE");
+        let g = Guest::boot(&image, 2, 2048).await.unwrap();
+        let res = check_try(&g).await;
+        g.remove().await;
+        res.unwrap();
+    }
+
+    async fn check_try(g: &Guest) -> Result<()> {
+        let dir = std::env::temp_dir().join(format!("worker-try-test-{}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        let cfg = Config {
+            key: String::new(),
+            api_url: String::new(),
+            model: String::new(),
+            extra_body: Map::new(),
+            pin_provider: false,
+            pinned: Mutex::new(None),
+            base: "BASE".into(),
+            max_tokens: 1,
+            start: Instant::now(),
+            transcript: dir.join("transcript.jsonl"),
+            events: Events::new(dir.join("events.jsonl")),
+            once_dir: None,
+            mode: crate::out::Mode::Json(vec![]),
+        };
+        let program = crate::program::parse(
+            r#"{"steps": [
+              {"type": "try", "name": "passes", "steps": [
+                {"type": "command", "name": "ok", "run": "echo ok >> /tmp/ran"}],
+               "catch": [{"type": "command", "name": "unused", "run": "echo unused >> /tmp/ran"}]},
+              {"type": "try", "name": "ignores", "steps": [
+                {"type": "command", "name": "fail1", "run": "exit 1"},
+                {"type": "command", "name": "skipped", "run": "echo skipped >> /tmp/ran"}]},
+              {"type": "try", "name": "handles", "steps": [
+                {"type": "command", "name": "fail2", "run": "exit 2"}],
+               "catch": [{"type": "command", "name": "handler", "run": "echo handler >> /tmp/ran"}]},
+              {"type": "try", "name": "rethrows", "steps": [
+                {"type": "command", "name": "fail3", "run": "exit 3"}],
+               "catch": [{"type": "command", "name": "bad-handler", "run": "exit 4"}]},
+              {"type": "command", "name": "never", "run": "echo never >> /tmp/ran"}
+            ]}"#,
+            "",
+        )?;
+        let mut conv = Conversation {
+            messages: vec![],
+            pinned: None,
+        };
+        let mut r = Report {
+            status: Status::Red,
+            turns: 0,
+            cost_usd: 0.0,
+            reply_tokens: 0,
+            tree: String::new(),
+            steps: vec![],
+            error: None,
+        };
+        g.sh("rm -f /tmp/ran", BASH_TIMEOUT).await?;
+        let ok = run_steps(g, &cfg, &program.steps, &mut conv, &mut r)
+            .await
+            .map_err(|_| anyhow!("stopped"))?;
+        ensure!(!ok, "a try whose catch fails must fail the program");
+        let ran = g.sh("cat /tmp/ran", BASH_TIMEOUT).await?.text;
+        ensure!(ran.split_whitespace().eq(["ok", "handler"]), "ran: {ran}");
+        let tries: Vec<(String, bool, bool)> = r
+            .steps
+            .iter()
+            .filter(|s| s.get("caught").is_some())
+            .map(|s| {
+                (
+                    s["name"].as_str().unwrap_or("").to_string(),
+                    s["ok"] == true,
+                    s["caught"] == true,
+                )
+            })
+            .collect();
+        let want = [
+            ("passes", true, false),
+            ("ignores", true, true),
+            ("handles", true, true),
+            ("rethrows", false, true),
+        ];
+        ensure!(
+            tries
+                .iter()
+                .map(|(n, ok, c)| (n.as_str(), *ok, *c))
+                .eq(want),
+            "{tries:?} / {:?}",
+            r.steps
         );
         std::fs::remove_dir_all(&dir)?;
         Ok(())

@@ -17,7 +17,14 @@
       "name": "work",
       "retries": 2,
       "steps": [
-        {"type": "llm", "name": "model", "max_turns": 50},
+        {"type": "try", "name": "attempt", "steps": [
+          {"type": "llm", "name": "model", "max_turns": 50}
+        ], "catch": [
+          {"type": "message", "name": "wrap-up", "role": "user", "text": "You are out of turns. Finish the edit you are in the middle of, then stop. The checks run on what you have."},
+          {"type": "try", "name": "finish-anyway", "steps": [
+            {"type": "llm", "name": "finish", "max_turns": 5}
+          ]}
+        ]},
         {"type": "command", "name": "changed", "run": "git add -A && ! git diff --cached --quiet \"$WORKER_BASE\""},
         {"type": "command", "name": "lint", "run": "git add -A && f=$(git diff --cached --name-only --diff-filter=d \"$WORKER_BASE\") && lint() { printf '%s' \"$f\" | xargs -r -d '\n' uv run prek run --files; } && { lint || { git add -A && lint; }; }", "show": "failure"},
         {"type": "command", "name": "gate", "run": "git add -A && bash tools/worker/verify.sh", "show": "failure"}
