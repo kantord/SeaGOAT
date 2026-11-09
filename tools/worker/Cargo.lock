@@ -2354,9 +2354,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f7eeda1df06e0ad57656850810d5c564601039f6cfb2b00d8e03958c857862e"
+checksum = "a48c0d71742e29110b3f0f6111a94460cd980c876b5ec36533ff005f2c044fb1"
 dependencies = [
  "astral-tokio-tar",
  "async-compression",
@@ -2412,9 +2412,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-agent-client"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6433fed6d8ac4e7356e6c70fc72b2bdef6cf49e339972330acae9e0012a223f8"
+checksum = "7dcd3afa022fc65b3d673efe46c14029ef083a2021466adc9f72879aafc57cd3"
 dependencies = [
  "bytes",
  "ciborium",
@@ -2433,9 +2433,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-control-client"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b54fc3f5d564f338befe2eb8b4d89cfd7cc652ec293770fdb84034c1942aef77"
+checksum = "65e05ab54037b86912c14ce6d87cade2c6a215765395def5694b3e8d08bacd90"
 dependencies = [
  "microsandbox-protocol",
  "microsandbox-protocol-client",
@@ -2450,25 +2450,27 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-db"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e099e9bd5173bb22447d0e573d07d626f00516ddde88badba51dbb53dcfb7ff"
+checksum = "8fea3338d282bce3c7728f82e27f49945ffd829823132f2eec5c0b98a5dcf0f7"
 dependencies = [
  "async-trait",
+ "libc",
  "microsandbox-types",
  "sea-orm",
  "semver",
  "serde_json",
  "sqlx",
+ "tempfile",
  "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "microsandbox-filesystem"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ee78baab9aeba002cb094fe0155ce69aadc0ef8a7046b66396d12b2d8520248"
+checksum = "9395c8ddf3ce4589685adcc9500f8517785ad1c09aa4ef62ebb651936fc86949"
 dependencies = [
  "bincode",
  "crossbeam-channel",
@@ -2488,9 +2490,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-image"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b37ff469ea2f6a20ad3153d91dc46f1775941317b6d6ed228e9d1158b06f9685"
+checksum = "3f0f59c4d03f0de232020552c4053d4c7779615b3c7ff299e3a168edca109578"
 dependencies = [
  "astral-tokio-tar",
  "async-compression",
@@ -2521,9 +2523,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-metrics"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0be1156a2ab674cc4d7375cd03cf84de8b706b50c190e57488f82d6e46a69061"
+checksum = "9290d47709d14a4b17981a1a73989520dba0e9e1257bb4e8469fa22f10c27d07"
 dependencies = [
  "chrono",
  "libc",
@@ -2533,9 +2535,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-migration"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0440779070db3805ccc092c7f1ea0839402e009a054ed14b47a0b857643507a9"
+checksum = "082e0d3edd1930d1ec5b296ee4bb59dfaa08f94910a467a51543ab2ce64c720c"
 dependencies = [
  "microsandbox-db",
  "sea-orm-migration",
@@ -2544,9 +2546,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-network"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97e9a1c88020f516269dda39647bf239b6b43bee3ed36fb1b3dc1d68a7261bb6"
+checksum = "11594ea0b827465a16739168e5a8b5bb79ca7a17b7a6ce7c9831c9f1535db312"
 dependencies = [
  "hickory-proto",
  "ipnetwork",
@@ -2561,9 +2563,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-protocol"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ca0edc07b1b11a08d59eef7aa91f746cd2ca26280c6e33c5d78c6a570e12f50"
+checksum = "719c764b698c37361e9a81bfdb623b7271b1609835bfb6727b35951239d4a3dc"
 dependencies = [
  "bytes",
  "chrono",
@@ -2579,9 +2581,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-protocol-client"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6eeb830ab228c90d427387e57d54ceddc1666b86aef526c7029578fba2d9d4cd"
+checksum = "90df9f1750407ea229432c76f5aeec62279817369e21a31fb0c3f4f89d1ea491"
 dependencies = [
  "microsandbox-protocol",
  "serde",
@@ -2592,9 +2594,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-runtime"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "462a1fc0c05b3c76a6b4724051cb2e654a071f77eb0fb8c9af2b47a0b435965d"
+checksum = "4fb110c301deada0462879db1f1d9b174afadac9f9f3aae4a2a6a6667116ce23"
 dependencies = [
  "base64 0.23.1",
  "cap-primitives",
@@ -2626,9 +2628,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-types"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a418b580e1bd4cc4438349b2b1d7a6f36ecf2168ba749ca547efe470baeb388a"
+checksum = "4be9faca7014dc121c7dd193146077a08e455a76607da3bf719da529e360f912"
 dependencies = [
  "chrono",
  "hex",
@@ -2644,9 +2646,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-types-macros"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6cbf91b8738ee0fd7e85b28c4f0005b391fd907adf9378b408e37b02a67857d"
+checksum = "3c15db2b7b02c652b7f45ed77c036b4d0387da348ea553661bc68d90ebc5dc08"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2655,9 +2657,9 @@ dependencies = [
 
 [[package]]
 name = "microsandbox-utils"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fde88f2c9b5ce2282237c3db5d980381049af9960c7ba2d6fd21afd60dd8877"
+checksum = "3d6d01228e49db35c37260e7e2685cc3d141dd3844ccd2ed9f1a2c75b359258f"
 dependencies = [
  "dirs",
  "libc",
@@ -2736,9 +2738,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d96bbf2bc289bfe0c1365e65b24ecb0a49ad59f5ec3078d91a34aa739572cf75"
+checksum = "9cc8c72e61d6342ed8f381f049e5659c3c3c7a2d589eb2407f4abecc5aa633f2"
 dependencies = [
  "crossbeam-channel",
  "kvm-bindings",
@@ -2756,9 +2758,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_arch"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c9433d7cef70cb736af38753f8335454705b7f908b39d0fa4972a06b31ce254"
+checksum = "ac38ac5290daf53011289f0b3420ce69e577db101b39fa4ac8c73869635dc9e1"
 dependencies = [
  "kvm-bindings",
  "kvm-ioctls",
@@ -2788,9 +2790,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_devices"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b039a4c3e2f3b81abc15f4c761d249628fe7717259f32785869f7a8ffce50fe7"
+checksum = "a030aa4be892ea9b2215c2828d2ce02d77d4b02133f0af6dc842bae5a802ed87"
 dependencies = [
  "bincode",
  "bitflags 1.3.2",
@@ -2819,9 +2821,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_hvf"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b881c01f289b2151552c0b1bd5f4e992665c5c2fc0d88805bc0628dd91bb56b5"
+checksum = "b7eafee262ce993bafc612abb3dd6582c102f0f462f15fb22159bf04184dc908"
 dependencies = [
  "crossbeam-channel",
  "libloading",
@@ -2832,9 +2834,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_kernel"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49cbd9f0d74adebae3d4621658171e530c4d0ab9ba701bf3c4ead31252976017"
+checksum = "51ad8e40e3fe51a18effce0245e099c318e8302e851e7917eef296d46bbe143d"
 dependencies = [
  "msb-vm-memory",
  "msb_krun_utils",
@@ -2842,9 +2844,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_polly"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6088d48466c67615e161eb9a565627952c12aa877de254adfaa3d06d7fb8fc3d"
+checksum = "fad6d7aae45e030546e31349f1c8fe2d257223b95360f84ca80b6bc0ef232f22"
 dependencies = [
  "libc",
  "msb_krun_utils",
@@ -2861,9 +2863,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_utils"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3af020b5b380c50fbe1ac58af1e406b0ab5129387a53f510140543a9225f5658"
+checksum = "4b4ecd659171dc62624ff73007f5abdf4fffaf48131ef00fed1ea3d164fb2e6f"
 dependencies = [
  "bitflags 1.3.2",
  "crossbeam-channel",
@@ -2877,9 +2879,9 @@ dependencies = [
 
 [[package]]
 name = "msb_krun_vmm"
-version = "0.1.41"
+version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "400ebdfc24faad502a5f0ef7e1e91625873dfb54cf4ed7aa8b3ad6944f46c0bf"
+checksum = "284e283d6f1b5e5496afe615c6a4912e41b8b0210d40b1e7d4e0647a59ed6175"
 dependencies = [
  "bincode",
  "bzip2",
@@ -4854,9 +4856,9 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "typed-path"
-version = "0.12.4"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54ec2755506471f54baf5e4bb5499d8e510cc1caf271270e778a736bd2d7336c"
+checksum = "9ce898823d8cd0f028662d2f349694b1af0a5cc9be83f1d213a00d3147445e1e"
 
 [[package]]
 name = "typenum"
@@ -4923,9 +4925,9 @@ checksum = "6d49784317cd0d1ee7ec5c716dd598ec5b4483ea832a2dced265471cc0f690ae"
 
 [[package]]
 name = "ureq"
-version = "3.5.0"
+version = "3.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cde93ff05758a36a851a398a772b0b79a82fbe3c186a46f2696baaeaf84c966b"
+checksum = "e7be76686bdf7198002062423ca0d8cf9b75a27c8e1de804513b97e97b555d9d"
 dependencies = [
  "base64 0.23.1",
  "cookie_store",
@@ -4944,9 +4946,9 @@ dependencies = [
 
 [[package]]
 name = "ureq-proto"
-version = "0.6.5"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "841583fc36089d7d59419568ae157f43a5a03a2e5a81ba87c77d1596ef46e922"
+checksum = "622dce33c252115466d83f63e9744a18f12b4406aae51a01c15ad8fcf1185eb3"
 dependencies = [
  "base64 0.23.1",
  "http",
